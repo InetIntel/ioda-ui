@@ -1,0 +1,412 @@
+.modal {
+  &__background {
+    background: $color-black;
+    opacity: 0.7;
+    width: 100%;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+  }
+
+  &__window {
+    background: $color-background-white;
+    position: fixed;
+    top: 12vh;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 2px solid $color-table-cell-border;
+    box-shadow: $box-shadow;
+    width: calc(100% - 9rem);
+    z-index: 99999;
+    overflow-y: auto;
+    height: 84vh;
+    padding: 1.5rem;
+    border-radius: 3px;
+
+    @include respond(phone-440) {
+      width: calc(100% - 2rem);
+    }
+  }
+
+  &__row {
+    @include panel;
+
+    &--annotation {
+      padding: 0 0 2rem;
+    }
+  }
+
+  &__content {
+    .col-2-of-3 {
+      @include panel;
+
+      & .horizon-series .label {
+        background-color: rgba(255,255,255,0.4);
+        padding: 0 0.4rem;
+        border-radius: 0.3rem;
+        max-height: 100%;
+      }
+    }
+  }
+
+  &__heading {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+
+    &-title {
+      display: flex;
+
+      & .heading-h2 {
+        margin-right: 0.5rem;
+      }
+
+      & .help__modal {
+        @include mobileTooltip();
+      }
+    }
+  }
+
+  &__hts-count {
+    font-size: 1.1rem;
+  }
+
+  &__button {
+    @include button;
+    margin: 0;
+    width: 2.2rem;
+    height: 2.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.4rem;
+    line-height: 2.5rem;
+
+    &--table {
+      @include button;
+      height: 2.2rem;
+      min-width: 8.5rem;
+      font-size: 1rem;
+      margin: 0;
+
+      &:first-child {
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  &__loadAll {
+    margin: 0.5rem 0 1rem;
+
+    &-button {
+      @include buttonAsTextLink;
+    }
+
+    & strong {
+      padding: 0 0.3rem;
+    }
+
+    &-spinner {
+      height: 2.5rem;
+      animation: loading-spinner 1.2s linear infinite;
+    }
+  }
+
+  &__loading-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  &__table {
+    margin-bottom: 1.5rem;
+
+
+    &-heading {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    &-buttons {
+      display: flex;
+    }
+
+    & tbody {
+      max-height: 42.5rem;
+    }
+
+    &--asn {
+      tbody {
+        max-height: 88rem;
+      }
+    }
+
+    &-container {
+      @include panel;
+      margin-bottom: $gutter-vertical-small;
+    }
+
+    &-error {
+      background-color: $color-error-background;
+      padding: 0.75rem;
+      text-align: center;
+      font-weight: 700;
+      border-radius: 3px;
+      color: $color-white;
+      margin: 1rem 0;
+    }
+  }
+
+  &__map {
+    &-container {
+      @include panel;
+    }
+  }
+
+  &__chart {
+    margin-bottom: 1.5rem;
+  }
+}
+
+// safari-only media query
+@media not all and (min-resolution:.001dpcm)
+{ @supports (-webkit-appearance:none) {
+
+  .modal__button {
+    align-items: flex-end;
+  }
+}}
+
+.chartShare__modal {
+  &--disabled {
+    display: none;
+  }
+
+  &__control-panel-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  &__control-panel-col {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+
+    &:not(:first-child) {
+      margin-left: 2rem;
+    }
+
+    &--toggle {
+      justify-content: flex-start;
+    }
+
+    & .toggle {
+      margin-left: 2rem;
+
+      &__container {
+        width: 5.2rem;
+
+        &--disabled .dialog-button {
+          left: 0 !important;
+        }
+
+        & .dialog-button {
+          left: 3.5rem;
+        }
+      }
+    }
+  }
+
+  & #annotation {
+    background: $color-white;
+  }
+
+  & .overview {
+    &__buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      z-index: 15;
+      position: relative;
+    }
+
+    &__timestamp {
+      position: relative;
+      z-index: 15;
+    }
+  }
+
+  & .annotation {
+    position: relative;
+    padding: 2rem;
+
+    &__canvas {
+    position: absolute;
+
+      &--drawingLocked {
+        pointer-events: none;
+      }
+    }
+  }
+
+  .related__modal-button-img {
+    height: 2.4rem;
+    width: 2.4rem;
+  }
+
+  & .chartShare__button {
+    background: linear-gradient(2deg, #1A5DAE, #598DCC, #1A5DAE, #598DCC);
+    color: $color-white;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    background-size: 100% 300%;
+    transition: all .4s ease-in-out;
+    position: relative;
+    z-index: 10;
+    box-shadow: inset 0 0.2rem 0.1rem rgba(255, 255, 255, .2), inset 0 0 0 0.1rem rgba(0, 0, 0, .15), 0 0.1rem 0 rgba(255, 255, 255, .15);
+    height: 3rem;
+    font-size: 1rem;
+    margin: 0;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &-blob {
+      display: flex;
+    }
+
+    &:not(:first-child) {
+      border-left: 0.2rem solid $color-primary-light;
+    }
+
+    &:first-child {
+      border-radius: 0.5rem 0 0 0.5rem;
+    }
+
+    &:last-child {
+      border-radius: 0 0.5rem 0.5rem 0;
+    }
+  }
+
+  & .textbox {
+    border: 2px solid $color-blue-border;
+    background-color: rgba(255, 255, 255, 0.3);
+    z-index: 15;
+    padding: 0;
+    border-radius: 0.4rem;
+    max-width: 42rem;
+    min-height: 3.3rem;
+    font-size: 1.3rem;
+    color: $color-primary;
+    text-align: center;
+    font-family: $font-lato-regular;
+    resize: none;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute!important;
+    top: 50%;
+
+    &__textarea {
+      height: inherit;
+      width: 100%;
+      border: none;
+      font-family: $font-lato-regular;
+      font-size: 1.3rem;
+      resize: none;
+      background: rgba(255,255,255,0.35);
+      color: $color-primary;
+      padding: 0.5rem;
+
+      &:focus-visible {
+        outline: none;
+      }
+    }
+  }
+
+  & .arrow {
+    position: absolute!important;
+    background-color: transparent;
+    z-index: 15;
+    padding: 0.5rem;
+    max-width: 26rem;
+    max-height: 18rem;
+    resize: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-repeat: no-repeat;
+    background-size: 1rem 1rem;
+    top: 50%;
+
+    &:hover .arrow__rotate {
+      display: flex;
+    }
+
+    &__image {
+      height: inherit;
+      width: 100%;
+      pointer-events: none;
+
+      &:hover + .arrow__rotate {
+        display: flex;
+      }
+    }
+
+    &__rotate {
+      @include button;
+      width: 2.4rem;
+      height: 2.4rem;
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 0;
+      justify-content: center;
+      align-items: center;
+      display: none;
+
+      &-icon {
+        height: 2.1rem;
+        width: 2.1rem;
+      }
+    }
+  }
+
+  & .chartShare__button--download {
+    width: 100%;
+    min-width: 26rem;
+    max-width:52rem;
+    height: 5rem;
+    margin: 3rem auto 0;
+    border-radius: 0.5rem;
+    background: linear-gradient(2deg, #1A5DAE, #598DCC, #1A5DAE, #598DCC);
+    color: $color-white;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    background-size: 100% 300%;
+    transition: all .4s ease-in-out;
+    position: relative;
+    z-index: 10;
+    box-shadow: inset 0 0.2rem 0.1rem rgba(255, 255, 255, .2), inset 0 0 0 0.1rem rgba(0, 0, 0, .15), 0 0.1rem 0 rgba(255, 255, 255, .15);
+    font-size: 2.4rem;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &-img {
+      height: 4rem;
+      width: 4rem;
+      margin-right: 1rem;
+    }
+  }
+}
