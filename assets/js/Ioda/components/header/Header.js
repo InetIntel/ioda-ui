@@ -90,7 +90,7 @@ class Nav extends Component {
                                     </a>
                                 </li>
                                 <li className="header__item">
-                                    <a href="https://www.caida.org/projects/ioda/" className="header__link" onClick={() => this.toggleMenu()}>
+                                    <Link to="/project" className="header__link" onClick={() => this.toggleMenu()}>
                                         {projectInfo}
                                     </a>
                                 </li>

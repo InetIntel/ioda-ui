@@ -285,6 +285,11 @@
     "link4": "Apr 2019 Benin",
     "link5": "Jan 2019 Gabon"
   },
+  "projectinfo": {
+    "title": "Project Information",
+    "text": "IODA (Internet Outage Detection and Analysis) is a project that originally began at CAIDA at the University of California San Diego, but has since transferred to the Internet Intelligence Lab at the Georgia Institute of Technology.",
+    "link1": "Original CAIDA project page"
+  },
   "iranReport2020": {
     "title": "An analysis of large Internet outages affecting Iranian networks in early 2020",
     "authors": "Ramakrishna Padmanabhan (CAIDA, UC San Diego), Anant Shah (Verizon Media Platform), Nima Fatemi (Kandoo), Alberto Dainotti (CAIDA, UC San Diego)"
