@@ -1,7 +1,7 @@
 // Tutorial used: https://www.amitsn.com/blog/how-to-generate-a-sitemap-for-your-react-website-with-dynamic-content
 
 require("babel-register")({
-    presets: ["es2015", "react"]
+    presets: ["env", "react"]
 });
 const axios = require('axios');
 const {merge} = require("lodash");
