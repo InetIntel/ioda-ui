@@ -92,7 +92,7 @@ class Nav extends Component {
                                 <li className="header__item">
                                     <Link to="/project" className="header__link" onClick={() => this.toggleMenu()}>
                                         {projectInfo}
-                                    </a>
+                                    </Link>
                                 </li>
                                 <li className="header__item">
                                     <Link to="/reports" className="header__link" onClick={() => this.toggleMenu()}>
