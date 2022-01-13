@@ -15,6 +15,8 @@ class ProjectInfo extends PureComponent {
 
 	return (
 	    <div className="projectinfo">
+            </div>
+         );
         /*
                 <Helmet>
                     <title>IODA | Project Information</title>
@@ -30,9 +32,6 @@ class ProjectInfo extends PureComponent {
                     </div>
                 </div>
         */
-            </div>
-         );
-        return ();
     }
 }
 
