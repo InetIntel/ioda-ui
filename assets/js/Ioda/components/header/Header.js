@@ -80,12 +80,12 @@ class Nav extends Component {
                                     </Link>
                                 </li>
                                 <li className="header__item">
-                                    <a href="https://ioda.caida.org/ioda/explorer" className="header__link" onClick={() => this.toggleMenu()}>
+                                    <a href="https://explore.ioda.inetintel.cc.gatech.edu" className="header__link" onClick={() => this.toggleMenu()}>
                                         {explorer}
                                     </a>
                                 </li>
                                 <li className="header__item">
-                                    <a href="https://github.com/CAIDA/ioda-api/wiki/API-Specification" className="header__link" onClick={() => this.toggleMenu()}>
+                                    <a href="https://api.ioda.inetintel.cc.gatech.edu/v2/" className="header__link" onClick={() => this.toggleMenu()}>
                                         {api}
                                     </a>
                                 </li>
