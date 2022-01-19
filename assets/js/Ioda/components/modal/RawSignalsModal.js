@@ -212,6 +212,7 @@ class RawSignalsModal extends PureComponent {
         const pingSlash24HtsLabel = T.translate("entityModal.pingSlash24HtsLabel");
         const bgpHtsLabel = T.translate("entityModal.bgpHtsLabel");
         const ucsdNtHtsLabel = T.translate("entityModal.ucsdNtHtsLabel");
+        const meritNtHtsLabel = T.translate("entityModal.meritNtHtsLabel");
         const checkMaxButton = T.translate("entityModal.checkMaxButton");
         const checkMaxButtonBelow150_1 = T.translate("entityModal.checkMaxButtonBelow150_1");
         const checkMaxButtonBelow150_2 = T.translate("entityModal.checkMaxButtonBelow150_2");
