@@ -566,10 +566,10 @@ class RawSignalsModal extends PureComponent {
                                         this.props.modalLocation === 'map'
                                             ? <React.Fragment>{
                                                 this.props.rawRegionalSignalsProcessedMeritNt && this.props.rawRegionalSignalsProcessedMeritNt.length > 0 ?
-                                                    <div id="region-horizon-chart-meritNt" ref={this.configMeritNt}
+                                                    <div id="region-horizon-chart--meritNt" ref={this.configMeritNt}
                                                          className="modal__chart">
                                                         {
-                                                            this.genChart("ucsd-nt", "region")
+                                                            this.genChart("merit-nt", "region")
                                                         }
                                                     </div> : null
                                             }</React.Fragment> : <React.Fragment>{
@@ -577,7 +577,7 @@ class RawSignalsModal extends PureComponent {
                                                     <div id="asn-horizon-chart--meritNt" ref={this.configMeritNt}
                                                          className="modal__chart">
                                                         {
-                                                            this.genChart("ucsd-nt", "asn")
+                                                            this.genChart("merit-nt", "asn")
                                                         }
                                                     </div> : null
                                             }</React.Fragment>
