@@ -193,7 +193,7 @@ class TestAPI extends Component {
                     ...prevState.tsDataProcessed,
                     activeProbing: tsDataConverted[2],
                     bgp: tsDataConverted[1],
-                    darknet: tsDataConverted[0]
+                    darknet: tsDataConverted[0],
                     merit: tsDataConverted[3]
                 }
             }), () => {
@@ -547,7 +547,7 @@ class TestAPI extends Component {
                         <h3>Darknet</h3>
                         <div id="horizon-chart--merit">
                             {
-                                this.genHtsChartForEntity("merit"))
+                                this.genHtsChartForEntity("merit")
                             }
                         </div>
                     </div>

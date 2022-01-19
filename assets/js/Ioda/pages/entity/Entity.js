@@ -844,7 +844,7 @@ class Entity extends Component {
                     ? activeProbingValues[0].x
                     : bgpValues && bgpValues[0]
                         ? bgpValues[0].x
-                        : meritTelescopeValues && meritTelescopeValues[0] ?
+                        : meritTelescopeValues && meritTelescopeValues[0]
                             ? meritTelescopeValues[0].x
                             : window.location.search.split("?")[1]
                                 ? new Date(window.location.search.split("?")[1].split("&")[0].split("=")[1])
@@ -856,7 +856,7 @@ class Entity extends Component {
                     ? activeProbingValues[activeProbingValues.length -1].x
                     : bgpValues && bgpValues[bgpValues.length -1]
                         ? bgpValues[bgpValues.length -1].x
-                        : meritTelescopeValues && meritTelescopeValues[meritTelescopeValues.length -1] ?
+                        : meritTelescopeValues && meritTelescopeValues[meritTelescopeValues.length -1]
                             ? meritTelescopeValues[meritTelescopeValues.length -1].x
                             : window.location.search.split("?")[1]
                                 ? new Date(window.location.search.split("?")[1].split("&")[1].split("=")[1])
@@ -949,7 +949,7 @@ class Entity extends Component {
                         const activeProbingLegendText = T.translate("entity.activeProbingLegendText");
                         const bgpLegendText = T.translate("entity.bgpLegendText");
                         const darknetLegendText = T.translate("entity.darknetLegendText");
-                        const darknetLegendText = T.translate("entity.meritLegendText");
+                        const meritLegendText = T.translate("entity.meritLegendText");
                         switch (e.dataSeries.name) {
                             case activeProbingLegendText:
                                 this.setState({ tsDataSeriesVisiblePingSlash24: e.dataSeries.visible }, e.chart.render());
