@@ -44,7 +44,8 @@ export const secondaryColorLight = "#598DCC";
 export const secondaryColorDark = "#1A5DAE";
 export const bgpColor = "#33A02C";
 export const activeProbingColor = "#1F78B4";
-export const ucsdNtColor = "#ED9B40";
+export const meritNtColor = "#ED9B40";
+export const ucsdNtColor = "#000000";   // XXX TODO choose a nice color
 export const horizonChartSeriesColor = "#006D2D";
 
 export const maxHtsLimit = 150;

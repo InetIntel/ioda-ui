@@ -12,9 +12,11 @@ import {getSignalsAction,
     getRawRegionalSignalsPingSlash24Action,
     getRawRegionalSignalsBgpAction,
     getRawRegionalSignalsUcsdNtAction,
+    getRawRegionalSignalsMeritNtAction,
     getRawAsnSignalsPingSlash24Action,
     getRawAsnSignalsBgpAction,
     getRawAsnSignalsUcsdNtAction,
+    getRawAsnSignalsMeritNtAction,
     getAdditionalRawSignalAction
 } from "../../data/ActionSignals";
 // Components
@@ -45,6 +47,7 @@ import {
     bgpColor,
     activeProbingColor,
     ucsdNtColor,
+    meritNtColor,
     convertTimeToSecondsForURL, horizonChartSeriesColor
 } from "../../utils";
 import CanvasJSChart from "../../libs/canvasjs-non-commercial-3.2.5/canvasjs.react";
@@ -320,11 +323,12 @@ class ChartShare extends Component {
 
 // XY Chart Functions
     // XY Plot Graph Functions
-    createXyVizDataObject(networkTelescopeValues, bgpValues, activeProbingValues) {
-        let networkTelescope, bgp, activeProbing;
+    createXyVizDataObject(networkTelescopeValues, bgpValues, activeProbingValues, meritTelescopeValues) {
+        let networkTelescope, bgp, activeProbing, meritTelescope;
         const activeProbingLegendText = T.translate("entity.activeProbingLegendText");
         const bgpLegendText = T.translate("entity.bgpLegendText");
         const darknetLegendText = T.translate("entity.darknetLegendText");
+        const meritLegendText = T.translate("entity.meritLegendText");
 
         if (activeProbingValues) {
             activeProbing = {
@@ -383,7 +387,27 @@ class ChartShare extends Component {
             }
         }
 
-        return [activeProbing, bgp, networkTelescope]
+        if (meritTelescopeValues) {
+            meritTelescope = {
+                type: "line",
+                lineThickness: 1,
+                color: meritNtColor,
+                lineColor: meritNtColor,
+                markerType: "circle",
+                markerSize: 2,
+                name: meritLegendText,
+                visible: this.state.tsDataSeriesVisibleMeritNt,
+                axisYType: this.state.tsDataNormalized ? 'primary' : "secondary",
+                showInLegend: true,
+                xValueFormatString: "DDD, MMM DD - HH:mm",
+                yValueFormatString: "0",
+                dataPoints: meritTelescopeValues,
+                legendMarkerColor: meritNtColor,
+                toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
+            }
+        }
+
+        return [activeProbing, bgp, networkTelescope, meritTelescope]
     }
     // function for when zoom/pan
     xyPlotRangeChanged(e) {
@@ -411,6 +435,7 @@ class ChartShare extends Component {
         let networkTelescopeValues = [];
         let bgpValues = [];
         let activeProbingValues = [];
+        let meritTelescopeValues = [];
         let absoluteMax = [];
         let absoluteMaxY2 = 0;
         const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
@@ -431,6 +456,19 @@ class ChartShare extends Component {
                     });
                     // the last two values populating are the min value, and the max value. Removing these from the coordinates.
                     networkTelescopeValues.length > 2 ? networkTelescopeValues.splice(-1,2) : networkTelescopeValues;
+                    break;
+                case "merit-nt":
+                    max = Math.max.apply(null, datasource.values);
+                    absoluteMax.push(max);
+                    absoluteMaxY2 = max;
+                    datasource.values && datasource.values.map((value, index) => {
+                        let x, y;
+                        x = toDateTime(datasource.from + (datasource.step * index));
+                        y = this.state.tsDataNormalized ? normalize(value, max) : value;
+                        meritTelescopeValues.push({x: x, y: y, color: meritNtColor});
+                    });
+                    // the last two values populating are the min value, and the max value. Removing these from the coordinates.
+                    meritTelescopeValues.length > 2 ? meritTelescopeValues.splice(-1,2) : meritTelescopeValues;
                     break;
                 case "bgp":
                     max = Math.max.apply(null, datasource.values);
@@ -482,9 +520,11 @@ class ChartShare extends Component {
                 ? activeProbingValues[0].x
                 : bgpValues && bgpValues[0]
                     ? bgpValues[0].x
-                    : window.location.search.split("?")[1]
-                        ? new Date(window.location.search.split("?")[1].split("&")[0].split("=")[1])
-                        : new Date(Math.round((new Date().getTime()  - (24 * 60 * 60 * 1000)) / 1000));
+                    : meritTelescopeValues && meritTelescopeValues[0]
+                        ? meritTelescopeValues[0].x
+                        : window.location.search.split("?")[1]
+                            ? new Date(window.location.search.split("?")[1].split("&")[0].split("=")[1])
+                            : new Date(Math.round((new Date().getTime()  - (24 * 60 * 60 * 1000)) / 1000));
         const timeEnd =
             networkTelescopeValues && networkTelescopeValues[networkTelescopeValues.length -1]
                 ? networkTelescopeValues[networkTelescopeValues.length -1].x
@@ -492,9 +532,11 @@ class ChartShare extends Component {
                 ? activeProbingValues[activeProbingValues.length -1].x
                 : bgpValues && bgpValues[bgpValues.length -1]
                     ? bgpValues[bgpValues.length -1].x
-                    : window.location.search.split("?")[1]
-                        ? new Date(window.location.search.split("?")[1].split("&")[1].split("=")[1])
-                        : new Date(Math.round(new Date().getTime() / 1000));
+                    : meritTelescopeValues && meritTelescopeValues[meritTelescopeValues.length -1]
+                        ? meritTelescopeValues[meritTelescopeValues.length -1].x
+                        : window.location.search.split("?")[1]
+                            ? new Date(window.location.search.split("?")[1].split("&")[1].split("=")[1])
+                           : new Date(Math.round(new Date().getTime() / 1000));
         // Add 1% padding to the right edge of the Chart
         const extraPadding = (timeEnd - timeBegin) * 0.01;
         const viewportMaximum = new Date(timeEnd.getTime() + extraPadding);
@@ -502,6 +544,7 @@ class ChartShare extends Component {
         activeProbingValues.push({x: viewportMaximum, y: null});
         bgpValues.push({x: viewportMaximum, y: null});
         networkTelescopeValues.push({x: viewportMaximum, y: null});
+        meritTelescopeValues.push({x: viewportMaximum, y: null});
 
         // create top padding in chart area for normalized/absolute views
         const normalizedStripline = [
@@ -581,6 +624,7 @@ class ChartShare extends Component {
                         const activeProbingLegendText = T.translate("entity.activeProbingLegendText");
                         const bgpLegendText = T.translate("entity.bgpLegendText");
                         const darknetLegendText = T.translate("entity.darknetLegendText");
+                        const meritLegendText = T.translate("entity.meritLegendText");
                         switch (e.dataSeries.name) {
                             case activeProbingLegendText:
                                 this.setState({ tsDataSeriesVisiblePingSlash24: e.dataSeries.visible }, e.chart.render());
@@ -591,10 +635,13 @@ class ChartShare extends Component {
                             case darknetLegendText:
                                 this.setState({ tsDataSeriesVisibleUcsdNt: e.dataSeries.visible }, e.chart.render());
                                 break;
+                            case meritLegendText:
+                                this.setState({ tsDataSeriesVisibleMeritNt: e.dataSeries.visible }, e.chart.render());
+                                break;
                         }
                     }
                 },
-                data: this.createXyVizDataObject(networkTelescopeValues.length > 1 ? networkTelescopeValues : [], bgpValues.length > 1 ? bgpValues : [], activeProbingValues.length > 1 ? activeProbingValues : [])
+                data: this.createXyVizDataObject(networkTelescopeValues.length > 1 ? networkTelescopeValues : [], bgpValues.length > 1 ? bgpValues : [], activeProbingValues.length > 1 ? activeProbingValues : [], meritTelescopeValues.length > 1 ? meritTelescopeValues : [])
             }
         }, () => {
             this.genXyChart();
@@ -776,9 +823,11 @@ const mapStateToProps = (state) => {
         rawRegionalSignalsPingSlash24: state.iodaApi.rawRegionalSignalsPingSlash24,
         rawRegionalSignalsBgp: state.iodaApi.rawRegionalSignalsBgp,
         rawRegionalSignalsUcsdNt: state.iodaApi.rawRegionalSignalsUcsdNt,
+        rawRegionalSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
         rawAsnSignalsPingSlash24: state.iodaApi.rawRegionalSignalsPingSlash24,
         rawAsnSignalsBgp: state.iodaApi.rawRegionalSignalsBgp,
         rawAsnSignalsUcsdNt: state.iodaApi.rawRegionalSignalsUcsdNt,
+        rawAsnSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
         additionalRawSignal: state.iodaApi.additionalRawSignal
     }
 };
@@ -831,11 +880,17 @@ const mapDispatchToProps = (dispatch) => {
         getRawRegionalSignalsUcsdNtAction: (entityType, entities, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
             getRawRegionalSignalsUcsdNtAction(dispatch, entityType, entities, from, until, attr, order, dataSource, maxPoints);
         },
+        getRawRegionalSignalsMeritNtAction: (entityType, entities, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+            getRawRegionalSignalsMeritNtAction(dispatch, entityType, entities, from, until, attr, order, dataSource, maxPoints);
+        },
         getRawAsnSignalsPingSlash24Action: (entityType, entities, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
             getRawAsnSignalsPingSlash24Action(dispatch, entityType, entities, from, until, attr, order, dataSource, maxPoints);
         },
         getRawAsnSignalsBgpAction: (entityType, entities, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
             getRawAsnSignalsBgpAction(dispatch, entityType, entities, from, until, attr, order, dataSource, maxPoints);
+        },
+        getRawAsnSignalsMeritNtAction: (entityType, entities, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+            getRawAsnSignalsMeritNtAction(dispatch, entityType, entities, from, until, attr, order, dataSource, maxPoints);
         },
         getRawAsnSignalsUcsdNtAction: (entityType, entities, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
             getRawAsnSignalsUcsdNtAction(dispatch, entityType, entities, from, until, attr, order, dataSource, maxPoints);

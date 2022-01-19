@@ -52,9 +52,11 @@ import {
     GET_RAW_REGIONAL_SIGNALS_PINGSLASH24,
     GET_RAW_REGIONAL_SIGNALS_BGP,
     GET_RAW_REGIONAL_SIGNALS_UCSDNT,
+    GET_RAW_REGIONAL_SIGNALS_MERITNT,
     GET_RAW_ASN_SIGNALS_PINGSLASH24,
     GET_RAW_ASN_SIGNALS_BGP,
     GET_RAW_ASN_SIGNALS_UCSDNT,
+    GET_RAW_ASN_SIGNALS_MERITNT,
     GET_ADDITIONAL_RAW_SIGNAL
 } from './ActionCommons';
 
@@ -77,11 +79,13 @@ const initialState = {
     rawRegionalSignalsPingSlash24: null,
     rawRegionalSignalsBgp: null,
     rawRegionalSignalsUcsdNt: null,
+    rawRegionalSignalsMeritNt: null,
     // Table RawSignalsModal
     asnSignalsTableSummaryData: null,
     rawAsnSignalsPingSlash24: null,
     rawAsnSignalsBgp: null,
     rawAsnSignalsUcsdNt: null,
+    rawAsnSignalsMeritNt: null,
     additionalRawSignal: null
 
 }
@@ -154,6 +158,10 @@ export function iodaApiReducer(state = initialState, action) {
             return Object.assign({}, state, {
                 rawRegionalSignalsUcsdNt: action.payload
             });
+        case GET_RAW_REGIONAL_SIGNALS_MERITNT:
+            return Object.assign({}, state, {
+                rawRegionalSignalsMeritNt: action.payload
+            });
         case GET_RAW_ASN_SIGNALS_PINGSLASH24:
             return Object.assign({}, state, {
                 rawAsnSignalsPingSlash24: action.payload
@@ -165,6 +173,10 @@ export function iodaApiReducer(state = initialState, action) {
         case GET_RAW_ASN_SIGNALS_UCSDNT:
             return Object.assign({}, state, {
                 rawAsnSignalsUcsdNt: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_MERITNT:
+            return Object.assign({}, state, {
+                rawAsnSignalsMeritNt: action.payload
             });
         case GET_EVENT_SIGNALS:
             return Object.assign({}, state, {

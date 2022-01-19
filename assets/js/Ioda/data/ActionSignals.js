@@ -42,9 +42,11 @@ import {
     GET_SIGNALS,
     GET_RAW_REGIONAL_SIGNALS_PINGSLASH24,
     GET_RAW_REGIONAL_SIGNALS_BGP,
+    GET_RAW_REGIONAL_SIGNALS_MERITNT,
     GET_RAW_REGIONAL_SIGNALS_UCSDNT,
     GET_RAW_ASN_SIGNALS_PINGSLASH24,
     GET_RAW_ASN_SIGNALS_BGP,
+    GET_RAW_ASN_SIGNALS_MERITNT,
     GET_RAW_ASN_SIGNALS_UCSDNT,
     GET_ADDITIONAL_RAW_SIGNAL
 } from "./ActionCommons";
@@ -111,6 +113,16 @@ export const getRawRegionalSignalsBgpAction = (dispatch, entityType, entityCode,
     });
 };
 
+export const getRawRegionalSignalsMeritNtAction = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+    let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    fetchData(config).then(data => {
+        dispatch({
+            type: GET_RAW_REGIONAL_SIGNALS_MERITNT,
+            payload: data.data.data,
+        })
+    });
+};
+
 export const getRawRegionalSignalsUcsdNtAction = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
     let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
     fetchData(config).then(data => {
@@ -136,6 +148,16 @@ export const getRawAsnSignalsBgpAction = (dispatch, entityType, entityCode, from
     fetchData(config).then(data => {
         dispatch({
             type: GET_RAW_ASN_SIGNALS_BGP,
+            payload: data.data.data,
+        })
+    });
+};
+
+export const getRawAsnSignalsMeritNtAction = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+    let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    fetchData(config).then(data => {
+        dispatch({
+            type: GET_RAW_ASN_SIGNALS_MERITNT,
             payload: data.data.data,
         })
     });
