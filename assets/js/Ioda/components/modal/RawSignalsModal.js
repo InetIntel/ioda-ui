@@ -498,6 +498,7 @@ class RawSignalsModal extends PureComponent {
                                                     </div> : null
                                             }</React.Fragment>
                                 }
+                                /*
                                 <h3 className="heading-h3" ref={this.titleUcsdNt}>{ucsdNtHtsLabel}</h3>
                                 {
                                     this.props.modalLocation === 'map'
@@ -540,6 +541,7 @@ class RawSignalsModal extends PureComponent {
                                                     </div> : null
                                             }</React.Fragment>
                                 }
+                                */
                                 <h3 className="heading-h3" ref={this.titleMeritNt}>{meritNtHtsLabel}</h3>
                                 {
                                     this.props.modalLocation === 'map'

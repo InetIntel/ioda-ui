@@ -137,7 +137,7 @@
     "activeProbingLegendText": "Active Probing (#/24s Up)",
     "bgpLegendText": "BGP (#Visible /24s)",
     "darknetLegendText": "Telescope (# Unique Source IPs)",
-    "meritLegendText": "Merit Telescope (# Unique Source IPs)",
+    "meritLegendText": "Telescope (# Unique Source IPs)",
     "eventAlertButtonText1": "View ",
     "eventAlertButtonOption1": "Alert",
     "eventAlertButtonOption2": "Event",
@@ -191,7 +191,7 @@
     "pingSlash24HtsLabel": "Active Probing",
     "bgpHtsLabel": "BGP",
     "ucsdNtHtsLabel": "Network Telescope",
-    "meritNtHtsLabel": "Merit Network Telescope"
+    "meritNtHtsLabel": "Network Telescope"
   },
   "table": {
     "alertHeaders": {
@@ -205,7 +205,7 @@
       "activeProbing": "Active Probing",
       "bgp": "BGP",
       "darknet": "Telescope",
-      "merit": "Merit Telescope"
+      "merit": "Telescope"
     },
     "eventHeaders": {
       "fromDate": "From",
