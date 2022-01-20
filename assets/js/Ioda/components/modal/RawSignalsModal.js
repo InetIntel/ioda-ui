@@ -498,50 +498,6 @@ class RawSignalsModal extends PureComponent {
                                                     </div> : null
                                             }</React.Fragment>
                                 }
-                                /*
-                                <h3 className="heading-h3" ref={this.titleUcsdNt}>{ucsdNtHtsLabel}</h3>
-                                {
-                                    this.props.modalLocation === 'map'
-                                        ? <React.Fragment>{
-                                            this.props.rawRegionalSignalsRawUcsdNtLength !== 0 && this.props.rawRegionalSignalsProcessedUcsdNt && this.props.rawRegionalSignalsProcessedUcsdNt.length === 0
-                                                ? null
-                                                : this.props.rawRegionalSignalsRawUcsdNtLength === 0 && !this.props.rawRegionalSignalsProcessedUcsdNt
-                                                ? <Loading text="Retrieving Data..."/>
-                                                : this.props.rawRegionalSignalsRawUcsdNtLength !== 0 && this.configUcsdNt && this.configUcsdNt.current && this.configUcsdNt.current.nextElementSibling !== "div#region-horizon-chart--ucsdNt.modal__chart"
-                                                    ? <div className="renderingDataUcsdNt"><Loading text="Rendering Data..."/></div>
-                                                    : null
-                                        }</React.Fragment> : <React.Fragment>{
-                                            this.props.rawAsnSignalsRawUcsdNtLength !== 0 && this.props.rawAsnSignalsProcessedUcsdNt && this.props.rawAsnSignalsProcessedUcsdNt.length === 0
-                                                ? null
-                                                : this.props.rawAsnSignalsRawUcsdNtLength === 0 && !this.props.rawAsnSignalsProcessedUcsdNt
-                                                ? <Loading text="Retrieving Data..."/>
-                                                : this.props.rawAsnSignalsRawUcsdNtLength !== 0 && this.configUcsdNt && this.configUcsdNt.current && this.configUcsdNt.current.nextElementSibling !== "div#asn-horizon-chart--ucsdNt.modal__chart"
-                                                    ? <div className="renderingDataUcsdNt"><Loading text="Rendering Data..."/></div>
-                                                    : null
-                                        }</React.Fragment>
-                                }
-                                {
-                                    this.props.additionalRawSignalRequestedUcsdNt === true ? <Loading/> :
-                                        this.props.modalLocation === 'map'
-                                            ? <React.Fragment>{
-                                                this.props.rawRegionalSignalsProcessedUcsdNt && this.props.rawRegionalSignalsProcessedUcsdNt.length > 0 ?
-                                                    <div id="region-horizon-chart--ucsdNt" ref={this.configUcsdNt}
-                                                         className="modal__chart">
-                                                        {
-                                                            this.genChart("ucsd-nt", "region")
-                                                        }
-                                                    </div> : null
-                                            }</React.Fragment> : <React.Fragment>{
-                                                this.props.rawAsnSignalsProcessedUcsdNt && this.props.rawAsnSignalsProcessedUcsdNt.length > 0 ?
-                                                    <div id="asn-horizon-chart--ucsdNt" ref={this.configUcsdNt}
-                                                         className="modal__chart">
-                                                        {
-                                                            this.genChart("ucsd-nt", "asn")
-                                                        }
-                                                    </div> : null
-                                            }</React.Fragment>
-                                }
-                                */
                                 <h3 className="heading-h3" ref={this.titleMeritNt}>{meritNtHtsLabel}</h3>
                                 {
                                     this.props.modalLocation === 'map'
