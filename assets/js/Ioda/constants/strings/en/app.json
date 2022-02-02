@@ -290,7 +290,7 @@
   },
   "projectinfo": {
     "title": "Project Information",
-    "text": "IODA (Internet Outage Detection and Analysis) is a project that originally began at CAIDA at the University of California San Diego, but has since transferred to the Internet Intelligence Lab at the Georgia Institute of Technology.",
+    "text": "IODA (Internet Outage Detection and Analysis) is a project that originally began at CAIDA at the University of California San Diego (see also the Acknowledgements page). Since 2022 the project continues at the Georgia Institute of Technology.",
     "link1": "Original CAIDA project page"
   },
   "iranReport2020": {
