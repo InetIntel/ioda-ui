@@ -14,7 +14,7 @@ class ProjectInfo extends PureComponent {
 	const link1 = T.translate("projectinfo.link1");	// TODO rename
 
 	return (
-	    <div className="projectinfo">
+	    <div className="reports">
                 <Helmet>
                     <title>IODA | Project Information</title>
                     <meta name="description" content="More detailed information about the IODA project."/>
