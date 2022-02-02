@@ -53,7 +53,7 @@ class Nav extends Component {
         const reports = T.translate("header.reports");
         const help = T.translate("header.help");
         const projectInfo = T.translate("header.projectInfo");
-        const explorer = T.translate("header.explorer");
+        // const explorer = T.translate("header.explorer");
         const iodaLogoAltText = T.translate("header.iodaLogoAltText");
         const acknowledgements = T.translate("header.acknowledgements");
         const api = T.translate("header.api");
@@ -79,11 +79,13 @@ class Nav extends Component {
                                         {dashboard}
                                     </Link>
                                 </li>
+                                <!--
                                 <li className="header__item">
                                     <a href="https://explore.ioda.inetintel.cc.gatech.edu" className="header__link" onClick={() => this.toggleMenu()}>
                                         {explorer}
                                     </a>
                                 </li>
+                                -->
                                 <li className="header__item">
                                     <a href="https://api.ioda.inetintel.cc.gatech.edu/v2/" className="header__link" onClick={() => this.toggleMenu()}>
                                         {api}
