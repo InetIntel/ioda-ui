@@ -161,11 +161,6 @@ class SummaryTableRow extends Component {
                                 : <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">&nbsp;</div>
                         }
                         {
-                            this.state.ucsdNtScoreAvailable
-                                ? <div className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--ucsd-nt`}>&nbsp;</div>
-                                : <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">&nbsp;</div>
-                        }
-                        {
                             this.state.meritNtScoreAvailable
                                 ? <div className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--merit-nt`}>&nbsp;</div>
                                 : <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">&nbsp;</div>
