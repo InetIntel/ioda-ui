@@ -256,8 +256,8 @@ class Home extends Component {
                         <div className="map__feed">
                             <TwitterTimelineEmbed
                                 sourceType="profile"
-                                screenName="caida_ioda"
-                                options={{ id: "profile:caida_ioda", height: '48.3rem'}}
+                                screenName="gatech_ioda"
+                                options={{ id: "profile:gatech_ioda", height: '48.3rem'}}
                                 lang="en"
                             />
                         </div>

@@ -65,13 +65,13 @@ class Methodology extends PureComponent {
                     <div className="col-1-of-3">
                         <h4>Internet Background Radiation</h4>
                         <p>We process unsolicited traffic
-                        reaching the UCSD Network Telescope monitoring an unutilized /8
-                            address block.</p>
+                        reaching the Merit Network Telescope monitoring a large unutilized 
+                            IPv4 address block.</p>
                     </div>
                     <div className="col-1-of-3">
                         <h4>Active Probing</h4>
                         <p>We continuously probe a large fraction of the
-                        (routable) IPv4 address space from CAIDA servers
+                        (routable) IPv4 address space from Georgia Tech servers
                         and use a <a href="https://www.isi.edu/~johnh/PAPERS/Quan13c.html">methodology developed by
                         University
                         of Southern California</a> to infer when a /24 block is affected by a
