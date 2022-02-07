@@ -346,6 +346,10 @@
           background-color: $color-ucsd-nt;
         }
 
+        &--merit-nt {
+          background-color: $color-merit-nt;
+        }
+
         &--empty {
           background-color: $color-black;
           opacity: 0.1;
@@ -505,6 +509,10 @@
 
         &--ucsd-nt:before {
           background-color: $color-ucsd-nt;
+        }
+
+        &--merit-nt:before {
+          background-color: $color-merit-nt;
         }
       }
     }

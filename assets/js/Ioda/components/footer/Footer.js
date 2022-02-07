@@ -35,9 +35,11 @@
 import React, { PureComponent } from 'react';
 import PreloadImage from "react-preload-image";
 // images
-import caidaLogo from 'images/logos/caida.png';
-import sdscLogo from 'images/logos/sdsc.jpg';
-import ucsdLogo from 'images/logos/ucsd-logo.png';
+//import caidaLogo from 'images/logos/caida.png';
+//import sdscLogo from 'images/logos/sdsc.jpg';
+//import ucsdLogo from 'images/logos/ucsd-logo.png';
+import gatechLogo from 'images/logos/gatech_white.svg';
+
 
 
 class Footer extends PureComponent {
@@ -48,14 +50,8 @@ class Footer extends PureComponent {
                     <div className="row">
                         <div className="col-1-of-1">
                             <div className="footer__logos">
-                                <div className="footer__logos-item footer__logos-item--caida">
-                                    <PreloadImage className="footer__logos-item-container" src={caidaLogo} lazy/>
-                                </div>
-                                <div className="footer__logos-item">
-                                    <PreloadImage className="footer__logos-item-container" src={sdscLogo} lazy/>
-                                </div>
-                                <div className="footer__logos-item">
-                                    <PreloadImage className="footer__logos-item-container" src={ucsdLogo} lazy/>
+                                <div className="footer__logos-item footer__logos-item--gatech">
+                                    <PreloadImage className="footer__logos-item-container" src={gatechLogo} lazy/>
                                 </div>
                             </div>
                         </div>

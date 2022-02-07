@@ -101,7 +101,7 @@ class Help extends PureComponent {
                             </li>
                             <li>
                                 Currently the alerts IODA shows use data from a team of
-                                20 probers located at SDSC.
+                                20 probers located at Georgia Tech.
                             </li>
                             <li>
                                 The trinocular measurement and inference technique labels a /24 block as <em>up</em>, <em>down</em>, or <em>unknown</em>.
@@ -113,8 +113,7 @@ class Help extends PureComponent {
                         <h3>Network Telescope</h3>
                         <ul>
                             <li>
-                                We analyze traffic data from both the <a href="https://www.caida.org/projects/network_telescope/">UCSD</a> and <a href="https://www.merit.edu/a-data-repository-for-cyber-security-research-and-education/">Merit</a> Network Telescopes.
-                                (Currently IODA uses only data from the UCSD Telescope for generating alerts.)
+                                We analyze traffic data from the <a href="https://www.merit.edu/a-data-repository-for-cyber-security-research-and-education/">Merit</a> Network Telescopes.
                             </li>
                             <li>
                                 We apply <a href="http://www.caida.org/publications/papers/2014/passive_ip_space_usage_estimation/">anti-spoofing heuristics and noise reduction filters</a> to the
@@ -129,13 +128,13 @@ class Help extends PureComponent {
                         <h2>Outage Detection</h2>
                         <ul>
                             <li>
-                                For each data source (BGP, Active Probing, and Darknet), we currently
+                                For each data source (BGP, Active Probing, and Telescope), we currently
                                 monitor for three types of outages: country-level, region-level and
                                 AS-level.
                             </li>
                             <li>
                                 Detection is performed by comparing the <em>current</em> value for
-                                each datasource/aggregation (e.g. the number of /24 networks visible
+                                each datasource/aggregation (e.g., the number of /24 networks visible
                                 on <em>BGP</em> and geolocated to <em>Italy</em>) to an <em>historical</em> value that is computed by finding the <em>median</em> of a sliding window of recent values (the length of
                                 the window varies between data sources and is listed below).
                             </li>
@@ -192,7 +191,7 @@ class Help extends PureComponent {
                             </li>
                         </ul>
 
-                        <h4>Darknet</h4>
+                        <h4>Telescope</h4>
                         <ul>
                             <li>
                                 <b>Metric:</b> # unique source IP addresses

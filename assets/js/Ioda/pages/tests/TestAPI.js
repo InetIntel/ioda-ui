@@ -68,7 +68,8 @@ class TestAPI extends Component {
             tsDataProcessed: {
                 activeProbing: [],
                 bgp: [],
-                darknet: []
+                darknet: [],
+                merit: []
             },
             tsDataChartTitle: "",
             tsParentColumnWidth: 0,
@@ -192,7 +193,8 @@ class TestAPI extends Component {
                     ...prevState.tsDataProcessed,
                     activeProbing: tsDataConverted[2],
                     bgp: tsDataConverted[1],
-                    darknet: tsDataConverted[0]
+                    darknet: tsDataConverted[0],
+                    merit: tsDataConverted[3]
                 }
             }), () => {
                 // console.log(this.state.tsDataProcessed);
@@ -482,7 +484,7 @@ class TestAPI extends Component {
                 </div>
                 <div className="row">
                     <h2>Horizon Time Series Chart for entityType</h2>
-                    <div className="col-1-of-3">
+                    <div className="col-1-of-4">
                         <h3>Active Probing</h3>
                         <div id="horizon-chart--activeProbing">
                             {
@@ -490,7 +492,7 @@ class TestAPI extends Component {
                             }
                         </div>
                     </div>
-                    <div className="col-1-of-3">
+                    <div className="col-1-of-4">
                         <h3>BGP</h3>
                         <div id="horizon-chart--bgp">
                             {
@@ -498,9 +500,17 @@ class TestAPI extends Component {
                             }
                         </div>
                     </div>
-                    <div className="col-1-of-3">
+                    <div className="col-1-of-4">
                         <h3>Darknet</h3>
                         <div id="horizon-chart--darknet">
+                            {
+                                this.genHtsChartForEntityType("asn")
+                            }
+                        </div>
+                    </div>
+                    <div className="col-1-of-4">
+                        <h3>Darknet</h3>
+                        <div id="horizon-chart--merit">
                             {
                                 this.genHtsChartForEntityType("asn")
                             }
@@ -509,7 +519,7 @@ class TestAPI extends Component {
                 </div>
                 <div className="row">
                     <h2>Horizon Time Series Chart for entity</h2>
-                    <div className="col-1-of-3">
+                    <div className="col-1-of-4">
                         <h3>Active Probing</h3>
                         <div id="horizon-chart--activeProbing">
                             {
@@ -517,7 +527,7 @@ class TestAPI extends Component {
                             }
                         </div>
                     </div>
-                    <div className="col-1-of-3">
+                    <div className="col-1-of-4">
                         <h3>BGP</h3>
                         <div id="horizon-chart--bgp">
                             {
@@ -525,11 +535,19 @@ class TestAPI extends Component {
                             }
                         </div>
                     </div>
-                    <div className="col-1-of-3">
+                    <div className="col-1-of-4">
                         <h3>Darknet</h3>
                         <div id="horizon-chart--darknet">
                             {
                                 this.genHtsChartForEntity("darknet")
+                            }
+                        </div>
+                    </div>
+                    <div className="col-1-of-4">
+                        <h3>Darknet</h3>
+                        <div id="horizon-chart--merit">
+                            {
+                                this.genHtsChartForEntity("merit")
                             }
                         </div>
                     </div>

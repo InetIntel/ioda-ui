@@ -55,14 +55,15 @@ export const GET_ASN_SIGNALS_TABLE_SUMMARY_DATA = "GET_ASN_SIGNALS_TABLE_SUMMARY
 export const GET_RAW_REGIONAL_SIGNALS_PINGSLASH24 = "GET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
 export const GET_RAW_REGIONAL_SIGNALS_BGP = "GET_RAW_REGIONAL_SIGNALS_BGP";
 export const GET_RAW_REGIONAL_SIGNALS_UCSDNT = "GET_RAW_REGIONAL_SIGNALS_UCSDNT";
+export const GET_RAW_REGIONAL_SIGNALS_MERITNT = "GET_RAW_REGIONAL_SIGNALS_MERITNT";
 export const GET_RAW_ASN_SIGNALS_PINGSLASH24 = "GET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
 export const GET_RAW_ASN_SIGNALS_BGP = "GET_RAW_REGIONAL_SIGNALS_BGP";
 export const GET_RAW_ASN_SIGNALS_UCSDNT = "GET_RAW_REGIONAL_SIGNALS_UCSDNT";
+export const GET_RAW_ASN_SIGNALS_MERITNT = "GET_RAW_REGIONAL_SIGNALS_MERITNT";
 export const GET_ADDITIONAL_RAW_SIGNAL = "GET_ADDITIONAL_RAW_SIGNAL";
 
 export const fetchData = (config) => {
-    // const baseURL = 'https://api.ioda.caida.org/dev';
-    const baseURL = 'https://api.ioda.caida.org/v2';
+    const baseURL = 'https://api.ioda.inetintel.cc.gatech.edu/v2';
     let concatURL = `${baseURL}${config.url}`;
     const configHeader = merge({}, config, {
         headers: {

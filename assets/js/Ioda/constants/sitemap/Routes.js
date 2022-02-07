@@ -5,6 +5,7 @@ export default (
     <Route>
         <Route path='/dashboard'/>
         <Route exact path='/reports'/>
+        <Route exact path='/project'/>
         <Route exact path='/help'/>
         <Route exact path='/acknowledgements'/>
         <Route path='/reports/2020-iran-report'/>

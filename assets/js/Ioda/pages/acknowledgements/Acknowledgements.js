@@ -50,6 +50,7 @@ import sdsc from 'images/acknowledgements/sdsc.svg';
 import ucsd from 'images/acknowledgements/ucsd.svg';
 import usdos from 'images/acknowledgements/usdos.png';
 import xsedeBlack from 'images/acknowledgements/xsede-black.png';
+import caida from 'images/logos/caida.png';
 import {Helmet} from "react-helmet";
 
 
@@ -79,7 +80,7 @@ class Acknowledgements extends PureComponent {
                                         <img src={nsf}/>
                                     </div>
                                     <p className="thumbnail__text">
-                                        This platform was supported by NSF grant CNS-1228994
+                                        The development of this platform at UC San Diego was supported by NSF grant CNS-1228994
                                         [Detection and Analysis of Large-scale Internet
                                         Infrastructure Outages (IODA)].
                                     </p>
@@ -95,7 +96,7 @@ class Acknowledgements extends PureComponent {
                                         <img src={dhs}/>
                                     </div>
                                     <p className="thumbnail__text">
-                                        This platform was also supported by Department of Homeland Security
+                                        The development of this platform at UC San Diego was also supported by Department of Homeland Security
                                         Science
                                         and Technology Directorate (DHS S&T) contract 70RSAT18CB0000015 [IODA-NP: Multi-source Realtime Detection of Macroscopic Internet Connectivity Disruption], and DHS S&T cooperative agreement FA8750-12-2-0326
                                         [Supporting Research and Development of Security
@@ -162,7 +163,7 @@ class Acknowledgements extends PureComponent {
                                     <img src={nersc}/>
                                 </div>
                                 <p className="thumbnail__text">
-                                    Storage resources for the UCSD Network Telescope are supported by NERSC, a DOE Office of Science
+                                    Storage resources for the UCSD Network Telescope were supported by NERSC, a DOE Office of Science
                                     User Facility
                                     supported by the Office of Science of the U.S.
                                     Department of Energy under Contract No.
@@ -208,6 +209,9 @@ class Acknowledgements extends PureComponent {
                                     <div className="thumbnail__img">
                                         <img src={sdsc}/>
                                     </div>
+                                    <p className="thumbnail__text">
+                                    This project was originally developed at CAIDA, San Diego Supercomputer Center, UC San Diego.
+                                    </p>
                                 </div>
                             </a>
                         </div>
@@ -219,6 +223,9 @@ class Acknowledgements extends PureComponent {
                                     <div className="thumbnail__img">
                                         <img src={ucsd}/>
                                     </div>
+                                    <p className="thumbnail__text">
+                                    This project was originally developed at CAIDA, UC San Diego.
+                                    </p>
                                 </div>
                             </a>
                         </div>
@@ -240,6 +247,18 @@ class Acknowledgements extends PureComponent {
                             </div>
                         </div>
                     </div>
+                    <div className="col-1-of-4">
+                        <div className="thumbnail">
+                            <div className="thumbnail__content">
+                                <div className="thumbnail__img">
+                                    <img src={caida}/>
+                                </div>
+                                <p className="thumbnail__text">
+                                    This project was originally developed at <a href="https://www.caida.org">CAIDA</a>, UC San Diego.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="row">
                     <h2 id="data">Data Sources</h2>
@@ -252,14 +271,12 @@ class Acknowledgements extends PureComponent {
                     </ul>
                     <h4>Internet Background Radiation Data</h4>
                     <ul>
-                        <li>The <a href="https://www.caida.org/projects/network_telescope/">UCSD Network
-                            Telescope</a></li>
-                        <li>Merit Network's <a href="https://www.impactcybertrust.org/dataset_view?idDataset=242">Network
+                        <li>The <a href="https://www.merit.edu/initiatives/orion-network-telescope/">Merit Network
                             Telescope</a></li>
                     </ul>
                     <h4>Active Probing Data</h4>
                     <ul>
-                        <li>Active measurements conducted from CAIDA servers.</li>
+                        <li>Active measurements conducted from Georgia Tech servers.</li>
                     </ul>
                 </div>
             </div>

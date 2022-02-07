@@ -18,6 +18,7 @@ class SummaryTableRow extends Component {
             pingSlash24ScoreAvailable: false,
             bgpScoreAvailable: false,
             ucsdNtScoreAvailable: false,
+            meritNtScoreAvailable: false,
             hoverTime: 600,
             t: null
         };
@@ -38,6 +39,9 @@ class SummaryTableRow extends Component {
                     break;
                 case "ucsd-nt":
                     this.setState({ucsdNtScoreAvailable: true});
+                    break;
+                case "merit-nt":
+                    this.setState({meritNtScoreAvailable: true});
                     break;
             }
         });
@@ -157,8 +161,8 @@ class SummaryTableRow extends Component {
                                 : <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">&nbsp;</div>
                         }
                         {
-                            this.state.ucsdNtScoreAvailable
-                                ? <div className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--ucsd-nt`}>&nbsp;</div>
+                            this.state.meritNtScoreAvailable
+                                ? <div className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--merit-nt`}>&nbsp;</div>
                                 : <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">&nbsp;</div>
                         }
                     </div>

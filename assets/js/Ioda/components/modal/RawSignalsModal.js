@@ -25,24 +25,27 @@ class RawSignalsModal extends PureComponent {
             renderingDataPingSlash24: false,
             renderingDataBgp: false,
             renderingDataUcsdNt: false,
+            renderingDataMeritNt: false,
             chartWidth: null
         };
         this.configPingSlash24 = React.createRef();
         this.configBgp = React.createRef();
         this.configUcsdNt = React.createRef();
+        this.configMeritNt = React.createRef();
         this.additionalEntitiesLoading = false;
 
         this.titlePingSlash24 = React.createRef();
         this.titleBgp = React.createRef();
         this.titleUcsdNt = React.createRef();
+        this.titleMeritNt = React.createRef();
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.rawRegionalSignalsProcessedUcsdNt !== prevProps.rawRegionalSignalsProcessedUcsdNt && this.configUcsdNt.current) {
-            this.genChart("ucsd-nt", "region")
+        if (this.props.rawRegionalSignalsProcessedBgp !== prevProps.rawRegionalSignalsProcessedBgp && this.configBgp.current) {
+            this.genChart("bgp", "region")
         }
-        if (this.props.rawAsnSignalsProcessedUcsdNt !== prevProps.rawAsnSignalsProcessedUcsdNt && this.configUcsdNt.current) {
-            this.genChart("ucsd-nt", "asn")
+        if (this.props.rawAsnSignalsProcessedBgp !== prevProps.rawAsnSignalsProcessedBgp && this.configBgp.current) {
+            this.genChart("bgp", "asn")
         }
 
         if (this.configPingSlash24 && this.configPingSlash24.current && this.configPingSlash24.current.clientHeight === 0) {
@@ -67,6 +70,14 @@ class RawSignalsModal extends PureComponent {
 
         if (this.configUcsdNt && this.configUcsdNt.current && this.configUcsdNt.current.clientHeight !== 0) {
             this.setState({ renderingDataUcsdNt: false })
+        }
+
+        if (this.configMeritNt && this.configMeritNt.current && this.configMeritNt.current.clientHeight === 0) {
+            this.setState({ renderingDataMeritNt: true })
+        }
+
+        if (this.configMeritNt && this.configMeritNt.current && this.configMeritNt.current.clientHeight !== 0) {
+            this.setState({ renderingDataMeritNt: false })
         }
     }
 
@@ -94,6 +105,12 @@ class RawSignalsModal extends PureComponent {
                             rawSignalsProcessedArray = this.props.rawRegionalSignalsProcessedUcsdNt;
                         }
                         break;
+                    case 'merit-nt':
+                        if (this.props.rawRegionalSignalsProcessedMeritNt && this.props.rawRegionalSignalsProcessedMeritNt.length > 0) {
+                            dataSourceForCSS = "meritNt";
+                            rawSignalsProcessedArray = this.props.rawRegionalSignalsProcessedMeritNt;
+                        }
+                        break;
                 }
                 break;
             case 'asn':
@@ -114,6 +131,12 @@ class RawSignalsModal extends PureComponent {
                         if (this.props.rawAsnSignalsProcessedUcsdNt && this.props.rawAsnSignalsProcessedUcsdNt.length > 0) {
                             dataSourceForCSS = "ucsdNt";
                             rawSignalsProcessedArray = this.props.rawAsnSignalsProcessedUcsdNt;
+                        }
+                        break;
+                    case 'merit-nt':
+                        if (this.props.rawAsnSignalsProcessedMeritNt && this.props.rawAsnSignalsProcessedMeritNt.length > 0) {
+                            dataSourceForCSS = "meritNt";
+                            rawSignalsProcessedArray = this.props.rawAsnSignalsProcessedMeritNt;
                         }
                         break;
                 }
@@ -152,6 +175,10 @@ class RawSignalsModal extends PureComponent {
             if (dataSource === 'ucsd-nt' && (this.configUcsdNt.current || this.state.chartWidth)) {
                 chart(this.configUcsdNt.current ? this.configUcsdNt.current.offsetWidth : this.state.chartWidth);
             }
+
+            if (dataSource === 'merit-nt' && (this.configMeritNt.current || this.state.chartWidth)) {
+                chart(this.configMeritNt.current ? this.configMeritNt.current.offsetWidth : this.state.chartWidth);
+            }
         } else {
             return null
         }
@@ -185,6 +212,7 @@ class RawSignalsModal extends PureComponent {
         const pingSlash24HtsLabel = T.translate("entityModal.pingSlash24HtsLabel");
         const bgpHtsLabel = T.translate("entityModal.bgpHtsLabel");
         const ucsdNtHtsLabel = T.translate("entityModal.ucsdNtHtsLabel");
+        const meritNtHtsLabel = T.translate("entityModal.meritNtHtsLabel");
         const checkMaxButton = T.translate("entityModal.checkMaxButton");
         const checkMaxButtonBelow150_1 = T.translate("entityModal.checkMaxButtonBelow150_1");
         const checkMaxButtonBelow150_2 = T.translate("entityModal.checkMaxButtonBelow150_2");
@@ -219,6 +247,9 @@ class RawSignalsModal extends PureComponent {
                     }
                     .renderingDataUcsdNt {
                         ${this.state.renderingDataUcsdNt ? activeCSS : inactiveCSS}
+                    }
+                    .renderingDataMeritNt {
+                        ${this.state.renderingDataMeritNt ? activeCSS : inactiveCSS}
                     }
                 `}</Style>
                 <div className="modal__background"></div>
@@ -467,44 +498,44 @@ class RawSignalsModal extends PureComponent {
                                                     </div> : null
                                             }</React.Fragment>
                                 }
-                                <h3 className="heading-h3" ref={this.titleUcsdNt}>{ucsdNtHtsLabel}</h3>
+                                <h3 className="heading-h3" ref={this.titleMeritNt}>{meritNtHtsLabel}</h3>
                                 {
                                     this.props.modalLocation === 'map'
                                         ? <React.Fragment>{
-                                            this.props.rawRegionalSignalsRawUcsdNtLength !== 0 && this.props.rawRegionalSignalsProcessedUcsdNt && this.props.rawRegionalSignalsProcessedUcsdNt.length === 0
+                                            this.props.rawRegionalSignalsRawMeritNtLength !== 0 && this.props.rawRegionalSignalsProcessedMeritNt && this.props.rawRegionalSignalsProcessedMeritNt.length === 0
                                                 ? null
-                                                : this.props.rawRegionalSignalsRawUcsdNtLength === 0 && !this.props.rawRegionalSignalsProcessedUcsdNt
+                                                : this.props.rawRegionalSignalsRawMeritNtLength === 0 && !this.props.rawRegionalSignalsProcessedMeritNt
                                                 ? <Loading text="Retrieving Data..."/>
-                                                : this.props.rawRegionalSignalsRawUcsdNtLength !== 0 && this.configUcsdNt && this.configUcsdNt.current && this.configUcsdNt.current.nextElementSibling !== "div#region-horizon-chart--ucsdNt.modal__chart"
-                                                    ? <div className="renderingDataUcsdNt"><Loading text="Rendering Data..."/></div>
+                                                : this.props.rawRegionalSignalsRawMeritNtLength !== 0 && this.configMeritNt && this.configMeritNt.current && this.configMeritNt.current.nextElementSibling !== "div#region-horizon-chart--meritNt.modal__chart"
+                                                    ? <div className="renderingDataMeritNt"><Loading text="Rendering Data..."/></div>
                                                     : null
                                         }</React.Fragment> : <React.Fragment>{
-                                            this.props.rawAsnSignalsRawUcsdNtLength !== 0 && this.props.rawAsnSignalsProcessedUcsdNt && this.props.rawAsnSignalsProcessedUcsdNt.length === 0
+                                            this.props.rawAsnSignalsRawMeritNtLength !== 0 && this.props.rawAsnSignalsProcessedMeritNt && this.props.rawAsnSignalsProcessedMeritNt.length === 0
                                                 ? null
-                                                : this.props.rawAsnSignalsRawUcsdNtLength === 0 && !this.props.rawAsnSignalsProcessedUcsdNt
+                                                : this.props.rawAsnSignalsRawMeritNtLength === 0 && !this.props.rawAsnSignalsProcessedMeritNt
                                                 ? <Loading text="Retrieving Data..."/>
-                                                : this.props.rawAsnSignalsRawUcsdNtLength !== 0 && this.configUcsdNt && this.configUcsdNt.current && this.configUcsdNt.current.nextElementSibling !== "div#asn-horizon-chart--ucsdNt.modal__chart"
-                                                    ? <div className="renderingDataUcsdNt"><Loading text="Rendering Data..."/></div>
+                                                : this.props.rawAsnSignalsRawMeritNtLength !== 0 && this.configMeritNt && this.configMeritNt.current && this.configMeritNt.current.nextElementSibling !== "div#asn-horizon-chart--meritNt.modal__chart"
+                                                    ? <div className="renderingDataMeritNt"><Loading text="Rendering Data..."/></div>
                                                     : null
                                         }</React.Fragment>
                                 }
                                 {
-                                    this.props.additionalRawSignalRequestedUcsdNt === true ? <Loading/> :
+                                    this.props.additionalRawSignalRequestedMeritNt === true ? <Loading/> :
                                         this.props.modalLocation === 'map'
                                             ? <React.Fragment>{
-                                                this.props.rawRegionalSignalsProcessedUcsdNt && this.props.rawRegionalSignalsProcessedUcsdNt.length > 0 ?
-                                                    <div id="region-horizon-chart--ucsdNt" ref={this.configUcsdNt}
+                                                this.props.rawRegionalSignalsProcessedMeritNt && this.props.rawRegionalSignalsProcessedMeritNt.length > 0 ?
+                                                    <div id="region-horizon-chart--meritNt" ref={this.configMeritNt}
                                                          className="modal__chart">
                                                         {
-                                                            this.genChart("ucsd-nt", "region")
+                                                            this.genChart("merit-nt", "region")
                                                         }
                                                     </div> : null
                                             }</React.Fragment> : <React.Fragment>{
-                                                this.props.rawAsnSignalsProcessedUcsdNt && this.props.rawAsnSignalsProcessedUcsdNt.length > 0 ?
-                                                    <div id="asn-horizon-chart--ucsdNt" ref={this.configUcsdNt}
+                                                this.props.rawAsnSignalsProcessedMeritNt && this.props.rawAsnSignalsProcessedMeritNt.length > 0 ?
+                                                    <div id="asn-horizon-chart--meritNt" ref={this.configMeritNt}
                                                          className="modal__chart">
                                                         {
-                                                            this.genChart("ucsd-nt", "asn")
+                                                            this.genChart("merit-nt", "asn")
                                                         }
                                                     </div> : null
                                             }</React.Fragment>

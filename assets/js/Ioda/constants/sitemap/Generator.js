@@ -1,16 +1,16 @@
 // Tutorial used: https://www.amitsn.com/blog/how-to-generate-a-sitemap-for-your-react-website-with-dynamic-content
 
 require("babel-register")({
-    presets: ["es2015", "react"]
+    presets: ["env", "react"]
 });
 const axios = require('axios');
 const {merge} = require("lodash");
-const router = require("./routes").default;
+const router = require("./Routes").default;
 const Sitemap = require("react-router-sitemap").default;
 
 async function generateSitemap() {
     try {
-        const url = 'https://api.ioda.caida.org/v2/topo/country';
+        const url = 'http://api.ioda.inetintel.cc.gatech.edu/v2/topo/country';
         const axiosConfig = {
             method: "get",
             url: ""
@@ -42,7 +42,7 @@ async function generateSitemap() {
         return (
             new Sitemap(router)
                 .applyParams(routeConfig)
-                .build("https://v2.ioda.caida.org")
+                .build("https://ioda.inetintel.cc.gatech.edu")
                 .save("./public/sitemap.xml")
         );
     } catch(e) {

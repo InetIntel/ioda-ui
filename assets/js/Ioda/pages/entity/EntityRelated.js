@@ -86,6 +86,7 @@ class EntityRelated extends Component {
                                 rawRegionalSignalsProcessedPingSlash24={this.props.rawRegionalSignalsProcessedPingSlash24}
                                 rawRegionalSignalsProcessedBgp={this.props.rawRegionalSignalsProcessedBgp}
                                 rawRegionalSignalsProcessedUcsdNt={this.props.rawRegionalSignalsProcessedUcsdNt}
+                                rawRegionalSignalsProcessedMeritNt={this.props.rawRegionalSignalsProcessedMeritNt}
 
                                 // Error message when max entities are checked
                                 rawSignalsMaxEntitiesHtsError={this.props.rawSignalsMaxEntitiesHtsError}
@@ -105,6 +106,7 @@ class EntityRelated extends Component {
                                 additionalRawSignalRequestedPingSlash24={this.props.additionalRawSignalRequestedPingSlash24}
                                 additionalRawSignalRequestedBgp={this.props.additionalRawSignalRequestedBgp}
                                 additionalRawSignalRequestedUcsdNt={this.props.additionalRawSignalRequestedUcsdNt}
+                                additionalRawSignalRequestedMeritNt={this.props.additionalRawSignalRequestedMeritNt}
                                 // used for tracking when check max/uncheck all loading icon should appear and not
                                 checkMaxButtonLoading={this.props.checkMaxButtonLoading}
                                 uncheckAllButtonLoading={this.props.uncheckAllButtonLoading}
@@ -112,6 +114,7 @@ class EntityRelated extends Component {
                                 rawRegionalSignalsRawBgpLength = {this.props.rawRegionalSignalsRawBgpLength}
                                 rawRegionalSignalsRawPingSlash24Length = {this.props.rawRegionalSignalsRawPingSlash24Length}
                                 rawRegionalSignalsRawUcsdNtLength = {this.props.rawRegionalSignalsRawUcsdNtLength}
+                                rawRegionalSignalsRawMeritNtLength = {this.props.rawRegionalSignalsRawMeritNtLength}
                             />
                         </div>
                     </div>
@@ -177,6 +180,7 @@ class EntityRelated extends Component {
                                 rawAsnSignalsProcessedPingSlash24={this.props.rawAsnSignalsProcessedPingSlash24}
                                 rawAsnSignalsProcessedBgp={this.props.rawAsnSignalsProcessedBgp}
                                 rawAsnSignalsProcessedUcsdNt={this.props.rawAsnSignalsProcessedUcsdNt}
+                                rawAsnSignalsProcessedMeritNt={this.props.rawAsnSignalsProcessedMeritNt}
 
                                 // Current number of entities checked in table
                                 asnSignalsTableEntitiesChecked={this.props.asnSignalsTableEntitiesChecked}
@@ -200,6 +204,7 @@ class EntityRelated extends Component {
                                 additionalRawSignalRequestedPingSlash24={this.props.additionalRawSignalRequestedPingSlash24}
                                 additionalRawSignalRequestedBgp={this.props.additionalRawSignalRequestedBgp}
                                 additionalRawSignalRequestedUcsdNt={this.props.additionalRawSignalRequestedUcsdNt}
+                                additionalRawSignalRequestedMeritNt={this.props.additionalRawSignalRequestedMeritNt}
                                 // used for tracking when check max/uncheck all loading icon should appear and not
                                 checkMaxButtonLoading={this.props.checkMaxButtonLoading}
                                 uncheckAllButtonLoading={this.props.uncheckAllButtonLoading}
@@ -207,6 +212,7 @@ class EntityRelated extends Component {
                                 rawAsnSignalsRawBgpLength = {this.props.rawAsnSignalsRawBgpLength}
                                 rawAsnSignalsRawPingSlash24Length = {this.props.rawAsnSignalsRawPingSlash24Length}
                                 rawAsnSignalsRawUcsdNtLength = {this.props.rawAsnSignalsRawUcsdNtLength}
+                                rawAsnSignalsRawMeritNtLength = {this.props.rawAsnSignalsRawMeritNtLength}
                             />
                         </div>
                     </div>
