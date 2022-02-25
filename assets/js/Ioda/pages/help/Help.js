@@ -58,7 +58,7 @@ class Help extends PureComponent {
         return (
             <div className="helpPage">
                  <p style={center}>
-                For inquiries of feedback please contact the IODA team at Georgia Tech’s &nbsp;<a href="https://inetintel.notion.site/Internet-Intelligence-Research-Lab-d186184563d345bab51901129d812ed6" target="_blank">Internet Intelligence Lab</a>: <a href="mailto:ioda-info@cc.gatech.edu">ioda-info@cc.gatech.edu</a>.</p>
+                For inquiries or feedback please contact the IODA team at Georgia Tech’s &nbsp;<a href="https://inetintel.notion.site/Internet-Intelligence-Research-Lab-d186184563d345bab51901129d812ed6" target="_blank">Internet Intelligence Lab</a>: ioda-info@cc.gatech.edu.</p>
                 <Helmet>
                     <title>IODA | Screencasts, Detection Methods, Data Access, and More</title>
                     <meta name="description" content="Learn more about IODA's datasources used, internet outage detection and scoring methods, or get help using the interface." />

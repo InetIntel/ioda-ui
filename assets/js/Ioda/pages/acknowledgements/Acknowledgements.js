@@ -66,7 +66,7 @@ class Acknowledgements extends PureComponent {
         return (
             <div className="acknowledgements">
                  <p style={center}>
-                For inquiries of feedback please contact the IODA team at Georgia Tech’s &nbsp;<a href="https://inetintel.notion.site/Internet-Intelligence-Research-Lab-d186184563d345bab51901129d812ed6" target="_blank">Internet Intelligence Lab</a>: <a href="mailto:ioda-info@cc.gatech.edu">ioda-info@cc.gatech.edu</a>.</p>
+                For inquiries or feedback please contact the IODA team at Georgia Tech’s &nbsp;<a href="https://inetintel.notion.site/Internet-Intelligence-Research-Lab-d186184563d345bab51901129d812ed6" target="_blank">Internet Intelligence Lab</a>: ioda-info@cc.gatech.edu.</p>
                 <Helmet>
                     <title>IODA | Acknowledgements</title>
                     <meta name="description" content="Contributing partners to IODA's internet outage detection processes and software" />
