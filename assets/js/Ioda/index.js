@@ -73,6 +73,8 @@ ga4react.initialize().then((ga4) => {
 },(err) => {
     console.error(err)
 });
+ga4react.initialize();
+
 
 class App extends Component {
     render() {
@@ -102,8 +104,8 @@ const rootReducer = combineReducers(reducers);
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 // await google analytics to initialize
-(async () => {
-    await ga4react.initialize();
+
+    
 
     ReactDOM.render(
         <Provider store={store}>
@@ -113,5 +115,5 @@ const store = createStore(rootReducer, applyMiddleware(thunk));
         </Provider>,
         document.getElementById('root')
     );
-})();
+
 

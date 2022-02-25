@@ -2622,13 +2622,13 @@ body {
         padding: 5.5rem 0 1.5rem; } }
     .footer__logos-item {
       height: 6rem;
-      width: 15rem;
+      width: 25rem;
       display: flex;
       justify-content: center;
       align-items: center; }
       .footer__logos-item:first-child .footer__logos-item-container div {
         position: relative !important;
-        width: 10rem !important;
+        width: 25rem !important;
         height: 10rem !important;
         background-size: contain !important; }
       .footer__logos-item:not(:first-child) .footer__logos-item-container div {
@@ -2644,9 +2644,9 @@ body {
         justify-content: center;
         align-items: center; }
       @media only screen and (max-width: 46em) {
-        .footer__logos-item--caida {
+        .footer__logos-item--gatech {
           margin-bottom: 4rem !important; } }
-      .footer__logos-item--caida img {
+      .footer__logos-item--gatech img {
         height: 10rem !important;
         width: auto !important; }
       .footer__logos-item img {
@@ -4065,6 +4065,91 @@ button[class*="searchButton"] {
       @media only screen and (max-width: 64em) {
         .entity .related__modal-button {
           margin-left: 3rem; } }
+
+.projectinfo {
+  padding-top: 5rem;
+  margin: 4rem 0;
+  color: #2c3e50; }
+  @media only screen and (max-width: 64em) {
+    .projectinfo {
+      padding: 1.5rem;
+      margin-top: 4rem; } }
+  .projectinfo .row {
+    max-width: 114rem; }
+  .projectinfo .img-container {
+    width: 100%;
+    position: relative;
+    height: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center; }
+    .projectinfo .img-container div {
+      position: relative !important;
+      width: 100rem !important;
+      height: 46.5rem !important;
+      background-size: contain !important; }
+      @media only screen and (max-width: 64em) {
+        .projectinfo .img-container div {
+          width: 80rem !important;
+          height: 37.2rem !important; } }
+      @media only screen and (max-width: 54.375em) {
+        .projectinfo .img-container div {
+          width: 50rem !important;
+          height: 23.25rem !important; } }
+  .projectinfo img {
+    max-width: 100rem;
+    width: 100%;
+    height: auto;
+    margin: 1.5rem auto;
+    display: block;
+    box-shadow: 0 1px 2px #9F9D9D; }
+  .projectinfo .img-container div {
+    filter: drop-shadow(0 1px 2px #9F9D9D); }
+  .projectinfo h2 {
+    font-size: 1.9rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-top: 1rem;
+    margin-top: 1.5rem; }
+    .projectinfo h2:before {
+      content: "";
+      width: 100%;
+      height: 0.1rem;
+      background-color: #2c3e50;
+      position: absolute;
+      top: 0;
+      left: 0; }
+  .projectinfo h3 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    margin-left: 2rem; }
+  .projectinfo h4 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    margin-left: 2rem; }
+  .projectinfo ul {
+    margin-left: 4rem;
+    margin-bottom: 1rem; }
+    .projectinfo ul li {
+      font-size: 1.2rem; }
+  .projectinfo p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    margin-left: 2rem; }
+  .projectinfo a:link, .projectinfo a:visited {
+    word-break: break-all; }
+    .projectinfo a:link:link, .projectinfo a:link:visited, .projectinfo a:visited:link, .projectinfo a:visited:visited {
+      color: #3975BB;
+      font-weight: 700;
+      text-decoration: none;
+      padding-bottom: 2px;
+      margin-bottom: 1px;
+      background: linear-gradient(175deg, #598DCC 0%, #598DCC 33.3%, #3975BB 83.5%, #1A5DAE 100%) left bottom transparent no-repeat;
+      background-size: 100% 0;
+      /* controls underline thickness */
+      transition: ease-in-out 0.3s; }
+      .projectinfo a:link:link:hover, .projectinfo a:link:visited:hover, .projectinfo a:visited:link:hover, .projectinfo a:visited:visited:hover {
+        background-size: 100% 2px; }
 
 .reports {
   padding-top: 5rem;

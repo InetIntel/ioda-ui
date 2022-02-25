@@ -23,14 +23,14 @@
 
     &-item {
       height: 6rem;
-      width: 15rem;
+      width: 25rem;
       display: flex;
       justify-content: center;
       align-items: center;
 
       &:first-child .footer__logos-item-container div {
         position: relative!important;
-        width: 10rem!important;
+        width: 25rem!important;
         height: 10rem!important;
         background-size: contain!important;
       }
