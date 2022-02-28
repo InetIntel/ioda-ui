@@ -2035,11 +2035,11 @@ class Entity extends Component {
                                                     />
                                                 </div>
                                                 <div className="overview__buttons-col">
-                                                    {
+                                                    {/* {
                                                         this.state.xyDataOptions ? <button className="related__modal-button" onClick={this.toggleXyChartModal}>
                                                             Export Chart
                                                         </button> : null
-                                                    }
+                                                    } */}
                                                     {
                                                         this.state.showXyChartModal && <XyChartModal
                                                             entityName={this.state.entityName}
