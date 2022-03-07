@@ -17,7 +17,6 @@ class EntityRelated extends Component {
         const asnModalButtonText = T.translate("entity.asnModalButtonText");
         const regionalSectionTitleCountryType = T.translate("entity.regionalSectionTitleCountryType");
         const regionalSectionTitleRegionType = T.translate("entity.regionalSectionTitleRegionType");
-        const regionalSectionTitleAsnType = T.translate("entity.regionalSectionTitleAsnType");
 
         const tooltipEntityRegionalSummaryMapTitle = T.translate("tooltip.entityRegionalSummaryMap.title");
         const tooltipEntityRegionalSummaryMapText = T.translate("tooltip.entityRegionalSummaryMap.text");
@@ -38,7 +37,7 @@ class EntityRelated extends Component {
                                         : this.props.entityType === 'region'
                                         ? `${regionalSectionTitleRegionType} ${this.props.parentEntityName}`
                                         : this.props.entityType === 'asn'
-                                            ? `${regionalSectionTitleAsnType} ${this.props.entityName}`
+                                            ? T.translate("entity.regionalSectionTitleAsnType",{asn: this.props.entityName})
                                             : null
                                 }
                             </h3>
@@ -145,7 +144,7 @@ class EntityRelated extends Component {
                                         : this.props.entityType === 'region'
                                         ? `ASNs/ISPs affected by ${this.props.parentEntityName} Outages`
                                         : this.props.entityType === 'asn'
-                                            ? `Countries affected by ${this.props.entityName} Outages`
+                                            ? `Countries where ${this.props.entityName} operates that experienced outages`
                                             : null
                                 }
                             </h3>

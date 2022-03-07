@@ -184,6 +184,9 @@ class Entity extends Component {
         this.initialTableLimit = 300;
         this.initialHtsLimit = 100;
         this.maxHtsLimit = 150;
+        this.props.history.listen((location, action) => {
+            window.location.reload();
+          });
     }
     componentDidMount() {
         // Monitor screen width
