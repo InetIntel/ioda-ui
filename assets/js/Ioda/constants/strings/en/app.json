@@ -148,7 +148,7 @@
     "asnModalButtonText": "ASN/ISP Raw Signals",
     "regionalSectionTitleCountryType": "Regional Outages in ",
     "regionalSectionTitleRegionType": "Other Regions Affected in ",
-    "regionalSectionTitleAsnType": "Regional Outages related to "
+    "regionalSectionTitleAsnType": "Regions where {asn} operates that experienced outages"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",
@@ -245,7 +245,7 @@
     "timeRange": {
       "title": "Time Range",
       "text": "This dropdown menu allows you to pick the time range for the data you want to inspect. Note that the dashboard limits the data to 35 days."
-      },
+    },
     "searchBar": {
       "title": "Search",
       "text": "This search bar allows for a quick navigation to a specific country, region, or ASN/ISP."
