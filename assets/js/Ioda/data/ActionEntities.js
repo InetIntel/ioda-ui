@@ -61,7 +61,7 @@ export const searchEntities = (dispatch, searchQuery, limit=15) => {
 export const buildSearchRelatedEntitiesConfig = (from, until, entityType, relatedToEntityType, relatedToEntityCode) => {
     return {
         method: "get",
-        url: `/entities/${entityType}/?relatedTo=${relatedToEntityType}/${relatedToEntityCode}`
+        url: `/entities/?entityType=${entityType}&relatedTo=${relatedToEntityType}/${relatedToEntityCode}`
     }
 }
 
@@ -80,7 +80,7 @@ export const searchRelatedEntities = (dispatch, from, until, entityType, related
 const buildEntityMetadataConfig = (entityType, entityCode) => {
     return {
         method: "get",
-        url: `/entities/${entityType}/${entityCode}`
+        url: `/entities?entityType=${entityType}&entityCode=${entityCode}`
     }
 };
 
@@ -97,7 +97,7 @@ export const getEntityMetadata = (dispatch, entityType, entityCode) => {
 const summaryDataForSignalsTableConfig = (entityType, relatedToEntityType, relatedToEntityCode) => {
     return {
         method: "get",
-        url: `/entities/${entityType}/?relatedTo=${relatedToEntityType}/${relatedToEntityCode}`
+        url: `/entities/?entityType=${entityType}&relatedTo=${relatedToEntityType}/${relatedToEntityCode}`
     }
 }
 
