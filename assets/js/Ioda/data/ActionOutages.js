@@ -49,14 +49,10 @@ BUILDING CONNECTION CONFIGS
 
 const buildAlertsConfig = (from, until, entityType=null, entityCode=null, datasource=null, limit=null, page=null) => {
     let url = "/outages/alerts/";
-    if(entityType !== null){
-        url += `${entityType}/`;
-        if(entityCode !== null) {
-            url += `${entityCode}/`;
-        }
-    }
     url += `?from=${from}&until=${until}`;
 
+    url += entityType!==null ? `&entityType=${entityType}`: "";
+    url += entityCode!==null ? `&entityCode=${entityCode}`: "";
     url += datasource!==null ? `&datasource=${datasource}`: "";
     url += limit!==null ? `&limit=${limit}`: "";
     url += page!==null ? `&page=${page}`: "";
@@ -71,14 +67,10 @@ const buildEventsConfig = (from, until, entityType=null, entityCode=null, attr, 
                            includeAlerts=null, format=null,
                            limit=null, page=null, ) => {
     let url = "/outages/events/";
-    if(entityType !== null){
-        url += `${entityType}/`;
-        if(entityCode !== null) {
-            url += `${entityCode}/`;
-        }
-    }
     url += `?from=${from}&until=${until}`;
 
+    url += entityType!==null ? `&entityType=${entityType}`: "";
+    url += entityCode!==null ? `&entityCode=${entityCode}`: "";
     url += datasource!==null ? `&datasource=${datasource}`: "";
     url += format!==null ? `&format=${format}`: "";
     url += includeAlerts!==null ? `&includeAlerts=${includeAlerts}`: "";
@@ -94,14 +86,10 @@ const buildEventsConfig = (from, until, entityType=null, entityCode=null, attr, 
 
 const buildSummaryConfig = (from, until, entityType=null, entityCode=null, limit=null, page=null) => {
     let url = "/outages/summary/";
-    if(entityType !== null){
-        url += `${entityType}/`;
-        if(entityCode !== null) {
-            url += `${entityCode}/`;
-        }
-    }
     url += `?from=${from}&until=${until}`;
 
+    url += entityType!==null ? `&entityType=${entityType}`: "";
+    url += entityCode!==null ? `&entityCode=${entityCode}`: "";
     url += limit!==null ? `&limit=${limit}`: "";
     url += page!==null ? `&page=${page}`: "";
 
@@ -113,14 +101,9 @@ const buildSummaryConfig = (from, until, entityType=null, entityCode=null, limit
 
 const buildRelatedToSummaryConfig = (from, until, entityType, relatedToEntityType, relatedToEntityCode, entityCode=null, limit=null, page=null) => {
     let url = "/outages/summary/";
-    if(entityType !== null){
-        url += `${entityType}/`;
-        // if(entityCode !== null) {
-        //     url += `${entityCode}/`;
-        // }
-    }
     url += `?from=${from}&until=${until}`;
 
+    url += entityType!==null ? `&entityType=${entityType}`: "";
     url += limit!==null ? `&limit=${limit}`: "";
     url += page!==null ? `&page=${page}`: "";
     url += relatedToEntityType!==null ? `&relatedTo=${relatedToEntityType}/${relatedToEntityCode}` : "";
