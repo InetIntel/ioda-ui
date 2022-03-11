@@ -169,11 +169,17 @@ class Table extends Component {
                 // property doesn't exist on either object
                 return 0;
             }
-
-            const varA = (typeof a[key] === 'string')
+    
+            let varA = (typeof a[key] === 'string')
                 ? a[key].toUpperCase() : a[key];
-            const varB = (typeof b[key] === 'string')
+            let varB = (typeof b[key] === 'string')
                 ? b[key].toUpperCase() : b[key];
+
+            if(key==="ipCount"){
+                varA=Table.parseHumanReadableFloat(varA);
+                varB=Table.parseHumanReadableFloat(varB);
+                console.log(varA+"   "+varB)
+            }
 
             let comparison = 0;
             if (varA > varB) {
@@ -185,6 +191,14 @@ class Table extends Component {
                 (order === 'desc') ? (comparison * -1) : comparison
             );
         };
+    }
+
+    static parseHumanReadableFloat(value){
+        let parsedValue=parseFloat(value.replace(/[A-Za-z]/g, ''));
+        if(value.includes("M")){
+            parsedValue=parsedValue*1000;
+        }
+        return parsedValue;
     }
 
     sortByColumn(event) {
