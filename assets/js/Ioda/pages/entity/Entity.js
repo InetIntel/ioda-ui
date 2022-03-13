@@ -1178,6 +1178,16 @@ class Entity extends Component {
         this.setState({
             eventDataProcessed: eventData
         });
+
+	/* Force alert bands to be drawn in cases where the graph was
+	 * drawn before our event data arrived.
+	 */
+        if (this.state.tsDataDisplayOutageBands) {
+	    if (this.state.tsDataRaw) {
+		this.convertValuesForXyViz();
+	    }
+	}
+
     }
     // Take values from api and format for Alert table
     convertValuesForAlertTable() {
