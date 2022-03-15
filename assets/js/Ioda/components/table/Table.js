@@ -178,7 +178,6 @@ class Table extends Component {
             if(key==="ipCount"){
                 varA=Table.parseHumanReadableFloat(varA);
                 varB=Table.parseHumanReadableFloat(varB);
-                console.log(varA+"   "+varB)
             }
 
             let comparison = 0;
@@ -195,8 +194,12 @@ class Table extends Component {
 
     static parseHumanReadableFloat(value){
         let parsedValue=parseFloat(value.replace(/[A-Za-z]/g, ''));
-        if(value.includes("M")){
+        if(value.includes("k")){
             parsedValue=parsedValue*1000;
+        } else if(value.includes("M")){
+            parsedValue=parsedValue*1000000;
+        } else if(value.includes("G")){
+            parsedValue=parsedValue*1000000000;
         }
         return parsedValue;
     }
