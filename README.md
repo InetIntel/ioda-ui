@@ -1,6 +1,5 @@
 # ioda-ui
-Web application UI for the IODA project (https://ioda.caida.org)
-- [IODA server deployment](http://github.com/CAIDA/ioda-deploy)
+Web application UI for the IODA project (https://ioda.live)
 
 
 ## Install
