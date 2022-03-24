@@ -140,9 +140,9 @@ class EntityRelated extends Component {
                             <h3 className="heading-h3">
                                 {
                                     this.props.entityType === 'country'
-                                        ? `ASNs/ISPs affected by ${this.props.entityName} Outages`
+                                        ? `Outages of ASNs/ISPs operating in ${this.props.entityName}`
                                         : this.props.entityType === 'region'
-                                        ? `ASNs/ISPs affected by ${this.props.parentEntityName} Outages`
+                                        ? `Outages of ASNs/ISPs operating in ${this.props.parentEntityName}`
                                         : this.props.entityType === 'asn'
                                             ? `Countries where ${this.props.entityName} operates that experienced outages`
                                             : null

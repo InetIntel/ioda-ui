@@ -955,17 +955,27 @@ class Entity extends Component {
                         const meritLegendText = T.translate("entity.meritLegendText");
                         switch (e.dataSeries.name) {
                             case activeProbingLegendText:
+                                if(e.dataSeries.visible){
+                                    e.chart.axisY[0].set("labelFontColor","#666666");
+                                }
                                 this.setState({ tsDataSeriesVisiblePingSlash24: e.dataSeries.visible }, e.chart.render());
                                 break;
                             case bgpLegendText:
+                                if(e.dataSeries.visible){
+                                    e.chart.axisY[0].set("labelFontColor","#666666");
+                                }
                                 this.setState({ tsDataSeriesVisibleBgp: e.dataSeries.visible }, e.chart.render());
                                 break;
                             case darknetLegendText:
+                                e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
                                 this.setState({ tsDataSeriesVisibleUcsdNt: e.dataSeries.visible }, e.chart.render());
                                 break;
                             case meritLegendText:
                                 this.setState({ tsDataSeriesVisibleMeritNt: e.dataSeries.visible }, e.chart.render());
                                 break;
+                        }
+                        if(!this.state.tsDataSeriesVisiblePingSlash24 && !this.state.tsDataSeriesVisibleBgp){
+                            e.chart.axisY[0].set("labelFontColor","transparent");
                         }
                     }
                 },
