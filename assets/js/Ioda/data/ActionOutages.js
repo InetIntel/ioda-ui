@@ -85,7 +85,7 @@ BUILDING CONNECTION CONFIGS
  */
 
 const buildAlertsConfig = (from, until, entityType=null, entityCode=null, datasource=null, limit=null, page=null) => {
-    let url = "/outages/alerts/";
+    let url = "/outages/alerts";
     url += `?from=${from}&until=${until}`;
 
     url += entityType!==null ? `&entityType=${entityType}`: "";
@@ -103,7 +103,7 @@ const buildAlertsConfig = (from, until, entityType=null, entityCode=null, dataso
 const buildEventsConfig = (from, until, entityType=null, entityCode=null, attr, order, datasource=null,
                            includeAlerts=null, format=null,
                            limit=null, page=null, ) => {
-    let url = "/outages/events/";
+    let url = "/outages/events";
     url += `?from=${from}&until=${until}`;
 
     url += entityType!==null ? `&entityType=${entityType}`: "";
@@ -122,7 +122,7 @@ const buildEventsConfig = (from, until, entityType=null, entityCode=null, attr, 
 };
 
 const buildSummaryConfig = (from, until, entityType=null, entityCode=null, limit=null, page=null) => {
-    let url = "/outages/summary/";
+    let url = "/outages/summary";
     url += `?from=${from}&until=${until}`;
 
     url += entityType!==null ? `&entityType=${entityType}`: "";
@@ -137,7 +137,7 @@ const buildSummaryConfig = (from, until, entityType=null, entityCode=null, limit
 };
 
 const buildRelatedToSummaryConfig = (from, until, entityType, relatedToEntityType, relatedToEntityCode, entityCode=null, limit=null, page=null) => {
-    let url = "/outages/summary/";
+    let url = "/outages/summary";
     url += `?from=${from}&until=${until}`;
 
     url += entityType!==null ? `&entityType=${entityType}`: "";
