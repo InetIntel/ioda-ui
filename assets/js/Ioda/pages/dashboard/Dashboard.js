@@ -21,7 +21,7 @@ import {
     convertValuesForSummaryTable,
     convertTsDataForHtsViz,
     dateRangeToSeconds,
-    controlPanelTimeRangeLimit,
+    dashboardTimeRangeLimit,
     convertTimeToSecondsForURL
 } from "../../utils";
 import Loading from "../../components/loading/Loading";
@@ -105,7 +105,7 @@ class Dashboard extends Component {
                 this.setState({
                     mounted: true,
                 },() => {
-                    if (this.state.until - this.state.from < controlPanelTimeRangeLimit) {
+                    if (this.state.until - this.state.from < dashboardTimeRangeLimit) {
                         // Set initial tab to load
                         this.handleSelectTab(this.tabs[
                             this.props.history.location.pathname.split("/")[2] && this.props.history.location.pathname.split("/")[2].split("?")[0] === 'region'
@@ -130,14 +130,14 @@ class Dashboard extends Component {
                 });
             } else {
                 this.setState({
-                    displayTimeRangeError: true
+                    displayDashboardTimeRangeError: true
                 });
             }
         } else {
             this.setState({
                 mounted: true
             },() => {
-                if (this.state.until - this.state.from < controlPanelTimeRangeLimit) {
+                if (this.state.until - this.state.from < dashboardTimeRangeLimit) {
                     // Set initial tab to load
                     this.handleSelectTab(this.tabs[
                         this.props.history.location.pathname.split("/")[2] && this.props.history.location.pathname.split("/")[2].split("?")[0] === 'region'
@@ -272,7 +272,7 @@ class Dashboard extends Component {
             tabCurrentView: "map",
             eventDataRaw: [],
             eventDataProcessed: [],
-            displayTimeRangeError: false
+            displayDashboardTimeRangeError: false
         }, () => {
             // Get topo and outage data to repopulate map and table
             this.getDataTopo(this.state.activeTabType);
@@ -346,7 +346,7 @@ class Dashboard extends Component {
             const includeMetadata = true;
             // let page = null;
             const entityCode = null;
-            if (until - from < controlPanelTimeRangeLimit) {
+            if (until - from < dashboardTimeRangeLimit) {
                 this.props.searchSummaryAction(from, until, entityType, entityCode, limit, page, includeMetadata);
             }
         }
@@ -517,7 +517,7 @@ class Dashboard extends Component {
                         />
                         {
                             tab !== this.asnTab
-                                ? this.state.topoData && this.state.topoScores || this.state.until - this.state.from > controlPanelTimeRangeLimit
+                                ? this.state.topoData && this.state.topoScores || this.state.until - this.state.from > dashboardTimeRangeLimit
                                     ? <DashboardTab
                                         type={this.state.activeTabType}
                                         handleTabChangeViewButton={() => this.handleTabChangeViewButton()}
@@ -525,7 +525,7 @@ class Dashboard extends Component {
                                         from={this.state.from}
                                         until={this.state.until}
                                         // display error text if from value is higher than until value
-                                        displayTimeRangeError={this.state.displayTimeRangeError}
+                                        displayTimeRangeError={this.state.displayDashboardTimeRangeError}
                                         // to populate summary table
                                         summaryDataProcessed={this.state.summaryDataProcessed}
                                         totalOutages={this.state.totalOutages}
@@ -543,7 +543,7 @@ class Dashboard extends Component {
                                     : this.state.displayTimeRangeError
                                         ? <Error/>
                                         : <Loading/>
-                                : this.state.eventDataProcessed || this.state.until - this.state.from > controlPanelTimeRangeLimit
+                                : this.state.eventDataProcessed || this.state.until - this.state.from > dashboardTimeRangeLimit
                                     ? <DashboardTab
                                         type={this.state.activeTabType}
                                         handleTabChangeViewButton={() => this.handleTabChangeViewButton()}
@@ -551,7 +551,7 @@ class Dashboard extends Component {
                                         from={this.state.from}
                                         until={this.state.until}
                                         // display error text if from value is higher than until value
-                                        displayTimeRangeError={this.state.displayTimeRangeError}
+                                        displayTimeRangeError={this.state.displayDashboardTimeRangeError}
                                         // to populate summary table
                                         summaryDataProcessed={this.state.summaryDataProcessed}
                                         totalOutages={this.state.totalOutages}
@@ -561,7 +561,7 @@ class Dashboard extends Component {
                                         eventDataProcessed={this.state.eventDataProcessed}
                                     />
                                     :
-                                    this.state.displayTimeRangeError ?
+                                    this.state.displayDashboardTimeRangeError ?
                                         <Error/>
                                         : <Loading/>
                         }

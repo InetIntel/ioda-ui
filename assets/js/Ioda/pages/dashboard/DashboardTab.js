@@ -3,7 +3,7 @@ import T from "i18n-react";
 import {
     convertSecondsToDateValues,
     secondsToDhms,
-    controlPanelTimeRangeLimit,
+    dashboardTimeRangeLimit,
     horizonChartSeriesColor, humanizeNumber
 } from "../../utils";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
@@ -63,7 +63,7 @@ class DashboardTab extends Component {
         const viewChangeIconAltTextMap = T.translate("dashboard.viewChangeIconAltTextMap");
         const viewTitleMap = T.translate("dashboard.viewTitleMap");
         const viewTitleChart = T.translate("dashboard.viewTitleChart");
-        const timeDurationTooHighErrorMessage = T.translate("dashboard.timeDurationTooHighErrorMessage");
+        const timeDurationTooHighErrorMessage = T.translate("dashboard.dashDurationTooHighErrorMessage");
 
         const tooltipDashboardHeadingTitle = T.translate("tooltip.dashboardHeading.title");
         const tooltipDashboardHeadingText = T.translate("tooltip.dashboardHeading.text");
@@ -84,7 +84,7 @@ class DashboardTab extends Component {
                     }
                 `}</Style>
                 {
-                    this.props.until - this.props.from < controlPanelTimeRangeLimit ?
+                    this.props.until - this.props.from < dashboardTimeRangeLimit ?
                         <div className="row">
                             {
                                 this.props.totalOutages === 0 ?

@@ -33,8 +33,9 @@
  */
 import d3 from 'd3';
 
-// Time limit max that a user can select in the calendar -- currently set for 35 days
-export const controlPanelTimeRangeLimit = 3024001;
+// Time limit max that a user can select in the calendar -- currently set for 60 days
+export const controlPanelTimeRangeLimit = (60 * 24 * 60 * 60) + 1;
+export const dashboardTimeRangeLimit = (7 * 24 * 60 * 60) + 1;
 export const monthStrings = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export const alertBandColor = "#BE1D2D";
