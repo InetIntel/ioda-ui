@@ -63,6 +63,7 @@ import IranReport2020 from './pages/reports/IranReport2020';
 import ChartShare from "./pages/tests/ChartShare";
 import Acknowledgements from "./pages/acknowledgements/Acknowledgements";
 import TestAPI from "./pages/tests/TestAPI";
+import { ASNVizV2 } from './pages/tmpViz/ASNVizV2';
 
 
 
@@ -88,6 +89,7 @@ class App extends Component {
                 <Route exact path='/project' component={ProjectInfo}/>
                 <Route exact path='/help' component={Help}/>
                 <Route exact path='/acknowledgements' component={Acknowledgements}/>
+                <Route exact path='/_tmp/asn' component={ASNVizV2}/>
                 <Route path='/reports/2020-iran-report' component={IranReport2020}/>
                 <Route exact path='/:entityType/:entityCode' component={Entity} />
                 <Route path='/' component={Home}/>
