@@ -120,7 +120,7 @@
     "viewTitleChart": "Map View",
     "viewChangeIconAltTextHts": "Change to Chart View",
     "viewChangeIconAltTextMap": "Change to Map View",
-    "timeDurationTooHighErrorMessage": "Time duration must be less than 60 days for signal graphs. Current request is for ",
+    "timeDurationTooHighErrorMessage": "Time duration must be less than 90 days for signal graphs. Current request is for ",
     "dashDurationTooHighErrorMessage": "Time duration must be less than 7 days for dashboard maps. Current request is for ",
     "summaryLegendTelescope": "Telescope",
     "summaryLegendActiveProbing": "Active Probing",
