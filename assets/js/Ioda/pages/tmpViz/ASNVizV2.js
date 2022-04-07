@@ -9,7 +9,7 @@ export const ASNVizV2 = () => {
     if (!isLoading) {
       setIsLoading(true);
       let data = await fetch(
-        `https://api.ioda.inetintel.cc.gatech.edu/v2/signals/raw/${type}/${asnL}?from=1645315200&until=1649289599&maxPoints=null&datasource=${datasource}`
+        `https://api.ioda.inetintel.cc.gatech.edu/v2/signals/raw/${type}/${asnL}?from=${Math.floor(new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 60).getTime()/1000)}&until=${Math.floor(Date.now()/1000)}&maxPoints=null&datasource=${datasource}`
       )
         .then((response) => response.json())
         .then((data) => data);
