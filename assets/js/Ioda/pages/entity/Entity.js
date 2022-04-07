@@ -1004,7 +1004,9 @@ class Entity extends Component {
                                 this.setState({ tsDataSeriesVisibleBgp: e.dataSeries.visible }, e.chart.render());
                                 break;
                             case darknetLegendText:
-                                e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
+                                if(e.chart.axisY2[0]) { 
+                                    e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
+                                }
                                 this.setState({ tsDataSeriesVisibleUcsdNt: e.dataSeries.visible }, e.chart.render());
                                 break;
                             case meritLegendText:
