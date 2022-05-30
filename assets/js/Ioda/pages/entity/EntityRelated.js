@@ -106,7 +106,6 @@ class EntityRelated extends Component {
                                 // render function that populates the ui
                                 totalCount={this.props.regionalSignalsTableSummaryDataProcessed.length}
                                 toggleEntityVisibilityInHtsViz={event => this.props.toggleEntityVisibilityInHtsViz(event, "region")}
-                                handleEntityClick={(entityType, entityCode) => this.props.handleEntityClick(entityType, entityCode)}
                                 handleCheckboxEventLoading={(item) => this.props.handleCheckboxEventLoading(item)}
                                 regionalSignalsTableSummaryDataProcessed={this.props.regionalSignalsTableSummaryDataProcessed}
 
@@ -210,7 +209,6 @@ class EntityRelated extends Component {
                                 asnSignalsTableSummaryDataProcessed={this.props.asnSignalsTableSummaryDataProcessed}
                                 // render function that populates the ui
                                 toggleEntityVisibilityInHtsViz={event => this.props.toggleEntityVisibilityInHtsViz(event, "asn")}
-                                handleEntityClick={(entityType, entityCode) => this.props.handleEntityClick(entityType, entityCode)}
                                 handleCheckboxEventLoading={(item) => this.props.handleCheckboxEventLoading(item)}
                                 // data for each horizon time series
                                 rawAsnSignalsProcessedPingSlash24={this.props.rawAsnSignalsProcessedPingSlash24}
@@ -260,7 +258,6 @@ class EntityRelated extends Component {
                                     data={this.props.relatedToTableSummaryProcessed}
                                     totalCount={this.props.relatedToTableSummaryProcessed.length}
                                     entityType={this.props.entityType === "asn" ? "country" : "asn"}
-                                    handleEntityClick={(entityType, entityCode) => this.props.handleEntityClick(entityType, entityCode)}
                                 />
                                 : <Loading/>
                         }

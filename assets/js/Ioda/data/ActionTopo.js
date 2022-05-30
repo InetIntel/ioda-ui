@@ -59,14 +59,12 @@ PUBLIC ACTION FUNCTIONS
  * @param dispatch
  * @param entityType
  */
-export const getTopoAction = (dispatch, entityType) => {
+export const getTopoAction = (entityType) => {
     let config = buildTopoConfig(entityType);
-    fetchData(config).then(data => {
-        dispatch({
-            type: GET_TOPO_DATA,
-            subtype: entityType,
-            payload: data.data.data,
-        })
+    return fetchData(config).then(data => {
+        return  {
+            [entityType]: data.data.data
+        }
     });
 }
 
