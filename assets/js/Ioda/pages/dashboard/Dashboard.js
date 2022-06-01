@@ -229,19 +229,6 @@ class Dashboard extends Component {
             })
         }
 
-        // After API call for topographic data completes, update topoData state with fresh data
-        if (this.props.topoData !== prevProps.topoData) {
-            let topoObjects;
-            if (this.state.activeTabType === country.type) {
-                topoObjects = topojson.feature(this.props.topoData.country.topology, this.props.topoData.country.topology.objects["ne_10m_admin_0.countries.v3.1.0"]);
-            } else if (this.state.activeTabType === region.type) {
-                topoObjects = topojson.feature(this.props.topoData.region.topology, this.props.topoData.region.topology.objects["ne_10m_admin_1.regions.v3.0.0"]);
-            }
-
-            this.setState({
-                topoData: topoObjects
-            }, this.getMapScores);
-        }
 
         // Make API call for data to populate time series stacked horizon view
         if (this.props.eventSignals !== prevProps.eventSignals) {
@@ -391,8 +378,15 @@ class Dashboard extends Component {
     }
     // Make API call to retrieve topographic data
     getDataTopo(entityType) {
+        let topologyObjectName = entityType == "country" ? "ne_10m_admin_0.countries.v3.1.0" : "ne_10m_admin_1.regions.v3.0.0"
         if (this.state.mounted) {
-            this.props.getTopoAction(entityType);
+            getTopoAction(entityType)
+            .then(data => topojson.feature(data[entityType].topology, data[entityType].topology.objects[topologyObjectName]))
+            .then(data =>
+            this.setState({
+                    topoData : data
+                },this.getMapScores)
+            )
         }
     }
     // function to manage when a user clicks a country in the map
@@ -593,9 +587,6 @@ const mapDispatchToProps = (dispatch) => {
         },
         totalOutagesAction: (from, until, entityType) => {
             totalOutages(dispatch, from, until, entityType);
-        },
-        getTopoAction: (entityType) => {
-            getTopoAction(dispatch, entityType);
         },
         getSignalsAction: (entityType, entityCode, from, until, datasource=null, maxPoints=null) => {
             getSignalsAction(dispatch, entityType, entityCode, from, until, datasource, maxPoints);

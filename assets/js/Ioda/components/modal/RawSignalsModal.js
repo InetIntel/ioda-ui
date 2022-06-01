@@ -412,7 +412,6 @@ class RawSignalsModal extends PureComponent {
                                                     data={this.props.regionalSignalsTableSummaryDataProcessed}
                                                     totalCount={this.props.regionalSignalsTableSummaryDataProcessed.length}
                                                     toggleEntityVisibilityInHtsViz={event => this.props.toggleEntityVisibilityInHtsViz(event, "region")}
-                                                    handleEntityClick={(entityType, entityCode) => this.props.handleEntityClick(entityType, entityCode)}
                                                     handleCheckboxEventLoading={(item) => this.props.handleCheckboxEventLoading(item)}
                                                 />
                                                 : <Loading/>
@@ -423,7 +422,6 @@ class RawSignalsModal extends PureComponent {
                                                     totalCount={this.props.asnSignalsTableTotalCount}
                                                     entityType={this.props.entityType === "asn" ? "country" : "asn"}
                                                     toggleEntityVisibilityInHtsViz={event => this.props.toggleEntityVisibilityInHtsViz(event, "asn")}
-                                                    handleEntityClick={(entityType, entityCode) => this.props.handleEntityClick(entityType, entityCode)}
                                                     handleCheckboxEventLoading={(item) => this.props.handleCheckboxEventLoading(item)}
                                                 /> : <Loading/>
                                         }

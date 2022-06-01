@@ -110,6 +110,7 @@ class Entity extends Component {
             parentEntityName: "",
             parentEntityCode: "",
             displayTimeRangeError: false,
+            entityMetadata: {},
             // Data Sources Available
             dataSources: null,
             // Control Panel
@@ -213,11 +214,11 @@ class Entity extends Component {
         this.handleTimeFrame = this.handleTimeFrame.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
         this.handleEntityShapeClick = this.handleEntityShapeClick.bind(this);
-        this.handleEntityClick = this.handleEntityClick.bind(this);
         this.handleCheckboxEventLoading = this.handleCheckboxEventLoading.bind(this);
         this.toggleXyChartModal = this.toggleXyChartModal.bind(this);
         this.changeXyChartNormalization = this.changeXyChartNormalization.bind(this);
         this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
+        this.updateEntityMetaData = this.updateEntityMetaData.bind(this);
         this.initialTableLimit = 300;
         this.initialHtsLimit = 100;
         this.maxHtsLimit = 150;
@@ -225,6 +226,25 @@ class Entity extends Component {
             window.location.reload();
           });
     }
+
+    updateEntityMetaData(entityName, entityCode) {
+        getEntityMetadata(entityName,entityCode)
+        .then(data => 
+            this.setState({
+                entityMetadata: data,
+                entityName: data[0]["name"],
+                parentEntityName: data[0]["attrs"]["country_name"] ? data[0]["attrs"]["country_name"] : this.state.parentEntityName,
+                parentEntityCode: data[0]["attrs"]["country_code"] ? data[0]["attrs"]["country_code"] : this.state.parentEntityCode
+            }, () => {
+                // Get Topo Data for relatedTo Map
+                // ToDo: update parameter to base value off of url entity type
+                this.getDataTopo("region");
+                this.getDataRelatedToMapSummary("region");
+                this.getDataRelatedToTableSummary("asn");
+            }
+                ))
+    }
+
     componentDidMount() {
         // Monitor screen width
         window.addEventListener("resize", this.resize.bind(this));
@@ -252,7 +272,7 @@ class Entity extends Component {
                         this.props.searchAlertsAction(this.state.from, this.state.until, window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], null, null, null);
                         this.props.getSignalsAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], this.state.from, this.state.until, null, 3000);
                         // Get entity name from code provided in url
-                        this.props.getEntityMetadataAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
+                        this.updateEntityMetaData(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
                     }
                 });
             } else {
@@ -270,7 +290,7 @@ class Entity extends Component {
                     this.props.searchAlertsAction(this.state.from, this.state.until, window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], null, null, null);
                     this.props.getSignalsAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], this.state.from, this.state.until, null, 3000);
                     // Get entity name from code provided in url
-                    this.props.getEntityMetadataAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
+                    this.updateEntityMetaData(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
                 }
             });
         }
@@ -289,22 +309,6 @@ class Entity extends Component {
             });
         }
 
-        // After API call for getting entity name from url
-        if (this.props.entityMetadata !== prevProps.entityMetadata) {
-            this.setState({
-                entityName: this.props.entityMetadata[0]["name"],
-                parentEntityName: this.props.entityMetadata[0]["attrs"]["country_name"] ? this.props.entityMetadata[0]["attrs"]["country_name"] : this.state.parentEntityName,
-                parentEntityCode: this.props.entityMetadata[0]["attrs"]["country_code"] ? this.props.entityMetadata[0]["attrs"]["country_code"] : this.state.parentEntityCode
-            }, () => {
-                // Get Topo Data for relatedTo Map
-                // ToDo: update parameter to base value off of url entity type
-                // if (window.location.pathname.split("/")[1] === 'country' || window.location.pathname.split("/")[1] === 'region') {
-                this.getDataTopo("region");
-                this.getDataRelatedToMapSummary("region");
-                this.getDataRelatedToTableSummary("asn");
-                // }
-            });
-        }
 
         // After API call for suggested search results completes, update suggestedSearchResults state with fresh data
         if (this.props.suggestedSearchResults !== prevProps.suggestedSearchResults) {
@@ -342,13 +346,6 @@ class Entity extends Component {
             });
         }
 
-        // After API call for topographic data completes, update topoData state with fresh data
-        if (this.props.topoData !== prevProps.topoData) {
-            let topoObjects = topojson.feature(this.props.topoData.region.topology, this.props.topoData.region.topology.objects["ne_10m_admin_1.regions.v3.0.0"]);
-            this.setState({
-                topoData: topoObjects
-            }, this.getMapScores);
-        }
 
         // After API call for outage summary data completes, pass summary data to map function for data merging
         if (this.props.relatedToMapSummary !== prevProps.relatedToMapSummary) {
@@ -574,165 +571,6 @@ class Entity extends Component {
         }
     }
 
-// Global reset State function, called whenever a link that's destination also uses the entity page template is used
-// - an entity name is clicked from the summary/signals table
-// - an entity name is clicked/hit ENTER from the searchbar drop down
-// - the time range input is updated with new values
-// - an entity is clicked on from the map
-    handleStateReset(resetType, range, entityType, entityCode) {
-        switch (resetType) {
-            case "newTimeFrame":
-                this.setState({
-                    from: range[0],
-                    until: range[1],
-                    displayTimeRangeError: false,
-                    // XY Plot Time Series states
-                    xyDataOptions: null,
-                    tsDataRaw: null,
-                    tsDataNormalized: true,
-                    tsDataDisplayOutageBands: true,
-                    tsDataLegendRangeFrom: range[0],
-                    tsDataLegendRangeUntil: range[1],
-                    // Search Bar
-                    suggestedSearchResults: null,
-                    searchTerm: "",
-                    lastFetched: 0,
-                    // Event/Table Data
-                    currentTable: 'alert',
-                    eventDataRaw: null,
-                    eventDataProcessed: [],
-                    alertDataRaw: null,
-                    alertDataProcessed: [],
-                    // relatedTo entity Map
-                    topoScores: null,
-                    summaryDataMapRaw: null,
-                    bounds: null,
-                    // relatedTo entity Table
-                    relatedToTableApiPageNumber: 0,
-                    relatedToTableSummary: null,
-                    relatedToTableSummaryProcessed: null,
-                    relatedToTablePageNumber: 0,
-                    // RawSignalsModal window display status
-                    showMapModal: false,
-                    showTableModal: false,
-                    // Signals RawSignalsModal Table on Map Panel
-                    regionalSignalsTableSummaryData: [],
-                    regionalSignalsTableSummaryDataProcessed: [],
-                    regionalSignalsTableTotalCount: 0,
-                    regionalSignalsTableEntitiesChecked: 0,
-                    // Signals RawSignalsModal Table on Table Panel
-                    asnSignalsTableSummaryData: [],
-                    asnSignalsTableSummaryDataProcessed: [],
-                    asnSignalsTableTotalCount: 0,
-                    asnSignalsTableEntitiesChecked: 0,
-                    // Stacked Horizon Visual on Region Map Panel
-                    rawRegionalSignalsRawBgp: [],
-                    rawRegionalSignalsRawPingSlash24: [],
-                    rawRegionalSignalsRawUcsdNt: [],
-                    rawRegionalSignalsRawMeritNt: [],
-                    rawRegionalSignalsProcessedBgp: null,
-                    rawRegionalSignalsProcessedPingSlash24: null,
-                    rawRegionalSignalsProcessedUcsdNt: null,
-                    rawRegionalSignalsProcessedMeritNt: null,
-                    rawRegionalSignalsLoaded: false,
-                    rawRegionalSignalsLoadAllButtonClicked: false,
-                    // Stacked Horizon Visual on ASN Table Panel
-                    rawAsnSignalsRawBgp: [],
-                    rawAsnSignalsRawPingSlash24: [],
-                    rawAsnSignalsRawUcsdNt: [],
-                    rawAsnSignalsRawMeritNt: [],
-                    rawAsnSignalsProcessedBgp: null,
-                    rawAsnSignalsProcessedPingSlash24: null,
-                    rawAsnSignalsProcessedUcsdNt: null,
-                    rawAsnSignalsProcessedMeritNt: null,
-                    rawAsnSignalsLoaded: false,
-                    rawAsnSignalsLoadAllButtonClicked: false
-                }, () => {
-                    // Get topo and outage data to repopulate map and table
-                    this.props.searchEventsAction(this.state.from, this.state.until, this.state.entityType, this.state.entityCode);
-                    this.props.searchAlertsAction(this.state.from, this.state.until, this.state.entityType, this.state.entityCode, null, null, null);
-                    this.props.getSignalsAction( this.state.entityType, this.state.entityCode, this.state.from, this.state.until, null, null);
-                    this.getDataTopo("region");
-                    this.getDataRelatedToMapSummary("region");
-                    this.getDataRelatedToTableSummary("asn");
-                });
-                break;
-            case "newEntity":
-                this.setState({
-                    mounted: false,
-                    entityType: entityType,
-                    entityCode: entityCode,
-                    entityName: "",
-                    parentEntityName: "",
-                    parentEntityCode: "",
-                    // Search Bar
-                    suggestedSearchResults: null,
-                    searchTerm: "",
-                    lastFetched: 0,
-                    // XY Plot Time Series states
-                    xyDataOptions: null,
-                    tsDataRaw: null,
-                    tsDataNormalized: true,
-                    tsDataDisplayOutageBands: true,
-                    // Event/Table Data
-                    currentTable: 'alert',
-                    eventDataRaw: null,
-                    eventDataProcessed: [],
-                    alertDataRaw: null,
-                    alertDataProcessed: [],
-                    // relatedTo entity Map
-                    summaryDataMapRaw: null,
-                    topoScores: null,
-                    bounds: null,
-                    // relatedTo entity Table
-                    relatedToTableApiPageNumber: 0,
-                    relatedToTableSummary: null,
-                    relatedToTableSummaryProcessed: null,
-                    relatedToTablePageNumber: 0,
-                    // RawSignalsModal window display status
-                    showMapModal: false,
-                    showTableModal: false,
-                    // Signals RawSignalsModal Table on Map Panel
-                    regionalSignalsTableSummaryData: [],
-                    regionalSignalsTableSummaryDataProcessed: [],
-                    regionalSignalsTableTotalCount: 0,
-                    regionalSignalsTableEntitiesChecked: 0,
-                    // Signals RawSignalsModal Table on Table Panel
-                    asnSignalsTableSummaryData: [],
-                    asnSignalsTableSummaryDataProcessed: [],
-                    asnSignalsTableTotalCount: 0,
-                    asnSignalsTableEntitiesChecked: 0,
-                    // Stacked Horizon Visual on Region Map Panel
-                    rawRegionalSignalsRawBgp: [],
-                    rawRegionalSignalsRawPingSlash24: [],
-                    rawRegionalSignalsRawUcsdNt: [],
-                    rawRegionalSignalsRawMeritNt: [],
-                    rawRegionalSignalsProcessedBgp: null,
-                    rawRegionalSignalsProcessedPingSlash24: null,
-                    rawRegionalSignalsProcessedUcsdNt: null,
-                    rawRegionalSignalsProcessedMeritNt: null,
-                    rawRegionalSignalsLoaded: false,
-                    rawRegionalSignalsLoadAllButtonClicked: false,
-                    regionalRawSignalsLoadAllButtonClicked: false,
-                    // Stacked Horizon Visual on ASN Table Panel
-                    rawAsnSignalsRawBgp: [],
-                    rawAsnSignalsRawPingSlash24: [],
-                    rawAsnSignalsRawUcsdNt: [],
-                    rawAsnSignalsRawMeritNt: [],
-                    rawAsnSignalsProcessedBgp: null,
-                    rawAsnSignalsProcessedPingSlash24: null,
-                    rawAsnSignalsProcessedUcsdNt: null,
-                    rawAsnSignalsProcessedMeritNt: null,
-                    rawAsnSignalsLoaded: false,
-                    asnRawSignalsLoadAllButtonClicked: false,
-                    rawSignalsMaxEntitiesHtsError: "",
-                }, () => {
-                    window.scrollTo(0, 0);
-                    this.componentDidMount();
-                });
-                break
-        }
-    }
 
 // Control Panel
     // manage the date selected in the input
@@ -740,7 +578,6 @@ class Entity extends Component {
         const range = dateRangeToSeconds(dateRange, timeRange);
         const { history } = this.props;
         history.push(`/${this.state.entityType}/${this.state.entityCode}?from=${range[0]}&until=${range[1]}`);
-        this.handleStateReset("newTimeFrame", range, null, null);
     }
 // Search bar
     // get data for search results that populate in suggested search list
@@ -771,7 +608,6 @@ class Entity extends Component {
             });
         entity = entity[0];
         history.push(`/${entity.type}/${entity.code}`);
-        this.handleStateReset("newEntity", null, entity.type, entity.code);
     };
     // Reset search bar with search term value when a selection is made, no customizations needed here.
     handleQueryUpdate = (query) => {
@@ -1281,7 +1117,13 @@ class Entity extends Component {
     // Make API call to retrieve topographic data
     getDataTopo(entityType) {
         if (this.state.mounted) {
-            this.props.getTopoAction(entityType);
+            getTopoAction(entityType)
+            .then(data => topojson.feature(data.region.topology, data.region.topology.objects["ne_10m_admin_1.regions.v3.0.0"]))
+            .then(data =>
+            this.setState({
+                    topoData : data
+                },this.getMapScores)
+            )
         }
     }
     // Process Geo data from api, attribute outage scores to a new topoData property where possible, then render Map
@@ -1315,7 +1157,6 @@ class Entity extends Component {
             }
 
             this.setState({topoScores: scores, bounds: outageCoords});
-            console.log(outageCoords);
         }
     }
     // Make API call to retrieve summary data to populate on map
@@ -1335,11 +1176,11 @@ class Entity extends Component {
                     break;
                 case 'region':
                     relatedToEntityType = 'country';
-                    relatedToEntityCode = this.props.entityMetadata[0]["attrs"]["fqid"].split(".")[3];
+                    relatedToEntityCode = this.state.entityMetadata[0]["attrs"]["fqid"].split(".")[3];
                     break;
                 case 'asn':
                     relatedToEntityType = 'asn';
-                    relatedToEntityCode = this.props.entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+                    relatedToEntityCode = this.state.entityMetadata[0]["attrs"]["fqid"].split(".")[1];
                     break;
             }
             // console.log(entityType, relatedToEntityType, relatedToEntityCode);
@@ -1354,7 +1195,6 @@ class Entity extends Component {
                 ? `/region/${entity.properties.id}?from=${window.location.search.split("?")[1].split("&")[0].split("=")[1]}&until=${window.location.search.split("?")[1].split("&")[1].split("=")[1]}`
                 : `/region/${entity.properties.id}`
         );
-        this.handleStateReset("newEntity", null, "region", entity.properties.id);
     }
     // Show/hide modal when button is clicked on either panel
     toggleModal(modalLocation) {
@@ -1410,11 +1250,11 @@ class Entity extends Component {
                     break;
                 case 'region':
                     relatedToEntityType = 'country';
-                    relatedToEntityCode = this.props.entityMetadata[0]["attrs"]["fqid"].split(".")[3];
+                    relatedToEntityCode = this.state.entityMetadata[0]["attrs"]["fqid"].split(".")[3];
                     break;
                 case 'asn':
                     relatedToEntityType = 'asn';
-                    relatedToEntityCode = this.props.entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+                    relatedToEntityCode = this.state.entityMetadata[0]["attrs"]["fqid"].split(".")[1];
                     entityType = 'country';
                     break;
             }
@@ -1440,11 +1280,6 @@ class Entity extends Component {
         }
 
     }
-    // function to manage what happens when a linked entity in the table is clicked
-    handleEntityClick(entityType, entityCode) {
-        this.handleStateReset("newEntity", null, entityType, entityCode);
-    }
-
 
 // RawSignalsModal Windows
     // Make API call that gets raw signals for a group of entities
@@ -2196,7 +2031,6 @@ class Entity extends Component {
                                     handleSelectAndDeselectAllButtons={(event) => this.handleSelectAndDeselectAllButtons(event)}
                                     regionalSignalsTableSummaryDataProcessed={this.state.regionalSignalsTableSummaryDataProcessed}
                                     toggleEntityVisibilityInHtsViz={event => this.toggleEntityVisibilityInHtsViz(event, "region")}
-                                    handleEntityClick={(entityType, entityCode) => this.handleEntityClick(entityType, entityCode)}
                                     handleCheckboxEventLoading={(item) => this.handleCheckboxEventLoading(item)}
                                     asnSignalsTableSummaryDataProcessed={this.state.asnSignalsTableSummaryDataProcessed}
                                     // Regional HTS methods
@@ -2261,7 +2095,6 @@ const mapStateToProps = (state) => {
         datasources: state.iodaApi.datasources,
         suggestedSearchResults: state.iodaApi.entities,
         relatedEntities: state.iodaApi.relatedEntities,
-        entityMetadata: state.iodaApi.entityMetadata,
         relatedToMapSummary: state.iodaApi.relatedToMapSummary,
         relatedToTableSummary: state.iodaApi.relatedToTableSummary,
         topoData: state.iodaApi.topo,
@@ -2293,9 +2126,6 @@ const mapDispatchToProps = (dispatch) => {
         searchEntitiesAction: (searchQuery, limit=15) => {
             searchEntities(dispatch, searchQuery, limit);
         },
-        getEntityMetadataAction: (entityType, entityCode) => {
-            getEntityMetadata(dispatch, entityType, entityCode);
-        },
         searchEventsAction: (from, until, entityType, entityCode, datasource=null, includeAlerts=null, format=null, limit=null, page=null) => {
             searchEvents(dispatch, from, until, entityType, entityCode, datasource, includeAlerts, format, limit, page);
         },
@@ -2308,9 +2138,6 @@ const mapDispatchToProps = (dispatch) => {
 
         searchRelatedToMapSummary: (from, until, entityType, relatedToEntityType, relatedToEntityCode, entityCode, limit, page, includeMetaData) => {
             searchRelatedToMapSummary(dispatch, from, until, entityType, relatedToEntityType, relatedToEntityCode, entityCode, limit, page, includeMetaData);
-        },
-        getTopoAction: (entityType) => {
-            getTopoAction(dispatch, entityType);
         },
         searchRelatedToTableSummary: (from, until, entityType, relatedToEntityType, relatedToEntityCode, entityCode, limit, page, includeMetaData) => {
             searchRelatedToTableSummary(dispatch, from, until, entityType, relatedToEntityType, relatedToEntityCode, entityCode, limit, page, includeMetaData);

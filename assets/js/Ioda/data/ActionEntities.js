@@ -122,14 +122,9 @@ const buildEntityMetadataConfig = (entityType, entityCode) => {
     }
 };
 
-export const getEntityMetadata = (dispatch, entityType, entityCode) => {
+export const getEntityMetadata = ( entityType, entityCode) => {
     let config = buildEntityMetadataConfig(entityType, entityCode);
-    fetchData(config).then(data => {
-        dispatch({
-            type: ENTITY_METADATA,
-            payload: data.data.data,
-        })
-    });
+    return fetchData(config).then(data => data.data.data);
 }
 
 const summaryDataForSignalsTableConfig = (entityType, relatedToEntityType, relatedToEntityCode) => {
