@@ -575,9 +575,8 @@ class Entity extends Component {
 // Control Panel
     // manage the date selected in the input
     handleTimeFrame(dateRange, timeRange) {
-        const range = dateRangeToSeconds(dateRange, timeRange);
         const { history } = this.props;
-        history.push(`/${this.state.entityType}/${this.state.entityCode}?from=${range[0]}&until=${range[1]}`);
+        history.push(`/${this.state.entityType}/${this.state.entityCode}?from=${Math.floor(dateRange.startDate / 1000)}&until=${Math.floor(dateRange.endDate / 1000)}`);
     }
 // Search bar
     // get data for search results that populate in suggested search list
