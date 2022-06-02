@@ -95,14 +95,6 @@ class Home extends Component {
                 outageSummaryData: this.props.summary
             }, this.getMapScores)
         }
-
-        // After API call for topographic data completes, update topoData state with fresh data
-        if (this.props.topoData !== prevProps.topoData) {
-            let topoObjects = topojson.feature(this.props.topoData.country.topology, this.props.topoData.country.topology.objects["ne_10m_admin_0.countries.v3.1.0"]);
-            this.setState({
-                topoData: topoObjects
-            }, this.getMapScores);
-        }
     }
 
 // Search bar
@@ -157,7 +149,13 @@ class Home extends Component {
     getDataTopo() {
         if (this.state.mounted) {
             let entityType = "country";
-            this.props.getTopoAction(entityType);
+            getTopoAction(entityType)
+            .then(data => topojson.feature(data[entityType].topology, data[entityType].topology.objects["ne_10m_admin_0.countries.v3.1.0"]))
+            .then(data =>
+            this.setState({
+                    topoData : data
+                },this.getMapScores)
+            )
         }
     }
     // Compile Scores to be used within the map
@@ -310,8 +308,7 @@ class Home extends Component {
 const mapStateToProps = (state) => {
     return {
         suggestedSearchResults: state.iodaApi.entities,
-        summary: state.iodaApi.summary,
-        topoData: state.iodaApi.topo
+        summary: state.iodaApi.summary
     }
 };
 
@@ -322,9 +319,6 @@ const mapDispatchToProps = (dispatch) => {
         },
         searchSummaryAction: (from, until, entityType, entityCode=null, limit=null, page=null) => {
             searchSummary(dispatch, from, until, entityType, entityCode, limit, page);
-        },
-        getTopoAction: (entityType) => {
-            getTopoAction(dispatch, entityType);
         }
     }
 };
