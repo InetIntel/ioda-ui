@@ -44,12 +44,36 @@ export const secondaryColor = "#3975BB";
 export const secondaryColorLight = "#598DCC";
 export const secondaryColorDark = "#1A5DAE";
 export const bgpColor = "#33A02C";
+export const gtrColor = "#EA4335";
 export const activeProbingColor = "#1F78B4";
 export const meritNtColor = "#ED9B40";
 export const ucsdNtColor = "#000000";   // XXX TODO choose a nice color
 export const horizonChartSeriesColor = "#006D2D";
 
 export const maxHtsLimit = 150;
+
+export const legend = [
+    {
+      title: "Active Probing",
+      key: "ping-slash24",
+      color: activeProbingColor,
+    },
+    {
+      title: "BGP",
+      key: "bgp",
+      color: bgpColor,
+    },
+    {
+      title: "Telescope",
+      key: "merit-nt",
+      color: meritNtColor,
+    },
+    {
+        title: "Google",
+        key: "gtr",
+        color: gtrColor,
+      },
+  ];
 
 // Humanize number with rounding, abbreviations, etc.
 export function humanizeNumber(value, precisionDigits) {

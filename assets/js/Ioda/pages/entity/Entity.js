@@ -90,15 +90,20 @@ import {
     activeProbingColor,
     ucsdNtColor,
     meritNtColor,
-    convertTimeToSecondsForURL
+    convertTimeToSecondsForURL,
+    gtrColor
 } from "../../utils";
 import CanvasJSChart from "../../libs/canvasjs-non-commercial-3.2.5/canvasjs.react";
 import Error from "../../components/error/Error";
 import {Helmet} from "react-helmet";
 import XyChartModal from "../../components/modal/XyChartModal";
+import ChartTabCard from '../../components/cards/ChartTabCard';
 
 
+const dataSource=["bgp","ping-slash24","merit-nt","gtr"]
 class Entity extends Component {
+
+
     constructor(props) {
         super(props);
         this.state = {
@@ -141,10 +146,11 @@ class Entity extends Component {
             // display export modal
             showXyChartModal: false,
             // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
-            tsDataSeriesVisiblePingSlash24: true,
-            tsDataSeriesVisibleBgp: true,
-            tsDataSeriesVisibleUcsdNt: true,
-            tsDataSeriesVisibleMeritNt: true,
+            // tsDataSeriesVisiblePingSlash24: true,
+            // tsDataSeriesVisibleBgp: true,
+            // tsDataSeriesVisibleUcsdNt: true,
+            // tsDataSeriesVisibleMeritNt: true,
+            tsDataSeriesVisibleMap: dataSource.reduce((result,item)=>{result[item]=true;return result},{}),//new Map(dataSource.map(k => {return [k,true]})),
             // Event/Table Data
             currentTable: 'alert',
             eventDataRaw: null,
@@ -219,6 +225,7 @@ class Entity extends Component {
         this.changeXyChartNormalization = this.changeXyChartNormalization.bind(this);
         this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
         this.updateEntityMetaData = this.updateEntityMetaData.bind(this);
+        this.legendHandler = this.legendHandler.bind(this);
         this.initialTableLimit = 300;
         this.initialHtsLimit = 100;
         this.maxHtsLimit = 150;
@@ -635,6 +642,7 @@ class Entity extends Component {
         let meritTelescopeValues = [];
         let bgpValues = [];
         let activeProbingValues = [];
+        let gtrValues = [];
         let absoluteMax = [];
         let absoluteMaxY2 = 0;
         const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
@@ -655,6 +663,19 @@ class Entity extends Component {
                     });
                     // the last two values populating are the min value, and the max value. Removing these from the coordinates.
                     networkTelescopeValues.length > 2 ? networkTelescopeValues.splice(-1,2) : networkTelescopeValues;
+                    break;                
+                case "gtr":
+                    max = Math.max.apply(null, datasource.values);
+                    absoluteMax.push(max);
+                    absoluteMaxY2 = max;
+                    datasource.values && datasource.values.map((value, index) => {
+                        let x, y;
+                        x = toDateTime(datasource.from + (datasource.step * index));
+                        y = this.state.tsDataNormalized ? normalize(value, max) : value;
+                        gtrValues.push({x: x, y: y, color: gtrColor});
+                    });
+                    // the last two values populating are the min value, and the max value. Removing these from the coordinates.
+                    gtrValues.length > 2 ? gtrValues.splice(-1,2) : gtrValues;
                     break;
                 case "merit-nt":
                     max = Math.max.apply(null, datasource.values);
@@ -744,6 +765,7 @@ class Entity extends Component {
         bgpValues.push({x: viewportMaximum, y: null});
         networkTelescopeValues.push({x: viewportMaximum, y: null});
         meritTelescopeValues.push({x: viewportMaximum, y: null});
+        gtrValues.push({x: viewportMaximum, y: null});
 
         // create top padding in chart area for normalized/absolute views
         const normalizedStripline = [
@@ -830,44 +852,94 @@ class Entity extends Component {
                                 if(e.dataSeries.visible){
                                     e.chart.axisY[0].set("labelFontColor","#666666");
                                 }
-                                this.setState({ tsDataSeriesVisiblePingSlash24: e.dataSeries.visible }, e.chart.render());
+                                this.setState({
+                                    tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["ping-slash24"]: !this.state.tsDataSeriesVisibleMap["ping-slash24"]}}
+                                    , () => {
+                                        e.chart.render()
+                                        })
                                 break;
                             case bgpLegendText:
                                 if(e.dataSeries.visible){
                                     e.chart.axisY[0].set("labelFontColor","#666666");
                                 }
-                                this.setState({ tsDataSeriesVisibleBgp: e.dataSeries.visible }, e.chart.render());
+                                // this.legendHandler("bgp")
+                                this.setState({
+                                    tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["bgp"]: !this.state.tsDataSeriesVisibleMap["bgp"]}}
+                                    , () => {
+                                        e.chart.render()
+                                        })
+                                //this.setState({ tsDataSeriesVisibleBgp: e.dataSeries.visible }, e.chart.render());
                                 break;
-                            case darknetLegendText:
-                                if(e.chart.axisY2[0]) { 
-                                    e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
-                                }
-                                this.setState({ tsDataSeriesVisibleUcsdNt: e.dataSeries.visible }, e.chart.render());
-                                break;
-                            case meritLegendText:
-                                this.setState({ tsDataSeriesVisibleMeritNt: e.dataSeries.visible }, e.chart.render());
+                            // case darknetLegendText:
+                            //     console.log(tsDataSeriesVisibleMap)
+                            //     if(e.chart.axisY2[0]) { 
+                            //         e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
+                            //     }
+                            //     this.setState({ tsDataSeriesVisibleUcsdNt: e.dataSeries.visible }, e.chart.render());
+                            //     break;
+                            case meritLegendText:  
+                                    if(e.chart.axisY2[0]) { 
+                                         e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
+                                     }                              
+                                this.setState({
+                                    tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["merit-nt"]: !this.state.tsDataSeriesVisibleMap["merit-nt"]}}
+                                    , () => {
+                                        e.chart.render()
+                                    })
                                 break;
                         }
-                        if(!this.state.tsDataSeriesVisiblePingSlash24 && !this.state.tsDataSeriesVisibleBgp){
+                        if(!this.state.tsDataSeriesVisibleMap["ping-slash24"] && !this.state.tsDataSeriesVisibleMap["bgp"]){
                             e.chart.axisY[0].set("labelFontColor","transparent");
                         }
                     }
                 },
-                data: this.createXyVizDataObject(networkTelescopeValues.length > 1 ? networkTelescopeValues : [], bgpValues.length > 1 ? bgpValues : [], activeProbingValues.length > 1 ? activeProbingValues : [], meritTelescopeValues.length > 1 ? meritTelescopeValues : [])
+                data: this.createXyVizDataObject(networkTelescopeValues.length > 1 ? networkTelescopeValues : [], bgpValues.length > 1 ? bgpValues : [], activeProbingValues.length > 1 ? activeProbingValues : [], meritTelescopeValues.length > 1 ? meritTelescopeValues : [],gtrValues.length > 1 ? gtrValues : [])
             }
         }, () => {
             this.genXyChart();
         });
     }
     // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-    createXyVizDataObject(networkTelescopeValues, bgpValues, activeProbingValues, meritTelescopeValues) {
-        let networkTelescope, bgp, activeProbing, meritTelescope;
+    createXyVizDataObject(networkTelescopeValues, bgpValues, activeProbingValues, meritTelescopeValues,gtrValues) {
+        let networkTelescope, bgp, activeProbing, meritTelescope,gtr;
         const activeProbingLegendText = T.translate("entity.activeProbingLegendText");
         const bgpLegendText = T.translate("entity.bgpLegendText");
         const darknetLegendText = T.translate("entity.darknetLegendText");
         const meritLegendText = T.translate("entity.meritLegendText");
 
+
+        if (gtrValues) {
+            if(gtrValues.length == 0){
+                console.log("Empty Tele")
+                this.setState({
+                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["gtr"]: undefined}
+                            })
+            }
+            gtr = {
+                type: "line",
+                lineThickness: 1,
+                color: gtrColor,
+                lineColor: gtrColor,
+                markerType: "circle",
+                markerSize: 2,
+                name: "GTR",
+                visible: this.state.tsDataSeriesVisibleMap["gtr"],
+                showInLegend: true,
+                xValueFormatString: "DDD, MMM DD - HH:mm",
+                yValueFormatString: "0",
+                dataPoints: gtrValues,
+                legendMarkerColor: gtrValues,
+                toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
+
+            }
+        }
         if (activeProbingValues) {
+            if(meritTelescopeValues.length == 0){
+                console.log("Empty Tele")
+                this.setState({
+                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["ping-slash24"]: undefined}
+                            })
+            }
             activeProbing = {
                 type: "line",
                 lineThickness: 1,
@@ -876,7 +948,7 @@ class Entity extends Component {
                 markerType: "circle",
                 markerSize: 2,
                 name: activeProbingLegendText,
-                visible: this.state.tsDataSeriesVisiblePingSlash24,
+                visible: this.state.tsDataSeriesVisibleMap["ping-slash24"],
                 showInLegend: true,
                 xValueFormatString: "DDD, MMM DD - HH:mm",
                 yValueFormatString: "0",
@@ -887,6 +959,12 @@ class Entity extends Component {
             }
         }
         if (bgpValues) {
+            if(meritTelescopeValues.length == 0){
+                console.log("Empty Tele")
+                this.setState({
+                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["bgp"]: undefined}
+                            })
+            }
             bgp = {
                 type: "line",
                 lineThickness: 1,
@@ -895,7 +973,7 @@ class Entity extends Component {
                 markerType: "circle",
                 markerSize: 2,
                 name: bgpLegendText,
-                visible: this.state.tsDataSeriesVisibleBgp,
+                visible: this.state.tsDataSeriesVisibleMap["bgp"],
                 showInLegend: true,
                 xValueFormatString: "DDD, MMM DD - HH:mm",
                 yValueFormatString: "0",
@@ -913,9 +991,9 @@ class Entity extends Component {
                 markerType: "circle",
                 markerSize: 2,
                 name: darknetLegendText,
-                visible: this.state.tsDataSeriesVisibleUcsdNt,
+                visible: false,
                 axisYType: this.state.tsDataNormalized ? 'primary' : "secondary",
-                showInLegend: true,
+                showInLegend: false,
                 xValueFormatString: "DDD, MMM DD - HH:mm",
                 yValueFormatString: "0",
                 dataPoints: networkTelescopeValues,
@@ -925,6 +1003,13 @@ class Entity extends Component {
         }
 
         if (meritTelescopeValues) {
+            console.log("Hello from data")
+            if(meritTelescopeValues.length == 0){
+                console.log("Empty Tele")
+                this.setState({
+                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["merit-nt"]: undefined}
+                            })
+            }
             meritTelescope = {
                 type: "line",
                 lineThickness: 1,
@@ -933,7 +1018,7 @@ class Entity extends Component {
                 markerType: "circle",
                 markerSize: 2,
                 name: meritLegendText,
-                visible: this.state.tsDataSeriesVisibleMeritNt,
+                visible: this.state.tsDataSeriesVisibleMap["merit-nt"],
                 axisYType: this.state.tsDataNormalized ? 'primary' : "secondary",
                 showInLegend: true,
                 xValueFormatString: "DDD, MMM DD - HH:mm",
@@ -944,7 +1029,7 @@ class Entity extends Component {
             }
         }
 
-        return [activeProbing, bgp, networkTelescope, meritTelescope]
+        return [activeProbing, bgp, networkTelescope, meritTelescope,gtr]
     }
     // function for when zoom/pan is used
     xyPlotRangeChanged(e) {
@@ -1102,13 +1187,6 @@ class Entity extends Component {
         });
     }
     // Switching between Events and Alerts
-    changeCurrentTable() {
-        if (this.state.currentTable === 'event') {
-            this.setState({currentTable: 'alert'});
-        } else if (this.state.currentTable === 'alert') {
-            this.setState({currentTable: 'event'});
-        }
-    }
 
 
 // 2nd Row
@@ -1863,16 +1941,20 @@ class Entity extends Component {
         } else {
             this.setState({
                 rawSignalsMaxEntitiesHtsError: maxEntitiesPopulatedMessage
-            });
+            },);
         }
+    }
+
+    legendHandler(src) {
+        this.setState({
+            tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,[src]: !this.state.tsDataSeriesVisibleMap[src]}}
+            , () => {
+                    this.convertValuesForXyViz();
+                })
     }
 
     render() {
         const xyChartTitle = T.translate("entity.xyChartTitle");
-        const eventAlertButtonText1 = T.translate("entity.eventAlertButtonText1");
-        const eventAlertButtonText2 = T.translate("entity.eventAlertButtonText2");
-        const eventAlertButtonOption1 = T.translate("entity.eventAlertButtonOption1");
-        const eventAlertButtonOption2 = T.translate("entity.eventAlertButtonOption2");
         const eventFeedTitle = T.translate("entity.eventFeedTitle");
         const alertFeedTitle = T.translate("entity.alertFeedTitle");
         const xyChartAlertToggleLabel = T.translate("entity.xyChartAlertToggleLabel");
@@ -1880,9 +1962,6 @@ class Entity extends Component {
 
         const tooltipXyPlotTimeSeriesTitle = T.translate("tooltip.xyPlotTimeSeriesTitle.title");
         const tooltipXyPlotTimeSeriesText = T.translate("tooltip.xyPlotTimeSeriesTitle.text");
-        const tooltipAlertFeedTitle = T.translate("tooltip.alertFeed.title");
-        const tooltipAlertFeedText = T.translate("tooltip.alertFeed.text");
-
         const timeDurationTooHighErrorMessage = T.translate("dashboard.timeDurationTooHighErrorMessage");
 
         return(
@@ -1966,47 +2045,16 @@ class Entity extends Component {
                                         </div>
                                     </div>
                                     <div className="col-2-of-5">
-                                        <div className="overview__table-config">
-                                            <div className="overview__config-heading">
-                                                <h3 className="heading-h3">
-                                                    {this.state.currentTable === 'event' ? `${eventFeedTitle} ${this.state.entityName}` : `${alertFeedTitle} ${this.state.entityName}`}
-                                                </h3>
-                                                <Tooltip
-                                                    title={tooltipAlertFeedTitle}
-                                                    text={tooltipAlertFeedText}
-                                                />
-                                            </div>
-                                            <button className="overview__config-button"
-                                                    onClick={() => this.changeCurrentTable()}
-                                                    style={this.props.type === 'asn' ? {display: 'none'} : null}
-                                            >
-                                                {eventAlertButtonText1}{this.state.currentTable === 'event' ? eventAlertButtonOption1 : eventAlertButtonOption2}{eventAlertButtonText2}
-                                            </button>
-                                        </div>
-
-                                        <div className="overview__table">
-                                            <div style={this.state.currentTable === 'event' ? {display: 'block'} : {display: 'none'}}>
-                                                {
-                                                    this.state.eventDataProcessed ?
-                                                        <Table
-                                                            type={"event"}
-                                                            data={this.state.eventDataProcessed}
-                                                            totalCount={this.state.eventDataProcessed.length}
-                                                        /> : <Loading/>
-                                                }
-                                            </div>
-                                            <div style={this.state.currentTable === 'alert' ? {display: 'block'} : {display: 'none'}}>
-                                                {
-
-                                                        this.state.alertDataProcessed ?
-                                                        <Table
-                                                            type="alert"
-                                                            data={this.state.alertDataProcessed}
-                                                            totalCount={this.state.alertDataProcessed.length}
-                                                        /> : <Loading/>
-                                                }
-                                            </div>
-                                        </div>
+                                        <ChartTabCard 
+                                        title={this.state.currentTable === "event"
+                                        ? `${eventFeedTitle} ${this.state.entityName}`
+                                        : `${alertFeedTitle} ${this.state.entityName}`}
+                                        type={this.props.type}
+                                        eventDataProcessed={this.state.eventDataProcessed}
+                                        alertDataProcessed={this.state.alertDataProcessed}
+                                        legendHandler={this.legendHandler}
+                                        tsDataSeriesVisibleMap={this.state.tsDataSeriesVisibleMap}
+                                        />
                                     </div>
                                 </div>
                                 <EntityRelated
