@@ -129,7 +129,7 @@
   "entity": {
     "pageTitle": "Outage Severity Overview",
     "timeRangeTitle": "Outages Occurring Today",
-    "xyChartTitle": "IODA Signals for ",
+    "xyChartTitle": "Internet Connectivity for ",
     "xyChartXAxisTitle": "Time (UTC)",
     "toggleOn": "ON",
     "toggleOff": "OFF",
@@ -139,6 +139,7 @@
     "bgpLegendText": "BGP (#Visible /24s)",
     "darknetLegendText": "Telescope (# Unique Source IPs)",
     "meritLegendText": "Telescope (# Unique Source IPs)",
+    "googleCombinedText": "Google (Combined)",
     "eventAlertButtonText1": "View ",
     "eventAlertButtonOption1": "Alert",
     "eventAlertButtonOption2": "Event",

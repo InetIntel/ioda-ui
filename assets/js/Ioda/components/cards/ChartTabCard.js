@@ -12,7 +12,6 @@ class ChartTabCard extends React.Component {
   constructor(props){
     super(props);
     this.state = {currentTab : 1}
-    this.clicky.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
@@ -20,16 +19,13 @@ class ChartTabCard extends React.Component {
     this.setState({currentTab:selectedKey})
   };
 
-  clicky = () => {
-    this.props.legendHandler("bgp")
-  }
   
 render(){
   return (
     <div className="overview__table-config">
       <div className="tabs">
         <Tabs
-          tabOptions={["Chart Legend","Alert", "Event"]}
+          tabOptions={["Selected Signals","Alert", "Event"]}
           activeTab={this.state.currentTab}
           handleSelectTab={this.handleSelectTab}
         />

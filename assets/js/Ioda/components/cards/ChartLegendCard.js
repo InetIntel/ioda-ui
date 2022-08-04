@@ -17,7 +17,6 @@ const ChartLegendCard = ({ legendHandler, checkedMap }) => {
 
   return (
     <FormGroup>
-      {console.log(checkedMap)}
       {legend.map((item) => (
         checkedMap[item.key] != undefined &&
         <FormControlLabel
@@ -40,7 +39,7 @@ const ChartLegendCard = ({ legendHandler, checkedMap }) => {
         
       ))}
 
-      <Accordion elevation={0}>
+      {/* <Accordion elevation={0}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon style={{ transform: "scale(1.5)" }} />}
           aria-label="Expand"
@@ -97,7 +96,7 @@ const ChartLegendCard = ({ legendHandler, checkedMap }) => {
             label={<Typography variant="h5">Gmail</Typography>}
           />
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
     </FormGroup>
   );
 };

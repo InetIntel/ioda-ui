@@ -32,6 +32,7 @@
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 import d3 from 'd3';
+import T from 'i18n-react';
 
 // Time limit max that a user can select in the calendar -- currently set for 90 days
 export const controlPanelTimeRangeLimit = (90 * 24 * 60 * 60) + 1;
@@ -54,22 +55,22 @@ export const maxHtsLimit = 150;
 
 export const legend = [
     {
-      title: "Active Probing",
+      title: T.translate("entity.activeProbingLegendText"),
       key: "ping-slash24",
       color: activeProbingColor,
     },
     {
-      title: "BGP",
+      title: T.translate("entity.bgpLegendText"),
       key: "bgp",
       color: bgpColor,
     },
     {
-      title: "Telescope",
+      title: T.translate("entity.meritLegendText"),
       key: "merit-nt",
       color: meritNtColor,
     },
     {
-        title: "Google",
+        title: T.translate("entity.googleCombinedText"),
         key: "gtr",
         color: gtrColor,
       },

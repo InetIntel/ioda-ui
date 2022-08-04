@@ -91,7 +91,8 @@ import {
     ucsdNtColor,
     meritNtColor,
     convertTimeToSecondsForURL,
-    gtrColor
+    gtrColor,
+    legend
 } from "../../utils";
 import CanvasJSChart from "../../libs/canvasjs-non-commercial-3.2.5/canvasjs.react";
 import Error from "../../components/error/Error";
@@ -858,6 +859,16 @@ class Entity extends Component {
                                         e.chart.render()
                                         })
                                 break;
+                                case "Google (Combined)":
+                                    if(e.dataSeries.visible){
+                                        e.chart.axisY[0].set("labelFontColor","#666666");
+                                    }
+                                    this.setState({
+                                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["gtr"]: !this.state.tsDataSeriesVisibleMap["ping-slash24"]}}
+                                        , () => {
+                                            e.chart.render()
+                                            })
+                                    break;
                             case bgpLegendText:
                                 if(e.dataSeries.visible){
                                     e.chart.axisY[0].set("labelFontColor","#666666");
@@ -906,14 +917,11 @@ class Entity extends Component {
         const bgpLegendText = T.translate("entity.bgpLegendText");
         const darknetLegendText = T.translate("entity.darknetLegendText");
         const meritLegendText = T.translate("entity.meritLegendText");
-
-
+        const googleCombinedText = T.translate("entity.googleCombinedText");
+        let dataSeriesHideMap = {}
         if (gtrValues) {
             if(gtrValues.length == 0){
-                console.log("Empty Tele")
-                this.setState({
-                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["gtr"]: undefined}
-                            })
+                dataSeriesHideMap["gtr"] = undefined;
             }
             gtr = {
                 type: "line",
@@ -922,7 +930,7 @@ class Entity extends Component {
                 lineColor: gtrColor,
                 markerType: "circle",
                 markerSize: 2,
-                name: "GTR",
+                name: "Google (Combined)",
                 visible: this.state.tsDataSeriesVisibleMap["gtr"],
                 showInLegend: true,
                 xValueFormatString: "DDD, MMM DD - HH:mm",
@@ -934,11 +942,8 @@ class Entity extends Component {
             }
         }
         if (activeProbingValues) {
-            if(meritTelescopeValues.length == 0){
-                console.log("Empty Tele")
-                this.setState({
-                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["ping-slash24"]: undefined}
-                            })
+            if(activeProbingValues.length == 0){
+                dataSeriesHideMap["ping-slash24"] = undefined
             }
             activeProbing = {
                 type: "line",
@@ -959,11 +964,8 @@ class Entity extends Component {
             }
         }
         if (bgpValues) {
-            if(meritTelescopeValues.length == 0){
-                console.log("Empty Tele")
-                this.setState({
-                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["bgp"]: undefined}
-                            })
+            if(bgpValues.length === 0){
+                dataSeriesHideMap["bgp"] = undefined;
             }
             bgp = {
                 type: "line",
@@ -1003,12 +1005,8 @@ class Entity extends Component {
         }
 
         if (meritTelescopeValues) {
-            console.log("Hello from data")
             if(meritTelescopeValues.length == 0){
-                console.log("Empty Tele")
-                this.setState({
-                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["merit-nt"]: undefined}
-                            })
+                dataSeriesHideMap['merit-nt'] = undefined;
             }
             meritTelescope = {
                 type: "line",
@@ -1028,6 +1026,10 @@ class Entity extends Component {
                 toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
             }
         }
+
+        this.setState({
+            tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap, ...dataSeriesHideMap}
+                })
 
         return [activeProbing, bgp, networkTelescope, meritTelescope,gtr]
     }
