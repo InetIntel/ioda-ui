@@ -32,29 +32,38 @@
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-import T from 'i18n-react';
+import T from "i18n-react";
 
-let languageString = '';
+let languageString = "";
 // set language to user's default browser language preference
 // ToDo: will eventually allow user to select language via nav, but continue to default to browser option
 let language = window.navigator.userLanguage || window.navigator.language;
 
-
 switch (language) {
-    case 'en':
-        languageString = 'en';
-        break;
-    // case 'es':
-    //     languageString = 'es';
-    //     break;
-    default:
-        languageString = 'en';
-        break;
+  case "en":
+    languageString = "en";
+    break;
+  case "fa":
+    languageString = "fa";
+    break;
+  default:
+    languageString = "en";
+    break;
 }
 
 // ToDo: would like to change json files out for yml files eventually
-let strings = Object.assign({},
-    require(`./${languageString}/app.json`)
-);
+let strings = Object.assign({}, require(`./${languageString}/app.json`));
 
-T.setTexts(strings);
+let defaultStrings = Object.assign({}, require(`./en/app.json`));
+console.log(defaultStrings);
+
+T.setTexts(strings, {
+  notFound: (key) => {
+    const defaultStringLocation = key.split(".");
+    let defaultString = defaultStrings;
+    for(var i=0;i< defaultStringLocation.length ;i++){
+        defaultString= defaultString[defaultStringLocation[i]]
+    }
+    return `${defaultString}`;
+  },
+});
