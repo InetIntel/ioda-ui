@@ -71,8 +71,43 @@ export const legend = [
     },
     {
         title: T.translate("entity.googleCombinedText"),
-        key: "gtr",
+        key: "gtr.BLENDED",
         color: gtrColor,
+      },
+      {
+        title: T.translate("entity.googleMapText"),
+        key: "gtr.MAPS",
+        color: "#A02C79",
+      },
+      {
+        title: T.translate("entity.googleMailText"),
+        key: "gtr.GMAIL",
+        color: "#A02C2C",
+      },
+      {
+        title: T.translate("entity.googleSearchText"),
+        key: "gtr.WEB_SEARCH",
+        color: "#2C38A0",
+      },
+      {
+        title: T.translate("entity.googleImagesText"),
+        key: "gtr.IMAGES",
+        color: "#FC5D83",
+      },
+      {
+        title: T.translate("entity.googleYoutubeText"),
+        key: "gtr.YOUTUBE",
+        color: "#B65DFC",
+      },
+      {
+        title: T.translate("entity.googleSpreadsheetText"),
+        key: "gtr.SPREADSHEETS",
+        color: "#637146",
+      },
+      {
+        title: T.translate("entity.googleSitesText"),
+        key: "gtr.SITES",
+        color: "#426984",
       },
   ];
 

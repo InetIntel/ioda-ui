@@ -86,12 +86,7 @@ import {
     controlPanelTimeRangeLimit,
     alertBandColor,
     xyChartBackgroundLineColor,
-    bgpColor,
-    activeProbingColor,
-    ucsdNtColor,
-    meritNtColor,
     convertTimeToSecondsForURL,
-    gtrColor,
     legend
 } from "../../utils";
 import CanvasJSChart from "../../libs/canvasjs-non-commercial-3.2.5/canvasjs.react";
@@ -99,9 +94,10 @@ import Error from "../../components/error/Error";
 import {Helmet} from "react-helmet";
 import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from '../../components/cards/ChartTabCard';
+import { element } from 'prop-types';
 
 
-const dataSource=["bgp","ping-slash24","merit-nt","gtr"]
+const dataSource=["bgp","ping-slash24","merit-nt","gtr.BLENDED"]
 class Entity extends Component {
 
 
@@ -128,6 +124,7 @@ class Entity extends Component {
                 : Math.round(new Date().getTime() / 1000),
             // Search Bar
             suggestedSearchResults: null,
+            sourceParams: ["BLENDED"],
             searchTerm: "",
             lastFetched: 0,
             // XY Plot Time Series
@@ -147,10 +144,6 @@ class Entity extends Component {
             // display export modal
             showXyChartModal: false,
             // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
-            // tsDataSeriesVisiblePingSlash24: true,
-            // tsDataSeriesVisibleBgp: true,
-            // tsDataSeriesVisibleUcsdNt: true,
-            // tsDataSeriesVisibleMeritNt: true,
             tsDataSeriesVisibleMap: dataSource.reduce((result,item)=>{result[item]=true;return result},{}),//new Map(dataSource.map(k => {return [k,true]})),
             // Event/Table Data
             currentTable: 'alert',
@@ -227,6 +220,7 @@ class Entity extends Component {
         this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
         this.updateEntityMetaData = this.updateEntityMetaData.bind(this);
         this.legendHandler = this.legendHandler.bind(this);
+        this.updateSourceParams = this.updateSourceParams.bind(this);
         this.initialTableLimit = 300;
         this.initialHtsLimit = 100;
         this.maxHtsLimit = 150;
@@ -278,7 +272,7 @@ class Entity extends Component {
                         // Overview Panel
                         this.props.searchEventsAction(this.state.from, this.state.until, window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
                         this.props.searchAlertsAction(this.state.from, this.state.until, window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], null, null, null);
-                        this.props.getSignalsAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], this.state.from, this.state.until, null, 3000);
+                        this.props.getSignalsAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], this.state.from, this.state.until, null, 3000,this.state.sourceParams);
                         // Get entity name from code provided in url
                         this.updateEntityMetaData(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
                     }
@@ -296,7 +290,7 @@ class Entity extends Component {
                     // Overview Panel
                     this.props.searchEventsAction(this.state.from, this.state.until, window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
                     this.props.searchAlertsAction(this.state.from, this.state.until, window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], null, null, null);
-                    this.props.getSignalsAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], this.state.from, this.state.until, null, 3000);
+                    this.props.getSignalsAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], this.state.from, this.state.until, null, 3000,this.state.sourceParams);
                     // Get entity name from code provided in url
                     this.updateEntityMetaData(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2]);
                 }
@@ -317,6 +311,9 @@ class Entity extends Component {
             });
         }
 
+        if (this.state.sourceParams !== prevState.sourceParams) {
+            this.props.getSignalsAction(window.location.pathname.split("/")[1], window.location.pathname.split("/")[2], this.state.from, this.state.until, null, 3000,this.state.sourceParams);
+        }
 
         // After API call for suggested search results completes, update suggestedSearchResults state with fresh data
         if (this.props.suggestedSearchResults !== prevProps.suggestedSearchResults) {
@@ -639,85 +636,30 @@ class Entity extends Component {
 // XY Chart Functions
     // format data from api to be compatible with chart visual
     convertValuesForXyViz() {
-        let networkTelescopeValues = [];
-        let meritTelescopeValues = [];
-        let bgpValues = [];
-        let activeProbingValues = [];
-        let gtrValues = [];
+        let signalValues = [];
         let absoluteMax = [];
         let absoluteMaxY2 = 0;
         const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
 
         // Loop through available datasources to collect plot points
         this.state.tsDataRaw[0].map(datasource => {
-            let max;
-            switch (datasource.datasource) {
-                case "ucsd-nt":
-                    max = Math.max.apply(null, datasource.values);
-                    absoluteMax.push(max);
-                    absoluteMaxY2 = max;
-                    datasource.values && datasource.values.map((value, index) => {
-                        let x, y;
-                        x = toDateTime(datasource.from + (datasource.step * index));
-                        y = this.state.tsDataNormalized ? normalize(value, max) : value;
-                        networkTelescopeValues.push({x: x, y: y, color: ucsdNtColor});
-                    });
-                    // the last two values populating are the min value, and the max value. Removing these from the coordinates.
-                    networkTelescopeValues.length > 2 ? networkTelescopeValues.splice(-1,2) : networkTelescopeValues;
-                    break;                
-                case "gtr":
-                    max = Math.max.apply(null, datasource.values);
-                    absoluteMax.push(max);
-                    absoluteMaxY2 = max;
-                    datasource.values && datasource.values.map((value, index) => {
-                        let x, y;
-                        x = toDateTime(datasource.from + (datasource.step * index));
-                        y = this.state.tsDataNormalized ? normalize(value, max) : value;
-                        gtrValues.push({x: x, y: y, color: gtrColor});
-                    });
-                    // the last two values populating are the min value, and the max value. Removing these from the coordinates.
-                    gtrValues.length > 2 ? gtrValues.splice(-1,2) : gtrValues;
-                    break;
-                case "merit-nt":
-                    max = Math.max.apply(null, datasource.values);
-                    absoluteMax.push(max);
-                    absoluteMaxY2 = max;
-                    datasource.values && datasource.values.map((value, index) => {
-                        let x, y;
-                        x = toDateTime(datasource.from + (datasource.step * index));
-                        y = this.state.tsDataNormalized ? normalize(value, max) : value;
-                        meritTelescopeValues.push({x: x, y: y, color: meritNtColor});
-                    });
-                    // the last two values populating are the min value, and the max value. Removing these from the coordinates.
-                    meritTelescopeValues.length > 2 ? meritTelescopeValues.splice(-1,2) : meritTelescopeValues;
-                    break;
-                case "bgp":
-                    max = Math.max.apply(null, datasource.values);
-                    absoluteMax.push(max);
+            let max = Math.max.apply(null, datasource.values);
+            absoluteMax.push(max);
+            absoluteMaxY2 = max;
+            let datasourceValues = [];
+            datasource.values && datasource.values.map((value, index) => {
+                let x, y;
+                x = toDateTime(datasource.from + (datasource.step * index));
+                y = this.state.tsDataNormalized ? normalize(value, max) : value;
+                datasourceValues.push({x: x, y: y});
+            });
+            // the last two values populating are the min value, and the max value. Removing these from the coordinates.
+            datasourceValues.length > 2 ? datasourceValues.splice(-1,2) : datasourceValues;
+            let id = datasource.datasource;
+            id += datasource.subtype ? `.${datasource.subtype}`: ""
+            signalValues.push({dataSource: id, values: datasourceValues});
 
-                    datasource.values && datasource.values.map((value, index) => {
-                        let x, y;
-                        x = toDateTime(datasource.from + (datasource.step * index));
-                        y = this.state.tsDataNormalized ? normalize(value, max) : value;
-                        bgpValues.push({x: x, y: y, color: bgpColor});
-                    });
-                    // the last two values populating are the min value, and the max value. Removing these from the coordinates.
-                    bgpValues.length > 2 ? bgpValues.splice(-1,2) : bgpValues;
-                    break;
-                case "ping-slash24":
-                    max = Math.max.apply(null, datasource.values);
-                    absoluteMax.push(max);
-
-                    datasource.values && datasource.values.map((value, index) => {
-                        let x, y;
-                        x = toDateTime(datasource.from + (datasource.step * index));
-                        y = this.state.tsDataNormalized ? normalize(value, max) : value;
-                        activeProbingValues.push({x: x, y: y, color: activeProbingColor});
-                    });
-                    // the last two values populating are the min value, and the max value. Removing these from the coordinates.
-                    activeProbingValues.length > 2 ? activeProbingValues.splice(-1,2) : activeProbingValues;
-            }
-        });
+        })
 
         // Create Alert band objects
         let stripLines = [];
@@ -732,41 +674,6 @@ class Entity extends Component {
                 stripLines.push(stripLine);
             });
         }
-
-        // get time span considered, using network telescope first as that data source has the most up to time data, then Ping-slash24, then bgp
-        const timeBegin =
-            networkTelescopeValues && networkTelescopeValues[0]
-                ? networkTelescopeValues[0].x
-                : activeProbingValues && activeProbingValues[0]
-                    ? activeProbingValues[0].x
-                    : bgpValues && bgpValues[0]
-                        ? bgpValues[0].x
-                        : meritTelescopeValues && meritTelescopeValues[0]
-                            ? meritTelescopeValues[0].x
-                            : window.location.search.split("?")[1]
-                                ? new Date(window.location.search.split("?")[1].split("&")[0].split("=")[1])
-                                : new Date(Math.round((new Date().getTime()  - (24 * 60 * 60 * 1000)) / 1000));
-        const timeEnd =
-            networkTelescopeValues && networkTelescopeValues[networkTelescopeValues.length -1]
-                ? networkTelescopeValues[networkTelescopeValues.length -1].x
-                : activeProbingValues && activeProbingValues[activeProbingValues.length -1]
-                    ? activeProbingValues[activeProbingValues.length -1].x
-                    : bgpValues && bgpValues[bgpValues.length -1]
-                        ? bgpValues[bgpValues.length -1].x
-                        : meritTelescopeValues && meritTelescopeValues[meritTelescopeValues.length -1]
-                            ? meritTelescopeValues[meritTelescopeValues.length -1].x
-                            : window.location.search.split("?")[1]
-                                ? new Date(window.location.search.split("?")[1].split("&")[1].split("=")[1])
-                                : new Date(Math.round(new Date().getTime() / 1000));
-        // Add 1% padding to the right edge of the Chart to make it easier to zoom on most recent data
-        const extraPadding = (timeEnd - timeBegin) * 0.01;
-        const viewportMaximum = new Date(timeEnd.getTime() + extraPadding);
-
-        activeProbingValues.push({x: viewportMaximum, y: null});
-        bgpValues.push({x: viewportMaximum, y: null});
-        networkTelescopeValues.push({x: viewportMaximum, y: null});
-        meritTelescopeValues.push({x: viewportMaximum, y: null});
-        gtrValues.push({x: viewportMaximum, y: null});
 
         // create top padding in chart area for normalized/absolute views
         const normalizedStripline = [
@@ -803,8 +710,8 @@ class Entity extends Component {
                     titleFontsColor: "#666666",
                     labelFontColor: "#666666",
                     labelFontSize: 12,
-                    minimum: 0,
-                    maximum: this.state.tsDataNormalized ? 110 : Math.max.apply(null, absoluteMax) * 1.1,
+                    // minimum: 0,
+                    // maximum: this.state.tsDataNormalized ? 110 : Math.max.apply(null, absoluteMax) * 1.1,
                     gridDashType: "dash",
                     gridColor: "#E6E6E6",
                     stripLines: this.state.tsDataNormalized ? normalizedStripline : null,
@@ -821,7 +728,7 @@ class Entity extends Component {
                     titleFontsColor: "#666666",
                     labelFontColor: "#666666",
                     labelFontSize: 12,
-                    maximum: this.state.tsDataNormalized ? 110 : absoluteMaxY2 * 1.1,
+                    // maximum: this.state.tsDataNormalized ? 110 : absoluteMaxY2 * 1.1,
                 },
                 toolTip: {
                     shared: false,
@@ -844,194 +751,46 @@ class Entity extends Component {
                             e.dataSeries.visible = true;
                         }
                         // track state of which series are visible
-                        const activeProbingLegendText = T.translate("entity.activeProbingLegendText");
-                        const bgpLegendText = T.translate("entity.bgpLegendText");
-                        const darknetLegendText = T.translate("entity.darknetLegendText");
-                        const meritLegendText = T.translate("entity.meritLegendText");
-                        switch (e.dataSeries.name) {
-                            case activeProbingLegendText:
-                                if(e.dataSeries.visible){
-                                    e.chart.axisY[0].set("labelFontColor","#666666");
-                                }
-                                this.setState({
-                                    tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["ping-slash24"]: !this.state.tsDataSeriesVisibleMap["ping-slash24"]}}
-                                    , () => {
-                                        e.chart.render()
-                                        })
-                                break;
-                                case "Google (Combined)":
-                                    if(e.dataSeries.visible){
-                                        e.chart.axisY[0].set("labelFontColor","#666666");
-                                    }
-                                    this.setState({
-                                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["gtr"]: !this.state.tsDataSeriesVisibleMap["ping-slash24"]}}
+                        let signal = legend.filter(elem => elem.title == e.dataSeries.name)[0];
+                        this.setState({
+                                        tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,[signal.key]: !this.state.tsDataSeriesVisibleMap[signal.key]}}
                                         , () => {
-                                            e.chart.render()
+                                            // e.chart.render()
                                             })
-                                    break;
-                            case bgpLegendText:
-                                if(e.dataSeries.visible){
-                                    e.chart.axisY[0].set("labelFontColor","#666666");
-                                }
-                                // this.legendHandler("bgp")
-                                this.setState({
-                                    tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["bgp"]: !this.state.tsDataSeriesVisibleMap["bgp"]}}
-                                    , () => {
-                                        e.chart.render()
-                                        })
-                                //this.setState({ tsDataSeriesVisibleBgp: e.dataSeries.visible }, e.chart.render());
-                                break;
-                            // case darknetLegendText:
-                            //     console.log(tsDataSeriesVisibleMap)
-                            //     if(e.chart.axisY2[0]) { 
-                            //         e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
-                            //     }
-                            //     this.setState({ tsDataSeriesVisibleUcsdNt: e.dataSeries.visible }, e.chart.render());
-                            //     break;
-                            case meritLegendText:  
-                                    if(e.chart.axisY2[0]) { 
-                                         e.chart.axisY2[0].set("labelFontColor",e.dataSeries.visible ? "#666666":"transparent");
-                                     }                              
-                                this.setState({
-                                    tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,["merit-nt"]: !this.state.tsDataSeriesVisibleMap["merit-nt"]}}
-                                    , () => {
-                                        e.chart.render()
-                                    })
-                                break;
-                        }
-                        if(!this.state.tsDataSeriesVisibleMap["ping-slash24"] && !this.state.tsDataSeriesVisibleMap["bgp"]){
-                            e.chart.axisY[0].set("labelFontColor","transparent");
-                        }
                     }
                 },
-                data: this.createXyVizDataObject(networkTelescopeValues.length > 1 ? networkTelescopeValues : [], bgpValues.length > 1 ? bgpValues : [], activeProbingValues.length > 1 ? activeProbingValues : [], meritTelescopeValues.length > 1 ? meritTelescopeValues : [],gtrValues.length > 1 ? gtrValues : [])
+                data: this.createXyVizDataObject(signalValues)
             }
         }, () => {
             this.genXyChart();
         });
     }
     // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-    createXyVizDataObject(networkTelescopeValues, bgpValues, activeProbingValues, meritTelescopeValues,gtrValues) {
-        let networkTelescope, bgp, activeProbing, meritTelescope,gtr;
-        const activeProbingLegendText = T.translate("entity.activeProbingLegendText");
-        const bgpLegendText = T.translate("entity.bgpLegendText");
-        const darknetLegendText = T.translate("entity.darknetLegendText");
-        const meritLegendText = T.translate("entity.meritLegendText");
-        const googleCombinedText = T.translate("entity.googleCombinedText");
-        let dataSeriesHideMap = {}
-        if (gtrValues) {
-            if(gtrValues.length == 0){
-                dataSeriesHideMap["gtr"] = undefined;
-            }
-            gtr = {
+    createXyVizDataObject(signalValues) {
+        let chartSignal = [];
+        signalValues.map(signal => {
+            let legendDetails = legend.filter(elem => elem.key == signal.dataSource)[0]
+            chartSignal.push({
                 type: "line",
                 lineThickness: 1,
-                color: gtrColor,
-                lineColor: gtrColor,
+                color: legendDetails.color,
+                lineColor: legendDetails.color,
                 markerType: "circle",
                 markerSize: 2,
-                name: "Google (Combined)",
-                visible: this.state.tsDataSeriesVisibleMap["gtr"],
+                markerColor: legendDetails.color,
+                name: legendDetails.title,
+                visible: this.state.tsDataSeriesVisibleMap[signal.dataSource],
                 showInLegend: true,
                 xValueFormatString: "DDD, MMM DD - HH:mm",
                 yValueFormatString: "0",
-                dataPoints: gtrValues,
-                legendMarkerColor: gtrValues,
+                axisYType: signal.dataSource === "merit-nt" && !this.state.tsDataNormalized ? "secondary": "primary",
+                dataPoints: signal.values,
+                legendMarkerColor: legendDetails.color,
                 toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
+            })
+        })
 
-            }
-        }
-        if (activeProbingValues) {
-            if(activeProbingValues.length == 0){
-                dataSeriesHideMap["ping-slash24"] = undefined
-            }
-            activeProbing = {
-                type: "line",
-                lineThickness: 1,
-                color: activeProbingColor,
-                lineColor: activeProbingColor,
-                markerType: "circle",
-                markerSize: 2,
-                name: activeProbingLegendText,
-                visible: this.state.tsDataSeriesVisibleMap["ping-slash24"],
-                showInLegend: true,
-                xValueFormatString: "DDD, MMM DD - HH:mm",
-                yValueFormatString: "0",
-                dataPoints: activeProbingValues,
-                legendMarkerColor: activeProbingColor,
-                toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
-
-            }
-        }
-        if (bgpValues) {
-            if(bgpValues.length === 0){
-                dataSeriesHideMap["bgp"] = undefined;
-            }
-            bgp = {
-                type: "line",
-                lineThickness: 1,
-                color: bgpColor,
-                lineColor: bgpColor,
-                markerType: "circle",
-                markerSize: 2,
-                name: bgpLegendText,
-                visible: this.state.tsDataSeriesVisibleMap["bgp"],
-                showInLegend: true,
-                xValueFormatString: "DDD, MMM DD - HH:mm",
-                yValueFormatString: "0",
-                dataPoints: bgpValues,
-                legendMarkerColor: bgpColor,
-                toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
-            }
-        }
-        if (networkTelescopeValues) {
-            networkTelescope = {
-                type: "line",
-                lineThickness: 1,
-                color: ucsdNtColor,
-                lineColor: ucsdNtColor,
-                markerType: "circle",
-                markerSize: 2,
-                name: darknetLegendText,
-                visible: false,
-                axisYType: this.state.tsDataNormalized ? 'primary' : "secondary",
-                showInLegend: false,
-                xValueFormatString: "DDD, MMM DD - HH:mm",
-                yValueFormatString: "0",
-                dataPoints: networkTelescopeValues,
-                legendMarkerColor: ucsdNtColor,
-                toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
-            }
-        }
-
-        if (meritTelescopeValues) {
-            if(meritTelescopeValues.length == 0){
-                dataSeriesHideMap['merit-nt'] = undefined;
-            }
-            meritTelescope = {
-                type: "line",
-                lineThickness: 1,
-                color: meritNtColor,
-                lineColor: meritNtColor,
-                markerType: "circle",
-                markerSize: 2,
-                name: meritLegendText,
-                visible: this.state.tsDataSeriesVisibleMap["merit-nt"],
-                axisYType: this.state.tsDataNormalized ? 'primary' : "secondary",
-                showInLegend: true,
-                xValueFormatString: "DDD, MMM DD - HH:mm",
-                yValueFormatString: "0",
-                dataPoints: meritTelescopeValues,
-                legendMarkerColor: meritNtColor,
-                toolTipContent: this.state.tsDataNormalized ? "{x} <br/> {name}: {y}%" : "{x} <br/> {name}: {y}"
-            }
-        }
-
-        this.setState({
-            tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap, ...dataSeriesHideMap}
-                })
-
-        return [activeProbing, bgp, networkTelescope, meritTelescope,gtr]
+        return chartSignal;
     }
     // function for when zoom/pan is used
     xyPlotRangeChanged(e) {
@@ -1955,6 +1714,14 @@ class Entity extends Component {
                 })
     }
 
+    updateSourceParams(src) { 
+        if(!this.state.sourceParams.includes(src)){
+            this.setState({
+                sourceParams: [...this.state.sourceParams, src]
+            })
+        }
+    }
+
     render() {
         const xyChartTitle = T.translate("entity.xyChartTitle");
         const eventFeedTitle = T.translate("entity.eventFeedTitle");
@@ -2056,6 +1823,7 @@ class Entity extends Component {
                                         alertDataProcessed={this.state.alertDataProcessed}
                                         legendHandler={this.legendHandler}
                                         tsDataSeriesVisibleMap={this.state.tsDataSeriesVisibleMap}
+                                        updateSourceParams={this.updateSourceParams}
                                         />
                                     </div>
                                 </div>
@@ -2181,8 +1949,8 @@ const mapDispatchToProps = (dispatch) => {
         searchAlertsAction: (from, until, entityType, entityCode, datasource=null, limit=null, page=null) => {
             searchAlerts(dispatch, from, until, entityType, entityCode, datasource, limit, page);
         },
-        getSignalsAction: (entityType, entityCode, from, until, datasource=null, maxPoints) => {
-            getSignalsAction(dispatch, entityType, entityCode, from, until, datasource, maxPoints);
+        getSignalsAction: (entityType, entityCode, from, until, datasource=null, maxPoints,sourceParams=null) => {
+            getSignalsAction(dispatch, entityType, entityCode, from, until, datasource, maxPoints,sourceParams);
         },
 
         searchRelatedToMapSummary: (from, until, entityType, relatedToEntityType, relatedToEntityCode, entityCode, limit, page, includeMetaData) => {

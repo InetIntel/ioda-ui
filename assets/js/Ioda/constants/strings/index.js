@@ -55,7 +55,6 @@ switch (language) {
 let strings = Object.assign({}, require(`./${languageString}/app.json`));
 
 let defaultStrings = Object.assign({}, require(`./en/app.json`));
-console.log(defaultStrings);
 
 T.setTexts(strings, {
   notFound: (key) => {
