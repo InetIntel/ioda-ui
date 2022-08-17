@@ -95,6 +95,7 @@ import {Helmet} from "react-helmet";
 import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from '../../components/cards/ChartTabCard';
 import { element } from 'prop-types';
+import Tabs from "../../components/tabs/Tabs";
 
 
 const dataSource=["bgp","ping-slash24","merit-nt","gtr.BLENDED"]
@@ -131,7 +132,7 @@ class Entity extends Component {
             xyDataOptions: null,
             tsDataRaw: null,
             tsDataNormalized: true,
-            tsDataDisplayOutageBands: true,
+            tsDataDisplayOutageBands: false,
             tsDataLegendRangeFrom: window.location.search.split("?")[1]
                 ? convertTimeToSecondsForURL(window.location.search.split("?")[1].split("&")[0].split("=")[1])
                 : Math.round((new Date().getTime()  - (24 * 60 * 60 * 1000)) / 1000),
@@ -145,6 +146,7 @@ class Entity extends Component {
             showXyChartModal: false,
             // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
             tsDataSeriesVisibleMap: dataSource.reduce((result,item)=>{result[item]=true;return result},{}),//new Map(dataSource.map(k => {return [k,true]})),
+            prevDataSeriesVisibleMap: dataSource.reduce((result,item)=>{result[item]=true;return result},{}),
             // Event/Table Data
             currentTable: 'alert',
             eventDataRaw: null,
@@ -209,6 +211,8 @@ class Entity extends Component {
             additionalRawSignalRequestedBgp: false,
             additionalRawSignalRequestedUcsdNt: false,
             additionalRawSignalRequestedMeritNt: false,
+            currentTab: 1,
+            simplifiedView: true,
             currentEntitiesChecked: 100
         };
         this.handleTimeFrame = this.handleTimeFrame.bind(this);
@@ -221,6 +225,8 @@ class Entity extends Component {
         this.updateEntityMetaData = this.updateEntityMetaData.bind(this);
         this.legendHandler = this.legendHandler.bind(this);
         this.updateSourceParams = this.updateSourceParams.bind(this);
+        this.toggleView = this.toggleView.bind(this);
+        this.handleSelectTab = this.handleSelectTab.bind(this);
         this.initialTableLimit = 300;
         this.initialHtsLimit = 100;
         this.maxHtsLimit = 150;
@@ -778,7 +784,7 @@ class Entity extends Component {
                 markerType: "circle",
                 markerSize: 2,
                 markerColor: legendDetails.color,
-                name: legendDetails.title,
+                name: legendDetails.key.includes(".") ? `Google (${legendDetails.title})` : legendDetails.title,
                 visible: this.state.tsDataSeriesVisibleMap[signal.dataSource],
                 showInLegend: true,
                 xValueFormatString: "DDD, MMM DD - HH:mm",
@@ -1722,6 +1728,21 @@ class Entity extends Component {
         }
     }
 
+    toggleView() {
+        let tmpVisibleSeries = this.state.prevDataSeriesVisibleMap;
+        this.setState({
+            simplifiedView: !this.state.simplifiedView,
+            tsDataDisplayOutageBands: !this.state.tsDataDisplayOutageBands,
+            prevDataSeriesVisibleMap: this.state.tsDataSeriesVisibleMap,
+            tsDataSeriesVisibleMap: tmpVisibleSeries
+        },()=> this.convertValuesForXyViz())
+    }
+
+    handleSelectTab(selectedKey) {
+        this.setState({ currentTab: selectedKey });
+        this.toggleView();
+      }
+
     render() {
         const xyChartTitle = T.translate("entity.xyChartTitle");
         const eventFeedTitle = T.translate("entity.eventFeedTitle");
@@ -1752,8 +1773,15 @@ class Entity extends Component {
                         ? <Error/>
                         : this.state.until - this.state.from < controlPanelTimeRangeLimit
                             ? <React.Fragment>
+                                            <div className="tabs">
+                                                <Tabs
+                                                    tabOptions={["Simplified","Advance"]}
+                                                    activeTab={this.state.currentTab}
+                                                    handleSelectTab={this.handleSelectTab}
+                                                />
+                                            </div>
                                 <div className="row overview">
-                                    <div className="col-3-of-5">
+                                    <div className={this.state.simplifiedView ? "col-4-of-5" : "col-3-of-5"}>
                                         <div className="overview__config" ref={this.config}>
                                             <div className="overview__config-heading">
                                                 <h3 className="heading-h3">
@@ -1765,6 +1793,7 @@ class Entity extends Component {
                                                     text={tooltipXyPlotTimeSeriesText}
                                                 />
                                             </div>
+                                            {!this.state.simplifiedView &&
                                             <div className="overview__buttons">
                                                 <div className="overview__buttons-col">
                                                     <ToggleButton
@@ -1801,7 +1830,7 @@ class Entity extends Component {
                                                         />
                                                     }
                                                 </div>
-                                            </div>
+                                            </div>}
                                         </div>
                                         {
                                             this.state.xyDataOptions
@@ -1813,7 +1842,7 @@ class Entity extends Component {
                                                        until={convertSecondsToDateValues(this.state.tsDataLegendRangeUntil)} />
                                         </div>
                                     </div>
-                                    <div className="col-2-of-5">
+                                    <div className={this.state.simplifiedView ? "col-1-of-5" : "col-2-of-5"}>
                                         <ChartTabCard 
                                         title={this.state.currentTable === "event"
                                         ? `${eventFeedTitle} ${this.state.entityName}`
@@ -1824,6 +1853,7 @@ class Entity extends Component {
                                         legendHandler={this.legendHandler}
                                         tsDataSeriesVisibleMap={this.state.tsDataSeriesVisibleMap}
                                         updateSourceParams={this.updateSourceParams}
+                                        simplifiedView={this.state.simplifiedView}
                                         />
                                     </div>
                                 </div>

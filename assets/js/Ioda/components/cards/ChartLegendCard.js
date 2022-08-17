@@ -7,7 +7,7 @@
  * three paragraphs appear in all copies. Permission to make use of this
  * software for other than academic research and education purposes may be
  * obtained by contacting:
-*
+ *
  *  Office of Technology Licensing
  *  Georgia Institute of Technology
  *  926 Dalney Street, NW
@@ -33,7 +33,7 @@
  * HEREUNDER IS ON AN "AS IS" BASIS, AND  GEORGIA TECH RESEARCH CORPORATION HAS
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
-*/
+ */
 import React from "react";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -43,75 +43,101 @@ import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { legend } from "../../utils";
+import { gtrColor, legend } from "../../utils";
 // import { NULL } from "node-sass";
 
-const ChartLegendCard = ({ legendHandler, checkedMap, updateSourceParams }) => {
+const ChartLegendCard = ({
+  legendHandler,
+  checkedMap,
+  updateSourceParams,
+  simplifiedView,
+}) => {
   const handleChange = (event) => {
     legendHandler(event.target.name);
-    if(event.target.name.includes("gtr.")){
+    if (event.target.name.includes("gtr.")) {
       updateSourceParams(event.target.name.split(".")[1]);
     }
   };
 
-
   return (
     <FormGroup>
-      {legend.filter(item=> !item.key.includes(".")).map((item) => (
-        checkedMap[item.key] != undefined &&
+      {legend
+        .filter((item) => !item.key.includes("."))
+        .map(
+          (item) =>
+            checkedMap[item.key] != undefined && (
+              <FormControlLabel
+                key={item.key}
+                control={
+                  <Checkbox
+                    checked={checkedMap[item.key]}
+                    onChange={handleChange}
+                    name={item.key}
+                    style={{
+                      transform: "scale(1.5)",
+                      paddingBottom: "1em",
+                      color: item.color,
+                    }}
+                  />
+                }
+                label={<Typography variant="h5">{item.title}</Typography>}
+              />
+            )
+        )}
+      {simplifiedView ? (
         <FormControlLabel
-          key={item.key}
+          key={"gtr.BLENDED"}
           control={
             <Checkbox
-              checked={checkedMap[item.key]}
+              checked={checkedMap["gtr.BLENDED"]}
               onChange={handleChange}
-              name={item.key}
+              name={"gtr.BLENDED"}
               style={{
                 transform: "scale(1.5)",
                 paddingBottom: "1em",
-                color: item.color,
+                color: gtrColor,
               }}
             />
           }
-          
-          label={<Typography variant="h5">{item.title}</Typography>}
+          label={<Typography variant="h5">Google (Combined)</Typography>}
         />
-        
-      ))}
-
-      <Accordion elevation={0}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon style={{ transform: "scale(1.5)" }} />}
-          aria-label="Expand"
-          aria-controls="additional-actions1-content"
-          id="additional-actions1-header"
-          style={{ paddingLeft: "0", margin: "0" }}
-        >
-          <Typography variant="h5">Google</Typography>
-        </AccordionSummary>
-        <AccordionDetails style={{flexDirection: "column"}}>
-
-        {legend.filter(item=> item.key.includes("gtr")).map((item) => 
-          <FormControlLabel
-            key={item.key}
-            control={
-              <Checkbox
-              checked={checkedMap[item.key] ? checkedMap[item.key] : false}
-              onChange={handleChange}
-                name={item.key}
-                style={{
-                  transform: "scale(1.5)",
-                  paddingBottom: "1em",
-                  color: item.color,
-                }}
-              />
-            }
-            label={<Typography variant="h5">{item.title}</Typography>}
-          />
-          )}
-
-        </AccordionDetails>
-      </Accordion>
+      ) : (
+        <Accordion elevation={0}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon style={{ transform: "scale(1.5)" }} />}
+            aria-label="Expand"
+            aria-controls="additional-actions1-content"
+            id="additional-actions1-header"
+            style={{ paddingLeft: "0", margin: "0" }}
+          >
+            <Typography variant="h5">Google</Typography>
+          </AccordionSummary>
+          <AccordionDetails style={{ flexDirection: "column" }}>
+            {legend
+              .filter((item) => item.key.includes("gtr"))
+              .map((item) => (
+                <FormControlLabel
+                  key={item.key}
+                  control={
+                    <Checkbox
+                      checked={
+                        checkedMap[item.key] ? checkedMap[item.key] : false
+                      }
+                      onChange={handleChange}
+                      name={item.key}
+                      style={{
+                        transform: "scale(1.5)",
+                        paddingBottom: "1em",
+                        color: item.color,
+                      }}
+                    />
+                  }
+                  label={<Typography variant="h5">{item.title}</Typography>}
+                />
+              ))}
+          </AccordionDetails>
+        </Accordion>
+      )}
     </FormGroup>
   );
 };

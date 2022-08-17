@@ -91,7 +91,7 @@ import {
 const buildSignalsConfig = (entityType, entityCode, from, until, datasource, maxPoints, sourceParams) => {
     let url = `/signals/raw/${entityType}/${entityCode}?from=${from}&until=${until}&maxPoints=${maxPoints}`;
     url += datasource!==null ? `&datasource=${datasource}`: "";
-    url += sourceParams!==null ? `&sourceParams=${sourceParams.join(",")}`: "";
+    url += sourceParams ? `&sourceParams=${sourceParams.join(",")}`: "";
     return {
         method: "get",
         url: url

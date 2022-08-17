@@ -45,7 +45,7 @@ export const secondaryColor = "#3975BB";
 export const secondaryColorLight = "#598DCC";
 export const secondaryColorDark = "#1A5DAE";
 export const bgpColor = "#33A02C";
-export const gtrColor = "#EA4335";
+export const gtrColor = "#5F2CA0";
 export const activeProbingColor = "#1F78B4";
 export const meritNtColor = "#ED9B40";
 export const ucsdNtColor = "#000000";   // XXX TODO choose a nice color
@@ -87,7 +87,7 @@ export const legend = [
       {
         title: T.translate("entity.googleSearchText"),
         key: "gtr.WEB_SEARCH",
-        color: "#2C38A0",
+        color: "#B88D55",
       },
       {
         title: T.translate("entity.googleImagesText"),

@@ -7,7 +7,7 @@
  * three paragraphs appear in all copies. Permission to make use of this
  * software for other than academic research and education purposes may be
  * obtained by contacting:
-*
+ *
  *  Office of Technology Licensing
  *  Georgia Institute of Technology
  *  926 Dalney Street, NW
@@ -33,7 +33,7 @@
  * HEREUNDER IS ON AN "AS IS" BASIS, AND  GEORGIA TECH RESEARCH CORPORATION HAS
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
-*/
+ */
 import React from "react";
 import Table from "../table/Table";
 import Loading from "../loading/Loading";
@@ -42,66 +42,84 @@ import Tabs from "../tabs/Tabs";
 import T from "i18n-react";
 import ChartLegendCard from "./ChartLegendCard";
 
-
 class ChartTabCard extends React.Component {
-
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.state = {currentTab : 1}
+    this.state = { currentTab: 1 };
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
   handleSelectTab(selectedKey) {
-    this.setState({currentTab:selectedKey})
-  };
+    this.setState({ currentTab: selectedKey });
+  }
 
-  
-render(){
-  return (
-    <div className="overview__table-config">
-      <div className="tabs">
-        <Tabs
-          tabOptions={["Selected Signals","Alert", "Event"]}
-          activeTab={this.state.currentTab}
-          handleSelectTab={this.handleSelectTab}
-        />
-      </div>
-
-      <div
-        style={this.state.currentTab === 1 ? { display: "block" } : { display: "none" }}
-      >
-        <ChartLegendCard legendHandler={this.props.legendHandler} checkedMap={this.props.tsDataSeriesVisibleMap} updateSourceParams={this.props.updateSourceParams}/>
-      </div>
-
-      <div
-        style={this.state.currentTab === 2 ? { display: "block" } : { display: "none" }}
-      >
-        {this.props.alertDataProcessed ? (
-          <Table
-            type="alert"
-            data={this.props.alertDataProcessed}
-            totalCount={this.props.alertDataProcessed.length}
+  render() {
+    return (
+      <div className="overview__table-config">
+        <div className="tabs">
+          <Tabs
+            tabOptions={
+              this.props.simplifiedView
+                ? ["Selected Signals"]
+                : ["Selected Signals", "Alert", "Event"]
+            }
+            activeTab={this.state.currentTab}
+            handleSelectTab={this.handleSelectTab}
           />
-        ) : (
-          <Loading />
-        )}
-      </div>
-      <div
-        style={this.state.currentTab === 3 ? { display: "block" } : { display: "none" }}
-      >
-        {this.props.eventDataProcessed ? (
-          <Table
-            type={"event"}
-            data={this.props.eventDataProcessed}
-            totalCount={this.props.eventDataProcessed.length}
+        </div>
+
+        <div
+          style={
+            this.state.currentTab === 1
+              ? { display: "block" }
+              : { display: "none" }
+          }
+        >
+          <ChartLegendCard
+            legendHandler={this.props.legendHandler}
+            checkedMap={this.props.tsDataSeriesVisibleMap}
+            updateSourceParams={this.props.updateSourceParams}
+            simplifiedView={this.props.simplifiedView}
           />
-        ) : (
-          <Loading />
-        )}
+        </div>
+
+        <div
+          style={
+            this.state.currentTab === 2
+              ? { display: "block" }
+              : { display: "none" }
+          }
+        >
+          {this.props.alertDataProcessed ? (
+            <Table
+              type="alert"
+              data={this.props.alertDataProcessed}
+              totalCount={this.props.alertDataProcessed.length}
+            />
+          ) : (
+            <Loading />
+          )}
+        </div>
+        <div
+          style={
+            this.state.currentTab === 3
+              ? { display: "block" }
+              : { display: "none" }
+          }
+        >
+          {this.props.eventDataProcessed ? (
+            <Table
+              type={"event"}
+              data={this.props.eventDataProcessed}
+              totalCount={this.props.eventDataProcessed.length}
+            />
+          ) : (
+            <Loading />
+          )}
+        </div>
       </div>
-    </div>
-  );
-        }
-};
+    );
+  }
+}
 
 export default ChartTabCard;
