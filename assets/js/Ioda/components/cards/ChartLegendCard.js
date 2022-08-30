@@ -34,7 +34,7 @@
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
  */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -52,12 +52,25 @@ const ChartLegendCard = ({
   updateSourceParams,
   simplifiedView,
 }) => {
+
+  const [googleLegendSelected, setGoogleLegendSelected] = useState(true);
+
   const handleChange = (event) => {
     legendHandler(event.target.name);
     if (event.target.name.includes("gtr.")) {
       updateSourceParams(event.target.name.split(".")[1]);
     }
   };
+
+  useEffect(()=>{
+    let status = false;
+    for(const k in checkedMap) {
+      if(k.includes(".") ){
+          status = status || checkedMap[k];
+      }
+    }
+    setGoogleLegendSelected(status);
+  },[checkedMap])
 
   return (
     <FormGroup>
@@ -110,7 +123,21 @@ const ChartLegendCard = ({
             id="additional-actions1-header"
             style={{ paddingLeft: "0", margin: "0" }}
           >
-            <Typography variant="h5">Google</Typography>
+            <FormControlLabel
+            key="google-dropdown"
+            label={<Typography variant="h5">Google</Typography>}
+            control={
+              <Checkbox
+              indeterminate={googleLegendSelected}
+              checked={false}
+              style={{
+                transform: "scale(1.5)",
+                paddingBottom: "1em",
+                color: gtrColor,
+              }}
+              />
+            }
+            />
           </AccordionSummary>
           <AccordionDetails style={{ flexDirection: "column" }}>
             {legend
