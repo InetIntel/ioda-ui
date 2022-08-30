@@ -81,7 +81,7 @@ import {Helmet} from "react-helmet";
 class Help extends PureComponent {
 
     render() {
-        const title = T.translate("IODA Help");
+        const title = T.translate("header.help");
         const text = T.translate("reports.text");
         const link1 = T.translate("reports.link1");
         const link2 = T.translate("reports.link2");

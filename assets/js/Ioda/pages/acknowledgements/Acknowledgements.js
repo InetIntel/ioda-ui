@@ -95,7 +95,7 @@ import {Helmet} from "react-helmet";
 class Acknowledgements extends PureComponent {
 
     render() {
-        const title = T.translate("Acknowledgements");
+        const title = T.translate("header.acknowledgements");
         const center = {
             display: "flex",
             justifyContent: "center"

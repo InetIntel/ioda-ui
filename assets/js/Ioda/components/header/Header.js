@@ -74,19 +74,51 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import T from 'i18n-react';
 import iodaLogo from 'images/logos/ioda-logo.svg';
+import {  ThemeProvider, withStyles,createTheme } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
-class Nav extends Component {
+const useStyles = (theme) => ({
+    formControl: {
+      margin: theme.spacing(1),
+      minWidth: 90
+    },
+  });
+
+  const theme = createTheme({
+    palette: {
+      type: 'dark',
+    },
+  });
+
+class Nav extends Component { 
     constructor(props) {
         super(props);
+        this.state = {
+            language: localStorage.getItem("lang") ? localStorage.getItem("lang") : "en" 
+        }
         this.checkbox = React.createRef();
         this.toggleMenu = this.toggleMenu.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     toggleMenu(event) {
         this.checkbox.current.click();
     }
 
+    handleChange(event) {
+        this.setState({
+            language: event.target.value
+        },()=> {
+            localStorage.setItem("lang",this.state.language);
+            window.location.reload(false);
+             }
+        )
+      };
+
     render() {
+        const { classes } = this.props;
         const dashboard = T.translate("header.dashboard");
         const reports = T.translate("header.reports");
         const help = T.translate("header.help");
@@ -140,9 +172,24 @@ class Nav extends Component {
                                     <Link to="/help" className="header__link" onClick={() => this.toggleMenu()}>
                                         {help}
                                     </Link>
-                                </li>
+                                </li>                              
                             </ul>
                         </nav>
+                        <ThemeProvider theme={theme}>
+                            <FormControl className={classes.formControl}>
+                                <Select
+                                value={this.state.language}
+                                onChange={this.handleChange}
+                                inputProps={{MenuProps: {disableScrollLock: true}}}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    <MenuItem value={"en"}>English</MenuItem>
+                                    <MenuItem value={'fa'}>Farsi</MenuItem>
+                                </Select>
+                            </FormControl> 
+                        </ThemeProvider>
                     </div>
                 </div>
             </div>
@@ -150,4 +197,4 @@ class Nav extends Component {
     }
 }
 
-export default Nav;
+export default withStyles(useStyles)(Nav);
