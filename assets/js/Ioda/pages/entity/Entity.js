@@ -1739,8 +1739,10 @@ class Entity extends Component {
     }
 
     handleSelectTab(selectedKey) {
-        this.setState({ currentTab: selectedKey });
-        this.toggleView();
+        if(this.state.currentTab !== selectedKey){
+            this.setState({ currentTab: selectedKey });
+            this.toggleView();
+        }
       }
 
     render() {
