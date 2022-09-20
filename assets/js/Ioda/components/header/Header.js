@@ -110,6 +110,13 @@ class Nav extends Component {
         this.toogleSimplifiedView = this.toogleSimplifiedView.bind(this);
     }
 
+    componentDidMount() {
+        if(localStorage.getItem("simplified_view") == null){
+            localStorage.setItem('simplified_view',"true");
+            this.setState({toggle:true})
+        }
+    }
+
     toggleMenu(event) {
         this.checkbox.current.click();
     }
