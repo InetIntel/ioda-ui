@@ -54,16 +54,19 @@ class ChartTabCard extends React.Component {
   }
 
   render() {
+    const selectedSignal = T.translate("entity.selectedSignal");
+    const alertTab = T.translate("entity.alertTab");
+    const eventTab = T.translate("entity.eventTab");
     return (
       <div className="overview__table-config">
         <div className="tabs">
           <Tabs
             tabOptions={
               this.props.simplifiedView
-                ? ["Selected Signals"]
-                : ["Selected Signals", "Alert", "Event"]
+                ? [selectedSignal]
+                : [selectedSignal,alertTab, eventTab]
             }
-            activeTab={this.state.currentTab}
+            activeTab={this.props.simplifiedView ? 1 :this.state.currentTab}
             handleSelectTab={this.handleSelectTab}
           />
         </div>

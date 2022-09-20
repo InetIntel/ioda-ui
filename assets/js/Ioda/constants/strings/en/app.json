@@ -157,7 +157,10 @@
     "asnModalButtonText": "ASN/ISP Raw Signals",
     "regionalSectionTitleCountryType": "Regional Outages in ",
     "regionalSectionTitleRegionType": "Other Regions Affected in ",
-    "regionalSectionTitleAsnType": "Regions where {asn} operates that experienced outages"
+    "regionalSectionTitleAsnType": "Regions where {asn} operates that experienced outages",
+    "selectedSignal": "Selected Signal",
+    "eventTab": "Event",
+    "alertTab": "Alert"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",

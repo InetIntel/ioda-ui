@@ -78,11 +78,14 @@ import {  ThemeProvider, withStyles,createTheme } from '@material-ui/core/styles
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { Switch,FormControlLabel, Typography } from '@material-ui/core';
 
 const useStyles = (theme) => ({
     formControl: {
       margin: theme.spacing(1),
-      minWidth: 90
+      minWidth: 90,
+      display: "flex",
+      flexDirection: "row"
     },
   });
 
@@ -92,15 +95,19 @@ const useStyles = (theme) => ({
     },
   });
 
+  const label = { inputProps: { 'aria-label': 'view-toggle' } };
+
 class Nav extends Component { 
     constructor(props) {
         super(props);
         this.state = {
-            language: localStorage.getItem("lang") ? localStorage.getItem("lang") : "en" 
+            language: localStorage.getItem("lang") ? localStorage.getItem("lang") : "en" ,
+            toggle: localStorage.getItem('simplified_view') == 'true'
         }
         this.checkbox = React.createRef();
         this.toggleMenu = this.toggleMenu.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.toogleSimplifiedView = this.toogleSimplifiedView.bind(this);
     }
 
     toggleMenu(event) {
@@ -116,6 +123,12 @@ class Nav extends Component {
              }
         )
       };
+
+      toogleSimplifiedView(e){
+        console.log(e.target.checked)
+        localStorage.setItem('simplified_view',e.target.checked);
+        window.location.reload(false);
+      }
 
     render() {
         const { classes } = this.props;
@@ -164,11 +177,6 @@ class Nav extends Component {
                                     </Link>
                                 </li>
                                 <li className="header__item">
-                                    <Link to="/acknowledgements" className="header__link" onClick={() => this.toggleMenu()}>
-                                        {acknowledgements}
-                                    </Link>
-                                </li>
-                                <li className="header__item">
                                     <Link to="/help" className="header__link" onClick={() => this.toggleMenu()}>
                                         {help}
                                     </Link>
@@ -188,6 +196,12 @@ class Nav extends Component {
                                     <MenuItem value={"en"}>English</MenuItem>
                                     <MenuItem value={'fa'}>Farsi</MenuItem>
                                 </Select>
+                                <div style={{marginLeft: "2em"}}>
+                                 <FormControlLabel
+                                    control={<Switch {...label} onChange={this.toogleSimplifiedView} checked={this.state.toggle} />}
+                                    label={<Typography style={{color:"white"}}>{this.state.toggle?"Simplified":"Advanced"}</Typography>}
+                                /> 
+                                </div>
                             </FormControl> 
                         </ThemeProvider>
                     </div>

@@ -212,7 +212,7 @@ class Entity extends Component {
             additionalRawSignalRequestedUcsdNt: false,
             additionalRawSignalRequestedMeritNt: false,
             currentTab: 1,
-            simplifiedView: true,
+            simplifiedView: localStorage.getItem('simplified_view') == 'true',
             currentEntitiesChecked: 100
         };
         this.handleTimeFrame = this.handleTimeFrame.bind(this);
@@ -1775,13 +1775,6 @@ class Entity extends Component {
                         ? <Error/>
                         : this.state.until - this.state.from < controlPanelTimeRangeLimit
                             ? <React.Fragment>
-                                            <div className="tabs">
-                                                <Tabs
-                                                    tabOptions={["Simplified","Advance"]}
-                                                    activeTab={this.state.currentTab}
-                                                    handleSelectTab={this.handleSelectTab}
-                                                />
-                                            </div>
                                 <div className="row overview">
                                     <div className={this.state.simplifiedView ? "col-4-of-5" : "col-3-of-5"}>
                                         <div className="overview__config" ref={this.config}>
