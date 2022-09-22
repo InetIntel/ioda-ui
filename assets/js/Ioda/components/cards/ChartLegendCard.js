@@ -99,12 +99,12 @@ const ChartLegendCard = ({
         )}
       {simplifiedView ? (
         <FormControlLabel
-          key={"gtr.BLENDED"}
+          key={"gtr.WEB_SEARCH"}
           control={
             <Checkbox
-              checked={checkedMap["gtr.BLENDED"]}
+              checked={checkedMap["gtr.WEB_SEARCH"]}
               onChange={handleChange}
-              name={"gtr.BLENDED"}
+              name={"gtr.WEB_SEARCH"}
               style={{
                 transform: "scale(1.5)",
                 paddingBottom: "1em",
@@ -112,7 +112,7 @@ const ChartLegendCard = ({
               }}
             />
           }
-          label={<Typography variant="h5">Google (Combined)</Typography>}
+          label={<Typography variant="h5">Google (Search)</Typography>}
         />
       ) : (
         <Accordion elevation={0}>

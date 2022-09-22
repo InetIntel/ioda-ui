@@ -98,7 +98,7 @@ import { element } from 'prop-types';
 import Tabs from "../../components/tabs/Tabs";
 
 
-const dataSource=["bgp","ping-slash24","merit-nt","gtr.BLENDED"]
+const dataSource=["bgp","ping-slash24","merit-nt","gtr.WEB_SEARCH"]
 class Entity extends Component {
 
 
@@ -125,7 +125,7 @@ class Entity extends Component {
                 : Math.round(new Date().getTime() / 1000),
             // Search Bar
             suggestedSearchResults: null,
-            sourceParams: ["BLENDED"],
+            sourceParams: ["WEB_SEARCH"],
             searchTerm: "",
             lastFetched: 0,
             // XY Plot Time Series

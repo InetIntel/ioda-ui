@@ -69,11 +69,6 @@ export const legend = [
       key: "merit-nt",
       color: meritNtColor,
     },
-    {
-        title: T.translate("entity.googleCombinedText"),
-        key: "gtr.BLENDED",
-        color: gtrColor,
-      },
       {
         title: T.translate("entity.googleMapText"),
         key: "gtr.MAPS",
@@ -87,7 +82,7 @@ export const legend = [
       {
         title: T.translate("entity.googleSearchText"),
         key: "gtr.WEB_SEARCH",
-        color: "#B88D55",
+        color: gtrColor,
       },
       {
         title: T.translate("entity.googleImagesText"),
