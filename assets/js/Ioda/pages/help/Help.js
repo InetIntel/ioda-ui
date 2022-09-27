@@ -168,7 +168,21 @@ class Help extends PureComponent {
                                 and then compute the <em>number of unique source IPs per minute</em>, aggregated by  country, region, and ASN.
                             </li>
                         </ul>
-
+                        <h3>Google Product Signals</h3>
+                        <ul>
+                            <li>
+                            Google product signals are sourced from the <a href="https://transparencyreport.google.com/">Google Transparency Report</a>. Each product signal represents normalized values of the number of visits to that Google product and are approximately geolocated to the country where the visit originated.
+                            </li>
+                            <li>
+                            Current GTR data is only available at the country-level. 
+                            </li>
+                            <li>
+                            IODA connects to the Google Transparency Report data through the <a href="https://github.com/Jigsaw-Code/net-analysis">GTR API maintained by Jigsaw</a>. 
+                            </li>
+                            <li>
+                            Google provides GTR data at the resolution of 1 data point per 30 minutes. IODA fetches the data every 15 minutes. You will notice a lag of 60-90 minutes in the time series.
+                            </li>
+                        </ul>
                         <h2>Outage Detection</h2>
                         <ul>
                             <li>
