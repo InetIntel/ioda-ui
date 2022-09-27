@@ -104,6 +104,7 @@ const ChartLegendCard = ({
             <Checkbox
               checked={checkedMap["gtr.WEB_SEARCH"]}
               onChange={handleChange}
+              disabled={window.location.pathname.split("/")[1]=="country"?false:true}
               name={"gtr.WEB_SEARCH"}
               style={{
                 transform: "scale(1.5)",
@@ -122,6 +123,7 @@ const ChartLegendCard = ({
             aria-controls="additional-actions1-content"
             id="additional-actions1-header"
             style={{ paddingLeft: "0", margin: "0" }}
+            disabled={window.location.pathname.split("/")[1]=="country"?false:true}
           >
             <FormControlLabel
             key="google-dropdown"
