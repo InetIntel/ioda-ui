@@ -748,7 +748,6 @@ class Entity extends Component {
                     itemclick: (e) => {
                         // console.log("legend click: " + e.dataPointIndex);
                         // console.log(e);
-                        // console.log(e.dataSeries.name);
 
                         // toggle series visibility
                         if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
@@ -757,11 +756,11 @@ class Entity extends Component {
                             e.dataSeries.visible = true;
                         }
                         // track state of which series are visible
-                        let signal = legend.filter(elem => elem.title == e.dataSeries.name)[0];
+                        let signal = legend.filter(elem => elem.title == e.dataSeries.id)[0];
                         this.setState({
                                         tsDataSeriesVisibleMap: {...this.state.tsDataSeriesVisibleMap,[signal.key]: !this.state.tsDataSeriesVisibleMap[signal.key]}}
                                         , () => {
-                                            // e.chart.render()
+                                             e.chart.render()
                                             })
                     }
                 },
@@ -778,6 +777,7 @@ class Entity extends Component {
             let legendDetails = legend.filter(elem => elem.key == signal.dataSource)[0]
             chartSignal.push({
                 type: "line",
+                id: legendDetails.title,
                 lineThickness: 1,
                 color: legendDetails.color,
                 lineColor: legendDetails.color,

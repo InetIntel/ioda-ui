@@ -2779,7 +2779,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1999;
+  z-index: 1000;
   height: 5rem;
   padding: 0 4.5rem; }
   @media only screen and (max-width: 64em) {
@@ -2865,7 +2865,7 @@ body {
         height: 100vh;
         position: fixed;
         right: -50%;
-        z-index: 1500000;
+        z-index: 1000;
         opacity: 0;
         width: 0;
         transition: all 0.8s;

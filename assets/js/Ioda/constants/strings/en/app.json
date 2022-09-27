@@ -7,7 +7,8 @@
     "projectInfo": "Project Info",
     "explorer": "Explorer",
     "acknowledgements": "Acknowledgements",
-    "api": "API"
+    "api": "API",
+    "viewToggleHelp":"This Toggle is used to switch between Simplified and Advanced view of the dashboard."
   },
   "home": {
     "title": "IODA",

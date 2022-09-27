@@ -78,7 +78,7 @@ import {  ThemeProvider, withStyles,createTheme } from '@material-ui/core/styles
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import { Switch,FormControlLabel, Typography } from '@material-ui/core';
+import { Switch,FormControlLabel, Typography,Tooltip } from '@material-ui/core';
 
 const useStyles = (theme) => ({
     formControl: {
@@ -94,6 +94,14 @@ const useStyles = (theme) => ({
       type: 'dark',
     },
   });
+
+  const LightTooltip = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: theme.palette.common.white,
+      color: 'rgba(0, 0, 0, 0.87)',
+      boxShadow: theme.shadows[1]
+    },
+  }))(Tooltip);
 
   const label = { inputProps: { 'aria-label': 'view-toggle' } };
 
@@ -146,6 +154,7 @@ class Nav extends Component {
         const iodaLogoAltText = T.translate("header.iodaLogoAltText");
         const acknowledgements = T.translate("header.acknowledgements");
         const api = T.translate("header.api");
+        const viewToggleHelp = T.translate("header.viewToggleHelp");
 
         return(
             <div className="header">
@@ -187,30 +196,31 @@ class Nav extends Component {
                                     <Link to="/help" className="header__link" onClick={() => this.toggleMenu()}>
                                         {help}
                                     </Link>
-                                </li>                              
-                            </ul>
+                                </li>
+                                <li className="header__item">                              
+                                <ThemeProvider theme={theme}>
+                                    <FormControl className={classes.formControl}>
+                                        <Select
+                                        value={this.state.language}
+                                        onChange={this.handleChange}
+                                        inputProps={{MenuProps: {disableScrollLock: true}}}                                  
+                                        >
+                                            <MenuItem key={"en"} value={"en"}>English</MenuItem>
+                                            <MenuItem key={"fa"} value={'fa'}>Farsi</MenuItem>
+                                        </Select>
+                                        <div style={{marginLeft: "2em"}}>
+                                        <LightTooltip title={<Typography variant='h5'>{viewToggleHelp}</Typography>}>
+                                            <FormControlLabel
+                                                control={<Switch {...label} onChange={this.toogleSimplifiedView} checked={this.state.toggle} />}
+                                                label={<Typography style={{color:"white"}}>{this.state.toggle?"Simplified":"Advanced"}</Typography>}
+                                            /> 
+                                        </LightTooltip>
+                                        </div>
+                                    </FormControl> 
+                                </ThemeProvider>
+                        </li>
+                        </ul>
                         </nav>
-                        <ThemeProvider theme={theme}>
-                            <FormControl className={classes.formControl}>
-                                <Select
-                                value={this.state.language}
-                                onChange={this.handleChange}
-                                inputProps={{MenuProps: {disableScrollLock: true}}}
-                                >
-                                    <MenuItem value="">
-                                        <em>None</em>
-                                    </MenuItem>
-                                    <MenuItem value={"en"}>English</MenuItem>
-                                    <MenuItem value={'fa'}>Farsi</MenuItem>
-                                </Select>
-                                <div style={{marginLeft: "2em"}}>
-                                 <FormControlLabel
-                                    control={<Switch {...label} onChange={this.toogleSimplifiedView} checked={this.state.toggle} />}
-                                    label={<Typography style={{color:"white"}}>{this.state.toggle?"Simplified":"Advanced"}</Typography>}
-                                /> 
-                                </div>
-                            </FormControl> 
-                        </ThemeProvider>
                     </div>
                 </div>
             </div>
