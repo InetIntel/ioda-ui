@@ -256,7 +256,7 @@ class Home extends Component {
                                 sourceType="profile"
                                 screenName="gatech_ioda"
                                 options={{ id: "profile:gatech_ioda", height: '48.3rem'}}
-                                lang="en"
+                                lang={localStorage.getItem("lang")}
                             />
                         </div>
                     </div>

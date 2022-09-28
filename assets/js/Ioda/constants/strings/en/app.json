@@ -7,7 +7,8 @@
     "projectInfo": "Project Info",
     "explorer": "Explorer",
     "acknowledgements": "Acknowledgements",
-    "api": "API"
+    "api": "API",
+    "viewToggleHelp":"This Toggle is used to switch between Simplified and Advanced view of the dashboard."
   },
   "home": {
     "title": "IODA",
@@ -129,7 +130,7 @@
   "entity": {
     "pageTitle": "Outage Severity Overview",
     "timeRangeTitle": "Outages Occurring Today",
-    "xyChartTitle": "IODA Signals for ",
+    "xyChartTitle": "Internet Connectivity for ",
     "xyChartXAxisTitle": "Time (UTC)",
     "toggleOn": "ON",
     "toggleOff": "OFF",
@@ -139,6 +140,14 @@
     "bgpLegendText": "BGP (#Visible /24s)",
     "darknetLegendText": "Telescope (# Unique Source IPs)",
     "meritLegendText": "Telescope (# Unique Source IPs)",
+    "googleCombinedText": "Combined",
+    "googleMapText": "Maps",
+    "googleMailText": "Gmail",
+    "googleSearchText": "Search",
+    "googleYoutubeText": "Youtube",
+    "googleSpreadsheetText": "Spreadsheet",
+    "googleSitesText": "Site",
+    "googleImagesText": "Images",
     "eventAlertButtonText1": "View ",
     "eventAlertButtonOption1": "Alert",
     "eventAlertButtonOption2": "Event",
@@ -149,7 +158,10 @@
     "asnModalButtonText": "ASN/ISP Raw Signals",
     "regionalSectionTitleCountryType": "Regional Outages in ",
     "regionalSectionTitleRegionType": "Other Regions Affected in ",
-    "regionalSectionTitleAsnType": "Regions where {asn} operates that experienced outages"
+    "regionalSectionTitleAsnType": "Regions where {asn} operates that experienced outages",
+    "selectedSignal": "Selected Signal",
+    "eventTab": "Event",
+    "alertTab": "Alert"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",

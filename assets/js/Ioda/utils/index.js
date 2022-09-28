@@ -32,6 +32,7 @@
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 import d3 from 'd3';
+import T from 'i18n-react';
 
 // Time limit max that a user can select in the calendar -- currently set for 90 days
 export const controlPanelTimeRangeLimit = (90 * 24 * 60 * 60) + 1;
@@ -44,12 +45,66 @@ export const secondaryColor = "#3975BB";
 export const secondaryColorLight = "#598DCC";
 export const secondaryColorDark = "#1A5DAE";
 export const bgpColor = "#33A02C";
+export const gtrColor = "#5F2CA0";
 export const activeProbingColor = "#1F78B4";
 export const meritNtColor = "#ED9B40";
 export const ucsdNtColor = "#000000";   // XXX TODO choose a nice color
 export const horizonChartSeriesColor = "#006D2D";
 
 export const maxHtsLimit = 150;
+
+export const legend = [
+    {
+      title: T.translate("entity.activeProbingLegendText"),
+      key: "ping-slash24",
+      color: activeProbingColor,
+    },
+    {
+      title: T.translate("entity.bgpLegendText"),
+      key: "bgp",
+      color: bgpColor,
+    },
+    {
+      title: T.translate("entity.meritLegendText"),
+      key: "merit-nt",
+      color: meritNtColor,
+    },
+      {
+        title: T.translate("entity.googleMapText"),
+        key: "gtr.MAPS",
+        color: "#A02C79",
+      },
+      {
+        title: T.translate("entity.googleMailText"),
+        key: "gtr.GMAIL",
+        color: "#A02C2C",
+      },
+      {
+        title: T.translate("entity.googleSearchText"),
+        key: "gtr.WEB_SEARCH",
+        color: gtrColor,
+      },
+      {
+        title: T.translate("entity.googleImagesText"),
+        key: "gtr.IMAGES",
+        color: "#FC5D83",
+      },
+      {
+        title: T.translate("entity.googleYoutubeText"),
+        key: "gtr.YOUTUBE",
+        color: "#B65DFC",
+      },
+      {
+        title: T.translate("entity.googleSpreadsheetText"),
+        key: "gtr.SPREADSHEETS",
+        color: "#637146",
+      },
+      {
+        title: T.translate("entity.googleSitesText"),
+        key: "gtr.SITES",
+        color: "#426984",
+      },
+  ];
 
 // Humanize number with rounding, abbreviations, etc.
 export function humanizeNumber(value, precisionDigits) {
