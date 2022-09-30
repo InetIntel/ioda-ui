@@ -4385,3 +4385,7 @@ button[class*="searchButton"] {
       transition: ease-in-out 0.3s; }
       .report a:link:link:hover, .report a:link:visited:hover, .report a:visited:link:hover, .report a:visited:visited:hover {
         background-size: 100% 2px; }
+  .report p, .report ul li {
+    font-size: 2rem; }
+    .report p a, .report ul li a {
+      font-size: 2rem; }

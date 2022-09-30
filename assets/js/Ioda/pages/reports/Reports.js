@@ -62,6 +62,11 @@ class Reports extends PureComponent {
                         <h1 className="section-header">{title}</h1>
                         <p className="reports__text">{text}</p>
                         <ul className="reports__list">
+                        <li className="reports__list-item">
+                                <Link to="/reports/GTR-integrated">
+                                IODA Integrates Google Usage Data and Adds Enhancements to the User Interface
+                                </Link>
+                            </li>
                             <li className="reports__list-item">
                                 <a href="https://ooni.org/post/2021-uganda-general-election-blocks-and-outage/" target="_blank">
                                     {link1}
