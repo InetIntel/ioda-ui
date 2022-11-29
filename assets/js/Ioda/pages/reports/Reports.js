@@ -63,7 +63,7 @@ class Reports extends PureComponent {
                         <p className="reports__text">{text}</p>
                         <ul className="reports__list">
                         <li className="reports__list-item">
-                                <a href="https://docs.google.com/document/d/e/2PACX-1vTFrxCfaT-8sDKezHJ8jJISbr6JRNu79etonaIY50NeVjX08GiOaQCJWAvqB5MtZhAR7Y-LP-HisqNI/pub" target="_blank">
+                                <a href="https://ooni.org/post/2022-iran-technical-multistakeholder-report/" target="_blank">
                                 Technical multi-stakeholder report on Internet shutdowns: The case of Iran amid autumn 2022 protests
                                 </a>
                             </li>
