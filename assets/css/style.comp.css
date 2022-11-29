@@ -2602,6 +2602,71 @@ body {
 .disabled {
   left: 0; }
 
+.tabs {
+  margin-bottom: 1.5rem; }
+  .tabs .nav-tabs {
+    list-style-type: none;
+    height: 4rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: left; }
+    .tabs .nav-tabs li {
+      width: 20rem; }
+      .tabs .nav-tabs li a {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #2c3e50;
+        font-weight: 700;
+        text-decoration: none;
+        padding-bottom: 2px;
+        margin-bottom: 1px;
+        font-size: 1.2rem; }
+        .tabs .nav-tabs li a:hover span {
+          transition: all .4s ease-in-out;
+          filter: brightness(1.05) contrast(1.05);
+          transform: scale(1.03); }
+    .tabs .nav-tabs li.active {
+      background-color: #fff; }
+      .tabs .nav-tabs li.active a {
+        color: #2c3e50 !important;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        border: 1px solid #eeeeee;
+        background-size: 100% 2px !important;
+        box-shadow: 0 1px 2px #9F9D9D;
+        z-index: 100;
+        position: relative; }
+        .tabs .nav-tabs li.active a:link, .tabs .nav-tabs li.active a:visited {
+          color: #3975BB;
+          font-weight: 700;
+          text-decoration: none;
+          padding-bottom: 2px;
+          margin-bottom: 1px;
+          background: linear-gradient(175deg, #598DCC 0%, #598DCC 33.3%, #3975BB 83.5%, #1A5DAE 100%) left bottom transparent no-repeat;
+          background-size: 100% 0;
+          /* controls underline thickness */
+          transition: ease-in-out 0.3s; }
+          .tabs .nav-tabs li.active a:link:hover, .tabs .nav-tabs li.active a:visited:hover {
+            background-size: 100% 2px; }
+        .tabs .nav-tabs li.active a:link, .tabs .nav-tabs li.active a:visited {
+          background: linear-gradient(175deg, #617486 0%, #617486 33.3%, #2c3e50 83.5%, #0D2032 100%) left bottom transparent no-repeat; }
+        .tabs .nav-tabs li.active a:hover {
+          background-size: 100% 2px !important;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+          color: #2c3e50; }
+        .tabs .nav-tabs li.active a:after {
+          content: '';
+          height: 1rem;
+          width: 100%;
+          background-color: #fff;
+          position: absolute;
+          bottom: -1rem;
+          left: -1px; }
+
 .footer {
   filter: drop-shadow(0.5rem 0.5rem 0.5rem #222);
   background-color: #2c3e50;
@@ -2714,7 +2779,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1999;
+  z-index: 1000;
   height: 5rem;
   padding: 0 4.5rem; }
   @media only screen and (max-width: 64em) {
@@ -2800,7 +2865,7 @@ body {
         height: 100vh;
         position: fixed;
         right: -50%;
-        z-index: 1500000;
+        z-index: 1000;
         opacity: 0;
         width: 0;
         transition: all 0.8s;
@@ -3943,7 +4008,7 @@ button[class*="searchButton"] {
           height: 1.6rem; } }
   .entity .overview__table-config {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-between;
     margin-bottom: 1.5rem; }
   .entity .overview__table .table {
@@ -4320,3 +4385,7 @@ button[class*="searchButton"] {
       transition: ease-in-out 0.3s; }
       .report a:link:link:hover, .report a:link:visited:hover, .report a:visited:link:hover, .report a:visited:visited:hover {
         background-size: 100% 2px; }
+  .report p, .report ul li {
+    font-size: 2rem; }
+    .report p a, .report ul li a {
+      font-size: 2rem; }

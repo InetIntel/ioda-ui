@@ -74,19 +74,79 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import T from 'i18n-react';
 import iodaLogo from 'images/logos/ioda-logo.svg';
+import {  ThemeProvider, withStyles,createTheme } from '@material-ui/core/styles';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import { Switch,FormControlLabel, Typography,Tooltip } from '@material-ui/core';
 
-class Nav extends Component {
+const useStyles = (theme) => ({
+    formControl: {
+      margin: theme.spacing(1),
+      minWidth: 90,
+      display: "flex",
+      flexDirection: "row"
+    },
+  });
+
+  const theme = createTheme({
+    palette: {
+      type: 'dark',
+    },
+  });
+
+  const LightTooltip = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: theme.palette.common.white,
+      color: 'rgba(0, 0, 0, 0.87)',
+      boxShadow: theme.shadows[1]
+    },
+  }))(Tooltip);
+
+  const label = { inputProps: { 'aria-label': 'view-toggle' } };
+
+class Nav extends Component { 
     constructor(props) {
         super(props);
+        this.state = {
+            language: localStorage.getItem("lang") ? localStorage.getItem("lang") : "en" ,
+            toggle: localStorage.getItem('simplified_view') == 'true'
+        }
         this.checkbox = React.createRef();
         this.toggleMenu = this.toggleMenu.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.toogleSimplifiedView = this.toogleSimplifiedView.bind(this);
+    }
+
+    componentDidMount() {
+        if(localStorage.getItem("simplified_view") == null){
+            localStorage.setItem('simplified_view',"true");
+            this.setState({toggle:true})
+        }
     }
 
     toggleMenu(event) {
         this.checkbox.current.click();
     }
 
+    handleChange(event) {
+        this.setState({
+            language: event.target.value
+        },()=> {
+            localStorage.setItem("lang",this.state.language);
+            window.location.reload(false);
+             }
+        )
+      };
+
+      toogleSimplifiedView(e){
+        console.log(e.target.checked)
+        localStorage.setItem('simplified_view',e.target.checked);
+        window.location.reload(false);
+      }
+
     render() {
+        const { classes } = this.props;
         const dashboard = T.translate("header.dashboard");
         const reports = T.translate("header.reports");
         const help = T.translate("header.help");
@@ -94,6 +154,7 @@ class Nav extends Component {
         const iodaLogoAltText = T.translate("header.iodaLogoAltText");
         const acknowledgements = T.translate("header.acknowledgements");
         const api = T.translate("header.api");
+        const viewToggleHelp = T.translate("header.viewToggleHelp");
 
         return(
             <div className="header">
@@ -132,16 +193,33 @@ class Nav extends Component {
                                     </Link>
                                 </li>
                                 <li className="header__item">
-                                    <Link to="/acknowledgements" className="header__link" onClick={() => this.toggleMenu()}>
-                                        {acknowledgements}
-                                    </Link>
-                                </li>
-                                <li className="header__item">
                                     <Link to="/help" className="header__link" onClick={() => this.toggleMenu()}>
                                         {help}
                                     </Link>
                                 </li>
-                            </ul>
+                                <li className="header__item">                              
+                                <ThemeProvider theme={theme}>
+                                    <FormControl className={classes.formControl}>
+                                        <Select
+                                        value={this.state.language}
+                                        onChange={this.handleChange}
+                                        inputProps={{MenuProps: {disableScrollLock: true}}}                                  
+                                        >
+                                            <MenuItem key={"en"} value={"en"}>English</MenuItem>
+                                            <MenuItem key={"fa"} value={'fa'}>Farsi</MenuItem>
+                                        </Select>
+                                        <div style={{marginLeft: "2em"}}>
+                                        <LightTooltip title={<Typography variant='h5'>{viewToggleHelp}</Typography>}>
+                                            <FormControlLabel
+                                                control={<Switch {...label} onChange={this.toogleSimplifiedView} checked={this.state.toggle} />}
+                                                label={<Typography style={{color:"white"}}>{this.state.toggle?"Simplified":"Advanced"}</Typography>}
+                                            /> 
+                                        </LightTooltip>
+                                        </div>
+                                    </FormControl> 
+                                </ThemeProvider>
+                        </li>
+                        </ul>
                         </nav>
                     </div>
                 </div>
@@ -150,4 +228,4 @@ class Nav extends Component {
     }
 }
 
-export default Nav;
+export default withStyles(useStyles)(Nav);

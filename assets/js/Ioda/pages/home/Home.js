@@ -255,8 +255,8 @@ class Home extends Component {
                             <TwitterTimelineEmbed
                                 sourceType="profile"
                                 screenName="gatech_ioda"
-                                options={{ id: "profile:gatech_ioda", height: '48.3rem'}}
-                                lang="en"
+                                options={{ id: "profile:gatech_ioda", height: '590'}}
+                                lang={localStorage.getItem("lang")}
                             />
                         </div>
                     </div>

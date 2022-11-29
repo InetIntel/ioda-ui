@@ -64,6 +64,7 @@ import ChartShare from "./pages/tests/ChartShare";
 import Acknowledgements from "./pages/acknowledgements/Acknowledgements";
 import TestAPI from "./pages/tests/TestAPI";
 import { ASNVizV2 } from './pages/tmpViz/ASNVizV2';
+import GTRIntegrated from './pages/reports/GTRIntegrated';
 
 
 
@@ -91,6 +92,7 @@ class App extends Component {
                 <Route exact path='/acknowledgements' component={Acknowledgements}/>
                 <Route exact path='/_tmp/asn' component={ASNVizV2}/>
                 <Route path='/reports/2020-iran-report' component={IranReport2020}/>
+                <Route path='/reports/GTR-integrated' component={GTRIntegrated}/>
                 <Route exact path='/:entityType/:entityCode' component={Entity} />
                 <Route path='/' component={Home}/>
             </Switch>

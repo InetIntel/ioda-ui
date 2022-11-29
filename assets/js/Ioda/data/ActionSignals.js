@@ -88,9 +88,10 @@ import {
     GET_ADDITIONAL_RAW_SIGNAL
 } from "./ActionCommons";
 
-const buildSignalsConfig = (entityType, entityCode, from, until, datasource, maxPoints) => {
+const buildSignalsConfig = (entityType, entityCode, from, until, datasource, maxPoints, sourceParams) => {
     let url = `/signals/raw/${entityType}/${entityCode}?from=${from}&until=${until}&maxPoints=${maxPoints}`;
     url += datasource!==null ? `&datasource=${datasource}`: "";
+    url += sourceParams ? `&sourceParams=${sourceParams.join(",")}`: "";
     return {
         method: "get",
         url: url
@@ -110,8 +111,8 @@ const buildEventSignalsConfig = (entityType, entityCode, from, until, datasource
 PUBLIC ACTION FUNCTIONS
  */
 
-export const getSignalsAction = (dispatch, entityType, entityCode, from, until, datasource=null, maxPoints) => {
-    let config = buildSignalsConfig(entityType, entityCode, from, until, datasource, maxPoints);
+export const getSignalsAction = (dispatch, entityType, entityCode, from, until, datasource=null, maxPoints,sourceParams) => {
+    let config = buildSignalsConfig(entityType, entityCode, from, until, datasource, maxPoints, sourceParams);
     fetchData(config).then(data => {
         dispatch({
             type: GET_SIGNALS,

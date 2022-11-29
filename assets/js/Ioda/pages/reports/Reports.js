@@ -62,6 +62,21 @@ class Reports extends PureComponent {
                         <h1 className="section-header">{title}</h1>
                         <p className="reports__text">{text}</p>
                         <ul className="reports__list">
+                        <li className="reports__list-item">
+                                <a href="https://docs.google.com/document/d/e/2PACX-1vTFrxCfaT-8sDKezHJ8jJISbr6JRNu79etonaIY50NeVjX08GiOaQCJWAvqB5MtZhAR7Y-LP-HisqNI/pub" target="_blank">
+                                Technical multi-stakeholder report on Internet shutdowns: The case of Iran amid autumn 2022 protests
+                                </a>
+                            </li>
+                            <li className="reports__list-item">
+                                <a href="https://ooni.org/post/2022-iran-blocks-social-media-mahsa-amini-protests/#network-outages" target="_blank">
+                                Jihna (Mahsa Amini) protests and Internet Shutdowns - beginning in September 2022
+                                </a>
+                            </li>
+                        <li className="reports__list-item">
+                                <Link to="/reports/GTR-integrated">
+                                IODA Integrates Google Usage Data and Adds Enhancements to the User Interface
+                                </Link>
+                            </li>
                             <li className="reports__list-item">
                                 <a href="https://ooni.org/post/2021-uganda-general-election-blocks-and-outage/" target="_blank">
                                     {link1}

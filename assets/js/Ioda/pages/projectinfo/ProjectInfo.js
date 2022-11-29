@@ -41,6 +41,7 @@ import { Link } from 'react-router-dom';
 // Internationalization
 import T from 'i18n-react';
 import {Helmet} from "react-helmet";
+import Acknowledgements from '../acknowledgements/Acknowledgements';
 
 
 class ProjectInfo extends PureComponent {
@@ -71,6 +72,7 @@ class ProjectInfo extends PureComponent {
                         </p>
                     </div>
                 </div>
+                <Acknowledgements/>
         </div>
     );
     }
