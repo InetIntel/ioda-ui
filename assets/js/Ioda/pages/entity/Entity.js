@@ -438,47 +438,30 @@ class Entity extends Component {
     // Make API call for data to populate XY Chart
     if (this.props.signals !== prevProps.signals) {
       // Map props to state and initiate data processing
-      this.setState(
-        {
-          tsDataRaw: this.props.signals,
-        },
-        () => {
-          // For XY Plotted Graph
-          this.convertValuesForXyViz();
-        }
-      );
+      this.setState({ tsDataRaw: this.props.signals }, () => {
+        // For XY Plotted Graph
+        this.convertValuesForXyViz();
+      });
     }
 
     // Make API call for data to populate event table
     if (this.props.events !== prevProps.events) {
-      this.setState(
-        {
-          eventDataRaw: this.props.events,
-        },
-        () => {
-          this.convertValuesForEventTable();
-        }
-      );
+      this.setState({ eventDataRaw: this.props.events }, () => {
+        this.convertValuesForEventTable();
+      });
     }
 
     // After API call for Alert Table data completes, check for lengths to set display counts and then process to populate
     if (this.props.alerts !== prevProps.alerts) {
-      this.setState(
-        {
-          alertDataRaw: this.props.alerts,
-        },
-        () => {
-          this.convertValuesForAlertTable();
-        }
-      );
+      this.setState({ alertDataRaw: this.props.alerts }, () => {
+        this.convertValuesForAlertTable();
+      });
     }
 
     // After API call for outage summary data completes, pass summary data to map function for data merging
     if (this.props.relatedToMapSummary !== prevProps.relatedToMapSummary) {
       this.setState(
-        {
-          summaryDataMapRaw: this.props.relatedToMapSummary,
-        },
+        { summaryDataMapRaw: this.props.relatedToMapSummary },
         this.getMapScores
       );
     }
@@ -926,21 +909,6 @@ class Entity extends Component {
       signalValues.push({ dataSource: id, values: datasourceValues });
     });
 
-    // Create Alert band objects
-    let stripLines = [];
-    if (this.state.tsDataDisplayOutageBands) {
-      this.state.eventDataRaw &&
-        this.state.eventDataRaw.map((event) => {
-          const stripLine = {
-            startValue: toDateTime(event.start),
-            endValue: toDateTime(event.start + event.duration),
-            color: alertBandColor,
-            opacity: 0.2,
-          };
-          stripLines.push(stripLine);
-        });
-    }
-
     // create top padding in chart area for normalized/absolute views
     const normalizedStripline = [
       {
@@ -1198,10 +1166,35 @@ class Entity extends Component {
           : "{x} <br/> {name}: {y}",
       });
     });
-    console.log(chartSignal);
     return chartSignal;
     */
     const chartSignal = [];
+
+    // Add alert bands series
+    if (this.state.tsDataDisplayOutageBands) {
+      const alertBands = [];
+      if (this.state.eventDataRaw) {
+        this.state.eventDataRaw.forEach((event) => {
+          alertBands.push([
+            { xAxis: toDateTime(event.start) },
+            { xAxis: toDateTime(event.start + event.duration) },
+          ]);
+        });
+      }
+
+      chartSignal.push({
+        name: "",
+        type: "line",
+        markArea: {
+          silent: true,
+          itemStyle: {
+            color: "rgba(255, 173, 177, 0.4)",
+          },
+          data: alertBands,
+        },
+      });
+    }
+
     signalValues.forEach((signal) => {
       const legendDetails = legend.find(
         (elem) => elem.key === signal.dataSource
@@ -1251,6 +1244,7 @@ class Entity extends Component {
       };
       chartSignal.push(res);
     });
+    console.log(chartSignal);
     return chartSignal;
   }
   // function for when zoom/pan is used
@@ -1299,6 +1293,7 @@ class Entity extends Component {
           style={{ height: height }}
           onChartReady={this.setEchartInstance}
           onEvents={events}
+          notMerge={true}
         />
       )
     );
@@ -1313,16 +1308,16 @@ class Entity extends Component {
       () => this.convertValuesForXyViz()
     );
   }
+
   // toggle any populated alert bands to be displayed in chart
   handleDisplayAlertBands(status) {
-    this.setState(
-      {
-        tsDataDisplayOutageBands:
-          status === "off" ? false : !this.state.tsDataDisplayOutageBands,
-      },
-      () => this.convertValuesForXyViz()
+    const newStatus =
+      status === "off" ? false : !this.state.tsDataDisplayOutageBands;
+    this.setState({ tsDataDisplayOutageBands: newStatus }, () =>
+      this.convertValuesForXyViz()
     );
   }
+
   // Track screen width to shift around legend, adjust height of xy chart
   resize() {
     const tsDataScreenBelow970 = window.innerWidth <= 970;
@@ -1333,7 +1328,6 @@ class Entity extends Component {
     const tsDataScreenBelow678 = window.innerWidth <= 678;
     if (tsDataScreenBelow678 !== this.state.tsDataScreenBelow678) {
       this.setState({ tsDataScreenBelow678 }, () => {
-        //console.log(tsDataScreenBelow678);
         this.convertValuesForXyViz();
       });
     }
@@ -1399,10 +1393,8 @@ class Entity extends Component {
     /* Force alert bands to be drawn in cases where the graph was
      * drawn before our event data arrived.
      */
-    if (this.state.tsDataDisplayOutageBands) {
-      if (this.state.tsDataRaw) {
-        this.convertValuesForXyViz();
-      }
+    if (this.state.tsDataDisplayOutageBands && this.state.tsDataRaw) {
+      this.convertValuesForXyViz();
     }
   }
   // Take values from api and format for Alert table
@@ -1532,6 +1524,7 @@ class Entity extends Component {
       );
     }
   }
+
   // function to manage when a user clicks a country in the map
   handleEntityShapeClick(entity) {
     const { history } = this.props;
@@ -1545,6 +1538,7 @@ class Entity extends Component {
         : `/region/${entity.properties.id}`
     );
   }
+
   // Show/hide modal when button is clicked on either panel
   toggleModal(modalLocation) {
     if (modalLocation === "map") {
