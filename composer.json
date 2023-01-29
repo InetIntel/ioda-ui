@@ -6,13 +6,13 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "sensio/framework-extra-bundle": "^5.2",
-        "symfony/asset": "*",
-        "symfony/console": "*",
-        "symfony/dotenv": "*",
+        "symfony/asset": "4.2.*",
+        "symfony/console": "4.2.*",
+        "symfony/dotenv": "4.2.*",
         "symfony/flex": "^1.1",
-        "symfony/framework-bundle": "*",
-        "symfony/twig-bundle": "*",
-        "symfony/yaml": "*"
+        "symfony/framework-bundle": "4.2.*",
+        "symfony/twig-bundle": "4.2.*",
+        "symfony/yaml": "4.2.*"
     },
     "require-dev": {
     },
@@ -20,7 +20,13 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        },
+	"platform": {
+	    "php": "7.2.24"
+	}
     },
     "autoload": {
         "psr-4": {
