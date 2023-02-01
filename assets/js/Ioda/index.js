@@ -65,6 +65,7 @@ import Acknowledgements from "./pages/acknowledgements/Acknowledgements";
 import TestAPI from "./pages/tests/TestAPI";
 import { ASNVizV2 } from './pages/tmpViz/ASNVizV2';
 import GTRIntegrated from './pages/reports/GTRIntegrated';
+import OutageBanner from './components/outageBanner';
 
 
 
@@ -82,6 +83,7 @@ class App extends Component {
     render() {
         return <div className="app">
             <Header/>
+            <OutageBanner />
             <Switch>
                 {/*<Route path='/test' component={TestAPI}/>*/}
                 <Route path='/chart/:entityType/:entityCode' component={ChartShare}/>
