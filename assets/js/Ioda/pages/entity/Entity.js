@@ -102,7 +102,8 @@ import {
   legend,
 } from "../../utils";
 import dayjs from "dayjs";
-import EChartsReact from "echarts-for-react";
+import Chart from "react-apexcharts";
+import ApexCharts from "apexcharts";
 // import CanvasJSChart from "../../libs/canvasjs-non-commercial-3.2.5/canvasjs.react";
 import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
@@ -146,6 +147,10 @@ class Entity extends Component {
       lastFetched: 0,
       // XY Plot Time Series
       xyDataOptions: null,
+      xyChartOptions: null,
+      xyBrushOptions: null,
+      xyChartSeries: null,
+      xyBrushSeries: null,
       tsDataRaw: null,
       tsDataNormalized: true,
       tsDataDisplayOutageBands: false,
@@ -242,10 +247,9 @@ class Entity extends Component {
       currentEntitiesChecked: 100,
     };
 
-    this.echartInstance = null;
-    this.setEchartInstance = this.setEchartInstance.bind(this);
     this.handleChartLegendSelectionChange =
       this.handleChartLegendSelectionChange.bind(this);
+    this.handleSelectedSignal = this.handleSelectedSignal.bind(this);
 
     this.handleTimeFrame = this.handleTimeFrame.bind(this);
     this.toggleModal = this.toggleModal.bind(this);
@@ -257,7 +261,6 @@ class Entity extends Component {
       this.changeXyChartNormalization.bind(this);
     this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
     this.updateEntityMetaData = this.updateEntityMetaData.bind(this);
-    this.handleSelectedSignal = this.handleSelectedSignal.bind(this);
     this.updateSourceParams = this.updateSourceParams.bind(this);
     this.toggleView = this.toggleView.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
@@ -874,10 +877,6 @@ class Entity extends Component {
     );
   }
 
-  setEchartInstance(echart) {
-    this.echartInstance = echart;
-  }
-
   // 1st Row
   // XY Chart Functions
   // format data from api to be compatible with chart visual
@@ -899,6 +898,7 @@ class Entity extends Component {
           x = toDateTime(datasource.from + datasource.step * index);
           y = this.state.tsDataNormalized ? normalize(value, max) : value;
           datasourceValues.push({ x: x, y: y });
+          console.log(datasourceValues.length)
         });
       // the last two values populating are the min value, and the max value. Removing these from the coordinates.
       datasourceValues.length > 2
@@ -909,6 +909,14 @@ class Entity extends Component {
       signalValues.push({ dataSource: id, values: datasourceValues });
     });
 
+    const formatYValue = (val) => {
+      if (this.state.tsDataNormalized) {
+        return val <= 100 ? `${val}%` : "";
+      } else {
+        return val;
+      }
+    };
+
     // create top padding in chart area for normalized/absolute views
     const normalizedStripline = [
       {
@@ -918,203 +926,254 @@ class Entity extends Component {
       },
     ];
 
-    // Control legend, toolbox, and positioning and grid sizing based on screen width
-    const chartLegendPosition = {};
+    const { chartSignals, alertBands } = this.createChartSeries(signalValues);
 
-    // Defaults for toolbox position on desktop
-    const toolboxPosition = {
-      top: "auto",
+    const chartOptions = {
+      chart: {
+        id: "timeSeries",
+        background: "#fff",
+        height: this.state.tsDataScreenBelow678 ? "360px" : "514px",
+        width: "100%",
+        animations: {
+          enabled: false,
+        },
+        // Chart controls in top right
+        toolbar: {
+          show: true,
+          tools: {
+            download: true,
+            selection: true,
+            zoom: true,
+            zoomin: false,
+            zoomout: false,
+            pan: true,
+            reset: true,
+          },
+          autoselected: "zoom",
+        },
+        events: {
+          legendClick: (ctx, seriesIndex, config) => {
+            const seriesToggled = chartSignals[seriesIndex];
+            if (seriesToggled) {
+              this.handleChartLegendSelectionChange(seriesToggled.id);
+            }
+          },
+          beforeZoom: function (chartContext, { xaxis }) {
+            console.log("zooming");
+          },
+          beforeResetZoom: (ctx, opts) => {
+            //TODO: Set zoom range manually using something like:
+            /*
+            return {
+              xaxis: {
+                min: timestamp,
+                max: timestamp
+              }
+            } 
+            */
+            ctx.resetSeries();
+          },
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      // Series tooltip when hovering over points
+      tooltip: {
+        enabled: true,
+        followCursor: true,
+        shared: false,
+        style: {
+          fontSize: "12px",
+          fontFamily: CUSTOM_FONT_FAMILY,
+        },
+        x: {
+          format: "MMM dd yyyy h:mmTT",
+        },
+        y: {
+          formatter: (value) => `${value.toFixed(2)}%`,
+        },
+      },
+      colors: chartSignals.map((signal) => signal.color),
+      stroke: {
+        show: true,
+        curve: "straight",
+        width: 1.1,
+      },
+      markers: {
+        size: 1.2,
+        strokeWidth: 0,
+        hover: {
+          sizeOffset: 1.5,
+        },
+      },
+      legend: {
+        show: true,
+        position: "bottom",
+        fontFamily: CUSTOM_FONT_FAMILY,
+        onItemClick: {
+          toggleDataSeries: true,
+        },
+        onItemHover: {
+          highlightDataSeries: true,
+        },
+      },
+      annotations: {
+        xaxis: alertBands,
+        yaxis: [
+          {
+            y: 8600,
+            y2: 9000,
+            borderColor: "#000",
+            fillColor: "#FEB019",
+            label: {
+              text: "Y-axis range",
+            },
+          },
+        ],
+      },
+      xaxis: {
+        type: "datetime",
+        tickPlacement: "on",
+        tooltip: {
+          style: {
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+        },
+        title: {
+          text: xyChartXAxisTitle,
+          offsetY: 60,
+          style: {
+            fontSize: "12px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+        },
+        tickAmount: 12,
+        labels: {
+          show: true,
+          offsetY: -3,
+          style: {
+            colors: ["#000"],
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+          datetimeUTC: true,
+          datetimeFormatter: {
+            year: "yyyy",
+            month: "MMM 'yy",
+            day: "MMM dd",
+            hour: "h:mmTT",
+            second: "h:mm:ssTT",
+          },
+        },
+      },
+      yaxis: {
+        tickAmount: 11,
+        forceNiceScale: false,
+        min: 0,
+        max: 1000,
+        /*
+        max: this.state.tsDataNormalized
+          ? 110
+          : Math.max.apply(null, absoluteMax) * 1.1,
+          */
+        labels: {
+          show: true,
+          style: {
+            colors: "#111",
+            fontSize: "12px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+          formatter: (value) => formatYValue(value),
+        },
+      },
     };
 
-    // Defaults for chart grid on desktop view
-    const chartGridSizing = {
-      height: "90%",
-      right: 10,
-      left: 5,
-      top: 10,
-      bottom: 40,
+    const brushOptions = {
+      chart: {
+        id: "brush",
+        width: "100%",
+        height: "100px",
+        background: "#fff",
+        animations: {
+          enabled: false,
+        },
+        brush: {
+          target: "timeSeries",
+          enabled: true,
+        },
+        selection: {
+          enabled: true,
+          fill: {
+            color: "#5db4e3",
+            opacity: 0.4,
+          },
+          xaxis: {
+            min: new Date("3 Feb 2023 00:00:00").getTime(),
+            max: new Date("3 Feb 2023 07:00:00").getTime(),
+          },
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      grid: {
+        padding: {
+          top: -30,
+          right: 0,
+          bottom: 0,
+          left: 0,
+        },
+      },
+      legend: {
+        show: false,
+      },
+      colors: chartSignals.map((signal) => signal.color),
+      annotations: {
+        xaxis: alertBands,
+      },
+      stroke: {
+        show: true,
+        curve: "straight",
+        width: 1,
+      },
+      markers: {
+        size: 0,
+      },
+      xaxis: {
+        type: "datetime",
+        labels: {
+          show: true,
+          offsetY: -5,
+          style: {
+            colors: [],
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+          datetimeUTC: true,
+          datetimeFormatter: {
+            year: "yyyy",
+            month: "MMM 'yy",
+            day: "MMM dd",
+            hour: "hh:mmTT",
+          },
+        },
+      },
+      yaxis: {
+        show: false,
+      },
     };
-
-    if (this.state.tsDataScreenBelow678) {
-      // For small screens, put legend at top and add padding to top of grid
-      chartLegendPosition.top = 0;
-      chartGridSizing.top = 40;
-      chartGridSizing.bottom = 10;
-      chartGridSizing.height = "85%";
-      toolboxPosition.top = 20;
-    } else {
-      // For large screens, put legend at bottom
-      chartLegendPosition.bottom = 0;
-    }
 
     this.setState(
       {
-        xyDataOptions: {
-          backgroundColor: "#ffffff",
-          height: this.state.tsDataScreenBelow678 ? "360px" : "514px",
-          animation: false,
-          grid: {
-            containLabel: true,
-            width: "98%",
-            ...chartGridSizing,
-          },
-          //rangeChanged: (e) => this.xyPlotRangeChanged(e),
-          tooltip: {
-            show: true,
-            trigger: "item",
-          },
-          toolbox: {
-            ...toolboxPosition,
-            feature: {
-              dataZoom: {
-                yAxisIndex: "none",
-              },
-              restore: {},
-            },
-          },
-          /*
-          dataZoom: [
-            {
-              type: "inside",
-              start: 0,
-              end: 20,
-            },
-            {
-              start: 0,
-              end: 20,
-            },
-          ],
-          */
-          legend: {
-            ...chartLegendPosition,
-            itemWidth: 15,
-            itemHeight: 8,
-            textStyle: {
-              fontFamily: CUSTOM_FONT_FAMILY,
-              fontSize: this.state.tsDataScreenBelow678 ? 10 : 12,
-              fontWeight: "bold",
-            },
-          },
-          xAxis: {
-            type: "time",
-            name: xyChartXAxisTitle,
-            splitNumber: 6,
-            //TODO: stripLines: stripLines,
-            nameLocation: "center",
-            nameGap: 20,
-            nameTextStyle: {
-              fontSize: 12,
-              fontFamily: CUSTOM_FONT_FAMILY,
-            },
-            axisPointer: {
-              show: true,
-              snap: true,
-              triggerTooltip: true,
-              type: "line",
-              lineStyle: {
-                type: "soid",
-                color: "#c5c5c5",
-              },
-              label: {
-                formatter: (params) =>
-                  dayjs(params.value).format("ddd, MMM DD - h:mmA"),
-                backgroundColor: "#000",
-                fontSize: 10,
-                fontFamily: CUSTOM_FONT_FAMILY,
-              },
-            },
-            axisLabel: {
-              fontSize: 10,
-              fontFamily: CUSTOM_FONT_FAMILY,
-              formatter: {
-                year: "{yyyy}",
-                month: "{MMM} {yyyy}",
-                day: "{MMM} {dd} {yyyy}",
-                hour: "{hh}:{mm}",
-                minute: "{hh}:{mm}",
-              },
-              onZero: true,
-            },
-            axisLine: {
-              onZero: true,
-            },
-            min: new Date(
-              this.state.from * 1000 +
-                new Date(this.state.from * 1000).getTimezoneOffset() * 60000
-            ),
-            max: new Date(
-              this.state.until * 1000 +
-                new Date(this.state.until * 1000).getTimezoneOffset() * 60000
-            ),
-          },
-          yAxis: {
-            type: "value",
-            axisLabel: {
-              fontSize: 12,
-              fontFamily: CUSTOM_FONT_FAMILY,
-              formatter: (value, index) => {
-                if (this.state.tsDataNormalized) {
-                  return value <= 100 ? `${value}%` : "";
-                } else {
-                  return value;
-                }
-              },
-            },
-            splitNumber: 10,
-            splitLine: {
-              show: true,
-              lineStyle: {
-                width: 1,
-                color: "#E6E6E6",
-                type: "dashed",
-              },
-            },
-            max: this.state.tsDataNormalized
-              ? 110
-              : Math.max.apply(null, absoluteMax) * 1.1,
-          },
-          /*
-          axisY: {
-            titleFontsColor: "#666666",
-            labelFontColor: "#666666",
-            labelFontSize: 12,
-            // minimum: 0,
-            // maximum: this.state.tsDataNormalized ? 110 : Math.max.apply(null, absoluteMax) * 1.1,
-            gridDashType: "dash",
-            gridColor: "#E6E6E6",
-            stripLines: this.state.tsDataNormalized
-              ? normalizedStripline
-              : null,
-            labelFormatter: (event) => {
-              if (this.state.tsDataNormalized) {
-                return event.value <= 100 ? `${event.value}%` : "";
-              } else {
-                return event.value;
-              }
-            },
-          },
-          */
-          /*
-          axisY2: {
-            // title: "Network Telescope",
-            titleFontsColor: "#666666",
-            labelFontColor: "#666666",
-            labelFontSize: 12,
-            // maximum: this.state.tsDataNormalized ? 110 : absoluteMaxY2 * 1.1,
-          },
-          */
-          /*
-          toolTip: {
-            shared: false,
-            enabled: true,
-            animationEnabled: true,
-          },
-          */
-          series: this.createXyVizDataObject(signalValues),
-        },
+        xyChartOptions: chartOptions,
+        xyChartSeries: chartSignals,
+        xyBrushOptions: brushOptions,
+        xyBrushSeries: chartSignals,
       },
       () => {
-        this.genXyChart();
+        this.renderXyChart();
       }
     );
   }
@@ -1132,7 +1191,7 @@ class Entity extends Component {
   }
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-  createXyVizDataObject(signalValues) {
+  createChartSeries(signalValues) {
     /*
     let chartSignal = [];
     signalValues.map((signal) => {
@@ -1168,31 +1227,21 @@ class Entity extends Component {
     });
     return chartSignal;
     */
-    const chartSignal = [];
+    const chartSignals = [];
+    const alertBands = [];
 
     // Add alert bands series
     if (this.state.tsDataDisplayOutageBands) {
-      const alertBands = [];
       if (this.state.eventDataRaw) {
         this.state.eventDataRaw.forEach((event) => {
-          alertBands.push([
-            { xAxis: toDateTime(event.start) },
-            { xAxis: toDateTime(event.start + event.duration) },
-          ]);
+          alertBands.push({
+            x: toDateTime(event.start).getTime(),
+            x2: toDateTime(event.start + event.duration).getTime(),
+            fillColor: "#fa3e48",
+            opacity: 0.2,
+          });
         });
       }
-
-      chartSignal.push({
-        name: "",
-        type: "line",
-        markArea: {
-          silent: true,
-          itemStyle: {
-            color: "rgba(255, 173, 177, 0.4)",
-          },
-          data: alertBands,
-        },
-      });
     }
 
     signalValues.forEach((signal) => {
@@ -1209,43 +1258,18 @@ class Entity extends Component {
       const res = {
         type: "line",
         id: signal.dataSource,
+        color: legendDetails.color,
         name: seriesName,
-        symbol: "circle",
-        symbolSize: 2,
-        itemStyle: {
-          color: legendDetails.color,
-        },
-        lineStyle: {
-          color: legendDetails.color,
-          width: 1.1,
-        },
-        tooltip: {
-          show: true,
-          trigger: "item",
-          confine: true,
-          axisPointer: {
-            snap: true,
-          },
-          borderColor: legendDetails.color,
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          //formatter: "{b0}: {c0}<br />{b1}: {c1}",
-          formatter: (params) => {
-            const series = params.seriesName;
-            const date = dayjs(params.data[0]).format("ddd, MMM DD - HH:mm");
-            const value = params.data[1].toFixed(0);
-            const percentageSuffix = this.state.tsDataNormalized ? "%" : "";
-            return `${date} <br/> ${series}: ${value}${percentageSuffix}`;
-          },
-          textStyle: {
-            fontWeight: "bold",
-          },
-        },
         data: data,
       };
-      chartSignal.push(res);
+      chartSignals.push(res);
     });
-    console.log(chartSignal);
-    return chartSignal;
+
+    console.log(chartSignals);
+    return {
+      alertBands,
+      chartSignals,
+    };
   }
   // function for when zoom/pan is used
   xyPlotRangeChanged(e) {
@@ -1274,27 +1298,26 @@ class Entity extends Component {
   }
 
   // populate xy chart UI
-  genXyChart() {
-    const height = this.state.xyDataOptions.height;
-
-    const events = {
-      legendselectchanged: this.handleChartLegendSelectionChange,
-    };
-
-    if (this.echartInstance) {
-      this.echartInstance.setOption(this.state.xyDataOptions);
-    }
-
+  renderXyChart() {
     return (
-      this.state.xyDataOptions && (
+      this.state.xyChartOptions && (
         // <div className="overview__xy-wrapper">
-        <EChartsReact
-          option={this.state.xyDataOptions}
-          style={{ height: height }}
-          onChartReady={this.setEchartInstance}
-          onEvents={events}
-          notMerge={true}
-        />
+        <div>
+          <Chart
+            type="line"
+            height={this.state.xyChartOptions.chart.height}
+            width={this.state.xyChartOptions.chart.width}
+            options={this.state.xyChartOptions}
+            series={this.state.xyChartSeries}
+          />
+          <Chart
+            type="line"
+            height={this.state.xyBrushOptions.chart.height}
+            width={this.state.xyBrushOptions.chart.width}
+            options={this.state.xyBrushOptions}
+            series={this.state.xyBrushSeries}
+          />
+        </div>
       )
     );
   }
@@ -2493,28 +2516,52 @@ class Entity extends Component {
     }
   }
 
+  setSeriesVisibility(source, visible) {
+    console.log(source, visible);
+    const seriesName = this.getSeriesNameFromSource(source);
+
+    // Apply for main chart
+    const chartInstance = ApexCharts.getChartByID("timeSeries");
+    if (this.state.xyChartOptions && chartInstance) {
+      if (visible) {
+        chartInstance.showSeries(seriesName);
+      } else {
+        chartInstance.hideSeries(seriesName);
+      }
+    }
+
+    // Apply for brush
+    const brushInstance = ApexCharts.getChartByID("brush");
+    if (this.state.xyBrushOptions && brushInstance) {
+      if (visible) {
+        brushInstance.showSeries(seriesName);
+      } else {
+        brushInstance.hideSeries(seriesName);
+      }
+    }
+  }
+
   /**
    * Handles users toggling a chart legend series (on the chart itself): when a
    * user clicks in the chart legend, toggle the side checkboxes on the side to
    * match the state
    */
-  handleChartLegendSelectionChange(params) {
-    const sourceSeries = this.state.xyDataOptions.series.find(
-      (series) => series.name === params.name
-    );
-
-    if (!sourceSeries) {
-      return;
-    }
-
-    const source = sourceSeries.id;
-
+  handleChartLegendSelectionChange(source) {
+    const currentSeriesVisibility = !!this.state.tsDataSeriesVisibleMap[source];
     const newVisibility = {
       ...this.state.tsDataSeriesVisibleMap,
-      [source]: !this.state.tsDataSeriesVisibleMap[source],
+      [source]: !currentSeriesVisibility,
     };
 
-    this.setState({ tsDataSeriesVisibleMap: newVisibility });
+    this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
+      // The settimeout hack waits for the chart to update before setting the
+      // visibility of the series. This is especially relevant for a series that
+      // isn't current displayed on the graph (such as the first time selecting
+      // a sub-Google dataset in Advanced mode)
+      setTimeout(() => {
+        this.setSeriesVisibility(source, !currentSeriesVisibility), 0;
+      });
+    });
   }
 
   /**
@@ -2523,13 +2570,9 @@ class Entity extends Component {
    * a selection on the chart legend itself. This will call the
    * handleChartLegendSelectionChange method above to update the checkbox state
    */
-  handleSelectedSignal(src) {
-    if (this.echartInstance) {
-      this.echartInstance.dispatchAction({
-        type: "legendToggleSelect",
-        name: this.getSeriesNameFromSource(src),
-      });
-    }
+  handleSelectedSignal(source) {
+    // This method may appear redundant, but it is worth retaining for future
+    this.handleChartLegendSelectionChange(source);
   }
 
   updateSourceParams(src) {
@@ -2671,7 +2714,7 @@ class Entity extends Component {
                     </div>
                   )}
                 </div>
-                {this.state.xyDataOptions ? this.genXyChart() : <Loading />}
+                {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
                 <div className="overview__timestamp">
                   <TimeStamp
                     from={convertSecondsToDateValues(
