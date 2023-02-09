@@ -101,9 +101,9 @@ import {
   convertTimeToSecondsForURL,
   legend,
 } from "../../utils";
-import dayjs from "dayjs";
-import Chart from "react-apexcharts";
-import ApexCharts from "apexcharts";
+import Highcharts from "highcharts/highstock";
+import HighchartsReact from "highcharts-react-official";
+require("highcharts/modules/exporting")(Highcharts);
 // import CanvasJSChart from "../../libs/canvasjs-non-commercial-3.2.5/canvasjs.react";
 import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
@@ -111,12 +111,16 @@ import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from "../../components/cards/ChartTabCard";
 import { element } from "prop-types";
 import Tabs from "../../components/tabs/Tabs";
+import dayjs from "dayjs";
 
 const CUSTOM_FONT_FAMILY = "Lato-Regular";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
 class Entity extends Component {
   constructor(props) {
     super(props);
+
+    this.timeSeriesChartRef = React.createRef();
+
     this.state = {
       // Global
       mounted: false,
@@ -147,10 +151,8 @@ class Entity extends Component {
       lastFetched: 0,
       // XY Plot Time Series
       xyDataOptions: null,
+      xyChartRenderedFirstTime: false,
       xyChartOptions: null,
-      xyBrushOptions: null,
-      xyChartSeries: null,
-      xyBrushSeries: null,
       tsDataRaw: null,
       tsDataNormalized: true,
       tsDataDisplayOutageBands: false,
@@ -300,6 +302,9 @@ class Entity extends Component {
     // Monitor screen width
     window.addEventListener("resize", this.resize.bind(this));
 
+    const entityType = window.location.pathname.split("/")[1];
+    const entityCode = window.location.pathname.split("/")[2];
+
     // Check if time parameters are provided
     if (window.location.search) {
       let providedFrom = window.location.search.split("&")[0].split("=")[1];
@@ -308,107 +313,116 @@ class Entity extends Component {
       let newFrom = convertTimeToSecondsForURL(providedFrom);
       let newUntil = convertTimeToSecondsForURL(providedUntil);
 
-      if (newUntil - newFrom > 0) {
-        this.setState({
-          from: newFrom,
-          until: newUntil,
-        });
+      const getSignalTimeRange = (fromString, untilString) => {
+        const MAX_DAYS_AS_MS = 90 * 24 * 60 * 60 * 1000;
+        const from = parseInt(fromString) * 1000;
+        const until = parseInt(untilString) * 1000;
+        const fromDate = dayjs(from);
+        const untilDate = dayjs(until);
+        const diff = untilDate.diff(fromDate, "milliseconds");
 
-        this.setState(
-          {
-            mounted: true,
-          },
-          () => {
-            if (
-              this.state.until - this.state.from <
-              controlPanelTimeRangeLimit
-            ) {
-              // Overview Panel
-              this.props.searchEventsAction(
-                this.state.from,
-                this.state.until,
-                window.location.pathname.split("/")[1],
-                window.location.pathname.split("/")[2]
-              );
-              this.props.searchAlertsAction(
-                this.state.from,
-                this.state.until,
-                window.location.pathname.split("/")[1],
-                window.location.pathname.split("/")[2],
-                null,
-                null,
-                null
-              );
-              this.props.getSignalsAction(
-                window.location.pathname.split("/")[1],
-                window.location.pathname.split("/")[2],
-                this.state.from,
-                this.state.until,
-                null,
-                3000,
-                this.state.sourceParams
-              );
-              // Get entity name from code provided in url
-              this.updateEntityMetaData(
-                window.location.pathname.split("/")[1],
-                window.location.pathname.split("/")[2]
-              );
-            }
-          }
-        );
-      } else {
-        this.setState({
-          displayTimeRangeError: true,
-        });
-      }
-    } else {
-      this.setState(
-        {
-          mounted: true,
-        },
-        () => {
+        if (diff * 2 <= MAX_DAYS_AS_MS) {
+          const newFrom = fromDate.subtract(diff, "milliseconds");
+          return {
+            from: Math.floor(newFrom.valueOf() / 1000),
+            until: Math.floor(untilDate.valueOf() / 1000),
+          };
+        } else {
+          const newFrom = fromDate.subtract(MAX_DAYS_AS_MS, "milliseconds");
+          return {
+            from: Math.floor(newFrom.valueOf() / 1000),
+            until: Math.floor(untilDate.valueOf() / 1000),
+          };
+        }
+      };
+
+      if (newUntil - newFrom > 0) {
+        this.setState({ from: newFrom, until: newUntil });
+
+        this.setState({ mounted: true }, () => {
           if (this.state.until - this.state.from < controlPanelTimeRangeLimit) {
             // Overview Panel
             this.props.searchEventsAction(
               this.state.from,
               this.state.until,
-              window.location.pathname.split("/")[1],
-              window.location.pathname.split("/")[2]
+              entityType,
+              entityCode
             );
             this.props.searchAlertsAction(
               this.state.from,
               this.state.until,
-              window.location.pathname.split("/")[1],
-              window.location.pathname.split("/")[2],
+              entityType,
+              entityCode,
               null,
               null,
               null
             );
-            this.props.getSignalsAction(
-              window.location.pathname.split("/")[1],
-              window.location.pathname.split("/")[2],
+            const { from, until } = getSignalTimeRange(
               this.state.from,
-              this.state.until,
+              this.state.until
+            );
+            this.props.getSignalsAction(
+              entityType,
+              entityCode,
+              from,
+              until,
               null,
               3000,
               this.state.sourceParams
             );
             // Get entity name from code provided in url
-            this.updateEntityMetaData(
-              window.location.pathname.split("/")[1],
-              window.location.pathname.split("/")[2]
-            );
+            this.updateEntityMetaData(entityType, entityCode);
           }
+        });
+      } else {
+        this.setState({ displayTimeRangeError: true });
+      }
+    } else {
+      this.setState({ mounted: true }, () => {
+        if (this.state.until - this.state.from < controlPanelTimeRangeLimit) {
+          // Overview Panel
+          this.props.searchEventsAction(
+            this.state.from,
+            this.state.until,
+            entityType,
+            entityCode
+          );
+          this.props.searchAlertsAction(
+            this.state.from,
+            this.state.until,
+            entityType,
+            entityCode,
+            null,
+            null,
+            null
+          );
+          const { from, until } = getSignalTimeRange(
+            this.state.from,
+            this.state.until
+          );
+          this.props.getSignalsAction(
+            entityType,
+            entityCode,
+            from,
+            until,
+            null,
+            3000,
+            this.state.sourceParams
+          );
+          // Get entity name from code provided in url
+          this.updateEntityMetaData(entityType, entityCode);
         }
-      );
+      });
     }
   }
+
   componentWillUnmount() {
     window.removeEventListener("resize", this.resize.bind(this));
     this.setState({
       mounted: false,
     });
   }
+
   componentDidUpdate(prevProps, prevState) {
     // After API call for available data sources completes, update dataSources state with fresh data
     if (this.props.datasources !== prevProps.datasources) {
@@ -895,10 +909,9 @@ class Entity extends Component {
       datasource.values &&
         datasource.values.map((value, index) => {
           let x, y;
-          x = toDateTime(datasource.from + datasource.step * index);
+          x = toDateTime(datasource.from + datasource.step * index).getTime();
           y = this.state.tsDataNormalized ? normalize(value, max) : value;
           datasourceValues.push({ x: x, y: y });
-          console.log(datasourceValues.length)
         });
       // the last two values populating are the min value, and the max value. Removing these from the coordinates.
       datasourceValues.length > 2
@@ -926,256 +939,160 @@ class Entity extends Component {
       },
     ];
 
+    const dateFormats = {
+      millisecond: "%l:%M:%S%p",
+      second: "%l:%M:%S%p",
+      minute: "%l:%M%p",
+      hour: "%l:%M%p",
+      day: "%b %e",
+      week: "%b %e",
+      month: "%b %Y",
+      year: "%Y",
+    };
+
     const { chartSignals, alertBands } = this.createChartSeries(signalValues);
 
     const chartOptions = {
       chart: {
-        id: "timeSeries",
-        background: "#fff",
-        height: this.state.tsDataScreenBelow678 ? "360px" : "514px",
-        width: "100%",
-        animations: {
-          enabled: false,
-        },
-        // Chart controls in top right
-        toolbar: {
-          show: true,
-          tools: {
-            download: true,
-            selection: true,
-            zoom: true,
-            zoomin: false,
-            zoomout: false,
-            pan: true,
-            reset: true,
-          },
-          autoselected: "zoom",
-        },
-        events: {
-          legendClick: (ctx, seriesIndex, config) => {
-            const seriesToggled = chartSignals[seriesIndex];
-            if (seriesToggled) {
-              this.handleChartLegendSelectionChange(seriesToggled.id);
-            }
-          },
-          beforeZoom: function (chartContext, { xaxis }) {
-            console.log("zooming");
-          },
-          beforeResetZoom: (ctx, opts) => {
-            //TODO: Set zoom range manually using something like:
-            /*
-            return {
-              xaxis: {
-                min: timestamp,
-                max: timestamp
-              }
-            } 
-            */
-            ctx.resetSeries();
-          },
-        },
+        type: "line",
+        zoomType: "x",
+        panning: true,
+        panKey: "shift",
+        animation: false,
+        height: this.state.tsDataScreenBelow678 ? 360 : 514,
       },
-      dataLabels: {
+      credits: {
         enabled: false,
       },
-      // Series tooltip when hovering over points
+      exporting: {
+        filename: "ioda-chart",
+        buttons: {
+          contextButton: {
+            menuItems: ["downloadPNG", "downloadJPEG", "downloadSVG"],
+          },
+        },
+        sourceWidth: 798,
+        sourceHeight: 514,
+      },
+      title: {
+        text: null,
+      },
       tooltip: {
-        enabled: true,
-        followCursor: true,
-        shared: false,
+        headerFormat: "<b>{point.key}</b><br>",
+        pointFormat: "{series.name}: {point.y:.0f}%",
+        xDateFormat: "%a, %b %e %l:%M%p",
         style: {
-          fontSize: "12px",
+          fontSize: "14px",
           fontFamily: CUSTOM_FONT_FAMILY,
-        },
-        x: {
-          format: "MMM dd yyyy h:mmTT",
-        },
-        y: {
-          formatter: (value) => `${value.toFixed(2)}%`,
-        },
-      },
-      colors: chartSignals.map((signal) => signal.color),
-      stroke: {
-        show: true,
-        curve: "straight",
-        width: 1.1,
-      },
-      markers: {
-        size: 1.2,
-        strokeWidth: 0,
-        hover: {
-          sizeOffset: 1.5,
+          fontWeight: "bold",
         },
       },
       legend: {
-        show: true,
-        position: "bottom",
-        fontFamily: CUSTOM_FONT_FAMILY,
-        onItemClick: {
-          toggleDataSeries: true,
-        },
-        onItemHover: {
-          highlightDataSeries: true,
+        className: "time-series-legend",
+        itemStyle: {
+          fontSize: "12px",
+          fontFamily: CUSTOM_FONT_FAMILY,
         },
       },
-      annotations: {
-        xaxis: alertBands,
-        yaxis: [
-          {
-            y: 8600,
-            y2: 9000,
-            borderColor: "#000",
-            fillColor: "#FEB019",
-            label: {
-              text: "Y-axis range",
+      plotOptions: {
+        spline: {
+          marker: {
+            enabled: true,
+          },
+        },
+        series: {
+          showInNavigator: true,
+          lineWidth: 0.7,
+          animation: false,
+          events: {
+            legendItemClick: (e) => {
+              const legendItemId = e.target.userOptions.id;
+              this.handleChartLegendSelectionChange(legendItemId);
             },
           },
-        ],
+        },
       },
-      xaxis: {
-        type: "datetime",
-        tickPlacement: "on",
-        tooltip: {
-          style: {
-            fontSize: "10px",
-            fontFamily: CUSTOM_FONT_FAMILY,
+      navigator: {
+        enabled: true,
+        margin: 5,
+        maskFill: "rgba(50, 184, 237, 0.3)",
+        xAxis: {
+          plotBands: alertBands,
+          dateTimeLabelFormats: dateFormats,
+          labels: {
+            style: {
+              fontSize: "12px",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
           },
         },
+      },
+      xAxis: {
+        type: "datetime",
+        minRange: 60 * 1000, //1 minute as milliseconds
+        dateTimeLabelFormats: dateFormats,
         title: {
           text: xyChartXAxisTitle,
-          offsetY: 60,
           style: {
             fontSize: "12px",
             fontFamily: CUSTOM_FONT_FAMILY,
           },
         },
-        tickAmount: 12,
         labels: {
-          show: true,
-          offsetY: -3,
           style: {
-            colors: ["#000"],
+            colors: "#111",
             fontSize: "10px",
             fontFamily: CUSTOM_FONT_FAMILY,
           },
-          datetimeUTC: true,
-          datetimeFormatter: {
-            year: "yyyy",
-            month: "MMM 'yy",
-            day: "MMM dd",
-            hour: "h:mmTT",
-            second: "h:mm:ssTT",
-          },
         },
+        crosshair: true,
+        plotBands: alertBands,
       },
-      yaxis: {
-        tickAmount: 11,
-        forceNiceScale: false,
+      yAxis: {
+        floor: 0,
         min: 0,
-        max: 1000,
-        /*
         max: this.state.tsDataNormalized
           ? 110
           : Math.max.apply(null, absoluteMax) * 1.1,
-          */
+        ceiling: this.state.tsDataNormalized
+          ? 110
+          : Math.max.apply(null, absoluteMax) * 1.1,
+        startOnTick: true,
+        endOnTick: true,
+        tickAmount: 12,
+        tickInterval: 10,
+        gridLineWidth: 1,
+        gridLineColor: "#E6E6E6",
+        gridLineDashStyle: "ShortDash",
+        title: {
+          text: null,
+        },
         labels: {
-          show: true,
           style: {
             colors: "#111",
             fontSize: "12px",
             fontFamily: CUSTOM_FONT_FAMILY,
           },
-          formatter: (value) => formatYValue(value),
+          formatter: function () {
+            return `${this.value}%`;
+          },
         },
       },
+      series: chartSignals,
     };
 
-    const brushOptions = {
-      chart: {
-        id: "brush",
-        width: "100%",
-        height: "100px",
-        background: "#fff",
-        animations: {
-          enabled: false,
-        },
-        brush: {
-          target: "timeSeries",
-          enabled: true,
-        },
-        selection: {
-          enabled: true,
-          fill: {
-            color: "#5db4e3",
-            opacity: 0.4,
-          },
-          xaxis: {
-            min: new Date("3 Feb 2023 00:00:00").getTime(),
-            max: new Date("3 Feb 2023 07:00:00").getTime(),
-          },
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      grid: {
-        padding: {
-          top: -30,
-          right: 0,
-          bottom: 0,
-          left: 0,
-        },
-      },
-      legend: {
-        show: false,
-      },
-      colors: chartSignals.map((signal) => signal.color),
-      annotations: {
-        xaxis: alertBands,
-      },
-      stroke: {
-        show: true,
-        curve: "straight",
-        width: 1,
-      },
-      markers: {
-        size: 0,
-      },
-      xaxis: {
-        type: "datetime",
-        labels: {
-          show: true,
-          offsetY: -5,
-          style: {
-            colors: [],
-            fontSize: "10px",
-            fontFamily: CUSTOM_FONT_FAMILY,
-          },
-          datetimeUTC: true,
-          datetimeFormatter: {
-            year: "yyyy",
-            month: "MMM 'yy",
-            day: "MMM dd",
-            hour: "hh:mmTT",
-          },
-        },
-      },
-      yaxis: {
-        show: false,
-      },
-    };
+    this.setState({ xyChartOptions: chartOptions }, () => {
+      this.renderXyChart();
+    });
 
-    this.setState(
-      {
-        xyChartOptions: chartOptions,
-        xyChartSeries: chartSignals,
-        xyBrushOptions: brushOptions,
-        xyBrushSeries: chartSignals,
-      },
-      () => {
-        this.renderXyChart();
-      }
-    );
+    if (!this.state.xyChartRenderedFirstTime) {
+      this.setState({ xyChartRenderedFirstTime: true }, () => {
+        this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
+          parseInt(this.state.from) * 1000,
+          this.timeSeriesChartRef.current.chart.xAxis[0].dataMax
+        );
+      });
+    }
   }
 
   getSeriesNameFromSource(source) {
@@ -1235,10 +1152,9 @@ class Entity extends Component {
       if (this.state.eventDataRaw) {
         this.state.eventDataRaw.forEach((event) => {
           alertBands.push({
-            x: toDateTime(event.start).getTime(),
-            x2: toDateTime(event.start + event.duration).getTime(),
-            fillColor: "#fa3e48",
-            opacity: 0.2,
+            color: "rgba(250, 62, 72, 0.2)",
+            from: toDateTime(event.start).getTime(),
+            to: toDateTime(event.start + event.duration).getTime(),
           });
         });
       }
@@ -1261,11 +1177,13 @@ class Entity extends Component {
         color: legendDetails.color,
         name: seriesName,
         data: data,
+        marker: {
+          radius: 2,
+        },
       };
       chartSignals.push(res);
     });
 
-    console.log(chartSignals);
     return {
       alertBands,
       chartSignals,
@@ -1302,20 +1220,11 @@ class Entity extends Component {
     return (
       this.state.xyChartOptions && (
         // <div className="overview__xy-wrapper">
-        <div>
-          <Chart
-            type="line"
-            height={this.state.xyChartOptions.chart.height}
-            width={this.state.xyChartOptions.chart.width}
+        <div className="overview__xy-wrapper">
+          <HighchartsReact
+            highcharts={Highcharts}
             options={this.state.xyChartOptions}
-            series={this.state.xyChartSeries}
-          />
-          <Chart
-            type="line"
-            height={this.state.xyBrushOptions.chart.height}
-            width={this.state.xyBrushOptions.chart.width}
-            options={this.state.xyBrushOptions}
-            series={this.state.xyBrushSeries}
+            ref={this.timeSeriesChartRef}
           />
         </div>
       )
@@ -2516,31 +2425,6 @@ class Entity extends Component {
     }
   }
 
-  setSeriesVisibility(source, visible) {
-    console.log(source, visible);
-    const seriesName = this.getSeriesNameFromSource(source);
-
-    // Apply for main chart
-    const chartInstance = ApexCharts.getChartByID("timeSeries");
-    if (this.state.xyChartOptions && chartInstance) {
-      if (visible) {
-        chartInstance.showSeries(seriesName);
-      } else {
-        chartInstance.hideSeries(seriesName);
-      }
-    }
-
-    // Apply for brush
-    const brushInstance = ApexCharts.getChartByID("brush");
-    if (this.state.xyBrushOptions && brushInstance) {
-      if (visible) {
-        brushInstance.showSeries(seriesName);
-      } else {
-        brushInstance.hideSeries(seriesName);
-      }
-    }
-  }
-
   /**
    * Handles users toggling a chart legend series (on the chart itself): when a
    * user clicks in the chart legend, toggle the side checkboxes on the side to
@@ -2553,15 +2437,7 @@ class Entity extends Component {
       [source]: !currentSeriesVisibility,
     };
 
-    this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
-      // The settimeout hack waits for the chart to update before setting the
-      // visibility of the series. This is especially relevant for a series that
-      // isn't current displayed on the graph (such as the first time selecting
-      // a sub-Google dataset in Advanced mode)
-      setTimeout(() => {
-        this.setSeriesVisibility(source, !currentSeriesVisibility), 0;
-      });
-    });
+    this.setState({ tsDataSeriesVisibleMap: newVisibility });
   }
 
   /**
@@ -2571,8 +2447,25 @@ class Entity extends Component {
    * handleChartLegendSelectionChange method above to update the checkbox state
    */
   handleSelectedSignal(source) {
-    // This method may appear redundant, but it is worth retaining for future
+    // Applies to first time clicks (such as for sub-google series)
     this.handleChartLegendSelectionChange(source);
+    // Iterate through the chart legend to find the legend item corresponding to
+    // it (based on text content), then fire a click event on that legen item
+    const seriesName = this.getSeriesNameFromSource(source);
+    const legend = document.getElementsByClassName("time-series-legend")[0];
+    if (!legend) return;
+    const legendItems = legend.getElementsByClassName("highcharts-legend-item");
+    let selectedItem = null;
+    for (const item of legendItems) {
+      const text = item.getElementsByTagName("text")[0];
+      if (text && text.textContent === seriesName) {
+        selectedItem = item;
+        break;
+      }
+    }
+    if (selectedItem) {
+      Highcharts.fireEvent(selectedItem, "click");
+    }
   }
 
   updateSourceParams(src) {
