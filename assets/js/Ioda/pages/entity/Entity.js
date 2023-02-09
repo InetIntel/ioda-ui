@@ -981,6 +981,8 @@ class Entity extends Component {
         headerFormat: "<b>{point.key}</b><br>",
         pointFormat: "{series.name}: {point.y:.0f}%",
         xDateFormat: "%a, %b %e %l:%M%p",
+        borderWidth: 1.5,
+        borderRadius: 0,
         style: {
           fontSize: "14px",
           fontFamily: CUSTOM_FONT_FAMILY,
@@ -1004,6 +1006,14 @@ class Entity extends Component {
           showInNavigator: true,
           lineWidth: 0.7,
           animation: false,
+          states: {
+            hover: {
+              enabled: false,
+            },
+            inactive: {
+              opacity: 1,
+            },
+          },
           events: {
             legendItemClick: (e) => {
               const legendItemId = e.target.userOptions.id;
@@ -1052,9 +1062,6 @@ class Entity extends Component {
         floor: 0,
         min: 0,
         max: this.state.tsDataNormalized
-          ? 110
-          : Math.max.apply(null, absoluteMax) * 1.1,
-        ceiling: this.state.tsDataNormalized
           ? 110
           : Math.max.apply(null, absoluteMax) * 1.1,
         startOnTick: true,
