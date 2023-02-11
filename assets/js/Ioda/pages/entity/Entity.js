@@ -1027,6 +1027,9 @@ class Entity extends Component {
             },
           },
         },
+        yAxis: {
+          visible: true,
+        },
       },
       xAxis: {
         type: "datetime",
