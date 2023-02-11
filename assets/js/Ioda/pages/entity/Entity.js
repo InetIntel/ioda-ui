@@ -115,6 +115,72 @@ import dayjs from "dayjs";
 
 const CUSTOM_FONT_FAMILY = "Lato-Regular";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
+
+/**
+ * Extract dates from the URL, or provide defaults if not present in the URL
+ * @returns object containing date range (dates as seconds)
+ */
+const getRangeDatesFromUrl = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlFromDate = urlParams.get("from");
+  const urlUntilDate = urlParams.get("until");
+
+  const defaultFromDateSeconds = Math.floor(
+    (new Date().getTime() - 24 * 60 * 60 * 1000) / 1000
+  );
+  const defaultUntilDateSeconds = Math.floor(new Date().getTime() / 1000);
+
+  return {
+    fromDate: parseInt(urlFromDate) || defaultFromDateSeconds,
+    untilDate: parseInt(urlUntilDate) || defaultUntilDateSeconds,
+  };
+};
+
+/**
+ * Extract the entityType and entityCode from the URL
+ * @returns
+ */
+const getEntityDataFromUrl = () => {
+  const entityType = window.location.pathname.split("/")[1];
+  const entityCode = window.location.pathname.split("/")[2];
+
+  return {
+    entityCode,
+    entityType,
+  };
+};
+
+/**
+ * Calculate the time range for the time series chart. The range shown in the
+ * navigator should be defined as max(2*diff, limit)
+ * @param {*} fromDateSeconds
+ * @param {*} untilDateSeconds
+ * @returns object containing date range (dates as seconds)
+ */
+const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
+  const MAX_DAYS_AS_MS = controlPanelTimeRangeLimit * 1000;
+  const fromMs = fromDateSeconds * 1000;
+  const untilMs = untilDateSeconds * 1000;
+  const fromDate = dayjs(fromMs);
+  const untilDate = dayjs(untilMs);
+  const diff = untilDate.diff(fromDate, "milliseconds");
+
+  let newFrom = null;
+  if (diff * 2 < MAX_DAYS_AS_MS) {
+    newFrom = fromDate.subtract(diff, "milliseconds");
+  } else {
+    newFrom = fromDate.subtract(MAX_DAYS_AS_MS, "milliseconds");
+  }
+
+  return {
+    timeSignalFrom: Math.floor(newFrom.valueOf() / 1000),
+    timeSignalUntil: Math.floor(untilDate.valueOf() / 1000),
+  };
+};
+
+const { fromDate, untilDate } = getRangeDatesFromUrl();
+const { entityCode, entityType } = getEntityDataFromUrl();
+
 class Entity extends Component {
   constructor(props) {
     super(props);
@@ -124,8 +190,8 @@ class Entity extends Component {
     this.state = {
       // Global
       mounted: false,
-      entityType: window.location.pathname.split("/")[1],
-      entityCode: window.location.pathname.split("/")[2],
+      entityType: entityType,
+      entityCode: entityCode,
       entityName: "",
       parentEntityName: "",
       parentEntityCode: "",
@@ -134,16 +200,8 @@ class Entity extends Component {
       // Data Sources Available
       dataSources: null,
       // Control Panel
-      from: window.location.search.split("?")[1]
-        ? convertTimeToSecondsForURL(
-            window.location.search.split("?")[1].split("&")[0].split("=")[1]
-          )
-        : Math.round((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000),
-      until: window.location.search.split("?")[1]
-        ? convertTimeToSecondsForURL(
-            window.location.search.split("?")[1].split("&")[1].split("=")[1]
-          )
-        : Math.round(new Date().getTime() / 1000),
+      from: fromDate,
+      until: untilDate,
       // Search Bar
       suggestedSearchResults: null,
       sourceParams: ["WEB_SEARCH"],
@@ -156,16 +214,8 @@ class Entity extends Component {
       tsDataRaw: null,
       tsDataNormalized: true,
       tsDataDisplayOutageBands: false,
-      tsDataLegendRangeFrom: window.location.search.split("?")[1]
-        ? convertTimeToSecondsForURL(
-            window.location.search.split("?")[1].split("&")[0].split("=")[1]
-          )
-        : Math.round((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000),
-      tsDataLegendRangeUntil: window.location.search.split("?")[1]
-        ? convertTimeToSecondsForURL(
-            window.location.search.split("?")[1].split("&")[1].split("=")[1]
-          )
-        : Math.round(new Date().getTime() / 1000),
+      tsDataLegendRangeFrom: fromDate,
+      tsDataLegendRangeUntil: untilDate,
       // Used for responsively styling the xy chart
       tsDataScreenBelow970: window.innerWidth <= 970,
       tsDataScreenBelow678: window.innerWidth <= 678,
@@ -245,7 +295,7 @@ class Entity extends Component {
       additionalRawSignalRequestedUcsdNt: false,
       additionalRawSignalRequestedMeritNt: false,
       currentTab: 1,
-      simplifiedView: localStorage.getItem("simplified_view") == "true",
+      simplifiedView: localStorage.getItem("simplified_view") === "true",
       currentEntitiesChecked: 100,
     };
 
@@ -302,125 +352,58 @@ class Entity extends Component {
     // Monitor screen width
     window.addEventListener("resize", this.resize.bind(this));
 
-    const entityType = window.location.pathname.split("/")[1];
-    const entityCode = window.location.pathname.split("/")[2];
-
-    // Check if time parameters are provided
-    if (window.location.search) {
-      let providedFrom = window.location.search.split("&")[0].split("=")[1];
-      let providedUntil = window.location.search.split("&")[1].split("=")[1];
-
-      let newFrom = convertTimeToSecondsForURL(providedFrom);
-      let newUntil = convertTimeToSecondsForURL(providedUntil);
-
-      const getSignalTimeRange = (fromString, untilString) => {
-        const MAX_DAYS_AS_MS = 90 * 24 * 60 * 60 * 1000;
-        const from = parseInt(fromString) * 1000;
-        const until = parseInt(untilString) * 1000;
-        const fromDate = dayjs(from);
-        const untilDate = dayjs(until);
-        const diff = untilDate.diff(fromDate, "milliseconds");
-
-        if (diff * 2 <= MAX_DAYS_AS_MS) {
-          const newFrom = fromDate.subtract(diff, "milliseconds");
-          return {
-            from: Math.floor(newFrom.valueOf() / 1000),
-            until: Math.floor(untilDate.valueOf() / 1000),
-          };
-        } else {
-          const newFrom = fromDate.subtract(MAX_DAYS_AS_MS, "milliseconds");
-          return {
-            from: Math.floor(newFrom.valueOf() / 1000),
-            until: Math.floor(untilDate.valueOf() / 1000),
-          };
-        }
-      };
-
-      if (newUntil - newFrom > 0) {
-        this.setState({ from: newFrom, until: newUntil });
-
-        this.setState({ mounted: true }, () => {
-          if (this.state.until - this.state.from < controlPanelTimeRangeLimit) {
-            // Overview Panel
-            this.props.searchEventsAction(
-              this.state.from,
-              this.state.until,
-              entityType,
-              entityCode
-            );
-            this.props.searchAlertsAction(
-              this.state.from,
-              this.state.until,
-              entityType,
-              entityCode,
-              null,
-              null,
-              null
-            );
-            const { from, until } = getSignalTimeRange(
-              this.state.from,
-              this.state.until
-            );
-            this.props.getSignalsAction(
-              entityType,
-              entityCode,
-              from,
-              until,
-              null,
-              3000,
-              this.state.sourceParams
-            );
-            // Get entity name from code provided in url
-            this.updateEntityMetaData(entityType, entityCode);
-          }
-        });
-      } else {
-        this.setState({ displayTimeRangeError: true });
-      }
-    } else {
-      this.setState({ mounted: true }, () => {
-        if (this.state.until - this.state.from < controlPanelTimeRangeLimit) {
-          // Overview Panel
-          this.props.searchEventsAction(
-            this.state.from,
-            this.state.until,
-            entityType,
-            entityCode
-          );
-          this.props.searchAlertsAction(
-            this.state.from,
-            this.state.until,
-            entityType,
-            entityCode,
-            null,
-            null,
-            null
-          );
-          const { from, until } = getSignalTimeRange(
-            this.state.from,
-            this.state.until
-          );
-          this.props.getSignalsAction(
-            entityType,
-            entityCode,
-            from,
-            until,
-            null,
-            3000,
-            this.state.sourceParams
-          );
-          // Get entity name from code provided in url
-          this.updateEntityMetaData(entityType, entityCode);
-        }
-      });
+    // If fromDate is after untilDate, show error and terminate
+    if (untilDate - fromDate <= 0) {
+      this.setState({ displayTimeRangeError: true });
+      return;
     }
+
+    this.setState({ from: fromDate, until: untilDate });
+
+    this.setState({ mounted: true }, () => {
+      // If the difference is larger than the limit, terminate
+      if (untilDate - fromDate >= controlPanelTimeRangeLimit) {
+        return;
+      }
+
+      const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(
+        fromDate,
+        untilDate
+      );
+
+      // Overview Panel
+      this.props.searchEventsAction(
+        fromDate,
+        untilDate,
+        entityType,
+        entityCode
+      );
+      this.props.searchAlertsAction(
+        fromDate,
+        untilDate,
+        entityType,
+        entityCode,
+        null,
+        null,
+        null
+      );
+      this.props.getSignalsAction(
+        entityType,
+        entityCode,
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        3000,
+        this.state.sourceParams
+      );
+      // Get entity name from code provided in url
+      this.updateEntityMetaData(entityType, entityCode);
+    });
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.resize.bind(this));
-    this.setState({
-      mounted: false,
-    });
+    this.setState({ mounted: false });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -433,8 +416,8 @@ class Entity extends Component {
 
     if (this.state.sourceParams !== prevState.sourceParams) {
       this.props.getSignalsAction(
-        window.location.pathname.split("/")[1],
-        window.location.pathname.split("/")[2],
+        entityType,
+        entityCode,
         this.state.from,
         this.state.until,
         null,
@@ -855,6 +838,7 @@ class Entity extends Component {
       }
     }
   }
+
   // Define what happens when user clicks suggested search result entry
   handleResultClick = (query) => {
     const { history } = this.props;
@@ -869,6 +853,7 @@ class Entity extends Component {
     entity = entity[0];
     history.push(`/${entity.type}/${entity.code}`);
   };
+
   // Reset search bar with search term value when a selection is made, no customizations needed here.
   handleQueryUpdate = (query) => {
     this.forceUpdate();
@@ -876,6 +861,7 @@ class Entity extends Component {
       searchTerm: query,
     });
   };
+
   // Function that returns search bar passed into control panel
   populateSearchBar() {
     return (
@@ -930,15 +916,14 @@ class Entity extends Component {
       }
     };
 
-    // create top padding in chart area for normalized/absolute views
-    const normalizedStripline = [
-      {
-        value: 110,
-        color: xyChartBackgroundLineColor,
-        lineDashType: "dash",
-      },
-    ];
+    const tooltipFormat = () => {
+      return this.state.tsDataNormalized
+        ? "{series.name}: {point.y:.0f}%"
+        : "{series.name}: {point.y:.0f}";
+    };
 
+    // Define date formats for timeseries data
+    // https://api.highcharts.com/class-reference/Highcharts.Time
     const dateFormats = {
       millisecond: "%l:%M:%S%p",
       second: "%l:%M:%S%p",
@@ -960,6 +945,9 @@ class Entity extends Component {
         panKey: "shift",
         animation: false,
         height: this.state.tsDataScreenBelow678 ? 360 : 514,
+        style: {
+          fontFamily: CUSTOM_FONT_FAMILY,
+        },
       },
       credits: {
         enabled: false,
@@ -969,6 +957,9 @@ class Entity extends Component {
         buttons: {
           contextButton: {
             menuItems: ["downloadPNG", "downloadJPEG", "downloadSVG"],
+            align: "right",
+            x: -17,
+            y: 0,
           },
         },
         sourceWidth: 798,
@@ -978,8 +969,8 @@ class Entity extends Component {
         text: null,
       },
       tooltip: {
-        headerFormat: "<b>{point.key}</b><br>",
-        pointFormat: "{series.name}: {point.y:.0f}%",
+        headerFormat: "<b>{point.key} (UTC)</b><br>",
+        pointFormat: tooltipFormat(),
         xDateFormat: "%a, %b %e %l:%M%p",
         borderWidth: 1.5,
         borderRadius: 0,
@@ -1057,17 +1048,53 @@ class Entity extends Component {
         },
         crosshair: true,
         plotBands: alertBands,
+        events: {
+          afterSetExtremes: (e) => {
+            this.xyPlotRangeChanged(e);
+          },
+        },
       },
-      yAxis: {
-        floor: 0,
-        min: 0,
-        max: this.state.tsDataNormalized
-          ? 110
-          : Math.max.apply(null, absoluteMax) * 1.1,
+      yAxis: [
+        {
+          floor: 0,
+          min: 0,
+          max: this.state.tsDataNormalized
+            ? 110
+            : Math.max.apply(null, absoluteMax) * 1.1,
+          alignTicks: true,
+          startOnTick: true,
+          endOnTick: true,
+          tickAmount: 12,
+          //tickInterval: 10,
+          gridLineWidth: 1,
+          gridLineColor: "#E6E6E6",
+          gridLineDashStyle: "ShortDash",
+          title: {
+            text: null,
+          },
+          labels: {
+            x: -5,
+            style: {
+              colors: "#111",
+              fontSize: "12px",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
+            formatter: function () {
+              return formatYValue(this.value);
+            },
+          },
+        },
+      ],
+      series: chartSignals,
+    };
+
+    if (!this.state.tsDataNormalized) {
+      chartOptions.yAxis.push({
+        opposite: true,
+        alignTicks: true,
         startOnTick: true,
         endOnTick: true,
         tickAmount: 12,
-        tickInterval: 10,
         gridLineWidth: 1,
         gridLineColor: "#E6E6E6",
         gridLineDashStyle: "ShortDash",
@@ -1075,27 +1102,21 @@ class Entity extends Component {
           text: null,
         },
         labels: {
-          style: {
-            colors: "#111",
-            fontSize: "12px",
-            fontFamily: CUSTOM_FONT_FAMILY,
-          },
-          formatter: function () {
-            return `${this.value}%`;
-          },
+          x: 5,
         },
-      },
-      series: chartSignals,
-    };
+      });
+    }
 
+    // Rerender chart
     this.setState({ xyChartOptions: chartOptions }, () => {
       this.renderXyChart();
     });
 
+    // Set initial navigator bounds using URL params
     if (!this.state.xyChartRenderedFirstTime) {
       this.setState({ xyChartRenderedFirstTime: true }, () => {
         this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
-          parseInt(this.state.from) * 1000,
+          fromDate * 1000,
           this.timeSeriesChartRef.current.chart.xAxis[0].dataMax
         );
       });
@@ -1123,30 +1144,13 @@ class Entity extends Component {
         (elem) => elem.key == signal.dataSource
       )[0];
       chartSignal.push({
-        type: "line",
-        id: legendDetails.title,
-        lineThickness: 1,
-        color: legendDetails.color,
-        lineColor: legendDetails.color,
-        markerType: "circle",
-        markerSize: 2,
-        markerColor: legendDetails.color,
-        name: legendDetails.key.includes(".")
-          ? `Google (${legendDetails.title})`
-          : legendDetails.title,
         visible: this.state.tsDataSeriesVisibleMap[signal.dataSource],
-        showInLegend: true,
         xValueFormatString: "DDD, MMM DD - HH:mm",
         yValueFormatString: "0",
         axisYType:
           signal.dataSource === "merit-nt" && !this.state.tsDataNormalized
             ? "secondary"
             : "primary",
-        dataPoints: signal.values,
-        legendMarkerColor: legendDetails.color,
-        toolTipContent: this.state.tsDataNormalized
-          ? "{x} <br/> {name}: {y}%"
-          : "{x} <br/> {name}: {y}",
       });
     });
     return chartSignal;
@@ -1178,6 +1182,12 @@ class Entity extends Component {
 
       const seriesName = this.getSeriesNameFromSource(signal.dataSource);
 
+      // Either place series on primary y-axis (left = 0) or secondary (right = 0)
+      const seriesYAxis =
+        signal.dataSource === "merit-nt" && !this.state.tsDataNormalized
+          ? 1
+          : 0;
+
       const res = {
         type: "line",
         id: signal.dataSource,
@@ -1187,6 +1197,7 @@ class Entity extends Component {
         marker: {
           radius: 2,
         },
+        yAxis: seriesYAxis,
       };
       chartSignals.push(res);
     });
@@ -1196,28 +1207,21 @@ class Entity extends Component {
       chartSignals,
     };
   }
-  // function for when zoom/pan is used
-  xyPlotRangeChanged(e) {
-    // let beginningRangeDate = Math.floor(e.axisX[0].viewportMinimum / 1000);
-    // let endRangeDate = Math.floor(e.axisX[0].viewportMaximum / 1000);
 
-    if (
-      Math.floor(e.axisX[0].viewportMinimum / 1000) !== 0 ||
-      Math.floor(e.axisX[0].viewportMaximum / 1000) !== 0
-    ) {
+  // function for when zoom/pan is used
+  xyPlotRangeChanged(event) {
+    const axisMin = Math.floor(event.min / 1000);
+    const axisMax = Math.floor(event.max / 1000);
+    if (axisMin !== 0 || axisMax !== 0) {
       this.setState({
-        tsDataLegendRangeFrom: Math.floor(e.axisX[0].viewportMinimum / 1000),
-        tsDataLegendRangeUntil: Math.floor(e.axisX[0].viewportMaximum / 1000),
+        tsDataLegendRangeFrom: axisMin,
+        tsDataLegendRangeUntil: axisMax,
       });
     } else {
       // case when hitting reset zoom, both values return 0 from event.
       this.setState({
-        tsDataLegendRangeFrom: window.location.search.split("?")[1]
-          ? window.location.search.split("?")[1].split("&")[0].split("=")[1]
-          : Math.round((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000),
-        tsDataLegendRangeUntil: window.location.search.split("?")[1]
-          ? window.location.search.split("?")[1].split("&")[1].split("=")[1]
-          : Math.round(new Date().getTime() / 1000),
+        tsDataLegendRangeFrom: fromDate,
+        tsDataLegendRangeUntil: untilDate,
       });
     }
   }
@@ -1278,16 +1282,8 @@ class Entity extends Component {
     // open modal and reset time range at the bottom of the chart
     this.setState({
       showXyChartModal: !this.state.showXyChartModal,
-      tsDataLegendRangeFrom: window.location.search.split("?")[1]
-        ? convertTimeToSecondsForURL(
-            window.location.search.split("?")[1].split("&")[0].split("=")[1]
-          )
-        : Math.round((new Date().getTime() - 24 * 60 * 60 * 1000) / 1000),
-      tsDataLegendRangeUntil: window.location.search.split("?")[1]
-        ? convertTimeToSecondsForURL(
-            window.location.search.split("?")[1].split("&")[1].split("=")[1]
-          )
-        : Math.round(new Date().getTime() / 1000),
+      tsDataLegendRangeFrom: fromDate,
+      tsDataLegendRangeUntil: untilDate,
     });
   }
 
@@ -1467,15 +1463,11 @@ class Entity extends Component {
   // function to manage when a user clicks a country in the map
   handleEntityShapeClick(entity) {
     const { history } = this.props;
-    history.push(
-      window.location.search.split("?")[1]
-        ? `/region/${entity.properties.id}?from=${
-            window.location.search.split("?")[1].split("&")[0].split("=")[1]
-          }&until=${
-            window.location.search.split("?")[1].split("&")[1].split("=")[1]
-          }`
-        : `/region/${entity.properties.id}`
-    );
+    let path = `/region/${entity.properties.id}`;
+    if (window.location.search.split("?")[1]) {
+      path += `?from=${fromDate}&until=${untilDate}`;
+    }
+    history.push(path);
   }
 
   // Show/hide modal when button is clicked on either panel
@@ -1491,8 +1483,8 @@ class Entity extends Component {
             if (!this.state.rawRegionalSignalsLoaded) {
               this.props.regionalSignalsTableSummaryDataAction(
                 "region",
-                window.location.pathname.split("/")[1],
-                window.location.pathname.split("/")[2]
+                entityType,
+                entityCode
               );
             }
           }
@@ -1513,8 +1505,8 @@ class Entity extends Component {
             if (!this.state.rawAsnSignalsLoaded) {
               this.props.asnSignalsTableSummaryDataAction(
                 "asn",
-                window.location.pathname.split("/")[1],
-                window.location.pathname.split("/")[2]
+                entityCode,
+                entityType
               );
             }
           }
