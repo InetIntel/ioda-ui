@@ -165,12 +165,8 @@ const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
   const untilDate = dayjs(untilMs);
   const diff = untilDate.diff(fromDate, "milliseconds");
 
-  let newFrom = null;
-  if (diff * 2 < MAX_DAYS_AS_MS) {
-    newFrom = fromDate.subtract(diff, "milliseconds");
-  } else {
-    newFrom = fromDate.subtract(MAX_DAYS_AS_MS, "milliseconds");
-  }
+  let cappedDiff = Math.min(2 * diff, MAX_DAYS_AS_MS);
+  const newFrom = untilDate.subtract(cappedDiff, "milliseconds");
 
   return {
     timeSignalFrom: Math.floor(newFrom.valueOf() / 1000),
@@ -358,7 +354,12 @@ class Entity extends Component {
       return;
     }
 
-    this.setState({ from: fromDate, until: untilDate });
+    this.setState({
+      from: fromDate,
+      until: untilDate,
+      tsDataLegendRangeFrom: fromDate,
+      tsDataLegendRangeUntil: untilDate,
+    });
 
     this.setState({ mounted: true }, () => {
       // If the difference is larger than the limit, terminate
@@ -372,9 +373,11 @@ class Entity extends Component {
       );
 
       // Overview Panel
+      // Pull events from the same range as time series signal to show all
+      // alerts in the navigator range
       this.props.searchEventsAction(
-        fromDate,
-        untilDate,
+        timeSignalFrom,
+        timeSignalUntil,
         entityType,
         entityCode
       );
@@ -1021,7 +1024,10 @@ class Entity extends Component {
           plotBands: alertBands,
           dateTimeLabelFormats: dateFormats,
           labels: {
+            zIndex: 100,
+            gridLineColor: "#000",
             style: {
+              color: "#000",
               fontSize: "12px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
@@ -1119,8 +1125,8 @@ class Entity extends Component {
     if (!this.state.xyChartRenderedFirstTime) {
       this.setState({ xyChartRenderedFirstTime: true }, () => {
         this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
-          fromDate * 1000,
-          this.timeSeriesChartRef.current.chart.xAxis[0].dataMax
+          this.state.tsDataLegendRangeFrom * 1000,
+          this.state.tsDataLegendRangeUntil * 1000
         );
       });
     }
@@ -1215,18 +1221,10 @@ class Entity extends Component {
   xyPlotRangeChanged(event) {
     const axisMin = Math.floor(event.min / 1000);
     const axisMax = Math.floor(event.max / 1000);
-    if (axisMin !== 0 || axisMax !== 0) {
-      this.setState({
-        tsDataLegendRangeFrom: axisMin,
-        tsDataLegendRangeUntil: axisMax,
-      });
-    } else {
-      // case when hitting reset zoom, both values return 0 from event.
-      this.setState({
-        tsDataLegendRangeFrom: fromDate,
-        tsDataLegendRangeUntil: untilDate,
-      });
-    }
+    this.setState({
+      tsDataLegendRangeFrom: axisMin,
+      tsDataLegendRangeUntil: axisMax,
+    });
   }
 
   // populate xy chart UI
