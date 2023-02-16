@@ -166,6 +166,7 @@ const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
   const diff = untilDate.diff(fromDate, "milliseconds");
 
   let cappedDiff = Math.min(2 * diff, MAX_DAYS_AS_MS);
+  console.log(cappedDiff);
   const newFrom = untilDate.subtract(cappedDiff, "milliseconds");
 
   return {
@@ -354,54 +355,56 @@ class Entity extends Component {
       return;
     }
 
-    this.setState({
-      from: fromDate,
-      until: untilDate,
-      tsDataLegendRangeFrom: fromDate,
-      tsDataLegendRangeUntil: untilDate,
-    });
+    this.setState(
+      {
+        mounted: true,
+        from: fromDate,
+        until: untilDate,
+        tsDataLegendRangeFrom: fromDate,
+        tsDataLegendRangeUntil: untilDate,
+      },
+      () => {
+        // If the difference is larger than the limit, terminate
+        if (untilDate - fromDate >= controlPanelTimeRangeLimit) {
+          return;
+        }
 
-    this.setState({ mounted: true }, () => {
-      // If the difference is larger than the limit, terminate
-      if (untilDate - fromDate >= controlPanelTimeRangeLimit) {
-        return;
+        const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(
+          fromDate,
+          untilDate
+        );
+
+        // Overview Panel
+        // Pull events from the same range as time series signal to show all
+        // alerts in the navigator range
+        this.props.searchEventsAction(
+          timeSignalFrom,
+          timeSignalUntil,
+          entityType,
+          entityCode
+        );
+        this.props.searchAlertsAction(
+          fromDate,
+          untilDate,
+          entityType,
+          entityCode,
+          null,
+          null,
+          null
+        );
+        this.props.getSignalsAction(
+          entityType,
+          entityCode,
+          timeSignalFrom,
+          timeSignalUntil,
+          null,
+          3000,
+          this.state.sourceParams
+        );
+        // Get entity name from code provided in url
+        this.updateEntityMetaData(entityType, entityCode);
       }
-
-      const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(
-        fromDate,
-        untilDate
-      );
-
-      // Overview Panel
-      // Pull events from the same range as time series signal to show all
-      // alerts in the navigator range
-      this.props.searchEventsAction(
-        timeSignalFrom,
-        timeSignalUntil,
-        entityType,
-        entityCode
-      );
-      this.props.searchAlertsAction(
-        fromDate,
-        untilDate,
-        entityType,
-        entityCode,
-        null,
-        null,
-        null
-      );
-      this.props.getSignalsAction(
-        entityType,
-        entityCode,
-        timeSignalFrom,
-        timeSignalUntil,
-        null,
-        3000,
-        this.state.sourceParams
-      );
-      // Get entity name from code provided in url
-      this.updateEntityMetaData(entityType, entityCode);
-    });
+    );
   }
 
   componentWillUnmount() {
@@ -417,12 +420,17 @@ class Entity extends Component {
       });
     }
 
+    const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(
+      this.state.from,
+      this.state.until
+    );
+
     if (this.state.sourceParams !== prevState.sourceParams) {
       this.props.getSignalsAction(
         entityType,
         entityCode,
-        this.state.from,
-        this.state.until,
+        timeSignalFrom,
+        timeSignalUntil,
         null,
         3000,
         this.state.sourceParams
@@ -1020,6 +1028,7 @@ class Entity extends Component {
         enabled: true,
         margin: 5,
         maskFill: "rgba(50, 184, 237, 0.3)",
+        stickToMax: false,
         xAxis: {
           plotBands: alertBands,
           dateTimeLabelFormats: dateFormats,
@@ -1094,7 +1103,6 @@ class Entity extends Component {
           },
         },
       ],
-      series: chartSignals,
     };
 
     if (!this.state.tsDataNormalized) {
@@ -1116,6 +1124,8 @@ class Entity extends Component {
       });
     }
 
+    chartOptions.series = chartSignals;
+
     // Rerender chart
     this.setState({ xyChartOptions: chartOptions }, () => {
       this.renderXyChart();
@@ -1124,6 +1134,7 @@ class Entity extends Component {
     // Set initial navigator bounds using URL params
     if (!this.state.xyChartRenderedFirstTime) {
       this.setState({ xyChartRenderedFirstTime: true }, () => {
+        console.log("called once");
         this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
           this.state.tsDataLegendRangeFrom * 1000,
           this.state.tsDataLegendRangeUntil * 1000
@@ -1211,6 +1222,8 @@ class Entity extends Component {
       chartSignals.push(res);
     });
 
+    console.log(chartSignals);
+
     return {
       alertBands,
       chartSignals,
@@ -1219,6 +1232,7 @@ class Entity extends Component {
 
   // function for when zoom/pan is used
   xyPlotRangeChanged(event) {
+    console.log("called here");
     const axisMin = Math.floor(event.min / 1000);
     const axisMax = Math.floor(event.max / 1000);
     this.setState({
