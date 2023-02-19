@@ -280,13 +280,13 @@
       }
 
       &:after {
-        content: "";
+        //content: "";
         position: absolute;
         bottom: 0;
         left: 0;
-        background-color: $color-white;
-        height: 1.5rem;
-        width: 14rem;
+        //background-color: $color-white;
+        //height: 1.5rem;
+        //width: 14rem;
 
         @include respond(big-desktop) {
           width: 11.5rem;

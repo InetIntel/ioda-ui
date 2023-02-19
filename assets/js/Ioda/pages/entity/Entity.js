@@ -952,7 +952,10 @@ class Entity extends Component {
         panKey: "shift",
         animation: false,
         selectionMarkerFill: "rgba(50, 184, 237, 0.3)",
-        height: this.state.tsDataScreenBelow678 ? 360 : 514,
+        height: this.state.tsDataScreenBelow678 ? 400 : 514,
+        spacingBottom: 0,
+        spacingLeft: 5,
+        spacingRight: 5,
         style: {
           fontFamily: CUSTOM_FONT_FAMILY,
         },
@@ -992,8 +995,33 @@ class Entity extends Component {
       legend: {
         className: "time-series-legend",
         itemStyle: {
-          fontSize: "12px",
+          fontSize: this.state.tsDataScreenBelow678 ? "10px" : "12px",
           fontFamily: CUSTOM_FONT_FAMILY,
+        },
+        // Compress legend items on small screens (remove column alignment)
+        alignColumns: !this.state.tsDataScreenBelow678,
+      },
+      navigator: {
+        enabled: true,
+        margin: 5,
+        maskFill: "rgba(50, 184, 237, 0.3)",
+        outlineColor: "#aaa",
+        xAxis: {
+          plotBands: alertBands,
+          gridLineColor: "#0F0F0F",
+          dateTimeLabelFormats: dateFormats,
+          labels: {
+            zIndex: 100,
+            style: {
+              textOutline: "2px solid #fff",
+              color: "#000",
+              fontSize: this.state.tsDataScreenBelow678 ? "10px" : "12px",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
+          },
+        },
+        yAxis: {
+          visible: false,
         },
       },
       time: {
@@ -1027,7 +1055,7 @@ class Entity extends Component {
       },
       xAxis: {
         type: "datetime",
-        minRange: 60 * 1000, //1 minute as milliseconds
+        minRange: 5 * 60 * 1000, // 5 minutes as milliseconds
         dateTimeLabelFormats: dateFormats,
         title: {
           text: xyChartXAxisTitle,
@@ -1098,29 +1126,6 @@ class Entity extends Component {
           },
         },
       ],
-      navigator: {
-        enabled: true,
-        margin: 5,
-        maskFill: "rgba(50, 184, 237, 0.3)",
-        outlineColor: "#aaa",
-        xAxis: {
-          plotBands: alertBands,
-          gridLineColor: "#0F0F0F",
-          dateTimeLabelFormats: dateFormats,
-          labels: {
-            zIndex: 100,
-            style: {
-              textOutline: "2px solid #fff",
-              color: "#000",
-              fontSize: this.state.tsDataScreenBelow678 ? "10px" : "12px",
-              fontFamily: CUSTOM_FONT_FAMILY,
-            },
-          },
-        },
-        yAxis: {
-          visible: false,
-        },
-      },
       series: chartSignals,
     };
 
