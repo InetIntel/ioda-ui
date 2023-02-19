@@ -979,7 +979,7 @@ class Entity extends Component {
         text: null,
       },
       tooltip: {
-        headerFormat: "<b>{point.key} (UTC)</b><br>",
+        headerFormat: "{point.key} (UTC)<br>",
         pointFormat: tooltipFormat(),
         xDateFormat: "%a, %b %e %l:%M%p",
         borderWidth: 1.5,
@@ -987,7 +987,6 @@ class Entity extends Component {
         style: {
           fontSize: "14px",
           fontFamily: CUSTOM_FONT_FAMILY,
-          fontWeight: "bold",
         },
       },
       legend: {
