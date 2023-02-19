@@ -3976,6 +3976,7 @@ button[class*="searchButton"] {
       display: none; }
     @media only screen and (max-width: 30em) {
       .entity .overview__xy-wrapper:before {
+        /*
         content: "";
         position: absolute;
         bottom: 0.5rem;
@@ -3983,7 +3984,9 @@ button[class*="searchButton"] {
         background-color: #fff;
         width: 17.5rem;
         height: 1.6rem;
-        z-index: 10; } }
+        z-index: 10;
+        */
+      } }
     .entity .overview__xy-wrapper:after {
       content: "";
       position: absolute;

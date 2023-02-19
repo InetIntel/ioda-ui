@@ -267,6 +267,7 @@
       }
 
       &:before {
+        /*
         @include respond(phone) {
           content: "";
           position: absolute;
@@ -277,16 +278,18 @@
           height: 1.6rem;
           z-index: 10;
         }
+        */
       }
 
       &:after {
-        //content: "";
+        /*
+        content: "";
         position: absolute;
         bottom: 0;
         left: 0;
-        //background-color: $color-white;
-        //height: 1.5rem;
-        //width: 14rem;
+        background-color: $color-white;
+        height: 1.5rem;
+        width: 14rem;
 
         @include respond(big-desktop) {
           width: 11.5rem;
@@ -305,6 +308,7 @@
           width: 19.5rem;
           height: 1.6rem;
         }
+        */
       }
     }
 
