@@ -113,7 +113,7 @@ import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
-const CUSTOM_FONT_FAMILY = "Lato-Regular";
+const CUSTOM_FONT_FAMILY = "Lato-Regular, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
 
 /**
@@ -891,15 +891,13 @@ class Entity extends Component {
   // format data from api to be compatible with chart visual
   convertValuesForXyViz() {
     let signalValues = [];
-    let absoluteMax = [];
-    let absoluteMaxY2 = 0;
+    let absoluteMax = -1;
     const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
 
     // Loop through available datasources to collect plot points
-    this.state.tsDataRaw[0].map((datasource) => {
+    this.state.tsDataRaw[0].forEach((datasource) => {
       let max = Math.max.apply(null, datasource.values);
-      absoluteMax.push(max);
-      absoluteMaxY2 = max;
+      absoluteMax = Math.max(absoluteMax, max);
       let datasourceValues = [];
       datasource.values &&
         datasource.values.map((value, index) => {
@@ -953,6 +951,7 @@ class Entity extends Component {
         panning: true,
         panKey: "shift",
         animation: false,
+        selectionMarkerFill: "rgba(50, 184, 237, 0.3)",
         height: this.state.tsDataScreenBelow678 ? 360 : 514,
         style: {
           fontFamily: CUSTOM_FONT_FAMILY,
@@ -963,7 +962,7 @@ class Entity extends Component {
       },
       exporting: {
         fallbackToExportServer: false,
-        filename: "ioda-chart",
+        filename: `ioda-chart-${this.state.tsDataLegendRangeUntil}`,
         buttons: {
           contextButton: {
             menuItems: ["downloadPNG", "downloadJPEG", "downloadSVG"],
@@ -972,8 +971,9 @@ class Entity extends Component {
             y: 0,
           },
         },
-        sourceWidth: 798,
-        sourceHeight: 514,
+        // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
+        sourceWidth: 1000,
+        sourceHeight: 560,
       },
       title: {
         text: null,
@@ -1026,28 +1026,6 @@ class Entity extends Component {
           },
         },
       },
-      navigator: {
-        enabled: true,
-        margin: 5,
-        maskFill: "rgba(50, 184, 237, 0.3)",
-        stickToMax: false,
-        xAxis: {
-          plotBands: alertBands,
-          dateTimeLabelFormats: dateFormats,
-          labels: {
-            zIndex: 100,
-            gridLineColor: "#000",
-            style: {
-              color: "#000",
-              fontSize: "12px",
-              fontFamily: CUSTOM_FONT_FAMILY,
-            },
-          },
-        },
-        yAxis: {
-          visible: true,
-        },
-      },
       xAxis: {
         type: "datetime",
         minRange: 60 * 1000, //1 minute as milliseconds
@@ -1075,12 +1053,11 @@ class Entity extends Component {
         },
       },
       yAxis: [
+        // Primary y-axis
         {
           floor: 0,
           min: 0,
-          max: this.state.tsDataNormalized
-            ? 110
-            : Math.max.apply(null, absoluteMax) * 1.1,
+          max: this.state.tsDataNormalized ? 110 : Math.max(100, absoluteMax),
           alignTicks: true,
           startOnTick: true,
           endOnTick: true,
@@ -1104,29 +1081,49 @@ class Entity extends Component {
             },
           },
         },
+        // Secondary y-axis (for telescope series in non-normalized mode)
+        {
+          opposite: true,
+          alignTicks: true,
+          startOnTick: true,
+          endOnTick: true,
+          tickAmount: 12,
+          gridLineWidth: 1,
+          gridLineColor: "#E6E6E6",
+          gridLineDashStyle: "ShortDash",
+          title: {
+            text: null,
+          },
+          labels: {
+            x: 5,
+          },
+        },
       ],
+      navigator: {
+        enabled: true,
+        margin: 5,
+        maskFill: "rgba(50, 184, 237, 0.3)",
+        outlineColor: "#aaa",
+        xAxis: {
+          plotBands: alertBands,
+          gridLineColor: "#0F0F0F",
+          dateTimeLabelFormats: dateFormats,
+          labels: {
+            zIndex: 100,
+            style: {
+              textOutline: "2px solid #fff",
+              color: "#000",
+              fontSize: this.state.tsDataScreenBelow678 ? "10px" : "12px",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
+          },
+        },
+        yAxis: {
+          visible: false,
+        },
+      },
+      series: chartSignals,
     };
-
-    if (!this.state.tsDataNormalized) {
-      chartOptions.yAxis.push({
-        opposite: true,
-        alignTicks: true,
-        startOnTick: true,
-        endOnTick: true,
-        tickAmount: 12,
-        gridLineWidth: 1,
-        gridLineColor: "#E6E6E6",
-        gridLineDashStyle: "ShortDash",
-        title: {
-          text: null,
-        },
-        labels: {
-          x: 5,
-        },
-      });
-    }
-
-    chartOptions.series = chartSignals;
 
     // Rerender chart
     this.setState({ xyChartOptions: chartOptions }, () => {
@@ -1136,7 +1133,6 @@ class Entity extends Component {
     // Set initial navigator bounds using URL params
     if (!this.state.xyChartRenderedFirstTime) {
       this.setState({ xyChartRenderedFirstTime: true }, () => {
-        console.log("called once");
         this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
           this.state.tsDataLegendRangeFrom * 1000,
           this.state.tsDataLegendRangeUntil * 1000
@@ -1159,24 +1155,6 @@ class Entity extends Component {
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
   createChartSeries(signalValues) {
-    /*
-    let chartSignal = [];
-    signalValues.map((signal) => {
-      let legendDetails = legend.filter(
-        (elem) => elem.key == signal.dataSource
-      )[0];
-      chartSignal.push({
-        visible: this.state.tsDataSeriesVisibleMap[signal.dataSource],
-        xValueFormatString: "DDD, MMM DD - HH:mm",
-        yValueFormatString: "0",
-        axisYType:
-          signal.dataSource === "merit-nt" && !this.state.tsDataNormalized
-            ? "secondary"
-            : "primary",
-      });
-    });
-    return chartSignal;
-    */
     const chartSignals = [];
     const alertBands = [];
 
@@ -1204,7 +1182,7 @@ class Entity extends Component {
 
       const seriesName = this.getSeriesNameFromSource(signal.dataSource);
 
-      // Either place series on primary y-axis (left = 0) or secondary (right = 0)
+      // Either place series on primary y-axis (left = 0) or secondary (right = 1)
       const seriesYAxis =
         signal.dataSource === "merit-nt" && !this.state.tsDataNormalized
           ? 1
@@ -1224,8 +1202,6 @@ class Entity extends Component {
       chartSignals.push(res);
     });
 
-    console.log(chartSignals);
-
     return {
       alertBands,
       chartSignals,
@@ -1234,7 +1210,6 @@ class Entity extends Component {
 
   // function for when zoom/pan is used
   xyPlotRangeChanged(event) {
-    console.log("called here");
     const axisMin = Math.floor(event.min / 1000);
     const axisMax = Math.floor(event.max / 1000);
     this.setState({
@@ -1247,7 +1222,6 @@ class Entity extends Component {
   renderXyChart() {
     return (
       this.state.xyChartOptions && (
-        // <div className="overview__xy-wrapper">
         <div className="overview__xy-wrapper">
           <HighchartsReact
             highcharts={Highcharts}
@@ -1261,11 +1235,8 @@ class Entity extends Component {
 
   // toggle normalized values and absolute values
   changeXyChartNormalization() {
-    this.setState(
-      {
-        tsDataNormalized: !this.state.tsDataNormalized,
-      },
-      () => this.convertValuesForXyViz()
+    this.setState({ tsDataNormalized: !this.state.tsDataNormalized }, () =>
+      this.convertValuesForXyViz()
     );
   }
 
@@ -2454,6 +2425,7 @@ class Entity extends Component {
     };
 
     this.setState({ tsDataSeriesVisibleMap: newVisibility });
+    this.convertValuesForXyViz();
   }
 
   /**
