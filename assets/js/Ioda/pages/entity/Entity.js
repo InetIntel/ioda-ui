@@ -73,7 +73,6 @@ import ControlPanel from "../../components/controlPanel/ControlPanel";
 import { Searchbar } from "caida-components-library";
 import Table from "../../components/table/Table";
 import EntityRelated from "./EntityRelated";
-import HorizonTSChart from "horizon-timeseries-chart";
 import Loading from "../../components/loading/Loading";
 import ToggleButton from "../../components/toggleButton/ToggleButton";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
@@ -101,17 +100,18 @@ import {
   convertTimeToSecondsForURL,
   legend,
 } from "../../utils";
-import Highcharts from "highcharts/highstock";
-import HighchartsReact from "highcharts-react-official";
-require("highcharts/modules/exporting")(Highcharts);
-// import CanvasJSChart from "../../libs/canvasjs-non-commercial-3.2.5/canvasjs.react";
 import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
 import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from "../../components/cards/ChartTabCard";
 import { element } from "prop-types";
 import Tabs from "../../components/tabs/Tabs";
-import dayjs from "dayjs";
+
+// Chart libraries
+import Highcharts from "highcharts/highstock";
+import HighchartsReact from "highcharts-react-official";
+require("highcharts/modules/exporting")(Highcharts);
+require("highcharts/modules/offline-exporting")(Highcharts);
 
 const CUSTOM_FONT_FAMILY = "Lato-Regular";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -158,20 +158,18 @@ const getEntityDataFromUrl = () => {
  * @returns object containing date range (dates as seconds)
  */
 const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
+  const offset = new Date().getTimezoneOffset() * 60 * 1000;
   const MAX_DAYS_AS_MS = controlPanelTimeRangeLimit * 1000;
   const fromMs = fromDateSeconds * 1000;
   const untilMs = untilDateSeconds * 1000;
-  const fromDate = dayjs(fromMs);
-  const untilDate = dayjs(untilMs);
-  const diff = untilDate.diff(fromDate, "milliseconds");
+  const diff = untilMs - fromMs;
 
   let cappedDiff = Math.min(2 * diff, MAX_DAYS_AS_MS);
-  console.log(cappedDiff);
-  const newFrom = untilDate.subtract(cappedDiff, "milliseconds");
+  const newFrom = untilMs - cappedDiff;
 
   return {
-    timeSignalFrom: Math.floor(newFrom.valueOf() / 1000),
-    timeSignalUntil: Math.floor(untilDate.valueOf() / 1000),
+    timeSignalFrom: Math.floor((newFrom - offset) / 1000),
+    timeSignalUntil: Math.floor((untilMs - offset) / 1000),
   };
 };
 
@@ -964,6 +962,7 @@ class Entity extends Component {
         enabled: false,
       },
       exporting: {
+        fallbackToExportServer: false,
         filename: "ioda-chart",
         buttons: {
           contextButton: {
@@ -997,6 +996,9 @@ class Entity extends Component {
           fontSize: "12px",
           fontFamily: CUSTOM_FONT_FAMILY,
         },
+      },
+      time: {
+        useUTC: true,
       },
       plotOptions: {
         spline: {
