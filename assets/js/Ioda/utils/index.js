@@ -117,10 +117,10 @@ export function humanizeNumber(value, precisionDigits) {
 
 // For event/alert table
 export function convertSecondsToDateValues(s) {
-    const month = monthStrings[new Date(s * 1000).getUTCMonth()];
-    const day = new Date(s * 1000).getUTCDate();
+    const month = monthStrings[new Date(s * 1000).getMonth()];
+    const day = new Date(s * 1000).getDate();
     const year = new Date(s * 1000).getFullYear();
-    const hourValue = new Date(s * 1000).getUTCHours();
+    const hourValue = new Date(s * 1000).getHours();
     const hours = hourValue > 12
         ? hourValue - 12
         : 10 > hourValue > 0
@@ -128,11 +128,11 @@ export function convertSecondsToDateValues(s) {
             : hourValue === 0
                 ? 12
                 : hourValue;
-    const minuteValue = new Date(s * 1000).getUTCMinutes();
+    const minuteValue = new Date(s * 1000).getMinutes();
     const minutes = minuteValue < 10
         ? `0${minuteValue}`
         : minuteValue;
-    const secondsValue = new Date(s * 1000).getUTCSeconds();
+    const secondsValue = new Date(s * 1000).getSeconds();
     const seconds = secondsValue < 10
         ? `0${secondsValue}`
         : secondsValue;

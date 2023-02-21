@@ -168,8 +168,8 @@ const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
   const newFrom = untilMs - cappedDiff;
 
   return {
-    timeSignalFrom: Math.floor((newFrom - offset) / 1000),
-    timeSignalUntil: Math.floor((untilMs - offset) / 1000),
+    timeSignalFrom: Math.floor(newFrom / 1000),
+    timeSignalUntil: Math.floor(untilMs / 1000),
   };
 };
 
@@ -993,6 +993,7 @@ class Entity extends Component {
         },
       },
       legend: {
+        margin: 15,
         className: "time-series-legend",
         itemStyle: {
           fontSize: this.state.tsDataScreenBelow678 ? "10px" : "12px",
@@ -1003,19 +1004,27 @@ class Entity extends Component {
       },
       navigator: {
         enabled: true,
-        margin: 5,
+        time: {
+          useUTC: true,
+          timezoneOffset: new Date().getTimezoneOffset(),
+        },
+        margin: 10,
         maskFill: "rgba(50, 184, 237, 0.3)",
         outlineColor: "#aaa",
         xAxis: {
           plotBands: alertBands,
-          gridLineColor: "#0F0F0F",
+          gridLineColor: "#666",
+          gridLineDashStyle: "Dash",
+          tickPixelInterval: 100,
           dateTimeLabelFormats: dateFormats,
           labels: {
             zIndex: 100,
+            align: "center",
+            y: 12,
             style: {
-              textOutline: "2px solid #fff",
-              color: "#000",
-              fontSize: this.state.tsDataScreenBelow678 ? "10px" : "12px",
+              //textOutline: "2px solid #fff",
+              color: "#666",
+              fontSize: "10px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
           },
@@ -1026,6 +1035,7 @@ class Entity extends Component {
       },
       time: {
         useUTC: true,
+        timezoneOffset: new Date().getTimezoneOffset(),
       },
       plotOptions: {
         spline: {
@@ -1136,10 +1146,11 @@ class Entity extends Component {
 
     // Set initial navigator bounds using URL params
     if (!this.state.xyChartRenderedFirstTime) {
+      const offsetInSeconds = new Date().getTimezoneOffset() * 60;
       this.setState({ xyChartRenderedFirstTime: true }, () => {
         this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
-          this.state.tsDataLegendRangeFrom * 1000,
-          this.state.tsDataLegendRangeUntil * 1000
+          (this.state.tsDataLegendRangeFrom + offsetInSeconds) * 1000,
+          (this.state.tsDataLegendRangeUntil + offsetInSeconds) * 1000
         );
       });
     }
