@@ -1153,6 +1153,11 @@ class Entity extends Component {
           (this.state.tsDataLegendRangeUntil + offsetInSeconds) * 1000
         );
       });
+    } else {
+      this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
+        this.state.tsDataLegendRangeFrom * 1000,
+        this.state.tsDataLegendRangeUntil * 1000
+      );
     }
   }
 
@@ -1225,8 +1230,24 @@ class Entity extends Component {
 
   // function for when zoom/pan is used
   xyPlotRangeChanged(event) {
+    if (!event.target.series) {
+      return;
+    }
+
+    // Count the number of visible series in our chart
+    const hasVisibleSeries = event.target.series.some(
+      (series) => !!series.visible
+    );
+
+    // If we don't have any data on the chart, Highcharts will set an arbitrary
+    // erroring data range. We prevent this by terminating early
+    if (!hasVisibleSeries) {
+      return;
+    }
+
     const axisMin = Math.floor(event.min / 1000);
     const axisMax = Math.floor(event.max / 1000);
+
     this.setState({
       tsDataLegendRangeFrom: axisMin,
       tsDataLegendRangeUntil: axisMax,
