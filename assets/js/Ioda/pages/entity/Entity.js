@@ -204,7 +204,6 @@ class Entity extends Component {
       lastFetched: 0,
       // XY Plot Time Series
       xyDataOptions: null,
-      xyChartRenderedFirstTime: false,
       xyChartOptions: null,
       tsDataRaw: null,
       tsDataNormalized: true,
@@ -1139,26 +1138,31 @@ class Entity extends Component {
       series: chartSignals,
     };
 
-    // Rerender chart
+    // Set navigator time bounds. If we're rendering the chart for the first
+    // time (i.e., when the xyChartOptions is still null), we need to add a
+    // timezone offset to the bounds
+    let timezoneOffsetSeconds = 0;
+    if (!this.state.xyChartOptions) {
+      timezoneOffsetSeconds = new Date().getTimezoneOffset() * 60;
+    }
+
+    const navigatorLowerBound =
+      (this.state.tsDataLegendRangeFrom + timezoneOffsetSeconds) * 1000;
+    const navigatorUpperBound =
+      (this.state.tsDataLegendRangeUntil + timezoneOffsetSeconds) * 1000;
+
+    // Rerender chart and set navigator bounds
     this.setState({ xyChartOptions: chartOptions }, () => {
       this.renderXyChart();
+      this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
     });
+  }
 
-    // Set initial navigator bounds using URL params
-    if (!this.state.xyChartRenderedFirstTime) {
-      const offsetInSeconds = new Date().getTimezoneOffset() * 60;
-      this.setState({ xyChartRenderedFirstTime: true }, () => {
-        this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
-          (this.state.tsDataLegendRangeFrom + offsetInSeconds) * 1000,
-          (this.state.tsDataLegendRangeUntil + offsetInSeconds) * 1000
-        );
-      });
-    } else {
-      this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(
-        this.state.tsDataLegendRangeFrom * 1000,
-        this.state.tsDataLegendRangeUntil * 1000
-      );
+  setChartNavigatorTimeRange(fromMs, untilMs) {
+    if (!this.timeSeriesChartRef.current) {
+      return;
     }
+    this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
   }
 
   getSeriesNameFromSource(source) {
