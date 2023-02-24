@@ -158,7 +158,6 @@ const getEntityDataFromUrl = () => {
  * @returns object containing date range (dates as seconds)
  */
 const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
-  const offset = new Date().getTimezoneOffset() * 60 * 1000;
   const MAX_DAYS_AS_MS = controlPanelTimeRangeLimit * 1000;
   const fromMs = fromDateSeconds * 1000;
   const untilMs = untilDateSeconds * 1000;
@@ -947,6 +946,9 @@ class Entity extends Component {
       chart: {
         type: "line",
         zoomType: "x",
+        resetZoomButton: {
+          theme: { style: { display: "none" } },
+        },
         panning: true,
         panKey: "shift",
         animation: false,
@@ -965,9 +967,24 @@ class Entity extends Component {
       exporting: {
         fallbackToExportServer: false,
         filename: `ioda-chart-${this.state.tsDataLegendRangeUntil}`,
+        menuItemDefinitions: {
+          // Custom definition
+          resetZoom: {
+            onclick: () => {
+              this.setDefaultNavigatorTimeRange();
+            },
+            text: "Reset Zoom",
+          },
+        },
         buttons: {
           contextButton: {
-            menuItems: ["downloadPNG", "downloadJPEG", "downloadSVG"],
+            menuItems: [
+              "resetZoom",
+              "separator",
+              "downloadPNG",
+              "downloadJPEG",
+              "downloadSVG",
+            ],
             align: "right",
             x: -17,
             y: 0,
@@ -1156,6 +1173,16 @@ class Entity extends Component {
       this.renderXyChart();
       this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
     });
+  }
+
+  setDefaultNavigatorTimeRange() {
+    const { fromDate, untilDate } = getRangeDatesFromUrl();
+
+    const timezoneOffsetSeconds = new Date().getTimezoneOffset() * 60;
+    const navigatorLowerBound = (fromDate + timezoneOffsetSeconds) * 1000;
+    const navigatorUpperBound = (untilDate + timezoneOffsetSeconds) * 1000;
+
+    this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
   }
 
   setChartNavigatorTimeRange(fromMs, untilMs) {
