@@ -29,6 +29,7 @@ import {
     getUTCTimeStringFromDate, secondaryColor, secondaryColorDark, secondaryColorLight
 } from "../../utils";
 import PreloadImage from "react-preload-image";
+import dayjs from 'dayjs';
 
 class ControlPanel extends Component {
     constructor(props) {
@@ -125,12 +126,15 @@ class ControlPanel extends Component {
 
     // set text that renders in bottom right hand corner depicting the start and end date of the currently viewable range
     setDateInLegend(from, until) {
-        let readableStartDate = convertSecondsToDateValues(from);
-        let readableEndDate = convertSecondsToDateValues(until);
-        readableStartDate = `${readableStartDate.month} ${readableStartDate.day}, ${readableStartDate.year} ${readableStartDate.hours}:${readableStartDate.minutes}${readableStartDate.meridian} UTC`;
-        readableEndDate = `${readableEndDate.month} ${readableEndDate.day}, ${readableEndDate.year} ${readableEndDate.hours}:${readableEndDate.minutes}${readableEndDate.meridian} UTC`;
-        return [ readableStartDate, readableEndDate ];
+        const dateFormat = "MMMM D, YYYY h:mma UTC"
+        const timezoneOffset = new Date().getTimezoneOffset() * 60
+        const fromMilliseconds = (parseInt(from) + timezoneOffset) * 1000
+        const untilMilliseconds = (parseInt(until) + timezoneOffset) * 1000
+        const startDate = dayjs(fromMilliseconds).format(dateFormat)
+        const endDate = dayjs(untilMilliseconds).format(dateFormat)
+        return [ startDate, endDate ];
     }
+
     handleTimeChange(time) {
         this.setState({timeRange: time})
     }

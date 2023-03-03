@@ -49,7 +49,7 @@ class TimeStamp extends Component {
     }
 
     render() {
-        const timestamp = `${this.props.from.month} ${this.props.from.day}, ${this.props.from.year} ${this.props.from.hours}:${this.props.from.minutes}${this.props.from.meridian} — ${this.props.until.month} ${this.props.until.day}, ${this.props.until.year} ${this.props.until.hours}:${this.props.until.minutes}${this.props.until.meridian}`;
+        const timestamp = `${this.props.from.month} ${this.props.from.day}, ${this.props.from.year} ${this.props.from.hours}:${this.props.from.minutes}${this.props.from.meridian} UTC — ${this.props.until.month} ${this.props.until.day}, ${this.props.until.year} ${this.props.until.hours}:${this.props.until.minutes}${this.props.until.meridian} UTC`;
         const fade = this.state.fade;
         const hoverTitle = T.translate("timestamp.hoverTitle");
         const copyToClipboardMessage = T.translate("timestamp.copyToClipboardMessage");
