@@ -172,6 +172,25 @@ const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
   };
 };
 
+const formatLocaleNumber = (value, precision) => {
+  return Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: precision,
+  }).format(value);
+};
+
+/**
+ * Gets the minimum value from an array of numbers that may contain null values
+ */
+const getMinValue = (values) =>
+  values.reduce((m, v) => (v != null && v < m ? v : m), Infinity);
+
+/**
+ * Gets the maximum value from an array of numbers that may contain null values
+ */
+const getMaxValue = (values) =>
+  values.reduce((m, v) => (v != null && v > m ? v : m), -Infinity);
+
 const { fromDate, untilDate } = getRangeDatesFromUrl();
 const { entityCode, entityType } = getEntityDataFromUrl();
 
@@ -889,42 +908,128 @@ class Entity extends Component {
   // format data from api to be compatible with chart visual
   convertValuesForXyViz() {
     let signalValues = [];
-    let absoluteMax = -1;
-    const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
+
+    // Holds a map of series-id to the max y-value in that series
+    const seriesMaxes = {};
+
+    // Holds a map of series-id to the min y-value in that series
+    const seriesMins = {};
 
     // Loop through available datasources to collect plot points
     this.state.tsDataRaw[0].forEach((datasource) => {
-      let max = Math.max.apply(null, datasource.values);
-      absoluteMax = Math.max(absoluteMax, max);
-      let datasourceValues = [];
-      datasource.values &&
-        datasource.values.map((value, index) => {
-          let x, y;
-          x = toDateTime(datasource.from + datasource.step * index).getTime();
-          y = this.state.tsDataNormalized ? normalize(value, max) : value;
-          datasourceValues.push({ x: x, y: y });
-        });
-      // the last two values populating are the min value, and the max value. Removing these from the coordinates.
+      let id = datasource.datasource;
+      id += datasource.subtype ? `.${datasource.subtype}` : "";
+
+      // Only track the maxes of visible series. If we keep the maxes from
+      // invisible series, they may influence the y-axis maxes even though they
+      // aren't displayed
+      const seriesMax = getMaxValue(datasource.values);
+      if (this.state.tsDataSeriesVisibleMap[id]) {
+        seriesMaxes[id] = this.state.tsDataNormalized ? 100 : seriesMax;
+        seriesMins[id] = this.state.tsDataNormalized
+          ? 0
+          : getMinValue(datasource.values);
+      }
+
+      if (!datasource.values) {
+        return;
+      }
+
+      const datasourceValues = datasource.values.map((value, index) => {
+        const x = toDateTime(
+          datasource.from + datasource.step * index
+        ).getTime();
+        const y = this.state.tsDataNormalized
+          ? normalize(value, seriesMax)
+          : value;
+        return { x, y };
+      });
+
+      // The last two values populating are the min value, and the max value.
+      // Removing these from the coordinates.
       datasourceValues.length > 2
         ? datasourceValues.splice(-1, 2)
         : datasourceValues;
-      let id = datasource.datasource;
-      id += datasource.subtype ? `.${datasource.subtype}` : "";
+
       signalValues.push({ dataSource: id, values: datasourceValues });
     });
 
-    const formatYValue = (val) => {
+    // Creates an array of [(series-id, series-max)...] sorted by max values
+    const seriesSortedByMaxValues = Object.entries(seriesMaxes).sort(
+      (a, b) => a[1] - b[1]
+    );
+
+    // Track the largest factor increase (greater than MIN_FACTOR_JUMP) in maxes
+    // of the series
+    const MIN_FACTOR_JUMP = 10;
+    let maxFactorIncreaseValue = 1;
+    let maxFactorIncreaseIndex = seriesSortedByMaxValues.length;
+    for (let i = 1; i < seriesSortedByMaxValues.length; i++) {
+      const currMax = seriesSortedByMaxValues[i][1];
+      const prevMax = seriesSortedByMaxValues[i - 1][1];
+      const factorIncrease = currMax / prevMax;
+      if (
+        factorIncrease > MIN_FACTOR_JUMP &&
+        factorIncrease > maxFactorIncreaseValue
+      ) {
+        maxFactorIncreaseValue = factorIncrease;
+        maxFactorIncreaseIndex = i;
+      }
+    }
+
+    // Split the series into 2 arrays based on the partition line
+    const leftPartition = seriesSortedByMaxValues.slice(
+      0,
+      maxFactorIncreaseIndex
+    );
+    const rightPartition = seriesSortedByMaxValues.slice(
+      maxFactorIncreaseIndex,
+      seriesSortedByMaxValues.length
+    );
+
+    // console.log("Sorted Series:", seriesSortedByMaxValues);
+    // console.log("Left Partition:", leftPartition);
+    // console.log("Right Partition:", rightPartition);
+
+    // Get the max and min values for each partition. These will become the
+    // max/mins for our two y-axes. We need to set axis mins because otherwise,
+    // the axis bounds will shift when we drag the navigator
+    let leftPartitionMax = -Infinity;
+    let leftPartitionMin = Infinity;
+    for (const [seriesId, seriesMax] of leftPartition) {
+      leftPartitionMax = Math.max(leftPartitionMax, seriesMax);
+      leftPartitionMin = Math.min(leftPartitionMin, seriesMins[seriesId]);
+    }
+
+    let rightPartitionMax = -Infinity;
+    let rightPartitionMin = Infinity;
+    for (const [seriesId, seriesMax] of rightPartition) {
+      rightPartitionMax = Math.max(rightPartitionMax, seriesMax);
+      rightPartitionMin = Math.min(rightPartitionMin, seriesMins[seriesId]);
+    }
+
+    // Extract the series-ids that are in the left partition
+    const leftPartitionSeries = leftPartition.map((x) => x[0]);
+
+    const formatYAxisLabels = (val) => {
       if (this.state.tsDataNormalized) {
         return val <= 100 ? `${val}%` : "";
+      } else if (val > 999) {
+        return formatLocaleNumber(val, 1);
       } else {
         return val;
       }
     };
 
-    const tooltipFormat = () => {
-      return this.state.tsDataNormalized
-        ? "{series.name}: {point.y:.0f}%"
-        : "{series.name}: {point.y:.0f}";
+    const tooltipContentFormatter = (ctx) => {
+      const seriesName = ctx.series.name;
+      const yValue = ctx.y;
+      const formattedYValue = formatLocaleNumber(yValue, 3);
+      if (this.state.tsDataNormalized) {
+        return `${seriesName}: ${formattedYValue}%`;
+      } else {
+        return `${seriesName}: ${formattedYValue}`;
+      }
     };
 
     // Define date formats for timeseries data
@@ -940,7 +1045,12 @@ class Entity extends Component {
       year: "%Y",
     };
 
-    const { chartSignals, alertBands } = this.createChartSeries(signalValues);
+    const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
+
+    const { chartSignals, alertBands } = this.createChartSeries(
+      signalValues,
+      leftPartitionSeries
+    );
 
     const chartOptions = {
       chart: {
@@ -986,7 +1096,7 @@ class Entity extends Component {
               "downloadSVG",
             ],
             align: "right",
-            x: -17,
+            x: -25,
             y: 0,
           },
         },
@@ -999,7 +1109,9 @@ class Entity extends Component {
       },
       tooltip: {
         headerFormat: "{point.key} (UTC)<br>",
-        pointFormat: tooltipFormat(),
+        pointFormatter: function () {
+          return tooltipContentFormatter(this);
+        },
         xDateFormat: "%a, %b %e %l:%M%p",
         borderWidth: 1.5,
         borderRadius: 0,
@@ -1109,8 +1221,8 @@ class Entity extends Component {
         // Primary y-axis
         {
           floor: 0,
-          min: 0,
-          max: this.state.tsDataNormalized ? 110 : Math.max(100, absoluteMax),
+          min: this.state.tsDataNormalized ? 0 : leftPartitionMin,
+          max: this.state.tsDataNormalized ? 110 : leftPartitionMax,
           alignTicks: true,
           startOnTick: true,
           endOnTick: true,
@@ -1130,13 +1242,16 @@ class Entity extends Component {
               fontFamily: CUSTOM_FONT_FAMILY,
             },
             formatter: function () {
-              return formatYValue(this.value);
+              return formatYAxisLabels(this.value);
             },
           },
         },
-        // Secondary y-axis (for telescope series in non-normalized mode)
+        // Secondary y-axis (non-normalized mode only)
         {
           opposite: true,
+          floor: 0,
+          min: rightPartitionMin,
+          max: rightPartitionMax,
           alignTicks: true,
           startOnTick: true,
           endOnTick: true,
@@ -1149,6 +1264,14 @@ class Entity extends Component {
           },
           labels: {
             x: 5,
+            style: {
+              colors: "#111",
+              fontSize: "12px",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
+            formatter: function () {
+              return formatYAxisLabels(this.value);
+            },
           },
         },
       ],
@@ -1176,8 +1299,6 @@ class Entity extends Component {
   }
 
   setDefaultNavigatorTimeRange() {
-    const { fromDate, untilDate } = getRangeDatesFromUrl();
-
     const timezoneOffsetSeconds = new Date().getTimezoneOffset() * 60;
     const navigatorLowerBound = (fromDate + timezoneOffsetSeconds) * 1000;
     const navigatorUpperBound = (untilDate + timezoneOffsetSeconds) * 1000;
@@ -1205,7 +1326,7 @@ class Entity extends Component {
   }
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-  createChartSeries(signalValues) {
+  createChartSeries(signalValues, primaryPartition) {
     const chartSignals = [];
     const alertBands = [];
 
@@ -1233,11 +1354,13 @@ class Entity extends Component {
 
       const seriesName = this.getSeriesNameFromSource(signal.dataSource);
 
-      // Either place series on primary y-axis (left = 0) or secondary (right = 1)
-      const seriesYAxis =
-        signal.dataSource === "merit-nt" && !this.state.tsDataNormalized
-          ? 1
-          : 0;
+      // Either place series on primary y-axis (left = 0) or secondary (right =
+      // 1) based on whether the series-id is in the left partition or not. If
+      // normalized mode, all series go on the primary y-axis
+      let seriesYAxis = 0;
+      if (!primaryPartition.includes(signal.dataSource)) {
+        seriesYAxis = 1;
+      }
 
       const res = {
         type: "line",
@@ -2491,8 +2614,9 @@ class Entity extends Component {
       [source]: !currentSeriesVisibility,
     };
 
-    this.setState({ tsDataSeriesVisibleMap: newVisibility });
-    this.convertValuesForXyViz();
+    this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
+      this.convertValuesForXyViz();
+    });
   }
 
   /**
