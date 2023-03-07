@@ -162,25 +162,26 @@ class Acknowledgements extends PureComponent {
         // }
 
         const projectElements = []
-        for (let i = 0; i < data.length; i += 1) {
-            
+        for (let i = 0; i < data.length; i += 4) {
             const projects = []
             for (let j = i; j < Math.min(i + 4, data.length); j += 1) {
-                const { src, href, html = null, text = null } = data[i];
+                const { src, href, html = null, text = null } = data[j];
 
-                const thumbnailContent = <div className="thumbnail__content">
-                    <div className="thumbnail__img">
-                        <img src={src} />
+                const thumbnailContent = <div className="thumbnail">
+                        <div className="thumbnail__content">
+                        <div className="thumbnail__img">
+                            <img src={src} />
+                        </div>
+                        {html && html}
+                        {!html && text}
                     </div>
-                    {html && html}
-                    {!html && text}
                 </div>
 
                 projects.push(
                     <div className="col-1-of-4">
                         {href && (
                             <a href={href} target="_blank">
-                                thumbnail__content
+                                {thumbnailContent}
                             </a>
                         )}
                         {!href && thumbnailContent}
