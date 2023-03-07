@@ -71,7 +71,7 @@
 
 
 // React Imports
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 // Internationalization
 import T from 'i18n-react';
@@ -92,13 +92,106 @@ import caida from 'images/logos/caida.png';
 import {Helmet} from "react-helmet";
 
 
+const data = [
+    {
+        src: nsf,
+        href: "https://www.caida.org/funding/ioda/",
+        text: `The development of this platform at UC San Diego was supported by NSF grant CNS-1228994 [Detection and Analysis of Large-scale Internet Infrastructure Outages (IODA)].`
+    },
+    {
+        src: dhs,
+        href: 'https://www.dhs.gov',
+        text: `The development of this platform at UC San Diego was also supported by Department of Homeland Security Science and Technology Directorate (DHS S&T) contract 70RSAT18CB0000015 [IODA-NP: Multi-source Realtime Detection of Macroscopic Internet Connectivity Disruption], and DHS S&T cooperative agreement FA8750-12-2-0326 [Supporting Research and Development of Security Technologies through Network and Security Data Collection].`
+    },
+    {
+        src: otf,
+        href: 'https://www.opentech.fund/results/supported-projects/internet-outage-detection-and-analysis/',
+        text: `This platform was also supported by the Open Technology Fund under contract number 1002-2018-027.`
+    },
+    {
+        src: isoc,
+        href: 'https://insights.internetsociety.org/',
+        text: `Additional funding to support this platform was generously provided by a grant from the Internet Society.`,
+    },
+    {
+        src: comcast,
+        href: 'https://innovationfund.comcast.com/',
+        text: 'Additional funding to work on visualization interfaces was generously provided by a Comcast research grant.',
+    },
+    {
+        src: nersc,
+        href: 'https://www.nersc.gov',
+        text: 'Storage resources for the UCSD Network Telescope were supported by NERSC, a DOE Office of Science User Facility supported by the Office of Science of the U.S. Department of Energy under Contract No. DE-AC02-05CH11231.'
+    },
+    {
+        src: xsedeBlack,
+        href: 'https://www.xsede.org',
+        text: 'Computational resources were supported by National Science Foundation grant number ACI-1053575.',
+    },
+    {
+        src: sdsc,
+        href: 'https://www.sdsc.edu',
+        text: 'This project was originally developed at CAIDA, San Diego Supercomputer Center, UC San Diego.',
+    },
+    {
+        src: ucsd,
+        href: 'https://www.ucsd.edu',
+        text: 'This project was originally developed at CAIDA, UC San Diego.',
+    },
+    {
+        src: usdos,
+        html: <Fragment>
+            This platform was/is supported by the <a href="https://www.state.gov/bureaus-offices/under-secretary-for-civilian-security-democracy-and-human-rights/bureau-of-democracy-human-rights-and-labor/">U.S. Department of State, Bureau of Democracy, Human Rights, and Labor</a> (2020) and <a href="https://www.state.gov/bureaus-offices/under-secretary-for-political-affairs/bureau-of-near-eastern-affairs/">Bureau of Near Eastern Affairs</a> (2021-2022).
+        </Fragment>
+    },
+    {
+        src: caida,
+        html: <Fragment>
+            This project was originally developed at <a href="https://www.caida.org">CAIDA</a>, UC San Diego.
+        </Fragment>
+    }
+]
+
 class Acknowledgements extends PureComponent {
 
     render() {
         const title = T.translate("header.acknowledgements");
-        const center = {
-            display: "flex",
-            justifyContent: "center"
+        // const center = {
+        //     display: "flex",
+        //     justifyContent: "center"
+        // }
+
+        const projectElements = []
+        for (let i = 0; i < data.length; i += 4) {
+            const projects = []
+            for (let j = i; j < Math.min(i + 4, data.length); j += 1) {
+                const { src, href, html = null, text = null } = data[j];
+
+                const thumbnailContent = <div className="thumbnail">
+                        <div className="thumbnail__content">
+                        <div className="thumbnail__img">
+                            <img src={src} />
+                        </div>
+                        {html && html}
+                        {!html && text}
+                    </div>
+                </div>
+
+                projects.push(
+                    <div className="col-1-of-4">
+                        {href && (
+                            <a href={href} target="_blank">
+                                {thumbnailContent}
+                            </a>
+                        )}
+                        {!href && thumbnailContent}
+                    </div>
+                )
+            }
+
+            projectElements.push(
+                <div className="row">{projects}</div>
+            )
         }
 
         return (
@@ -113,195 +206,7 @@ class Acknowledgements extends PureComponent {
                         <h2>Support</h2>
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://www.caida.org/funding/ioda/" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={nsf}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                        The development of this platform at UC San Diego was supported by NSF grant CNS-1228994
-                                        [Detection and Analysis of Large-scale Internet
-                                        Infrastructure Outages (IODA)].
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://www.dhs.gov" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={dhs}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                        The development of this platform at UC San Diego was also supported by Department of Homeland Security
-                                        Science
-                                        and Technology Directorate (DHS S&T) contract 70RSAT18CB0000015 [IODA-NP: Multi-source Realtime Detection of Macroscopic Internet Connectivity Disruption], and DHS S&T cooperative agreement FA8750-12-2-0326
-                                        [Supporting Research and Development of Security
-                                        Technologies through Network and Security Data
-                                        Collection].
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://www.opentech.fund/results/supported-projects/internet-outage-detection-and-analysis/" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={otf}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                        This platform was also supported by the Open
-                                        Technology Fund under contract number 1002-2018-027.
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://insights.internetsociety.org/" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={isoc}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                        Additional funding to support this platform was generously provided
-                                        by a grant from the Internet Society.
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://innovationfund.comcast.com/" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={comcast}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                        Additional funding to work on visualization
-                                        interfaces was
-                                        generously provided by a Comcast research grant.
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                        <a href="https://www.nersc.gov" target="_blank">
-                            <div className="thumbnail__content">
-                                <div className="thumbnail__img">
-                                    <img src={nersc}/>
-                                </div>
-                                <p className="thumbnail__text">
-                                    Storage resources for the UCSD Network Telescope were supported by NERSC, a DOE Office of Science
-                                    User Facility
-                                    supported by the Office of Science of the U.S.
-                                    Department of Energy under Contract No.
-                                    DE-AC02-05CH11231.
-                                </p>
-                            </div>
-                        </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://www.xsede.org" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={xsedeBlack}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                        Computational resources were supported by National Science Foundation
-                                        grant number
-                                        ACI-1053575.
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://www.digitalelement.com" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={digitalElement}/>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://www.sdsc.edu" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={sdsc}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                    This project was originally developed at CAIDA, San Diego Supercomputer Center, UC San Diego.
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <a href="https://www.ucsd.edu" target="_blank">
-                                <div className="thumbnail__content">
-                                    <div className="thumbnail__img">
-                                        <img src={ucsd}/>
-                                    </div>
-                                    <p className="thumbnail__text">
-                                    This project was originally developed at CAIDA, UC San Diego.
-                                    </p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <div className="thumbnail__content">
-                                <div className="thumbnail__img">
-                                    <img src={usdos}/>
-                                </div>
-                                <p className="thumbnail__text">
-                                    This platform was/is supported by the <a
-                                    href="https://www.state.gov/bureaus-offices/under-secretary-for-civilian-security-democracy-and-human-rights/bureau-of-democracy-human-rights-and-labor/">
-                                    U.S. Department of State, Bureau of Democracy, Human Rights, and
-                                    Labor</a> (2020) and <a
-                                    href="https://www.state.gov/bureaus-offices/under-secretary-for-political-affairs/bureau-of-near-eastern-affairs/">Bureau
-                                    of Near Eastern Affairs</a> (2021-2022).
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-1-of-4">
-                        <div className="thumbnail">
-                            <div className="thumbnail__content">
-                                <div className="thumbnail__img">
-                                    <img src={caida}/>
-                                </div>
-                                <p className="thumbnail__text">
-                                    This project was originally developed at <a href="https://www.caida.org">CAIDA</a>, UC San Diego.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {projectElements}
                 <div className="row">
                     <h2 id="data">Data Sources</h2>
                     <p>See the <a href="http://www.caida.org/projects/ioda/">IODA project page</a> for scientific
