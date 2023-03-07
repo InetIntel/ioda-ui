@@ -172,8 +172,10 @@ class Acknowledgements extends PureComponent {
                         <div className="thumbnail__img">
                             <img src={src} />
                         </div>
-                        {html && html}
-                        {!html && text}
+                        <p className="thumbnail__text">
+                            {html && html}
+                            {!html && text}
+                        </p>
                     </div>
                 </div>
 
