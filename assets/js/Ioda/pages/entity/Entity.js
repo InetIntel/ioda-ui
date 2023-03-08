@@ -959,9 +959,15 @@ class Entity extends Component {
       (a, b) => a[1] - b[1]
     );
 
-    // Track the largest factor increase (greater than MIN_FACTOR_JUMP) in maxes
+    // Set the minimum factor jump to consider for partitioning. For a graph
+    // with only two series, we drop the jump to visualize them separately
+    let minFactorJump = 10;
+    if (seriesSortedByMaxValues.length <= 2) {
+      minFactorJump = 3;
+    }
+
+    // Track the largest factor increase (greater than minFactorJump) in maxes
     // of the series
-    const MIN_FACTOR_JUMP = 10;
     let maxFactorIncreaseValue = 1;
     let maxFactorIncreaseIndex = seriesSortedByMaxValues.length;
     for (let i = 1; i < seriesSortedByMaxValues.length; i++) {
@@ -969,7 +975,7 @@ class Entity extends Component {
       const prevMax = seriesSortedByMaxValues[i - 1][1];
       const factorIncrease = currMax / prevMax;
       if (
-        factorIncrease > MIN_FACTOR_JUMP &&
+        factorIncrease > minFactorJump &&
         factorIncrease > maxFactorIncreaseValue
       ) {
         maxFactorIncreaseValue = factorIncrease;
