@@ -1024,7 +1024,7 @@ class Entity extends Component {
     const tooltipContentFormatter = (ctx) => {
       const seriesName = ctx.series.name;
       const yValue = ctx.y;
-      const formattedYValue = formatLocaleNumber(yValue, 3);
+      const formattedYValue = formatLocaleNumber(yValue, 2);
       if (this.state.tsDataNormalized) {
         return `${seriesName}: ${formattedYValue}%`;
       } else {
