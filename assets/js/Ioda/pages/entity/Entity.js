@@ -971,7 +971,7 @@ class Entity extends Component {
     // with only two series, we drop the jump to visualize them separately
     let minFactorJump = 10;
     if (seriesSortedByMaxValues.length <= 2) {
-      minFactorJump = 3;
+      minFactorJump = 2;
     }
 
     // Track the largest factor increase (greater than minFactorJump) in maxes
@@ -1113,7 +1113,7 @@ class Entity extends Component {
               "downloadSVG",
             ],
             align: "right",
-            x: -25,
+            x: rightPartition.length ? -35 : -15,
             y: 0,
           },
         },
@@ -1359,73 +1359,72 @@ class Entity extends Component {
       }
     }
 
-    signalValues.forEach((signal) => {
+    // Create series for main chart and navigator
+    for (let i = 0; i < signalValues.length; i++) {
+      const primarySignal = signalValues[i];
+      const navigatorSignal = normalValues[i];
+      const seriesId = primarySignal.dataSource;
+
       const legendDetails = legend.find(
-        (elem) => elem.key === signal.dataSource
+        (elem) => elem.key === primarySignal.dataSource
       );
 
-      const data = signal.values.map((point) => {
+      const primaryData = primarySignal.values.map((point) => {
         return [point.x, point.y];
       });
 
-      const seriesName = this.getSeriesNameFromSource(signal.dataSource);
+      const navigatorData = navigatorSignal.values.map((point) => {
+        return [point.x, point.y];
+      });
+
+      const seriesName = this.getSeriesNameFromSource(primarySignal.dataSource);
 
       // Either place series on primary y-axis (left = 0) or secondary (right =
       // 1) based on whether the series-id is in the left partition or not. If
       // normalized mode, all series go on the primary y-axis
       let seriesYAxis = 0;
-      if (!primaryPartition.includes(signal.dataSource)) {
+      if (!primaryPartition.includes(primarySignal.dataSource)) {
         seriesYAxis = 1;
       }
 
-      const res = {
+      // This is the series object for the primary chart. Note that we hide
+      // these series from the navigator
+      const primaryChartSeries = {
         type: "line",
-        id: signal.dataSource,
+        id: seriesId,
         name: seriesName,
         color: legendDetails.color,
         lineWidth: 0.7,
-        data: data,
+        data: primaryData,
         marker: {
-          radius: 2,
+          radius: 1.5,
         },
         yAxis: seriesYAxis,
         showInNavigator: false,
       };
-      chartSignals.push(res);
-    });
 
-    normalValues.forEach((signal) => {
-      const legendDetails = legend.find(
-        (elem) => elem.key === signal.dataSource
-      );
-
-      const data = signal.values.map((point) => {
-        return [point.x, point.y];
-      });
-
-      const seriesName = this.getSeriesNameFromSource(signal.dataSource);
-
-      const res = {
+      // This is the series object for the navigator only. Note that these
+      // series are hidden from the main chart, but are linked to the visibility
+      // of the main chart: if a series is hidden in the main chart, its
+      // corresponding navigator series will also be hidden because its linked
+      const navigatorChartSeries = {
         type: "line",
         lineWidth: 0,
         marker: {
           enabled: false,
-          states: {
-            hover: {
-              enabled: false,
-            },
-          },
         },
-        id: `${signal.dataSource}-navigator`,
-        linkedTo: signal.dataSource,
+        id: `${seriesId}-navigator`,
+        linkedTo: seriesId,
         color: legendDetails.color,
         name: seriesName,
-        data: data,
+        data: navigatorData,
         showInLegend: false,
         showInNavigator: true,
       };
-      chartSignals.push(res);
-    });
+
+      chartSignals.push(primaryChartSeries);
+      chartSignals.push(navigatorChartSeries);
+    }
 
     return {
       alertBands,
