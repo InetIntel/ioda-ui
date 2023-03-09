@@ -907,7 +907,8 @@ class Entity extends Component {
   // XY Chart Functions
   // format data from api to be compatible with chart visual
   convertValuesForXyViz() {
-    let signalValues = [];
+    const signalValues = [];
+    const normalizedValues = [];
 
     // Holds a map of series-id to the max y-value in that series
     const seriesMaxes = {};
@@ -935,23 +936,30 @@ class Entity extends Component {
         return;
       }
 
-      const datasourceValues = datasource.values.map((value, index) => {
+      const seriesDataValues = [];
+      const seriesDataValuesNormalized = [];
+      datasource.values.forEach((value, index) => {
         const x = toDateTime(
           datasource.from + datasource.step * index
         ).getTime();
-        const y = this.state.tsDataNormalized
-          ? normalize(value, seriesMax)
-          : value;
-        return { x, y };
+        const normalY = normalize(value, seriesMax);
+        const y = this.state.tsDataNormalized ? normalY : value;
+
+        seriesDataValues.push({ x, y });
+        seriesDataValuesNormalized.push({ x, y: normalY });
       });
 
       // The last two values populating are the min value, and the max value.
       // Removing these from the coordinates.
-      datasourceValues.length > 2
-        ? datasourceValues.splice(-1, 2)
-        : datasourceValues;
+      if (seriesDataValues.length > 2) {
+        seriesDataValues.splice(-1, 2);
+      }
 
-      signalValues.push({ dataSource: id, values: datasourceValues });
+      signalValues.push({ dataSource: id, values: seriesDataValues });
+      normalizedValues.push({
+        dataSource: id,
+        values: seriesDataValuesNormalized,
+      });
     });
 
     // Creates an array of [(series-id, series-max)...] sorted by max values
@@ -1055,8 +1063,11 @@ class Entity extends Component {
 
     const { chartSignals, alertBands } = this.createChartSeries(
       signalValues,
+      normalizedValues,
       leftPartitionSeries
     );
+
+    console.log(chartSignals);
 
     const chartOptions = {
       chart: {
@@ -1178,8 +1189,7 @@ class Entity extends Component {
           },
         },
         series: {
-          showInNavigator: true,
-          lineWidth: 0.7,
+          //showInNavigator: true,
           animation: false,
           states: {
             hover: {
@@ -1332,7 +1342,7 @@ class Entity extends Component {
   }
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-  createChartSeries(signalValues, primaryPartition) {
+  createChartSeries(signalValues, normalValues, primaryPartition) {
     const chartSignals = [];
     const alertBands = [];
 
@@ -1371,13 +1381,48 @@ class Entity extends Component {
       const res = {
         type: "line",
         id: signal.dataSource,
-        color: legendDetails.color,
         name: seriesName,
+        color: legendDetails.color,
+        lineWidth: 0.7,
         data: data,
         marker: {
           radius: 2,
         },
         yAxis: seriesYAxis,
+        showInNavigator: false,
+      };
+      chartSignals.push(res);
+    });
+
+    normalValues.forEach((signal) => {
+      const legendDetails = legend.find(
+        (elem) => elem.key === signal.dataSource
+      );
+
+      const data = signal.values.map((point) => {
+        return [point.x, point.y];
+      });
+
+      const seriesName = this.getSeriesNameFromSource(signal.dataSource);
+
+      const res = {
+        type: "line",
+        lineWidth: 0,
+        marker: {
+          enabled: false,
+          states: {
+            hover: {
+              enabled: false,
+            },
+          },
+        },
+        id: `${signal.dataSource}-navigator`,
+        linkedTo: signal.dataSource,
+        color: legendDetails.color,
+        name: seriesName,
+        data: data,
+        showInLegend: false,
+        showInNavigator: true,
       };
       chartSignals.push(res);
     });
