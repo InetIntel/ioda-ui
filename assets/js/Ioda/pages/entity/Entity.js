@@ -1067,8 +1067,6 @@ class Entity extends Component {
       leftPartitionSeries
     );
 
-    console.log(chartSignals);
-
     const chartOptions = {
       chart: {
         type: "line",
@@ -1401,6 +1399,8 @@ class Entity extends Component {
         },
         yAxis: seriesYAxis,
         showInNavigator: false,
+        // Set visibility based on map
+        visible: !!this.state.tsDataSeriesVisibleMap[seriesId],
       };
 
       // This is the series object for the navigator only. Note that these
@@ -2664,9 +2664,7 @@ class Entity extends Component {
       [source]: !currentSeriesVisibility,
     };
 
-    this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
-      this.convertValuesForXyViz();
-    });
+    this.setState({ tsDataSeriesVisibleMap: newVisibility });
   }
 
   /**
@@ -2676,25 +2674,34 @@ class Entity extends Component {
    * handleChartLegendSelectionChange method above to update the checkbox state
    */
   handleSelectedSignal(source) {
-    // Applies to first time clicks (such as for sub-google series)
-    this.handleChartLegendSelectionChange(source);
-    // Iterate through the chart legend to find the legend item corresponding to
-    // it (based on text content), then fire a click event on that legen item
-    const seriesName = this.getSeriesNameFromSource(source);
-    const legend = document.getElementsByClassName("time-series-legend")[0];
-    if (!legend) return;
-    const legendItems = legend.getElementsByClassName("highcharts-legend-item");
-    let selectedItem = null;
-    for (const item of legendItems) {
-      const text = item.getElementsByTagName("text")[0];
-      if (text && text.textContent === seriesName) {
-        selectedItem = item;
-        break;
+    const currentSeriesVisibility = !!this.state.tsDataSeriesVisibleMap[source];
+    const newSeriesVisibility = !currentSeriesVisibility;
+    const newVisibility = {
+      ...this.state.tsDataSeriesVisibleMap,
+      [source]: newSeriesVisibility,
+    };
+
+    this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
+      if (!this.timeSeriesChartRef.current) {
+        return;
       }
-    }
-    if (selectedItem) {
-      Highcharts.fireEvent(selectedItem, "click");
-    }
+
+      // Find the chart series object corresponding to the changed signal
+      const seriesObject = this.timeSeriesChartRef.current.chart.series.find(
+        (s) => s.userOptions.id === source
+      );
+
+      if (!seriesObject) {
+        return;
+      }
+
+      // Show or hide the series based on the new series visibility
+      if (newSeriesVisibility) {
+        seriesObject.show();
+      } else {
+        seriesObject.hide();
+      }
+    });
   }
 
   updateSourceParams(src) {
