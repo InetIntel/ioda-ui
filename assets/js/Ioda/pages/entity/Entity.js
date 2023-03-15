@@ -1400,7 +1400,7 @@ class Entity extends Component {
         yAxis: seriesYAxis,
         showInNavigator: false,
         // Set visibility based on map
-        visible: !!this.state.tsDataSeriesVisibleMap[seriesId],
+        // visible: !!this.state.tsDataSeriesVisibleMap[seriesId],
       };
 
       // This is the series object for the navigator only. Note that these
@@ -2659,12 +2659,15 @@ class Entity extends Component {
    */
   handleChartLegendSelectionChange(source) {
     const currentSeriesVisibility = !!this.state.tsDataSeriesVisibleMap[source];
+    const newSeriesVisibility = !currentSeriesVisibility;
     const newVisibility = {
       ...this.state.tsDataSeriesVisibleMap,
-      [source]: !currentSeriesVisibility,
+      [source]: newSeriesVisibility,
     };
 
-    this.setState({ tsDataSeriesVisibleMap: newVisibility });
+    this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
+      this.convertValuesForXyViz();
+    });
   }
 
   /**
@@ -2682,26 +2685,31 @@ class Entity extends Component {
     };
 
     this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
-      if (!this.timeSeriesChartRef.current) {
-        return;
-      }
-
-      // Find the chart series object corresponding to the changed signal
-      const seriesObject = this.timeSeriesChartRef.current.chart.series.find(
-        (s) => s.userOptions.id === source
-      );
-
-      if (!seriesObject) {
-        return;
-      }
-
-      // Show or hide the series based on the new series visibility
-      if (newSeriesVisibility) {
-        seriesObject.show();
-      } else {
-        seriesObject.hide();
-      }
+      this.setSeriesVisibilityInChartLegend(source, newSeriesVisibility);
+      this.convertValuesForXyViz();
     });
+  }
+
+  setSeriesVisibilityInChartLegend(source, visible) {
+    if (!this.timeSeriesChartRef.current) {
+      return;
+    }
+
+    // Find the chart series object corresponding to the changed signal
+    const seriesObject = this.timeSeriesChartRef.current.chart.series.find(
+      (s) => s.userOptions.id === source
+    );
+
+    if (!seriesObject) {
+      return;
+    }
+
+    // Show or hide the series based on the new series visibility
+    if (visible) {
+      seriesObject.show();
+    } else {
+      seriesObject.hide();
+    }
   }
 
   updateSourceParams(src) {

@@ -34,7 +34,7 @@
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -44,6 +44,7 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { gtrColor, legend } from "../../utils";
+import { debounce } from "lodash";
 // import { NULL } from "node-sass";
 
 const ChartLegendCard = ({
@@ -54,12 +55,14 @@ const ChartLegendCard = ({
 }) => {
   const [googleLegendSelected, setGoogleLegendSelected] = useState(true);
 
-  const handleChange = (event) => {
-    legendHandler(event.target.name);
-    if (event.target.name.includes("gtr.")) {
-      updateSourceParams(event.target.name.split(".")[1]);
+  const handleChange = (source) => {
+    legendHandler(source);
+    if (source.includes("gtr.")) {
+      updateSourceParams(source.split(".")[1]);
     }
   };
+
+  const handleChangeDebounced = debounce(handleChange, 180);
 
   useEffect(() => {
     let status = false;
@@ -83,7 +86,7 @@ const ChartLegendCard = ({
                 control={
                   <Checkbox
                     checked={checkedMap[item.key]}
-                    onChange={handleChange}
+                    onChange={() => handleChangeDebounced(item.key)}
                     name={item.key}
                     style={{
                       transform: "scale(1.5)",
@@ -102,7 +105,7 @@ const ChartLegendCard = ({
           control={
             <Checkbox
               checked={checkedMap["gtr.WEB_SEARCH"]}
-              onChange={handleChange}
+              onChange={() => handleChangeDebounced("gtr.WEB_SEARCH")}
               disabled={
                 window.location.pathname.split("/")[1] == "country"
                   ? false
@@ -155,7 +158,7 @@ const ChartLegendCard = ({
                   control={
                     <Checkbox
                       checked={!!checkedMap[item.key]}
-                      onChange={handleChange}
+                      onChange={() => handleChangeDebounced(item.key)}
                       name={item.key}
                       style={{
                         transform: "scale(1.5)",
