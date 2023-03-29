@@ -110,6 +110,7 @@ import Tabs from "../../components/tabs/Tabs";
 // Chart libraries
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
+import dayjs from "dayjs";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
@@ -1067,6 +1068,31 @@ class Entity extends Component {
       leftPartitionSeries
     );
 
+    // Set necessary fields for chart exporting
+    const exportChartTitle = `${T.translate("entity.xyChartTitle")} ${
+      this.state.entityName
+    }`;
+    const { fromDate, untilDate } = getRangeDatesFromUrl();
+    const fromDayjs = dayjs(fromDate * 1000).add(
+      new Date().getTimezoneOffset(),
+      "minutes"
+    );
+    const untilDayjs = dayjs(untilDate * 1000).add(
+      new Date().getTimezoneOffset(),
+      "minutes"
+    );
+
+    const formatExpanded = "MMMM D, YYYY h:mma";
+    const formatCompact = "YY-MM-DD-HH-mm";
+
+    const exportChartSubtitle = `${fromDayjs.format(
+      formatExpanded
+    )} - ${untilDayjs.format(formatExpanded)} UTC`;
+
+    const exportFileName = `ioda-${this.state.entityName}-${fromDayjs.format(
+      formatCompact
+    )}`;
+
     const chartOptions = {
       chart: {
         type: "line",
@@ -1091,7 +1117,24 @@ class Entity extends Component {
       },
       exporting: {
         fallbackToExportServer: false,
-        filename: `ioda-chart-${this.state.tsDataLegendRangeUntil}`,
+        filename: exportFileName,
+        chartOptions: {
+          title: {
+            align: "left",
+            text: exportChartTitle,
+            style: {
+              fontWeight: "bold",
+            },
+          },
+          subtitle: {
+            align: "left",
+            text: exportChartSubtitle,
+          },
+          legend: {
+            itemDistance: 40,
+          },
+          spacing: [10, 10, 15, 10],
+        },
         menuItemDefinitions: {
           // Custom definition
           resetZoom: {
