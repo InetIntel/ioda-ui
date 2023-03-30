@@ -180,7 +180,7 @@ class Acknowledgements extends PureComponent {
                 </div>
 
                 projects.push(
-                    <div className="col-1-of-4">
+                    <div className="col-1-of-4" key={src}>
                         {href && (
                             <a href={href} target="_blank">
                                 {thumbnailContent}
@@ -192,7 +192,7 @@ class Acknowledgements extends PureComponent {
             }
 
             projectElements.push(
-                <div className="row">{projects}</div>
+                <div className="row" key={i}>{projects}</div>
             )
         }
 
