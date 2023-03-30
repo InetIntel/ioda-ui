@@ -126,7 +126,7 @@ class ControlPanel extends Component {
 
     // set text that renders in bottom right hand corner depicting the start and end date of the currently viewable range
     setDateInLegend(from, until) {
-        const dateFormat = "MMMM D, YYYY h:mma UTC"
+        const dateFormat = "MMMM D, YYYY HH:mma UTC"
         const timezoneOffset = new Date().getTimezoneOffset() * 60
         const fromMilliseconds = (parseInt(from) + timezoneOffset) * 1000
         const untilMilliseconds = (parseInt(until) + timezoneOffset) * 1000
