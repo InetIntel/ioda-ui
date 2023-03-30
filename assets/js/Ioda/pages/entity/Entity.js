@@ -338,7 +338,7 @@ class Entity extends Component {
   }
 
   updateEntityMetaData(entityName, entityCode) {
-    getEntityMetadata(entityName, entityCode).then((data) =>
+    getEntityMetadata(entityName, entityCode).then((data) => {
       this.setState(
         {
           entityMetadata: data,
@@ -357,8 +357,8 @@ class Entity extends Component {
           this.getDataRelatedToMapSummary("region");
           this.getDataRelatedToTableSummary("asn");
         }
-      )
-    );
+      );
+    });
   }
 
   componentDidMount() {
@@ -371,6 +371,8 @@ class Entity extends Component {
       return;
     }
 
+    const { entityCode, entityType } = getEntityDataFromUrl();
+
     this.setState(
       {
         mounted: true,
@@ -378,6 +380,8 @@ class Entity extends Component {
         until: untilDate,
         tsDataLegendRangeFrom: fromDate,
         tsDataLegendRangeUntil: untilDate,
+        entityCode: entityCode,
+        entityType: entityType,
       },
       () => {
         // If the difference is larger than the limit, terminate
