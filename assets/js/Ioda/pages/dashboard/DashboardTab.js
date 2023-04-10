@@ -68,6 +68,9 @@ class DashboardTab extends Component {
         const tooltipDashboardHeadingTitle = T.translate("tooltip.dashboardHeading.title");
         const tooltipDashboardHeadingText = T.translate("tooltip.dashboardHeading.text");
 
+        const fromUTCSeconds = this.props.from + (new Date().getTimezoneOffset() * 60)
+        const untilUTCSeconds = this.props.until + (new Date().getTimezoneOffset() * 60)
+
         return(
             <div className="tab">
                 <Style>{`
@@ -139,8 +142,8 @@ class DashboardTab extends Component {
                                                         : null
                                                 }
                                             </div>
-                                            <TimeStamp from={convertSecondsToDateValues(this.props.from)}
-                                                       until={convertSecondsToDateValues(this.props.until)} />
+                                            <TimeStamp from={convertSecondsToDateValues(fromUTCSeconds)}
+                                                       until={convertSecondsToDateValues(untilUTCSeconds)} />
                                         </div>
                                         <div className="col-1-of-3">
                                             <div className="tab__table">

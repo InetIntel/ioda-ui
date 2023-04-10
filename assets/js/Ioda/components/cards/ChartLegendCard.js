@@ -34,7 +34,7 @@
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
  */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -44,6 +44,7 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { gtrColor, legend } from "../../utils";
+import { debounce } from "lodash";
 // import { NULL } from "node-sass";
 
 const ChartLegendCard = ({
@@ -52,25 +53,26 @@ const ChartLegendCard = ({
   updateSourceParams,
   simplifiedView,
 }) => {
-
   const [googleLegendSelected, setGoogleLegendSelected] = useState(true);
 
-  const handleChange = (event) => {
-    legendHandler(event.target.name);
-    if (event.target.name.includes("gtr.")) {
-      updateSourceParams(event.target.name.split(".")[1]);
+  const handleChange = (source) => {
+    legendHandler(source);
+    if (source.includes("gtr.")) {
+      updateSourceParams(source.split(".")[1]);
     }
   };
 
-  useEffect(()=>{
+  const handleChangeDebounced = debounce(handleChange, 180);
+
+  useEffect(() => {
     let status = false;
-    for(const k in checkedMap) {
-      if(k.includes(".") ){
-          status = status || checkedMap[k];
+    for (const k in checkedMap) {
+      if (k.includes(".")) {
+        status = status || checkedMap[k];
       }
     }
     setGoogleLegendSelected(status);
-  },[checkedMap])
+  }, [checkedMap]);
 
   return (
     <FormGroup>
@@ -84,11 +86,11 @@ const ChartLegendCard = ({
                 control={
                   <Checkbox
                     checked={checkedMap[item.key]}
-                    onChange={handleChange}
+                    onChange={() => handleChangeDebounced(item.key)}
                     name={item.key}
                     style={{
                       transform: "scale(1.5)",
-                      paddingBottom: "1em",
+                      //paddingBottom: "1em",
                       color: item.color,
                     }}
                   />
@@ -103,12 +105,16 @@ const ChartLegendCard = ({
           control={
             <Checkbox
               checked={checkedMap["gtr.WEB_SEARCH"]}
-              onChange={handleChange}
-              disabled={window.location.pathname.split("/")[1]=="country"?false:true}
+              onChange={() => handleChangeDebounced("gtr.WEB_SEARCH")}
+              disabled={
+                window.location.pathname.split("/")[1] == "country"
+                  ? false
+                  : true
+              }
               name={"gtr.WEB_SEARCH"}
               style={{
                 transform: "scale(1.5)",
-                paddingBottom: "1em",
+                //paddingBottom: "1em",
                 color: gtrColor,
               }}
             />
@@ -123,22 +129,24 @@ const ChartLegendCard = ({
             aria-controls="additional-actions1-content"
             id="additional-actions1-header"
             style={{ paddingLeft: "0", margin: "0" }}
-            disabled={window.location.pathname.split("/")[1]=="country"?false:true}
+            disabled={
+              window.location.pathname.split("/")[1] == "country" ? false : true
+            }
           >
             <FormControlLabel
-            key="google-dropdown"
-            label={<Typography variant="h5">Google</Typography>}
-            control={
-              <Checkbox
-              indeterminate={googleLegendSelected}
-              checked={false}
-              style={{
-                transform: "scale(1.5)",
-                paddingBottom: "1em",
-                color: gtrColor,
-              }}
-              />
-            }
+              key="google-dropdown"
+              label={<Typography variant="h5">Google</Typography>}
+              control={
+                <Checkbox
+                  indeterminate={googleLegendSelected}
+                  checked={false}
+                  style={{
+                    transform: "scale(1.5)",
+                    //paddingBottom: "1em",
+                    color: gtrColor,
+                  }}
+                />
+              }
             />
           </AccordionSummary>
           <AccordionDetails style={{ flexDirection: "column" }}>
@@ -149,14 +157,12 @@ const ChartLegendCard = ({
                   key={item.key}
                   control={
                     <Checkbox
-                      checked={
-                        checkedMap[item.key] ? checkedMap[item.key] : false
-                      }
-                      onChange={handleChange}
+                      checked={!!checkedMap[item.key]}
+                      onChange={() => handleChangeDebounced(item.key)}
                       name={item.key}
                       style={{
                         transform: "scale(1.5)",
-                        paddingBottom: "1em",
+                        //paddingBottom: "1em",
                         color: item.color,
                       }}
                     />

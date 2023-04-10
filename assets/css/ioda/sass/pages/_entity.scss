@@ -267,6 +267,7 @@
       }
 
       &:before {
+        /*
         @include respond(phone) {
           content: "";
           position: absolute;
@@ -277,9 +278,11 @@
           height: 1.6rem;
           z-index: 10;
         }
+        */
       }
 
       &:after {
+        /*
         content: "";
         position: absolute;
         bottom: 0;
@@ -305,6 +308,7 @@
           width: 19.5rem;
           height: 1.6rem;
         }
+        */
       }
     }
 
