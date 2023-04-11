@@ -104,6 +104,7 @@ import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
 import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from "../../components/cards/ChartTabCard";
+import ShareLinkModal from "../../components/modal/ShareLinkModal";
 import { element } from "prop-types";
 import Tabs from "../../components/tabs/Tabs";
 
@@ -234,6 +235,8 @@ class Entity extends Component {
       tsDataScreenBelow678: window.innerWidth <= 678,
       // display export modal
       showXyChartModal: false,
+      // display link sharing modal
+      showShareLinkModal: false,
       // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
       tsDataSeriesVisibleMap: dataSource.reduce((result, item) => {
         result[item] = true;
@@ -322,6 +325,10 @@ class Entity extends Component {
     this.handleCheckboxEventLoading =
       this.handleCheckboxEventLoading.bind(this);
     this.toggleXyChartModal = this.toggleXyChartModal.bind(this);
+
+    this.displayShareLinkModal = this.displayShareLinkModal.bind(this);
+    this.hideShareLinkModal = this.hideShareLinkModal.bind(this);
+
     this.changeXyChartNormalization =
       this.changeXyChartNormalization.bind(this);
     this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
@@ -332,6 +339,7 @@ class Entity extends Component {
     this.initialTableLimit = 300;
     this.initialHtsLimit = 100;
     this.maxHtsLimit = 150;
+
     this.props.history.listen((location, action) => {
       window.location.reload();
     });
@@ -1147,12 +1155,19 @@ class Entity extends Component {
             },
             text: "Reset Zoom",
           },
+          share: {
+            onclick: () => {
+              this.displayShareLinkModal();
+            },
+            text: "Share Link",
+          },
         },
         buttons: {
           contextButton: {
             menuItems: [
               "resetZoom",
               "separator",
+              "share",
               "downloadPNG",
               "downloadJPEG",
               "downloadSVG",
@@ -1550,6 +1565,19 @@ class Entity extends Component {
       });
     }
   }
+
+  displayShareLinkModal() {
+    this.setState({
+      showShareLinkModal: true,
+    });
+  }
+
+  hideShareLinkModal() {
+    this.setState({
+      showShareLinkModal: false,
+    });
+  }
+
   // display modal used for annotation/download
   toggleXyChartModal() {
     // force alert bands off
@@ -2829,6 +2857,14 @@ class Entity extends Component {
           <Error />
         ) : this.state.until - this.state.from < controlPanelTimeRangeLimit ? (
           <React.Fragment>
+            {/* Share Link Modal */}
+            <ShareLinkModal
+              open={this.state.showShareLinkModal}
+              link={window.location.href}
+              hideModal={this.hideShareLinkModal}
+              showModal={this.displayShareLinkModal}
+              entityName={this.state.entityName}
+            />
             <div className="row overview">
               <div
                 className={
