@@ -36,7 +36,9 @@ export default function ShareLinkModal(props) {
   }, [showMessage]);
 
   const shareUrl = props.link;
-  const title = `Follow near realtime Internet connectivity signals in ${props.entityName}:\n\n`;
+  const title = `Follow near realtime Internet connectivity signals in ${props.entityName}:\n`;
+
+  const twitterUrl = `${props.link} \n\n#${props.entityName} #connectivity`;
 
   const copyIcon = showMessage ? (
     <Check htmlColor="#fff" fontSize="large" />
@@ -68,7 +70,7 @@ export default function ShareLinkModal(props) {
 
           <div className="linkShareModal__share-items">
             <div className="linkShareModal__share-method">
-              <TwitterShareButton url={shareUrl} title={title}>
+              <TwitterShareButton url={twitterUrl} title={title}>
                 <TwitterIcon size={36} round />
               </TwitterShareButton>
             </div>
