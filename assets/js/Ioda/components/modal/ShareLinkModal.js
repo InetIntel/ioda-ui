@@ -38,7 +38,11 @@ export default function ShareLinkModal(props) {
   const shareUrl = props.link;
   const title = `Follow near realtime Internet connectivity signals in ${props.entityName}:\n`;
 
-  const twitterUrl = `${props.link} \n\n#${props.entityName} #connectivity`;
+  const entityNameHashtag = props.entityName
+    ? `#${props.entityName.replace(/\s+/g, "")}`
+    : "";
+
+  const twitterUrl = `${props.link} \n\n${entityNameHashtag} #connectivity`;
 
   const copyIcon = showMessage ? (
     <Check htmlColor="#fff" fontSize="large" />
