@@ -420,6 +420,19 @@
   margin: 0;
   padding: 0 1rem;
 
+  &__download-link {
+    display: inline-block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    color: #3975bb;
+    font-weight: 600;
+  }
+
+  &__download-link:hover {
+    text-decoration: underline;
+  }
+
   &__copy-link {
     display: flex;
     gap: 0.75rem;

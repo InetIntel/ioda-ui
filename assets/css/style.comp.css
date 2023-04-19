@@ -2523,6 +2523,15 @@ body {
   font-size: 1rem;
   margin: 0;
   padding: 0 1rem; }
+  .linkShareModal__download-link {
+    display: inline-block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    color: #3975bb;
+    font-weight: 600; }
+  .linkShareModal__download-link:hover {
+    text-decoration: underline; }
   .linkShareModal__copy-link {
     display: flex;
     gap: 0.75rem;

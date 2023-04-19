@@ -115,7 +115,7 @@ import dayjs from "dayjs";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
-const CUSTOM_FONT_FAMILY = "Lato-Regular, sans-serif";
+const CUSTOM_FONT_FAMILY = "Lato-Regular, Arial, Helvetica, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
 
 /**
@@ -328,6 +328,7 @@ class Entity extends Component {
 
     this.displayShareLinkModal = this.displayShareLinkModal.bind(this);
     this.hideShareLinkModal = this.hideShareLinkModal.bind(this);
+    this.manuallyDownloadChart = this.manuallyDownloadChart.bind(this);
 
     this.changeXyChartNormalization =
       this.changeXyChartNormalization.bind(this);
@@ -1101,9 +1102,13 @@ class Entity extends Component {
       formatExpanded
     )} - ${untilDayjs.format(formatExpanded)} UTC`;
 
-    const exportFileName = `ioda-${this.state.entityName}-${fromDayjs.format(
-      formatCompact
-    )}`;
+    const exportFileNameBase = `ioda-${
+      this.state.entityName
+    }-${fromDayjs.format(formatCompact)}`;
+
+    const exportFileName = exportFileNameBase
+      .replace(/\s+/g, "-")
+      .toLowerCase();
 
     const chartOptions = {
       chart: {
@@ -1533,6 +1538,18 @@ class Entity extends Component {
         </div>
       )
     );
+  }
+
+  /**
+   * Trigger a download of the chart from outside the chart context. Used in the
+   * ShareLinkModal to trigger a direct download
+   */
+  manuallyDownloadChart() {
+    if (this.timeSeriesChartRef.current) {
+      this.timeSeriesChartRef.current.chart.exportChartLocal({
+        type: "image/jpeg",
+      });
+    }
   }
 
   // toggle normalized values and absolute values
@@ -2864,6 +2881,7 @@ class Entity extends Component {
               hideModal={this.hideShareLinkModal}
               showModal={this.displayShareLinkModal}
               entityName={this.state.entityName}
+              handleDownload={this.manuallyDownloadChart}
             />
             <div className="row overview">
               <div

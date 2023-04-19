@@ -59,6 +59,13 @@ export default function ShareLinkModal(props) {
       <div className="linkShareModal__modal-body">
         <div className="linkShareModal__modal-title">Share Link</div>
         <div className="linkShareModal__modal-content">
+          <div
+            className="linkShareModal__download-link"
+            onClick={props.handleDownload}
+          >
+            Save the graph as an image for sharing
+          </div>
+
           <div className="linkShareModal__copy-link">
             <div className="linkShareModal__link">{props.link}</div>
             <IconButton
