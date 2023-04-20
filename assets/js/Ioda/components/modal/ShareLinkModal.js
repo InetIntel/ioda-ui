@@ -63,7 +63,7 @@ export default function ShareLinkModal(props) {
             className="linkShareModal__download-link"
             onClick={props.handleDownload}
           >
-            Save the graph as an image for sharing
+            Download an image to share
           </div>
 
           <div className="linkShareModal__copy-link">
