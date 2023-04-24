@@ -1151,6 +1151,23 @@ class Entity extends Component {
             itemDistance: 40,
           },
           spacing: [10, 10, 15, 10],
+          credits: {
+            enabled: true,
+            text: "ioda.live",
+            href: "https://ioda.inetintel.cc.gatech.edu/",
+            position: {
+              align: "right",
+              verticalAlign: "top",
+              x: -15,
+              y: 25,
+            },
+            style: {
+              color: "#000",
+              fontSize: "16px",
+              fontWeight: "bold",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
+          },
         },
         menuItemDefinitions: {
           // Custom definition
