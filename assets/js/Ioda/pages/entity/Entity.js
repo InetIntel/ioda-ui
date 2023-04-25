@@ -944,9 +944,7 @@ class Entity extends Component {
       const seriesDataValues = [];
       const seriesDataValuesNormalized = [];
       datasource.values.forEach((value, index) => {
-        const x = toDateTime(
-          datasource.from + datasource.step * index
-        ).getTime();
+        const x = 1000 * (datasource.from + datasource.step * index);
         const normalY = normalize(value, seriesMax);
         const y = this.state.tsDataNormalized ? normalY : value;
 
@@ -1196,7 +1194,6 @@ class Entity extends Component {
         enabled: true,
         time: {
           useUTC: true,
-          timezoneOffset: new Date().getTimezoneOffset(),
         },
         margin: 10,
         maskFill: "rgba(50, 184, 237, 0.3)",
@@ -1225,7 +1222,6 @@ class Entity extends Component {
       },
       time: {
         useUTC: true,
-        timezoneOffset: new Date().getTimezoneOffset(),
       },
       plotOptions: {
         spline: {
