@@ -1551,28 +1551,29 @@ class Entity extends Component {
     // Get the relevant values to populate table with
     let eventData = [];
     this.state.eventDataRaw.map((event) => {
+      console.log(event.start);
+      const fromDate = dayjs.utc(event.start * 1000);
+      const untilDate = dayjs.utc((event.start + event.duration) * 1000);
       const eventItem = {
         age: sd.stringify((event.start + event.duration) / 1000, "s"),
         from: {
-          month: convertSecondsToDateValues(event.start).month,
-          day: convertSecondsToDateValues(event.start).day,
-          year: convertSecondsToDateValues(event.start).year,
-          hours: convertSecondsToDateValues(event.start).hours,
-          minutes: convertSecondsToDateValues(event.start).minutes,
-          meridian: convertSecondsToDateValues(event.start).meridian,
+          month: fromDate.format("MMMM"),
+          day: fromDate.format("D"),
+          year: fromDate.format("YYYY"),
+          hours: fromDate.format("hh"),
+          minutes: fromDate.format("mm"),
+          meridian: fromDate.format("a"),
         },
-        fromDate: new Date(event.start * 1000),
+        fromDate: fromDate.toDate(),
         until: {
-          month: convertSecondsToDateValues(event.start + event.duration).month,
-          day: convertSecondsToDateValues(event.start + event.duration).day,
-          year: convertSecondsToDateValues(event.start + event.duration).year,
-          hours: convertSecondsToDateValues(event.start + event.duration).hours,
-          minutes: convertSecondsToDateValues(event.start + event.duration)
-            .minutes,
-          meridian: convertSecondsToDateValues(event.start + event.duration)
-            .meridian,
+          month: untilDate.format("MMMM"),
+          day: untilDate.format("D"),
+          year: untilDate.format("YYYY"),
+          hours: untilDate.format("hh"),
+          minutes: untilDate.format("mm"),
+          meridian: untilDate.format("a"),
         },
-        untilDate: new Date(event.start * 1000 + event.duration * 1000),
+        untilDate: untilDate.toDate(),
         duration: sd.stringify(event.duration, "s"),
         score: humanizeNumber(event.score),
       };
