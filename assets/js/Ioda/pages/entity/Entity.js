@@ -1393,8 +1393,8 @@ class Entity extends Component {
         this.state.eventDataRaw.forEach((event) => {
           alertBands.push({
             color: "rgba(250, 62, 72, 0.2)",
-            from: toDateTime(event.start).getTime(),
-            to: toDateTime(event.start + event.duration).getTime(),
+            from: event.start * 1000,
+            to: (event.start + event.duration) * 1000,
           });
         });
       }
