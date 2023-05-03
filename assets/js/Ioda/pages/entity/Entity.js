@@ -110,9 +110,12 @@ import Tabs from "../../components/tabs/Tabs";
 // Chart libraries
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import dayjs from "dayjs";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
+
+import dayjs from "dayjs";
+const utc = require("dayjs/plugin/utc");
+dayjs.extend(utc);
 
 const CUSTOM_FONT_FAMILY = "Lato-Regular, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -127,9 +130,9 @@ const getRangeDatesFromUrl = () => {
   const urlUntilDate = urlParams.get("until");
 
   const defaultFromDateSeconds = Math.floor(
-    (new Date().getTime() - 24 * 60 * 60 * 1000) / 1000
+    dayjs.utc().subtract(24, "hour").valueOf() / 1000
   );
-  const defaultUntilDateSeconds = Math.floor(new Date().getTime() / 1000);
+  const defaultUntilDateSeconds = Math.floor(dayjs.utc().valueOf() / 1000);
 
   return {
     fromDate: parseInt(urlFromDate) || defaultFromDateSeconds,
@@ -1075,14 +1078,8 @@ class Entity extends Component {
       this.state.entityName
     }`;
     const { fromDate, untilDate } = getRangeDatesFromUrl();
-    const fromDayjs = dayjs(fromDate * 1000).add(
-      new Date().getTimezoneOffset(),
-      "minutes"
-    );
-    const untilDayjs = dayjs(untilDate * 1000).add(
-      new Date().getTimezoneOffset(),
-      "minutes"
-    );
+    const fromDayjs = dayjs.utc(fromDate * 1000);
+    const untilDayjs = dayjs.utc(untilDate * 1000);
 
     const formatExpanded = "MMMM D, YYYY h:mma";
     const formatCompact = "YY-MM-DD-HH-mm";
@@ -1335,18 +1332,8 @@ class Entity extends Component {
       series: chartSignals,
     };
 
-    // Set navigator time bounds. If we're rendering the chart for the first
-    // time (i.e., when the xyChartOptions is still null), we need to add a
-    // timezone offset to the bounds
-    let timezoneOffsetSeconds = 0;
-    if (!this.state.xyChartOptions) {
-      timezoneOffsetSeconds = new Date().getTimezoneOffset() * 60;
-    }
-
-    const navigatorLowerBound =
-      (this.state.tsDataLegendRangeFrom + timezoneOffsetSeconds) * 1000;
-    const navigatorUpperBound =
-      (this.state.tsDataLegendRangeUntil + timezoneOffsetSeconds) * 1000;
+    const navigatorLowerBound = this.state.tsDataLegendRangeFrom * 1000;
+    const navigatorUpperBound = this.state.tsDataLegendRangeUntil * 1000;
 
     // Rerender chart and set navigator bounds
     this.setState({ xyChartOptions: chartOptions }, () => {
@@ -1356,9 +1343,9 @@ class Entity extends Component {
   }
 
   setDefaultNavigatorTimeRange() {
-    const timezoneOffsetSeconds = new Date().getTimezoneOffset() * 60;
-    const navigatorLowerBound = (fromDate + timezoneOffsetSeconds) * 1000;
-    const navigatorUpperBound = (untilDate + timezoneOffsetSeconds) * 1000;
+    const { fromDate, untilDate } = getRangeDatesFromUrl();
+    const navigatorLowerBound = fromDate * 1000;
+    const navigatorUpperBound = untilDate * 1000;
 
     this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
   }
@@ -2897,12 +2884,8 @@ class Entity extends Component {
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
                 <div className="overview__timestamp">
                   <TimeStamp
-                    from={convertSecondsToDateValues(
-                      this.state.tsDataLegendRangeFrom
-                    )}
-                    until={convertSecondsToDateValues(
-                      this.state.tsDataLegendRangeUntil
-                    )}
+                    from={this.state.tsDataLegendRangeFrom}
+                    until={this.state.tsDataLegendRangeUntil}
                   />
                 </div>
               </div>
