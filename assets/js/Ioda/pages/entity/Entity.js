@@ -1595,18 +1595,19 @@ class Entity extends Component {
     // Get the relevant values to populate table with
     let alertData = [];
     this.state.alertDataRaw.map((alert) => {
+      const alertDate = dayjs.utc(alert.time * 1000);
       const alertItem = {
         entityName: alert.entity.name,
         level: alert.level,
         date: {
-          month: convertSecondsToDateValues(alert.time).month,
-          day: convertSecondsToDateValues(alert.time).day,
-          year: convertSecondsToDateValues(alert.time).year,
-          hours: convertSecondsToDateValues(alert.time).hours,
-          minutes: convertSecondsToDateValues(alert.time).minutes,
-          meridian: convertSecondsToDateValues(alert.time).meridian,
+          month: alertDate.format("MMMM"),
+          day: alertDate.format("D"),
+          year: alertDate.format("YYYY"),
+          hours: alertDate.format("hh"),
+          minutes: alertDate.format("mm"),
+          meridian: alertDate.format("a"),
         },
-        dateStamp: new Date(alert.time * 1000),
+        dateStamp: alertDate.toDate(),
         dataSource: alert.datasource,
         actualValue: alert.value,
         baselineValue: alert.historyValue,
