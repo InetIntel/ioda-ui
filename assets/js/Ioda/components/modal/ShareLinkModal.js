@@ -42,7 +42,7 @@ export default function ShareLinkModal(props) {
     ? `#${props.entityName.replace(/\s+/g, "")}`
     : "";
 
-  const twitterUrl = `${props.link} \n\n${entityNameHashtag} #connectivity`;
+  const twitterUrl = `${props.link} \n\n@IODA_live ${entityNameHashtag} #Internet #disruption`;
 
   const copyIcon = showMessage ? (
     <Check htmlColor="#fff" fontSize="large" />
