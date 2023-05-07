@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
-import {convertSecondsToDateValues} from "../../utils";
 import T from "i18n-react";
+
+import dayjs from 'dayjs';
+const utc = require("dayjs/plugin/utc");
+dayjs.extend(utc);
 
 
 class TimeStamp extends Component {
@@ -49,7 +52,11 @@ class TimeStamp extends Component {
     }
 
     render() {
-        const timestamp = `${this.props.from.month} ${this.props.from.day}, ${this.props.from.year} ${this.props.from.hours}:${this.props.from.minutes}${this.props.from.meridian} UTC — ${this.props.until.month} ${this.props.until.day}, ${this.props.until.year} ${this.props.until.hours}:${this.props.until.minutes}${this.props.until.meridian} UTC`;
+        const format = "MMMM D, YYYY h:mma UTC"
+        const fromDate = dayjs.utc(this.props.from * 1000).format(format)
+        const untilDate = dayjs.utc(this.props.until * 1000).format(format)
+        const timestamp = `${fromDate} - ${untilDate}`
+        
         const fade = this.state.fade;
         const hoverTitle = T.translate("timestamp.hoverTitle");
         const copyToClipboardMessage = T.translate("timestamp.copyToClipboardMessage");
