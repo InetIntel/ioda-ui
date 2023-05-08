@@ -29,7 +29,10 @@ import {
     getUTCTimeStringFromDate, secondaryColor, secondaryColorDark, secondaryColorLight
 } from "../../utils";
 import PreloadImage from "react-preload-image";
+
 import dayjs from 'dayjs';
+const utc = require("dayjs/plugin/utc");
+dayjs.extend(utc);
 
 class ControlPanel extends Component {
     constructor(props) {
@@ -124,14 +127,13 @@ class ControlPanel extends Component {
         }
     }
 
-    // set text that renders in bottom right hand corner depicting the start and end date of the currently viewable range
+    // set text in top left input control box
     setDateInLegend(from, until) {
-        const dateFormat = "MMMM D, YYYY HH:mma UTC"
-        const timezoneOffset = new Date().getTimezoneOffset() * 60
-        const fromMilliseconds = (parseInt(from) + timezoneOffset) * 1000
-        const untilMilliseconds = (parseInt(until) + timezoneOffset) * 1000
-        const startDate = dayjs(fromMilliseconds).format(dateFormat)
-        const endDate = dayjs(untilMilliseconds).format(dateFormat)
+        const dateFormat = "MMMM D, YYYY h:mma UTC"
+        const fromMilliseconds = parseInt(from) * 1000
+        const untilMilliseconds = parseInt(until) * 1000
+        const startDate = dayjs.utc(fromMilliseconds).format(dateFormat)
+        const endDate = dayjs.utc(untilMilliseconds).format(dateFormat)
         return [ startDate, endDate ];
     }
 
