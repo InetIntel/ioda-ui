@@ -2351,14 +2351,14 @@ body {
   width: 2.4rem; }
 
 .chartShare__modal .chartShare__button {
-  background: linear-gradient(2deg, #1A5DAE, #598DCC, #1A5DAE, #598DCC);
+  background: linear-gradient(2deg, #1a5dae, #598dcc, #1a5dae, #598dcc);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
   text-align: center;
   border: none;
   background-size: 100% 300%;
-  transition: all .4s ease-in-out;
+  transition: all 0.4s ease-in-out;
   position: relative;
   z-index: 10;
   box-shadow: inset 0 0.2rem 0.1rem rgba(255, 255, 255, 0.2), inset 0 0 0 0.1rem rgba(0, 0, 0, 0.15), 0 0.1rem 0 rgba(255, 255, 255, 0.15);
@@ -2498,14 +2498,14 @@ body {
   height: 5rem;
   margin: 3rem auto 0;
   border-radius: 0.5rem;
-  background: linear-gradient(2deg, #1A5DAE, #598DCC, #1A5DAE, #598DCC);
+  background: linear-gradient(2deg, #1a5dae, #598dcc, #1a5dae, #598dcc);
   color: #fff;
   font-weight: 700;
   cursor: pointer;
   text-align: center;
   border: none;
   background-size: 100% 300%;
-  transition: all .4s ease-in-out;
+  transition: all 0.4s ease-in-out;
   position: relative;
   z-index: 10;
   box-shadow: inset 0 0.2rem 0.1rem rgba(255, 255, 255, 0.2), inset 0 0 0 0.1rem rgba(0, 0, 0, 0.15), 0 0.1rem 0 rgba(255, 255, 255, 0.15);
@@ -2518,6 +2518,60 @@ body {
     height: 4rem;
     width: 4rem;
     margin-right: 1rem; }
+
+.linkShareModal {
+  font-size: 1rem;
+  margin: 0;
+  padding: 0 1rem; }
+  .linkShareModal__download-link {
+    display: inline-block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    color: #3975bb;
+    font-weight: 600; }
+  .linkShareModal__download-link:hover {
+    text-decoration: underline; }
+  .linkShareModal__copy-link {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+    width: 100%; }
+  .linkShareModal__link {
+    flex: 1;
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding: 1rem;
+    font-size: 1.5rem;
+    background-color: #ccc;
+    border: 1px solid #555;
+    color: #000;
+    border-radius: 5px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    white-space: nowrap;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none; }
+    .linkShareModal__link ::-webkit-scrollbar {
+      display: none;
+      /* Safari and Chrome */ }
+  .linkShareModal__modal-body {
+    padding: 2rem; }
+  .linkShareModal__modal-title {
+    font-size: 2rem; }
+  .linkShareModal__modal-content {
+    margin-top: 2rem; }
+  .linkShareModal__share-items {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px 10px; }
+  .linkShareModal__copy-message {
+    font-size: 0.75rem;
+    font-style: italic; }
 
 .timestamp {
   display: flex;
@@ -3974,41 +4028,47 @@ button[class*="searchButton"] {
             left: -8.8rem; } } }
     .entity .overview__xy-wrapper .canvasjs-chart-credit {
       display: none; }
-    @media only screen and (max-width: 30em) {
-      .entity .overview__xy-wrapper:before {
-        /*
+    .entity .overview__xy-wrapper:before {
+      /*
+        @include respond(phone) {
+          content: "";
+          position: absolute;
+          bottom: 0.5rem;
+          left: 0;
+          background-color: $color-white;
+          width: 17.5rem;
+          height: 1.6rem;
+          z-index: 10;
+        }
+        */ }
+    .entity .overview__xy-wrapper:after {
+      /*
         content: "";
         position: absolute;
-        bottom: 0.5rem;
+        bottom: 0;
         left: 0;
-        background-color: #fff;
-        width: 17.5rem;
-        height: 1.6rem;
-        z-index: 10;
-        */
-      } }
-    .entity .overview__xy-wrapper:after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      /*background-color: #fff;*/
-      height: 1.5rem;
-      width: 14rem; }
-      @media only screen and (min-width: 112.5em) {
-        .entity .overview__xy-wrapper:after {
-          width: 11.5rem; } }
-      @media only screen and (max-width: 80em) {
-        .entity .overview__xy-wrapper:after {
-          width: 15.5rem; } }
-      @media only screen and (max-width: 64em) {
-        .entity .overview__xy-wrapper:after {
+        background-color: $color-white;
+        height: 1.5rem;
+        width: 14rem;
+
+        @include respond(big-desktop) {
+          width: 11.5rem;
+        }
+
+        @include respond(tab-land) {
+          width: 15.5rem;
+        }
+
+        @include respond(tab-port) {
           width: 17.5rem;
-          height: 2rem; } }
-      @media only screen and (max-width: 30em) {
-        .entity .overview__xy-wrapper:after {
+          height: 2rem;
+        }
+
+        @include respond(phone) {
           width: 19.5rem;
-          height: 1.6rem; } }
+          height: 1.6rem;
+        }
+        */ }
   .entity .overview__table-config {
     display: flex;
     flex-direction: column;
