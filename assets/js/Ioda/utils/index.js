@@ -207,12 +207,18 @@ export function interpolateColor(color1, color2, min, max, value) {
 }
 
 export function getCountryScaleColor(score) {
-  if (score < 1200) return "#FFCC3DAA";
-  else if (score < 495000) return "#FA944CAA";
-  else if (score < 1000000) return "#F77055AA";
-  else if (score < 2000000) return "#EA5362AA";
-  else if (score < 29000000) return "#D2476EAA";
-  else return "#AC3483";
+  if (score < 1200) return "";
+
+  if (score > 29000000) {
+    return "#EA5362";
+  }
+
+  const linearScale = d3.scale
+    .pow()
+    .exponent(0.5)
+    .domain([1200, 29000000])
+    .range(["#FFCC3D", "#EE695B"]);
+  return linearScale(score);
 }
 
 export function convertValuesForSummaryTable(summaryDataRaw) {
