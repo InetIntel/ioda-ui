@@ -45,7 +45,6 @@ import { getTopoAction } from "../../data/ActionTopo";
 import { searchSummary } from "../../data/ActionOutages";
 // Components
 import { Searchbar } from "caida-components-library";
-import { TwitterTimelineEmbed } from "react-twitter-embed";
 import TopoMap from "../../components/map/Map";
 import * as topojson from "topojson";
 import Card from "./Card";
@@ -74,6 +73,21 @@ class Home extends Component {
       this.getDataTopo();
       this.getDataOutageSummary();
     });
+
+    if (window.twttr) {
+      window.twttr.widgets.createTimeline(
+        {
+          sourceType: "profile",
+          screenName: "IODA_live",
+        },
+        document.getElementById("twitterFeed"),
+        {
+          chrome: "noborders",
+          lang: localStorage.getItem("lang") || "en",
+          height: 590,
+        }
+      );
+    }
   }
 
   componentWillUnmount() {
@@ -287,15 +301,7 @@ class Home extends Component {
           </div>
           <div className="col-1-of-4">
             <h2 className="section-header">{twitterWidgetTitle}</h2>
-            <div className="map__feed">
-              <TwitterTimelineEmbed
-                sourceType="profile"
-                screenName="IODA_live"
-                options={{ id: "profile:IODA_live", height: "590" }}
-                lang={localStorage.getItem("lang")}
-                noBorders={true}
-              />
-            </div>
+            <div id="twitterFeed" className="map__feed"></div>
           </div>
         </div>
         <div className="about">
