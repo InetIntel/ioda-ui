@@ -1831,8 +1831,8 @@ class Entity extends Component {
             if (!this.state.rawAsnSignalsLoaded) {
               this.props.asnSignalsTableSummaryDataAction(
                 "asn",
-                entityCode,
-                entityType
+                entityType,
+                entityCode
               );
             }
           }
