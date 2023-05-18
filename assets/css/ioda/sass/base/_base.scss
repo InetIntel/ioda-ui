@@ -32,6 +32,11 @@
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+::selection {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
 *,
 *:before,
 *:after {
@@ -41,24 +46,27 @@
 }
 
 html {
-  font-size: 62.5%;	                // 1rem = 10px; 10px / 16px = 62.5%
+  font-size: 62.5%; // 1rem = 10px; 10px / 16px = 62.5%
 
-  @include respond(tab-land) {	    // 1rem = 9px; 9px / 16px = 56.25%
+  @include respond(tab-land) {
+    // 1rem = 9px; 9px / 16px = 56.25%
     font-size: 56.25%;
   }
 
-  @include respond(tab-port) {	    // 1rem = 8px; 8px / 16px = 50%
+  @include respond(tab-port) {
+    // 1rem = 8px; 8px / 16px = 50%
     font-size: 50%;
   }
 
-  @include respond(phone) { 		//1rem = 7px; 7px / 16px = 43.75%
+  @include respond(phone) {
+    //1rem = 7px; 7px / 16px = 43.75%
     font-size: 43.75%;
   }
 
-  @include respond(big-desktop) {    // 1rem = 12px; 12px / 16px = 75%
+  @include respond(big-desktop) {
+    // 1rem = 12px; 12px / 16px = 75%
     font-size: 75%;
   }
-
 }
 body {
   box-sizing: border-box;
@@ -69,7 +77,8 @@ body {
   color: $color-white;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   background: $color-background-white;
 }
@@ -80,7 +89,7 @@ body {
 
 .app {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   min-height: 100vh;
 
   & > div:nth-child(2) {
@@ -100,11 +109,11 @@ body {
   &__progressBar {
     width: calc(100% - 3rem);
     max-width: 48rem;
-    height: 3rem!important;
+    height: 3rem !important;
 
     & > div {
-      font-size: 1.8rem!important;
-      line-height: 3rem!important;
+      font-size: 1.8rem !important;
+      line-height: 3rem !important;
     }
   }
 }
