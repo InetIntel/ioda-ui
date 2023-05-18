@@ -1434,6 +1434,10 @@ class Entity extends Component {
         (elem) => elem.key === primarySignal.dataSource
       );
 
+      if (legendDetails === undefined) {
+        continue;
+      }
+
       const primaryData = primarySignal.values.map((point) => {
         return [point.x, point.y];
       });
