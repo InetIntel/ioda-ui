@@ -494,6 +494,9 @@ video {
  * IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
+.anticon {
+  vertical-align: 0.025rem !important; }
+
 ::selection {
   background-color: #2c3e50;
   color: #fff; }
@@ -3225,6 +3228,10 @@ body {
   font-size: 1.125rem;
   line-height: 1.75rem; }
 
+.text-md {
+  font-size: 1rem;
+  line-height: 1.5rem; }
+
 .text-sm {
   font-size: 0.875rem;
   line-height: 1.25rem; }
@@ -3290,6 +3297,23 @@ body {
 
 .items-end {
   align-items: end; }
+
+.card {
+  background-color: #fff;
+  border-bottom-right-radius: 0.3rem;
+  border-bottom-left-radius: 0.3rem;
+  border-top-right-radius: 0.3rem;
+  min-height: 64rem;
+  box-shadow: 0 2px 2px #9f9d9d;
+  padding: 2rem; }
+
+.max-cont {
+  max-width: 114rem;
+  margin-left: auto;
+  margin-right: auto; }
+
+.a-fake:hover {
+  text-decoration: underline; }
 
 .u-full-max-width {
   max-width: 100% !important; }
@@ -5876,158 +5900,27 @@ body {
     width: calc( 5 * ((100% - (5 * 1.5rem)) / 6) + (4 * 1.5rem)); }
 
 .header {
-  width: 100%;
   background-color: #2c3e50;
-  box-shadow: 0 1px 2px #9F9D9D;
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  height: 5rem;
-  padding: 0 4.5rem; }
-  @media only screen and (max-width: 64em) {
-    .header {
-      padding: 0 1.5rem; } }
-  .header__container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    max-width: 114rem;
-    width: 100%;
-    height: auto; }
-    @media only screen and (max-width: 40em) {
-      .header__container {
-        display: flex;
-        justify-content: space-between; } }
-  .header__logo {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    position: relative;
-    z-index: 10;
-    overflow: hidden; }
-    .header__logo a {
-      display: block; }
-      .header__logo a img {
-        height: 3.5rem; }
-  .header__menu {
-    display: flex;
-    align-items: center; }
-  .header__checkbox {
-    display: none; }
-  .header__checkbox:checked ~ .header__nav {
-    opacity: 1;
-    width: 100%;
-    right: 0; }
-  .header__background {
-    background-color: #2c3e50;
-    height: auto;
-    width: 100%; }
-  .header__button {
-    display: none;
-    color: #fff;
-    cursor: pointer; }
-    @media only screen and (max-width: 54.375em) {
-      .header__button {
-        height: 3rem;
-        display: flex;
-        align-items: center; } }
-  .header__icon {
-    position: relative; }
-    .header__icon, .header__icon::before, .header__icon::after {
-      width: 3rem;
-      height: 2px;
-      background-color: #fff;
-      display: inline-block; }
-    .header__icon::before, .header__icon::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      transition: all 0.2s; }
-    .header__icon::before {
-      top: -0.8rem; }
-    .header__icon::after {
-      top: 0.8rem; }
-  .header__button:hover .header__icon::before {
-    top: -1rem; }
-  .header__button:hover .header__icon::after {
-    top: 1rem; }
-  .header__checkbox:checked + .header__button .header__icon {
-    background-color: transparent; }
-  .header__checkbox:checked + .header__button .header__icon::before {
-    transform: rotate(135deg);
-    top: 0; }
-  .header__checkbox:checked + .header__button .header__icon::after {
-    transform: rotate(-135deg);
-    top: 0; }
-  .header__nav {
-    position: relative;
-    z-index: 10; }
-    @media only screen and (max-width: 54.375em) {
-      .header__nav {
-        height: 100vh;
-        position: fixed;
-        right: -50%;
-        z-index: 1000;
-        opacity: 0;
-        width: 0;
-        transition: all 0.8s;
-        top: 5rem;
-        background-color: #2c3e50; } }
-  .header__list {
-    display: flex;
-    justify-content: space-between;
-    color: #fff;
-    font-family: "Lato-Regular", "Helvetica", "arial", sans-serif;
-    font-size: 1.4rem;
-    text-transform: capitalize;
-    height: 100%;
-    width: 100%;
-    margin: 0; }
-    @media only screen and (max-width: 54.375em) {
-      .header__list {
-        position: absolute;
-        top: 50%;
-        right: 50%;
-        transform: translate(50%, -50%);
-        list-style: none;
-        text-align: center;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 0 2rem; } }
+  box-shadow: 0 1px 2px #9f9d9d; }
   .header__item {
-    padding: 0;
-    list-style-type: none;
-    height: auto;
-    display: flex;
-    min-width: 10rem; }
-    @media only screen and (max-width: 54.375em) {
-      .header__item {
-        border-top: 1px solid #798998;
-        background-color: #2c3e50;
-        height: calc((100vh - 5rem) / 7);
-        max-height: 8rem; }
-        .header__item:last-child {
-          border-bottom: 1px solid #798998; } }
-  .header__link:link, .header__link:visited {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: auto;
+    margin-left: 12px;
+    margin-right: 12px;
     color: #fff;
-    text-decoration: none; }
-    @media only screen and (max-width: 54.375em) {
-      .header__link:link, .header__link:visited {
-        font-size: 1.8rem; } }
-    @media only screen and (max-width: 40em) {
-      .header__link:link, .header__link:visited {
-        padding-right: 4.5rem; } }
-    .header__link:link:hover, .header__link:visited:hover {
-      text-decoration: none;
-      color: #fff;
-      background-color: #2c3e50; }
+    font-size: 16px; }
+  .header__drawer-icon {
+    display: none; }
+  .header__drawer-body {
+    background-color: #2c3e50 !important;
+    color: #fff; }
+  .header__drawer-item {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 18px; }
+  @media only screen and (max-width: 750px) {
+    .header__item {
+      display: none; }
+    .header__drawer-icon {
+      display: block; } }
 
 .acknowledgements {
   padding-top: 5rem;

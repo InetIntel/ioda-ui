@@ -32,6 +32,10 @@
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
+.anticon {
+  vertical-align: 0.025rem !important;
+}
+
 ::selection {
   background-color: $color-primary;
   color: $color-white;
