@@ -3416,6 +3416,11 @@
   line-height: 1.75rem;
 }
 
+.text-md {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
 .text-sm {
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -3502,6 +3507,10 @@
   align-items: end;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .card {
   background-color: #fff;
   border-bottom-right-radius: 0.3rem;
@@ -3510,6 +3519,16 @@
   min-height: 64rem;
   box-shadow: 0 2px 2px #9f9d9d;
   padding: 2rem;
+}
+
+.max-cont {
+  max-width: 114rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.a-fake:hover {
+  text-decoration: underline;
 }
 
 .u-full-max-width {
