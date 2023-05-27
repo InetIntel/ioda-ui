@@ -3478,17 +3478,21 @@
   margin-right: auto;
 }
 
+.flex {
+  display: flex;
+}
+
 .row {
   display: flex;
 }
 
-.column {
+.flex-column {
   display: flex;
   flex-direction: column;
 }
 
 .col {
-  flex: 1;
+  flex: 10000 1 0%;
 }
 
 .items-center {
@@ -3513,22 +3517,32 @@
 
 .card {
   background-color: #fff;
-  border-bottom-right-radius: 0.3rem;
-  border-bottom-left-radius: 0.3rem;
-  border-top-right-radius: 0.3rem;
-  min-height: 64rem;
+  border-radius: 0.3rem;
   box-shadow: 0 2px 2px #9f9d9d;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .max-cont {
-  max-width: 114rem;
+  max-width: 120rem;
   margin-left: auto;
   margin-right: auto;
+  padding: 1rem;
 }
 
 .a-fake:hover {
   text-decoration: underline;
+}
+
+.text-primary {
+  color: $color-primary;
+}
+
+.text-white {
+  color: #fff;
+}
+
+.text-color-link {
+  color: #1677ff;
 }
 
 .u-full-max-width {
