@@ -24,7 +24,7 @@
     margin-bottom: 18px;
   }
 
-  @media only screen and (max-width: 750px) {
+  @include respond(screen-870) {
     &__item {
       display: none;
     }

@@ -207,7 +207,7 @@ class Header extends Component {
                   checked={this.state.advancedMode}
                   onChange={this.handleModeChange}
                 />
-                <span class="text-lg">{modeStatus}</span>
+                <span className="text-lg">{modeStatus}</span>
               </div>
             </Tooltip>
           </div>
