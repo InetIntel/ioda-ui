@@ -209,14 +209,18 @@ export function interpolateColor(color1, color2, min, max, value) {
 export function getCountryScaleColor(score) {
   if (score < 1200) return "";
 
-  if (score > 29000000) {
+  if (score > 1000000) {
     return "#EA5362";
   }
+
+  // if (score > 29000000) {
+  //   return "#EA5362";
+  // }
 
   const linearScale = d3.scale
     .pow()
     .exponent(0.5)
-    .domain([1200, 29000000])
+    .domain([1200, 1000000])
     .range(["#FFCC3D", "#EE695B"]);
   return linearScale(score);
 }
