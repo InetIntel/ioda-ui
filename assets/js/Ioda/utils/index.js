@@ -38,18 +38,18 @@ import T from "i18n-react";
 export const controlPanelTimeRangeLimit = 90 * 24 * 60 * 60 + 1;
 export const dashboardTimeRangeLimit = 7 * 24 * 60 * 60 + 1;
 export const monthStrings = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
 ];
 
 export const alertBandColor = "#BE1D2D";
@@ -67,503 +67,515 @@ export const horizonChartSeriesColor = "#006D2D";
 export const maxHtsLimit = 150;
 
 export const legend = [
-  {
-    title: T.translate("entity.activeProbingLegendText"),
-    key: "ping-slash24",
-    color: activeProbingColor,
-  },
-  {
-    title: T.translate("entity.bgpLegendText"),
-    key: "bgp",
-    color: bgpColor,
-  },
-  {
-    title: T.translate("entity.meritLegendText"),
-    key: "merit-nt",
-    color: meritNtColor,
-  },
-  {
-    title: T.translate("entity.googleMapText"),
-    key: "gtr.MAPS",
-    color: "#A02C79",
-  },
-  {
-    title: T.translate("entity.googleMailText"),
-    key: "gtr.GMAIL",
-    color: "#A02C2C",
-  },
-  {
-    title: T.translate("entity.googleSearchText"),
-    key: "gtr.WEB_SEARCH",
-    color: gtrColor,
-  },
-  {
-    title: T.translate("entity.googleImagesText"),
-    key: "gtr.IMAGES",
-    color: "#FC5D83",
-  },
-  {
-    title: T.translate("entity.googleYoutubeText"),
-    key: "gtr.YOUTUBE",
-    color: "#B65DFC",
-  },
-  {
-    title: T.translate("entity.googleSpreadsheetText"),
-    key: "gtr.SPREADSHEETS",
-    color: "#637146",
-  },
-  {
-    title: T.translate("entity.googleSitesText"),
-    key: "gtr.SITES",
-    color: "#426984",
-  },
+    {
+        title: T.translate("entity.activeProbingLegendText"),
+        key: "ping-slash24",
+        color: activeProbingColor,
+    },
+    {
+        title: T.translate("entity.bgpLegendText"),
+        key: "bgp",
+        color: bgpColor,
+    },
+    {
+        title: T.translate("entity.meritLegendText"),
+        key: "merit-nt",
+        color: meritNtColor,
+    },
+    {
+        title: T.translate("entity.googleMapText"),
+        key: "gtr.MAPS",
+        color: "#A02C79",
+    },
+    {
+        title: T.translate("entity.googleMailText"),
+        key: "gtr.GMAIL",
+        color: "#A02C2C",
+    },
+    {
+        title: T.translate("entity.googleSearchText"),
+        key: "gtr.WEB_SEARCH",
+        color: gtrColor,
+    },
+    {
+        title: T.translate("entity.googleImagesText"),
+        key: "gtr.IMAGES",
+        color: "#FC5D83",
+    },
+    {
+        title: T.translate("entity.googleYoutubeText"),
+        key: "gtr.YOUTUBE",
+        color: "#B65DFC",
+    },
+    {
+        title: T.translate("entity.googleSpreadsheetText"),
+        key: "gtr.SPREADSHEETS",
+        color: "#637146",
+    },
+    {
+        title: T.translate("entity.googleSitesText"),
+        key: "gtr.SITES",
+        color: "#426984",
+    },
 ];
 
 // Humanize number with rounding, abbreviations, etc.
 export function humanizeNumber(value, precisionDigits) {
-  precisionDigits = precisionDigits || 3;
-  return d3.format(
-    (isNaN(precisionDigits) ? "" : "." + precisionDigits) +
-      (Math.abs(value) < 1 ? "r" : "s")
-  )(value);
+    precisionDigits = precisionDigits || 3;
+    return d3.format(
+        (isNaN(precisionDigits) ? "" : "." + precisionDigits) +
+            (Math.abs(value) < 1 ? "r" : "s")
+    )(value);
 }
 
 // For event/alert table
 export function convertSecondsToDateValues(s) {
-  const month = monthStrings[new Date(s * 1000).getMonth()];
-  const day = new Date(s * 1000).getDate();
-  const year = new Date(s * 1000).getFullYear();
-  const hourValue = new Date(s * 1000).getHours();
-  const hours =
-    hourValue > 12
-      ? hourValue - 12
-      : 10 > hourValue > 0
-      ? `0${hourValue}`
-      : hourValue === 0
-      ? 12
-      : hourValue;
-  const minuteValue = new Date(s * 1000).getMinutes();
-  const minutes = minuteValue < 10 ? `0${minuteValue}` : minuteValue;
-  const secondsValue = new Date(s * 1000).getSeconds();
-  const seconds = secondsValue < 10 ? `0${secondsValue}` : secondsValue;
-  const meridian = hourValue > 12 ? "pm" : "am";
-  return {
-    month: month,
-    day: day,
-    year: year,
-    hours: hours,
-    minutes: minutes,
-    seconds: seconds,
-    meridian: meridian,
-  };
+    const month = monthStrings[new Date(s * 1000).getMonth()];
+    const day = new Date(s * 1000).getDate();
+    const year = new Date(s * 1000).getFullYear();
+    const hourValue = new Date(s * 1000).getHours();
+    const hours =
+        hourValue > 12
+            ? hourValue - 12
+            : 10 > hourValue > 0
+            ? `0${hourValue}`
+            : hourValue === 0
+            ? 12
+            : hourValue;
+    const minuteValue = new Date(s * 1000).getMinutes();
+    const minutes = minuteValue < 10 ? `0${minuteValue}` : minuteValue;
+    const secondsValue = new Date(s * 1000).getSeconds();
+    const seconds = secondsValue < 10 ? `0${secondsValue}` : secondsValue;
+    const meridian = hourValue > 12 ? "pm" : "am";
+    return {
+        month: month,
+        day: day,
+        year: year,
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds,
+        meridian: meridian,
+    };
 }
 
 // Used in control panel when directly editing time range input
 export function convertDateValuesToSeconds(d) {
-  // seperate date values
-  let mon = d.split(" ")[0];
-  let day = d.split(" ")[1].slice(0, -1);
-  let yr = d.split(" ")[2];
-  let hr = d.split(" ")[3].split(":")[0];
-  let min = d
-    .split(" ")[3]
-    .split(":")[1]
-    .match(/[a-z]+|[^a-z]+/gi)[0];
-  let meridian = d
-    .split(" ")[3]
-    .split(":")[1]
-    .match(/[a-z]+|[^a-z]+/gi)[1];
-  // config and return utc date time since epoch
-  const newDate = new Date(
-    Date.UTC(
-      parseInt(yr),
-      monthStrings.findIndex((item) => item === mon),
-      parseInt(day),
-      meridian === "pm" ? parseInt(hr) + 12 : hr,
-      parseInt(min)
-    )
-  );
-  return Math.floor(newDate.getTime());
+    // seperate date values
+    let mon = d.split(" ")[0];
+    let day = d.split(" ")[1].slice(0, -1);
+    let yr = d.split(" ")[2];
+    let hr = d.split(" ")[3].split(":")[0];
+    let min = d
+        .split(" ")[3]
+        .split(":")[1]
+        .match(/[a-z]+|[^a-z]+/gi)[0];
+    let meridian = d
+        .split(" ")[3]
+        .split(":")[1]
+        .match(/[a-z]+|[^a-z]+/gi)[1];
+    // config and return utc date time since epoch
+    const newDate = new Date(
+        Date.UTC(
+            parseInt(yr),
+            monthStrings.findIndex((item) => item === mon),
+            parseInt(day),
+            meridian === "pm" ? parseInt(hr) + 12 : hr,
+            parseInt(min)
+        )
+    );
+    return Math.floor(newDate.getTime());
 }
 
 export function toDateTime(s) {
-  var t = new Date(1970, 0, 1); // Epoch
-  t.setSeconds(s);
-  return t;
+    var t = new Date(1970, 0, 1); // Epoch
+    t.setSeconds(s);
+    return t;
 }
 
 export function generateKeys(prefix) {
-  var key = prefix ? prefix : "";
-  return key + Math.random().toString(34).slice(2);
+    var key = prefix ? prefix : "";
+    return key + Math.random().toString(34).slice(2);
 }
 
 const thresholdScores = {
-  COUNTRY: [1200, 1000000],
-  REGION: [100, 100000],
+    COUNTRY: [1200, 1000000],
+    REGION: [100, 100000],
 };
 export function getMapScaleColor(score, type = "COUNTRY") {
-  const [min, max] = thresholdScores[type];
+    const [min, max] = thresholdScores[type];
 
-  const colors = ["#FFCC3D", "#EE695B"];
+    const colors = ["#FFCC3D", "#EE695B"];
 
-  if (score > max) return colors[1];
-  if (score < min) return "transparent";
+    if (score > max) return colors[1];
+    if (score < min) return "transparent";
 
-  const linearScale = d3.scale
-    .pow()
-    .exponent(0.5)
-    .domain(thresholdScores[type])
-    .range(colors);
-  return linearScale(score);
+    const linearScale = d3.scale
+        .pow()
+        .exponent(0.5)
+        .domain(thresholdScores[type])
+        .range(colors);
+    return linearScale(score);
 }
 
 export function convertValuesForSummaryTable(summaryDataRaw) {
-  let summaryData = [];
-  let allScores = [];
-  let min, max;
+    let summaryData = [];
+    let allScores = [];
+    let min, max;
 
-  summaryDataRaw.map((summary) => {
-    allScores.push(summary.scores.overall);
-  });
-
-  min = Math.min.apply(null, allScores);
-  max = Math.max.apply(null, allScores);
-
-  summaryDataRaw.map((summary, index) => {
-    let overallScore = null;
-    let summaryScores = [];
-    let color = "transparent";
-
-    // Map through individual scores
-    Object.entries(summary["scores"]).map((entry) => {
-      if (entry[0] !== "overall") {
-        const entryItem = {
-          source: entry[0],
-          score: entry[1],
-        };
-        summaryScores.push(entryItem);
-      } else {
-        overallScore = entry[1];
-      }
+    summaryDataRaw.map((summary) => {
+        allScores.push(summary.scores.overall);
     });
 
-    // get color value from gradient by percentage
-    color = `${getMapScaleColor(
-      overallScore,
-      summary.entity.type.toUpperCase()
-    )}80`;
+    min = Math.min.apply(null, allScores);
+    max = Math.max.apply(null, allScores);
 
-    // If entity type has ip_count/is an ASN
-    let summaryItem;
-    summary.entity.type === "asn"
-      ? (summaryItem = {
-          entityType: summary["entity"].type,
-          entityCode: summary["entity"].code,
-          name: summary["entity"].name,
-          score: overallScore,
-          scores: summaryScores,
-          ipCount: humanizeNumber(summary["entity"]["attrs"]["ip_count"], 2),
-          color: color,
-        })
-      : (summaryItem = {
-          entityType: summary["entity"].type,
-          entityCode: summary["entity"].code,
-          name: summary["entity"].name,
-          score: overallScore,
-          scores: summaryScores,
-          color: color,
+    summaryDataRaw.map((summary, index) => {
+        let overallScore = null;
+        let summaryScores = [];
+
+        // Map through individual scores
+        Object.entries(summary["scores"]).map((entry) => {
+            if (entry[0] !== "overall") {
+                const entryItem = {
+                    source: entry[0],
+                    score: entry[1],
+                };
+                summaryScores.push(entryItem);
+            } else {
+                overallScore = entry[1];
+            }
         });
-    summaryData.push(summaryItem);
-  });
-  return summaryData;
+
+        // If entity type has ip_count/is an ASN
+        let summaryItem;
+        summary.entity.type === "asn"
+            ? (summaryItem = {
+                  entityType: summary["entity"].type,
+                  entityCode: summary["entity"].code,
+                  name: summary["entity"].name,
+                  score: overallScore,
+                  scores: summaryScores,
+                  ipCount: humanizeNumber(
+                      summary["entity"]["attrs"]["ip_count"],
+                      2
+                  ),
+                  color: "transparent",
+              })
+            : (summaryItem = {
+                  entityType: summary["entity"].type,
+                  entityCode: summary["entity"].code,
+                  name: summary["entity"].name,
+                  score: overallScore,
+                  scores: summaryScores,
+                  color: `${getMapScaleColor(
+                      overallScore,
+                      summary.entity.type.toUpperCase()
+                  )}80`,
+              });
+        summaryData.push(summaryItem);
+    });
+    return summaryData;
 }
 
 export function combineValuesForSignalsTable(
-  entitiesWithOutages,
-  additionalEntities,
-  initialLimit
+    entitiesWithOutages,
+    additionalEntities,
+    initialLimit
 ) {
-  let summaryData = [];
-  let outageCount = 0;
-  let duplicatesRemoved = additionalEntities;
-  entitiesWithOutages.map((entity, index) => {
-    let overallScore = null;
-    let summaryScores = [];
-    // Get each score value for score table
-    Object.entries(entity["scores"]).map((entry) => {
-      if (entry[0] !== "overall") {
-        const entryItem = {
-          source: entry[0],
-          score: entry[1],
-        };
-        summaryScores.push(entryItem);
-      } else {
-        overallScore = entry[1];
-      }
+    let summaryData = [];
+    let outageCount = 0;
+    let duplicatesRemoved = additionalEntities;
+    entitiesWithOutages.map((entity, index) => {
+        let overallScore = null;
+        let summaryScores = [];
+        // Get each score value for score table
+        Object.entries(entity["scores"]).map((entry) => {
+            if (entry[0] !== "overall") {
+                const entryItem = {
+                    source: entry[0],
+                    score: entry[1],
+                };
+                summaryScores.push(entryItem);
+            } else {
+                overallScore = entry[1];
+            }
+        });
+        // Remove entity from raw entity list
+        duplicatesRemoved = duplicatesRemoved.filter(
+            (obj) => obj.code !== entity["entity"].code
+        );
+
+        // Display entity with outage on signal table, if asn add ip count property
+        let summaryItem;
+        entity.entity.type === "asn"
+            ? (summaryItem = {
+                  visibility: index < initialLimit,
+                  entityType: entity["entity"].type,
+                  entityCode: entity["entity"].code,
+                  name: entity["entity"].name,
+                  score: overallScore,
+                  scores: summaryScores,
+                  ipCount: humanizeNumber(
+                      entity["entity"]["attrs"]["ip_count"],
+                      2
+                  ),
+                  initiallyLoaded: index < 300,
+              })
+            : (summaryItem = {
+                  visibility: index < initialLimit,
+                  entityType: entity["entity"].type,
+                  entityCode: entity["entity"].code,
+                  name: entity["entity"].name,
+                  score: overallScore,
+                  scores: summaryScores,
+                  initiallyLoaded: index < 300,
+              });
+        summaryData.push(summaryItem);
     });
-    // Remove entity from raw entity list
-    duplicatesRemoved = duplicatesRemoved.filter(
-      (obj) => obj.code !== entity["entity"].code
-    );
+    outageCount = summaryData.length;
 
-    // Display entity with outage on signal table, if asn add ip count property
-    let summaryItem;
-    entity.entity.type === "asn"
-      ? (summaryItem = {
-          visibility: index < initialLimit,
-          entityType: entity["entity"].type,
-          entityCode: entity["entity"].code,
-          name: entity["entity"].name,
-          score: overallScore,
-          scores: summaryScores,
-          ipCount: humanizeNumber(entity["entity"]["attrs"]["ip_count"], 2),
-          initiallyLoaded: index < 300,
-        })
-      : (summaryItem = {
-          visibility: index < initialLimit,
-          entityType: entity["entity"].type,
-          entityCode: entity["entity"].code,
-          name: entity["entity"].name,
-          score: overallScore,
-          scores: summaryScores,
-          initiallyLoaded: index < 300,
-        });
-    summaryData.push(summaryItem);
-  });
-  outageCount = summaryData.length;
-
-  // Display scoreless entities on signal table, if asn add ip count property
-  duplicatesRemoved.map((entity, index) => {
-    let entityItem;
-    entity.type === "asn"
-      ? (entityItem = {
-          visibility: index < initialLimit - outageCount,
-          entityType: entity.type,
-          entityCode: entity.code,
-          name: entity.name,
-          score: 0,
-          scores: [{ source: "Overall Score", score: 0 }],
-          ipCount: humanizeNumber(entity.attrs.ip_count, 2),
-          initiallyLoaded: index < 300,
-        })
-      : (entityItem = {
-          visibility: index < initialLimit - outageCount,
-          entityType: entity.type,
-          entityCode: entity.code,
-          name: entity.name,
-          score: 0,
-          scores: [{ source: "Overall Score", score: 0 }],
-          initiallyLoaded: index < 300,
-        });
-    summaryData.push(entityItem);
-  });
-  return summaryData;
+    // Display scoreless entities on signal table, if asn add ip count property
+    duplicatesRemoved.map((entity, index) => {
+        let entityItem;
+        entity.type === "asn"
+            ? (entityItem = {
+                  visibility: index < initialLimit - outageCount,
+                  entityType: entity.type,
+                  entityCode: entity.code,
+                  name: entity.name,
+                  score: 0,
+                  scores: [{ source: "Overall Score", score: 0 }],
+                  ipCount: humanizeNumber(entity.attrs.ip_count, 2),
+                  initiallyLoaded: index < 300,
+              })
+            : (entityItem = {
+                  visibility: index < initialLimit - outageCount,
+                  entityType: entity.type,
+                  entityCode: entity.code,
+                  name: entity.name,
+                  score: 0,
+                  scores: [{ source: "Overall Score", score: 0 }],
+                  initiallyLoaded: index < 300,
+              });
+        summaryData.push(entityItem);
+    });
+    return summaryData;
 }
 
 export function getIsoStringFromDate() {
-  var tzo = -this.getTimezoneOffset(),
-    dif = tzo >= 0 ? "+" : "-",
-    pad = function (num) {
-      var norm = Math.floor(Math.abs(num));
-      return (norm < 10 ? "0" : "") + norm;
-    };
-  return (
-    this.getFullYear() +
-    "-" +
-    pad(this.getMonth() + 1) +
-    "-" +
-    pad(this.getDate()) +
-    "T" +
-    pad(this.getHours()) +
-    ":" +
-    pad(this.getMinutes()) +
-    ":" +
-    pad(this.getSeconds()) +
-    dif +
-    pad(tzo / 60) +
-    ":" +
-    pad(tzo % 60)
-  );
+    var tzo = -this.getTimezoneOffset(),
+        dif = tzo >= 0 ? "+" : "-",
+        pad = function (num) {
+            var norm = Math.floor(Math.abs(num));
+            return (norm < 10 ? "0" : "") + norm;
+        };
+    return (
+        this.getFullYear() +
+        "-" +
+        pad(this.getMonth() + 1) +
+        "-" +
+        pad(this.getDate()) +
+        "T" +
+        pad(this.getHours()) +
+        ":" +
+        pad(this.getMinutes()) +
+        ":" +
+        pad(this.getSeconds()) +
+        dif +
+        pad(tzo / 60) +
+        ":" +
+        pad(tzo % 60)
+    );
 }
 
 export function sortByKey(array, key) {
-  return array.sort(function (a, b) {
-    var x = a[key];
-    var y = b[key];
-    return x < y ? -1 : x > y ? 1 : 0;
-  });
+    return array.sort(function (a, b) {
+        var x = a[key];
+        var y = b[key];
+        return x < y ? -1 : x > y ? 1 : 0;
+    });
 }
 
 // Function for raw signals table on entity page
 // Will process time series data and return in a format compatible with the Horizon-time-series visual
 export function convertTsDataForHtsViz(tsData) {
-  let series = [];
-  tsData.map((signal) => {
-    let values = [];
-    signal.values.map((value, index) => {
-      values.push(value);
-      const plotPoint = {
-        entityCode: signal.entityCode,
-        entityName: signal.entityName,
-        datasource: signal.datasource,
-        ts: new Date(signal.from * 1000 + signal.step * 1000 * index),
-        val: value,
-      };
-      const max = Math.max.apply(null, values);
-      if (max !== 0) {
-        series.push(plotPoint);
-      }
+    let series = [];
+    tsData.map((signal) => {
+        let values = [];
+        signal.values.map((value, index) => {
+            values.push(value);
+            const plotPoint = {
+                entityCode: signal.entityCode,
+                entityName: signal.entityName,
+                datasource: signal.datasource,
+                ts: new Date(signal.from * 1000 + signal.step * 1000 * index),
+                val: value,
+            };
+            const max = Math.max.apply(null, values);
+            if (max !== 0) {
+                series.push(plotPoint);
+            }
+        });
     });
-  });
-  return series;
+    return series;
 }
 
 // take a list of outages that will populate on a map and create a bounding box the map will use for zoom location
 export function getOutageCoords(features) {
-  return features
-    .map(d3.geo.bounds)
-    .reduce(function (prev, cur) {
-      return [
-        [Math.min(prev[0][0], cur[0][0]), Math.min(prev[0][1], cur[0][1])],
-        [Math.max(prev[1][0], cur[1][0]), Math.max(prev[1][1], cur[1][1])],
-      ];
-    })
-    .map(function (coords) {
-      return coords.reverse();
-    }); // Invert lat long coords
+    return features
+        .map(d3.geo.bounds)
+        .reduce(function (prev, cur) {
+            return [
+                [
+                    Math.min(prev[0][0], cur[0][0]),
+                    Math.min(prev[0][1], cur[0][1]),
+                ],
+                [
+                    Math.max(prev[1][0], cur[1][0]),
+                    Math.max(prev[1][1], cur[1][1]),
+                ],
+            ];
+        })
+        .map(function (coords) {
+            return coords.reverse();
+        }); // Invert lat long coords
 }
 
 // Convert color range for outages that populate on map when hovered (color gets lighter)
 export function shadeColor(color, percent) {
-  let R = parseInt(color.substring(1, 3), 16);
-  let G = parseInt(color.substring(3, 5), 16);
-  let B = parseInt(color.substring(5, 7), 16);
+    let R = parseInt(color.substring(1, 3), 16);
+    let G = parseInt(color.substring(3, 5), 16);
+    let B = parseInt(color.substring(5, 7), 16);
 
-  R = parseInt((R * (100 + percent)) / 100);
-  G = parseInt((G * (100 + percent)) / 100);
-  B = parseInt((B * (100 + percent)) / 100);
+    R = parseInt((R * (100 + percent)) / 100);
+    G = parseInt((G * (100 + percent)) / 100);
+    B = parseInt((B * (100 + percent)) / 100);
 
-  R = R < 255 ? R : 255;
-  G = G < 255 ? G : 255;
-  B = B < 255 ? B : 255;
+    R = R < 255 ? R : 255;
+    G = G < 255 ? G : 255;
+    B = B < 255 ? B : 255;
 
-  let RR = R.toString(16).length == 1 ? "0" + R.toString(16) : R.toString(16);
-  let GG = G.toString(16).length == 1 ? "0" + G.toString(16) : G.toString(16);
-  let BB = B.toString(16).length == 1 ? "0" + B.toString(16) : B.toString(16);
+    let RR = R.toString(16).length == 1 ? "0" + R.toString(16) : R.toString(16);
+    let GG = G.toString(16).length == 1 ? "0" + G.toString(16) : G.toString(16);
+    let BB = B.toString(16).length == 1 ? "0" + B.toString(16) : B.toString(16);
 
-  return "#" + RR + GG + BB;
+    return "#" + RR + GG + BB;
 }
 
 // Convert values from control panel range input (date range, time range) into seconds from epoch
 export function dateRangeToSeconds(dateRange, timeRange) {
-  // initialize values from parameters
-  let dStart = dateRange.startDate;
-  let tStart = timeRange[0].split(":");
-  let dEnd = dateRange.endDate;
-  let tEnd = timeRange[1].split(":");
-  // set time stamp on date with timezone offset
-  dStart = dStart.setHours(tStart[0], tStart[1], tStart[2]);
-  dEnd = dEnd.setHours(tEnd[0], tEnd[1], tEnd[2]);
-  // account for timezone to ensure selection returns to UTC
-  dStart = dStart - dateRange.startDate.getTimezoneOffset() * 60000;
-  dEnd = dEnd - dateRange.endDate.getTimezoneOffset() * 60000;
-  // convert to seconds
-  dStart = Math.round(dStart / 1000);
-  dEnd = Math.round(dEnd / 1000);
-  return [dStart, dEnd];
+    // initialize values from parameters
+    let dStart = dateRange.startDate;
+    let tStart = timeRange[0].split(":");
+    let dEnd = dateRange.endDate;
+    let tEnd = timeRange[1].split(":");
+    // set time stamp on date with timezone offset
+    dStart = dStart.setHours(tStart[0], tStart[1], tStart[2]);
+    dEnd = dEnd.setHours(tEnd[0], tEnd[1], tEnd[2]);
+    // account for timezone to ensure selection returns to UTC
+    dStart = dStart - dateRange.startDate.getTimezoneOffset() * 60000;
+    dEnd = dEnd - dateRange.endDate.getTimezoneOffset() * 60000;
+    // convert to seconds
+    dStart = Math.round(dStart / 1000);
+    dEnd = Math.round(dEnd / 1000);
+    return [dStart, dEnd];
 }
 
 // Normalize value in XY plot of time series on entity page
 export function normalize(value, max) {
-  if (value && value !== 0) {
-    return value !== null && !isNaN((value - 0) / (max - 0))
-      ? ((value - 0) / (max - 0)) * 100
-      : 100;
-  } else if (value === 0) {
-    return 0;
-  } else {
-    return null;
-  }
+    if (value && value !== 0) {
+        return value !== null && !isNaN((value - 0) / (max - 0))
+            ? ((value - 0) / (max - 0)) * 100
+            : 100;
+    } else if (value === 0) {
+        return 0;
+    } else {
+        return null;
+    }
 }
 
 // Used in the error message displaying current time request when time range limit is exceeded
 export function secondsToDhms(seconds) {
-  seconds = Number(seconds);
-  var d = Math.floor(seconds / (3600 * 24));
-  var h = Math.floor((seconds % (3600 * 24)) / 3600);
-  var m = Math.floor((seconds % 3600) / 60);
-  var s = Math.floor(seconds % 60);
+    seconds = Number(seconds);
+    var d = Math.floor(seconds / (3600 * 24));
+    var h = Math.floor((seconds % (3600 * 24)) / 3600);
+    var m = Math.floor((seconds % 3600) / 60);
+    var s = Math.floor(seconds % 60);
 
-  var dDisplay = d > 0 ? d + (d === 1 ? " day, " : " days, ") : "";
-  var hDisplay = h > 0 ? h + (h === 1 ? " hour, " : " hours, ") : "";
-  var mDisplay = m > 0 ? m + (m === 1 ? " minute, " : " minutes, ") : "";
-  var sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
-  return (dDisplay + hDisplay + mDisplay + sDisplay).replace(/,\s*$/, "");
+    var dDisplay = d > 0 ? d + (d === 1 ? " day, " : " days, ") : "";
+    var hDisplay = h > 0 ? h + (h === 1 ? " hour, " : " hours, ") : "";
+    var mDisplay = m > 0 ? m + (m === 1 ? " minute, " : " minutes, ") : "";
+    var sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
+    return (dDisplay + hDisplay + mDisplay + sDisplay).replace(/,\s*$/, "");
 }
 
 // used for extracting time values from dates and returns a human readable time stamp ( 00:00:00 )
 export function getUTCTimeStringFromDate(d) {
-  const hours = d.getUTCHours() < 10 ? `0${d.getUTCHours()}` : d.getUTCHours();
-  const min =
-    d.getUTCMinutes() < 10 ? `0${d.getUTCMinutes()}` : d.getUTCMinutes();
-  const sec =
-    d.getUTCSeconds() < 10 ? `0${d.getUTCSeconds()}` : d.getUTCSeconds();
-  return `${hours}:${min}:${sec}`;
+    const hours =
+        d.getUTCHours() < 10 ? `0${d.getUTCHours()}` : d.getUTCHours();
+    const min =
+        d.getUTCMinutes() < 10 ? `0${d.getUTCMinutes()}` : d.getUTCMinutes();
+    const sec =
+        d.getUTCSeconds() < 10 ? `0${d.getUTCSeconds()}` : d.getUTCSeconds();
+    return `${hours}:${min}:${sec}`;
 }
 
 // used for extracting time values from dates and returns a human readable time stamp ( 00:00:00 )
 export function getTimeStringFromDate(d) {
-  const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours();
-  const min = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
-  const sec = d.getSeconds() < 10 ? `0${d.getSeconds()}` : d.getSeconds();
-  return `${hours}:${min}:${sec}`;
+    const hours = d.getHours() < 10 ? `0${d.getHours()}` : d.getHours();
+    const min = d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes();
+    const sec = d.getSeconds() < 10 ? `0${d.getSeconds()}` : d.getSeconds();
+    return `${hours}:${min}:${sec}`;
 }
 
 // used for extracting human-readable time parameters from url and turning them into seconds
 export function convertTimeToSecondsForURL(time) {
-  let timeValueInSeconds, dateUnitMultiplier, secondsValueFromNow, currentTime;
+    let timeValueInSeconds,
+        dateUnitMultiplier,
+        secondsValueFromNow,
+        currentTime;
 
-  currentTime = Math.round(new Date().getTime() / 1000);
-  if (Number.isNaN(time)) {
-    if (time.toLowerCase() === "now") {
-      timeValueInSeconds = currentTime;
+    currentTime = Math.round(new Date().getTime() / 1000);
+    if (Number.isNaN(time)) {
+        if (time.toLowerCase() === "now") {
+            timeValueInSeconds = currentTime;
+        }
+
+        if (time.charAt(0) === "-") {
+            const durStr = time.match(/[\--0-9]+|[0-9]+|[a-zA-Z]+/g);
+
+            // get time multiplier value in seconds (time unit, e.g. seconds, minutes, hours, days, months)
+            switch (durStr[2]) {
+                case "s":
+                    dateUnitMultiplier = 1;
+                    break;
+                case "m":
+                    dateUnitMultiplier = 60;
+                    break;
+                case "h":
+                    dateUnitMultiplier = 60 * 60;
+                    break;
+                case "d":
+                    dateUnitMultiplier = 60 * 60 * 24;
+                    break;
+                case "M":
+                    dateUnitMultiplier = 60 * 60 * 24 * 30;
+                    break;
+                default:
+                    break;
+            }
+
+            secondsValueFromNow = durStr[1] * dateUnitMultiplier;
+            // multiply variable above with [1] value, then determine if I should add or subtract from now time stamp value.
+            if (durStr[0] === "-") {
+                timeValueInSeconds = currentTime - secondsValueFromNow;
+            }
+        }
     }
 
-    if (time.charAt(0) === "-") {
-      const durStr = time.match(/[\--0-9]+|[0-9]+|[a-zA-Z]+/g);
-
-      // get time multiplier value in seconds (time unit, e.g. seconds, minutes, hours, days, months)
-      switch (durStr[2]) {
-        case "s":
-          dateUnitMultiplier = 1;
-          break;
-        case "m":
-          dateUnitMultiplier = 60;
-          break;
-        case "h":
-          dateUnitMultiplier = 60 * 60;
-          break;
-        case "d":
-          dateUnitMultiplier = 60 * 60 * 24;
-          break;
-        case "M":
-          dateUnitMultiplier = 60 * 60 * 24 * 30;
-          break;
-        default:
-          break;
-      }
-
-      secondsValueFromNow = durStr[1] * dateUnitMultiplier;
-      // multiply variable above with [1] value, then determine if I should add or subtract from now time stamp value.
-      if (durStr[0] === "-") {
-        timeValueInSeconds = currentTime - secondsValueFromNow;
-      }
+    if (!Number.isNaN(time)) {
+        timeValueInSeconds = time;
     }
-  }
 
-  if (!Number.isNaN(time)) {
-    timeValueInSeconds = time;
-  }
-
-  return timeValueInSeconds;
+    return timeValueInSeconds;
 }
