@@ -197,31 +197,23 @@ export function generateKeys(prefix) {
   return key + Math.random().toString(34).slice(2);
 }
 
-export function interpolateColor(color1, color2, min, max, value) {
-  const linearScale = d3.scale
-    .linear()
-    .domain([min, max])
-    .range([color1, color2]);
+const thresholdScores = {
+  COUNTRY: [1200, 1000000],
+  REGION: [100, 100000],
+};
+export function getMapScaleColor(score, type = "COUNTRY") {
+  const [min, max] = thresholdScores[type];
 
-  return linearScale(value);
-}
+  const colors = ["#FFCC3D", "#EE695B"];
 
-export function getCountryScaleColor(score) {
-  if (score < 1200) return "";
-
-  if (score > 1000000) {
-    return "#EA5362";
-  }
-
-  // if (score > 29000000) {
-  //   return "#EA5362";
-  // }
+  if (score > max) return colors[1];
+  if (score < min) return "transparent";
 
   const linearScale = d3.scale
     .pow()
     .exponent(0.5)
-    .domain([1200, 1000000])
-    .range(["#FFCC3D", "#EE695B"]);
+    .domain(thresholdScores[type])
+    .range(colors);
   return linearScale(score);
 }
 
@@ -256,11 +248,10 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
     });
 
     // get color value from gradient by percentage
-
-    if (summary.entity.type === "country") {
-      color = getCountryScaleColor(overallScore);
-    } else
-      color = interpolateColor("#E2EDF6", "#F6C3C1", min, max, overallScore);
+    color = `${getMapScaleColor(
+      overallScore,
+      summary.entity.type.toUpperCase()
+    )}80`;
 
     // If entity type has ip_count/is an ASN
     let summaryItem;

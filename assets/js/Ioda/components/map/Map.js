@@ -1,11 +1,6 @@
 import React, { Component } from "react";
 import { Map, TileLayer, GeoJSON } from "react-leaflet";
-import {
-  humanizeNumber,
-  shadeColor,
-  interpolateColor,
-  getCountryScaleColor,
-} from "../../utils";
+import { humanizeNumber, shadeColor, getMapScaleColor } from "../../utils";
 
 const mapAccessToken =
   "pk.eyJ1Ijoid2ViZXIwMjUiLCJhIjoiY2tmNXp5bG0wMDAzaTMxbWQzcXQ1Y3k2eCJ9.NMu5bfrybATuYQ7HdYvq-g";
@@ -88,7 +83,7 @@ class TopoMap extends Component {
   };
 
   render() {
-    let { scores, entityType } = this.props;
+    let { scores, entityType = "country" } = this.props;
     let position = [20, 0];
     let zoom = this.state.screenWidthBelow680 ? 1 : 2;
 
@@ -126,19 +121,13 @@ class TopoMap extends Component {
             style={(feature) => ({
               color: "transparent",
               weight: 2,
-              fillColor: !scores
-                ? "#f2f2f0"
-                : !feature.properties.score
-                ? "#f2f2f0"
-                : entityType === "country"
-                ? getCountryScaleColor(feature.properties.score)
-                : interpolateColor(
-                    "#1387CB",
-                    "#E8080D",
-                    scores[0],
-                    scores[scores.length - 1],
-                    feature.properties.score
-                  ),
+              fillColor:
+                !scores || !feature.properties.score
+                  ? "#f2f2f0"
+                  : getMapScaleColor(
+                      feature.properties.score,
+                      entityType.toUpperCase()
+                    ),
               fillOpacity: !feature.properties.score ? 0.2 : 0.5,
               dashArray: "2",
             })}
