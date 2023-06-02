@@ -36,7 +36,6 @@ class DashboardTab extends Component {
   genMap() {
     return (
       <TopoMap
-        entityType={this.props.type}
         topoData={this.props.topoData}
         scores={this.props.topoScores}
         handleEntityShapeClick={(entity) =>
@@ -88,11 +87,6 @@ class DashboardTab extends Component {
     const tooltipDashboardHeadingText = T.translate(
       "tooltip.dashboardHeading.text"
     );
-
-    const fromUTCSeconds =
-      this.props.from + new Date().getTimezoneOffset() * 60;
-    const untilUTCSeconds =
-      this.props.until + new Date().getTimezoneOffset() * 60;
 
     return (
       <div className="tab">
@@ -201,10 +195,7 @@ class DashboardTab extends Component {
                       ? this.genChart()
                       : null}
                   </div>
-                  <TimeStamp
-                    from={convertSecondsToDateValues(fromUTCSeconds)}
-                    until={convertSecondsToDateValues(untilUTCSeconds)}
-                  />
+                  <TimeStamp from={this.props.from} until={this.props.until} />
                 </div>
                 <div className="col-1-of-3">
                   <div className="tab__table">

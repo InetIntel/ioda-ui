@@ -104,15 +104,19 @@ import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
 import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from "../../components/cards/ChartTabCard";
+import ShareLinkModal from "../../components/modal/ShareLinkModal";
 import { element } from "prop-types";
 import Tabs from "../../components/tabs/Tabs";
 
 // Chart libraries
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import dayjs from "dayjs";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
+
+import dayjs from "dayjs";
+const utc = require("dayjs/plugin/utc");
+dayjs.extend(utc);
 
 const CUSTOM_FONT_FAMILY = "Lato-Regular, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -127,9 +131,9 @@ const getRangeDatesFromUrl = () => {
   const urlUntilDate = urlParams.get("until");
 
   const defaultFromDateSeconds = Math.floor(
-    (new Date().getTime() - 24 * 60 * 60 * 1000) / 1000
+    dayjs.utc().subtract(24, "hour").valueOf() / 1000
   );
-  const defaultUntilDateSeconds = Math.floor(new Date().getTime() / 1000);
+  const defaultUntilDateSeconds = Math.floor(dayjs.utc().valueOf() / 1000);
 
   return {
     fromDate: parseInt(urlFromDate) || defaultFromDateSeconds,
@@ -234,6 +238,8 @@ class Entity extends Component {
       tsDataScreenBelow678: window.innerWidth <= 678,
       // display export modal
       showXyChartModal: false,
+      // display link sharing modal
+      showShareLinkModal: false,
       // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
       tsDataSeriesVisibleMap: dataSource.reduce((result, item) => {
         result[item] = true;
@@ -322,6 +328,11 @@ class Entity extends Component {
     this.handleCheckboxEventLoading =
       this.handleCheckboxEventLoading.bind(this);
     this.toggleXyChartModal = this.toggleXyChartModal.bind(this);
+
+    this.displayShareLinkModal = this.displayShareLinkModal.bind(this);
+    this.hideShareLinkModal = this.hideShareLinkModal.bind(this);
+    this.manuallyDownloadChart = this.manuallyDownloadChart.bind(this);
+
     this.changeXyChartNormalization =
       this.changeXyChartNormalization.bind(this);
     this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
@@ -332,6 +343,7 @@ class Entity extends Component {
     this.initialTableLimit = 300;
     this.initialHtsLimit = 100;
     this.maxHtsLimit = 150;
+
     this.props.history.listen((location, action) => {
       window.location.reload();
     });
@@ -1075,14 +1087,8 @@ class Entity extends Component {
       this.state.entityName
     }`;
     const { fromDate, untilDate } = getRangeDatesFromUrl();
-    const fromDayjs = dayjs(fromDate * 1000).add(
-      new Date().getTimezoneOffset(),
-      "minutes"
-    );
-    const untilDayjs = dayjs(untilDate * 1000).add(
-      new Date().getTimezoneOffset(),
-      "minutes"
-    );
+    const fromDayjs = dayjs.utc(fromDate * 1000);
+    const untilDayjs = dayjs.utc(untilDate * 1000);
 
     const formatExpanded = "MMMM D, YYYY h:mma";
     const formatCompact = "YY-MM-DD-HH-mm";
@@ -1091,9 +1097,13 @@ class Entity extends Component {
       formatExpanded
     )} - ${untilDayjs.format(formatExpanded)} UTC`;
 
-    const exportFileName = `ioda-${this.state.entityName}-${fromDayjs.format(
-      formatCompact
-    )}`;
+    const exportFileNameBase = `ioda-${
+      this.state.entityName
+    }-${fromDayjs.format(formatCompact)}`;
+
+    const exportFileName = exportFileNameBase
+      .replace(/\s+/g, "-")
+      .toLowerCase();
 
     const chartOptions = {
       chart: {
@@ -1136,6 +1146,23 @@ class Entity extends Component {
             itemDistance: 40,
           },
           spacing: [10, 10, 15, 10],
+          credits: {
+            enabled: true,
+            text: "ioda.live",
+            href: "https://ioda.inetintel.cc.gatech.edu/",
+            position: {
+              align: "right",
+              verticalAlign: "top",
+              x: -15,
+              y: 25,
+            },
+            style: {
+              color: "#000",
+              fontSize: "16px",
+              fontWeight: "bold",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
+          },
         },
         menuItemDefinitions: {
           // Custom definition
@@ -1145,12 +1172,19 @@ class Entity extends Component {
             },
             text: "Reset Zoom",
           },
+          share: {
+            onclick: () => {
+              this.displayShareLinkModal();
+            },
+            text: "Share Link",
+          },
         },
         buttons: {
           contextButton: {
             menuItems: [
               "resetZoom",
               "separator",
+              "share",
               "downloadPNG",
               "downloadJPEG",
               "downloadSVG",
@@ -1335,18 +1369,8 @@ class Entity extends Component {
       series: chartSignals,
     };
 
-    // Set navigator time bounds. If we're rendering the chart for the first
-    // time (i.e., when the xyChartOptions is still null), we need to add a
-    // timezone offset to the bounds
-    let timezoneOffsetSeconds = 0;
-    if (!this.state.xyChartOptions) {
-      timezoneOffsetSeconds = new Date().getTimezoneOffset() * 60;
-    }
-
-    const navigatorLowerBound =
-      (this.state.tsDataLegendRangeFrom + timezoneOffsetSeconds) * 1000;
-    const navigatorUpperBound =
-      (this.state.tsDataLegendRangeUntil + timezoneOffsetSeconds) * 1000;
+    const navigatorLowerBound = this.state.tsDataLegendRangeFrom * 1000;
+    const navigatorUpperBound = this.state.tsDataLegendRangeUntil * 1000;
 
     // Rerender chart and set navigator bounds
     this.setState({ xyChartOptions: chartOptions }, () => {
@@ -1356,9 +1380,9 @@ class Entity extends Component {
   }
 
   setDefaultNavigatorTimeRange() {
-    const timezoneOffsetSeconds = new Date().getTimezoneOffset() * 60;
-    const navigatorLowerBound = (fromDate + timezoneOffsetSeconds) * 1000;
-    const navigatorUpperBound = (untilDate + timezoneOffsetSeconds) * 1000;
+    const { fromDate, untilDate } = getRangeDatesFromUrl();
+    const navigatorLowerBound = fromDate * 1000;
+    const navigatorUpperBound = untilDate * 1000;
 
     this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
   }
@@ -1393,8 +1417,8 @@ class Entity extends Component {
         this.state.eventDataRaw.forEach((event) => {
           alertBands.push({
             color: "rgba(250, 62, 72, 0.2)",
-            from: toDateTime(event.start).getTime(),
-            to: toDateTime(event.start + event.duration).getTime(),
+            from: event.start * 1000,
+            to: (event.start + event.duration) * 1000,
           });
         });
       }
@@ -1409,6 +1433,10 @@ class Entity extends Component {
       const legendDetails = legend.find(
         (elem) => elem.key === primarySignal.dataSource
       );
+
+      if (legendDetails === undefined) {
+        continue;
+      }
 
       const primaryData = primarySignal.values.map((point) => {
         return [point.x, point.y];
@@ -1516,6 +1544,18 @@ class Entity extends Component {
     );
   }
 
+  /**
+   * Trigger a download of the chart from outside the chart context. Used in the
+   * ShareLinkModal to trigger a direct download
+   */
+  manuallyDownloadChart() {
+    if (this.timeSeriesChartRef.current) {
+      this.timeSeriesChartRef.current.chart.exportChartLocal({
+        type: "image/jpeg",
+      });
+    }
+  }
+
   // toggle normalized values and absolute values
   changeXyChartNormalization() {
     this.setState({ tsDataNormalized: !this.state.tsDataNormalized }, () =>
@@ -1546,6 +1586,19 @@ class Entity extends Component {
       });
     }
   }
+
+  displayShareLinkModal() {
+    this.setState({
+      showShareLinkModal: true,
+    });
+  }
+
+  hideShareLinkModal() {
+    this.setState({
+      showShareLinkModal: false,
+    });
+  }
+
   // display modal used for annotation/download
   toggleXyChartModal() {
     // force alert bands off
@@ -1564,28 +1617,29 @@ class Entity extends Component {
     // Get the relevant values to populate table with
     let eventData = [];
     this.state.eventDataRaw.map((event) => {
+      console.log(event.start);
+      const fromDate = dayjs.utc(event.start * 1000);
+      const untilDate = dayjs.utc((event.start + event.duration) * 1000);
       const eventItem = {
         age: sd.stringify((event.start + event.duration) / 1000, "s"),
         from: {
-          month: convertSecondsToDateValues(event.start).month,
-          day: convertSecondsToDateValues(event.start).day,
-          year: convertSecondsToDateValues(event.start).year,
-          hours: convertSecondsToDateValues(event.start).hours,
-          minutes: convertSecondsToDateValues(event.start).minutes,
-          meridian: convertSecondsToDateValues(event.start).meridian,
+          month: fromDate.format("MMMM"),
+          day: fromDate.format("D"),
+          year: fromDate.format("YYYY"),
+          hours: fromDate.format("hh"),
+          minutes: fromDate.format("mm"),
+          meridian: fromDate.format("a"),
         },
-        fromDate: new Date(event.start * 1000),
+        fromDate: fromDate.toDate(),
         until: {
-          month: convertSecondsToDateValues(event.start + event.duration).month,
-          day: convertSecondsToDateValues(event.start + event.duration).day,
-          year: convertSecondsToDateValues(event.start + event.duration).year,
-          hours: convertSecondsToDateValues(event.start + event.duration).hours,
-          minutes: convertSecondsToDateValues(event.start + event.duration)
-            .minutes,
-          meridian: convertSecondsToDateValues(event.start + event.duration)
-            .meridian,
+          month: untilDate.format("MMMM"),
+          day: untilDate.format("D"),
+          year: untilDate.format("YYYY"),
+          hours: untilDate.format("hh"),
+          minutes: untilDate.format("mm"),
+          meridian: untilDate.format("a"),
         },
-        untilDate: new Date(event.start * 1000 + event.duration * 1000),
+        untilDate: untilDate.toDate(),
         duration: sd.stringify(event.duration, "s"),
         score: humanizeNumber(event.score),
       };
@@ -1608,18 +1662,19 @@ class Entity extends Component {
     // Get the relevant values to populate table with
     let alertData = [];
     this.state.alertDataRaw.map((alert) => {
+      const alertDate = dayjs.utc(alert.time * 1000);
       const alertItem = {
         entityName: alert.entity.name,
         level: alert.level,
         date: {
-          month: convertSecondsToDateValues(alert.time).month,
-          day: convertSecondsToDateValues(alert.time).day,
-          year: convertSecondsToDateValues(alert.time).year,
-          hours: convertSecondsToDateValues(alert.time).hours,
-          minutes: convertSecondsToDateValues(alert.time).minutes,
-          meridian: convertSecondsToDateValues(alert.time).meridian,
+          month: alertDate.format("MMMM"),
+          day: alertDate.format("D"),
+          year: alertDate.format("YYYY"),
+          hours: alertDate.format("hh"),
+          minutes: alertDate.format("mm"),
+          meridian: alertDate.format("a"),
         },
-        dateStamp: new Date(alert.time * 1000),
+        dateStamp: alertDate.toDate(),
         dataSource: alert.datasource,
         actualValue: alert.value,
         baselineValue: alert.historyValue,
@@ -1776,8 +1831,8 @@ class Entity extends Component {
             if (!this.state.rawAsnSignalsLoaded) {
               this.props.asnSignalsTableSummaryDataAction(
                 "asn",
-                entityCode,
-                entityType
+                entityType,
+                entityCode
               );
             }
           }
@@ -2825,6 +2880,15 @@ class Entity extends Component {
           <Error />
         ) : this.state.until - this.state.from < controlPanelTimeRangeLimit ? (
           <React.Fragment>
+            {/* Share Link Modal */}
+            <ShareLinkModal
+              open={this.state.showShareLinkModal}
+              link={window.location.href}
+              hideModal={this.hideShareLinkModal}
+              showModal={this.displayShareLinkModal}
+              entityName={this.state.entityName}
+              handleDownload={this.manuallyDownloadChart}
+            />
             <div className="row overview">
               <div
                 className={
@@ -2897,12 +2961,8 @@ class Entity extends Component {
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
                 <div className="overview__timestamp">
                   <TimeStamp
-                    from={convertSecondsToDateValues(
-                      this.state.tsDataLegendRangeFrom
-                    )}
-                    until={convertSecondsToDateValues(
-                      this.state.tsDataLegendRangeUntil
-                    )}
+                    from={this.state.tsDataLegendRangeFrom}
+                    until={this.state.tsDataLegendRangeUntil}
                   />
                 </div>
               </div>
