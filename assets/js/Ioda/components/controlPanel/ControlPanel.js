@@ -3,7 +3,14 @@ import T from "i18n-react";
 import Tooltip from "../../components/tooltip/Tooltip";
 import dayjs from "../../utils/dayjs";
 
-import { DatePicker, Button, Dropdown } from "antd";
+import {
+  DatePicker,
+  Button,
+  Popover,
+  InputNumber,
+  Select,
+  Divider,
+} from "antd";
 import {
   getNowAsUTC,
   secondsToUTC,
@@ -21,10 +28,82 @@ const RANGES = {
   THIS_MONTH: "this_month",
 };
 
+const UNITS = {
+  MINUTE: "minute",
+  HOUR: "hour",
+  DAY: "day",
+  WEEK: "week",
+};
+
 class ControlPanel extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      popoutOpen: false,
+      customDuration: 1,
+      customUnit: UNITS.DAY,
+    };
   }
+
+  handlePopoutOpen = (val) => {
+    this.setState({ popoutOpen: val });
+  };
+
+  handleCustomDurationChange = (val) => {
+    this.setState({ customDuration: val });
+  };
+
+  handleCustomUnitChange = (val) => {
+    this.setState({ customUnit: val });
+  };
+
+  handleRangeChange = ([fromDayjs, untilDayjs]) => {
+    this.props.onTimeFrameChange({
+      from: getSeconds(fromDayjs),
+      until: getSeconds(untilDayjs),
+    });
+  };
+
+  handleCustomRange = () => {
+    const { customDuration, customUnit } = this.state;
+    const from = getNowAsUTC().subtract(customDuration, customUnit);
+    const until = getNowAsUTC();
+    this.handleRangeChange([from, until]);
+
+    this.handlePopoutOpen(false);
+  };
+
+  handlePredefinedRangeSelection = ({ value }) => {
+    if (value === RANGES.LAST_60_MINS) {
+      this.props.onTimeFrameChange({
+        from: getSeconds(getNowAsUTC().subtract(60, "minute")),
+        until: getNowAsUTCSeconds(),
+      });
+    } else if (value === RANGES.LAST_24_HOURS) {
+      this.props.onTimeFrameChange({
+        from: getSeconds(getNowAsUTC().subtract(24, "hour")),
+        until: getNowAsUTCSeconds(),
+      });
+    } else if (value === RANGES.LAST_7_DAYS) {
+      this.props.onTimeFrameChange({
+        from: getSeconds(getNowAsUTC().subtract(7, "day")),
+        until: getNowAsUTCSeconds(),
+      });
+    } else if (value === RANGES.LAST_30_DAYS) {
+      this.props.onTimeFrameChange({
+        from: getSeconds(getNowAsUTC().subtract(30, "day")),
+        until: getNowAsUTCSeconds(),
+      });
+    } else if (value === RANGES.THIS_MONTH) {
+      this.props.onTimeFrameChange({
+        from: getSeconds(dayjs.utc().startOf("month")),
+        until: getSeconds(dayjs.utc().endOf("month")),
+      });
+    }
+
+    this.handlePopoutOpen(false);
+  };
 
   render() {
     const { from, until } = this.props;
@@ -35,64 +114,60 @@ class ControlPanel extends Component {
     const tooltipTimeRangeTitle = T.translate("tooltip.timeRange.title");
     const tooltipTimeRangeText = T.translate("tooltip.timeRange.text");
 
-    const onRangeChange = ([fromDayjs, untilDayjs]) => {
-      this.props.onTimeFrameChange({
-        from: getSeconds(fromDayjs),
-        until: getSeconds(untilDayjs),
-      });
-    };
-
-    const menuItems = [
+    const predefinedRanges = [
       {
-        key: RANGES.LAST_60_MINS,
+        value: RANGES.LAST_60_MINS,
         label: "- 60 mins",
       },
       {
-        key: RANGES.LAST_24_HOURS,
+        value: RANGES.LAST_24_HOURS,
         label: "- 24 hours",
       },
       {
-        key: RANGES.LAST_7_DAYS,
+        value: RANGES.LAST_7_DAYS,
         label: "- 7 days",
       },
       {
-        key: RANGES.LAST_30_DAYS,
+        value: RANGES.LAST_30_DAYS,
         label: "- 30 days",
       },
       {
-        key: RANGES.THIS_MONTH,
+        value: RANGES.THIS_MONTH,
         label: "This Month",
       },
     ];
 
-    const handlePredefinedRangeSelection = ({ key }) => {
-      if (key === RANGES.LAST_60_MINS) {
-        this.props.onTimeFrameChange({
-          from: getSeconds(getNowAsUTC().subtract(60, "minute")),
-          until: getNowAsUTCSeconds(),
-        });
-      } else if (key === RANGES.LAST_24_HOURS) {
-        this.props.onTimeFrameChange({
-          from: getSeconds(getNowAsUTC().subtract(24, "hour")),
-          until: getNowAsUTCSeconds(),
-        });
-      } else if (key === RANGES.LAST_7_DAYS) {
-        this.props.onTimeFrameChange({
-          from: getSeconds(getNowAsUTC().subtract(7, "day")),
-          until: getNowAsUTCSeconds(),
-        });
-      } else if (key === RANGES.LAST_30_DAYS) {
-        this.props.onTimeFrameChange({
-          from: getSeconds(getNowAsUTC().subtract(30, "day")),
-          until: getNowAsUTCSeconds(),
-        });
-      } else if (key === RANGES.THIS_MONTH) {
-        this.props.onTimeFrameChange({
-          from: getSeconds(dayjs.utc().startOf("month")),
-          until: getSeconds(dayjs.utc().endOf("month")),
-        });
-      }
-    };
+    const customUnitOptions = [
+      {
+        value: UNITS.MINUTE,
+        label: "mins",
+      },
+      {
+        value: UNITS.HOUR,
+        label: "hours",
+      },
+      {
+        value: UNITS.DAY,
+        label: "days",
+      },
+      {
+        value: UNITS.WEEK,
+        label: "weeks",
+      },
+    ];
+
+    const predefinedRangeGrid = (
+      <div className="flex flex-column gap-2 mb-3">
+        {predefinedRanges.map((item) => (
+          <Button
+            key={item.value}
+            onClick={() => this.handlePredefinedRangeSelection(item)}
+          >
+            {item.label}
+          </Button>
+        ))}
+      </div>
+    );
 
     return (
       <div className="row control-panel">
@@ -119,26 +194,59 @@ class ControlPanel extends Component {
             />
           </div>
           <div className="flex items-center">
-            <Dropdown
-              menu={{
-                items: menuItems,
-                onClick: handlePredefinedRangeSelection,
+            <Popover
+              overlayStyle={{
+                width: 240,
               }}
               placement="bottomLeft"
               trigger="click"
+              open={this.state.popoutOpen}
+              onOpenChange={this.handlePopoutOpen}
+              content={
+                <div>
+                  {predefinedRangeGrid}
+                  <Divider className="my-4" />
+                  <div className="flex gap-1 items-center mb-3">
+                    <span className="text-xl mr-1">Last</span>
+                    <InputNumber
+                      value={this.state.customDuration}
+                      onChange={this.handleCustomDurationChange}
+                      min={1}
+                      size="small"
+                      style={{ maxWidth: 60 }}
+                    />
+                    <Select
+                      className="col"
+                      value={this.state.customUnit}
+                      onChange={this.handleCustomUnitChange}
+                      options={customUnitOptions}
+                      size="small"
+                      style={{ width: 80 }}
+                    />
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={this.handleCustomRange}
+                    >
+                      Go
+                    </Button>
+                  </div>
+                </div>
+              }
             >
               <Button
                 className="mr-3"
                 icon={<ClockCircleOutlined />}
                 type="primary"
               />
-            </Dropdown>
+            </Popover>
             <RangePicker
+              className="col"
               value={defaultDateRange}
-              showTime={{ format: "h:mm A" }}
-              format="MMM D YYYY h:mm A UTC"
-              onChange={onRangeChange}
-              onOk={onRangeChange}
+              showTime={{ format: "h:mmA" }}
+              format="MMM D YYYY h:mma UTC"
+              onChange={this.handleRangeChange}
+              onOk={this.handleRangeChange}
             />
           </div>
         </div>
