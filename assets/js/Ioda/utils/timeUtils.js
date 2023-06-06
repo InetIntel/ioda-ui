@@ -6,28 +6,6 @@ export const MS_IN_MIN = 60 * 1000;
 export const MS_IN_HOUR = 60 * MS_IN_MIN;
 export const MS_IN_DAY = 24 * MS_IN_HOUR;
 
-export const LANG_KEY = "lang";
-export const SIMPLIED_VIEW_KEY = "simplified_view";
-
-export const getSavedLanguagePreference = () => {
-  return localStorage.getItem(LANG_KEY) || "en";
-};
-
-export const saveLanguagePreference = (val) => {
-  return localStorage.setItem(LANG_KEY, val);
-};
-
-export const getSavedAdvancedModePreference = () => {
-  return !!localStorage.getItem(SIMPLIED_VIEW_KEY) || false;
-};
-
-export const saveAdvancedModePreference = (val) => {
-  localStorage.removeItem(SIMPLIED_VIEW_KEY);
-  if (val) {
-    return localStorage.setItem(SIMPLIED_VIEW_KEY, val);
-  }
-};
-
 export const millisecondsToSeconds = (milliseconds) => {
   return Math.floor(milliseconds / 1000);
 };
@@ -37,7 +15,7 @@ export const secondsToMilliseconds = (seconds) => {
 };
 
 export const millisecondsToUTC = (milliseconds) => {
-  dayjs(milliseconds).toDate();
+  return dayjs.utc(milliseconds);
 };
 
 export const secondsToUTC = (seconds) => {
@@ -46,7 +24,11 @@ export const secondsToUTC = (seconds) => {
 };
 
 export const getNowAsUTC = () => {
-  return dayjs();
+  return dayjs.utc();
+};
+
+export const getSeconds = (dayjsObj) => {
+  return millisecondsToSeconds(dayjsObj.valueOf());
 };
 
 export const getNowAsUTCMilliseconds = () => {
@@ -69,7 +51,7 @@ export const formatUTCMilliseconds = (
   milliseconds,
   format = "MMMM D, YYYY h:mma UTC"
 ) => {
-  return dayjs(milliseconds).format(format);
+  return dayjs.utc(milliseconds).format(format);
 };
 
 export const formatUTCSeconds = (

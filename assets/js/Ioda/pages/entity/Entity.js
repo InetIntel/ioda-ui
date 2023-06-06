@@ -115,10 +115,11 @@ require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
 import dayjs from "dayjs";
+import { getSavedAdvancedModePreference } from "../../utils/storage";
 const utc = require("dayjs/plugin/utc");
 dayjs.extend(utc);
 
-const CUSTOM_FONT_FAMILY = "Lato-Regular, sans-serif";
+const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
 
 /**
@@ -314,7 +315,7 @@ class Entity extends Component {
       additionalRawSignalRequestedUcsdNt: false,
       additionalRawSignalRequestedMeritNt: false,
       currentTab: 1,
-      simplifiedView: localStorage.getItem("simplified_view") === "true",
+      simplifiedView: !getSavedAdvancedModePreference(),
       currentEntitiesChecked: 100,
     };
 
@@ -851,14 +852,22 @@ class Entity extends Component {
 
   // Control Panel
   // manage the date selected in the input
-  handleTimeFrame(dateRange, timeRange) {
+  handleTimeFrame = ({ from, until }) => {
     const { history } = this.props;
     history.push(
-      `/${this.state.entityType}/${this.state.entityCode}?from=${Math.floor(
-        dateRange.startDate / 1000
-      )}&until=${Math.floor(dateRange.endDate / 1000)}`
+      `/${this.state.entityType}/${this.state.entityCode}?from=${from}&until=${until}`
     );
-  }
+  };
+
+  handleControlPanelClose = () => {
+    const { history } = this.props;
+    history.push(
+      window.location.search.split("?")[1]
+        ? `/dashboard?from=${this.state.from}&until=${this.state.until}`
+        : `/dashboard`
+    );
+  };
+
   // Search bar
   // get data for search results that populate in suggested search list
   getDataSuggestedSearchResults(searchTerm) {
@@ -2860,7 +2869,7 @@ class Entity extends Component {
     );
 
     return (
-      <div className="entity">
+      <div className="w-full max-cont entity">
         <Helmet>
           <title>IODA | Internet Outages for {this.state.entityName}</title>
           <meta
@@ -2871,10 +2880,10 @@ class Entity extends Component {
         <ControlPanel
           from={this.state.from}
           until={this.state.until}
-          timeFrame={this.handleTimeFrame}
           searchbar={() => this.populateSearchBar()}
+          onTimeFrameChange={this.handleTimeFrame}
+          onClose={this.handleControlPanelClose}
           title={this.state.entityName}
-          history={this.props.history}
         />
         {this.state.displayTimeRangeError ? (
           <Error />

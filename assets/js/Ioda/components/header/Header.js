@@ -80,7 +80,7 @@ import {
   getSavedLanguagePreference,
   saveAdvancedModePreference,
   saveLanguagePreference,
-} from "../../utils/core";
+} from "../../utils/storage";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 
 const languageOptions = [
@@ -92,60 +92,48 @@ class Header extends Component {
   constructor(props) {
     super(props);
 
-    console.log(getSavedAdvancedModePreference());
-
     this.state = {
       language: getSavedLanguagePreference(),
       advancedMode: getSavedAdvancedModePreference(),
       showDrawer: false,
       mounted: false,
     };
-
-    this.setShowDrawer = this.setShowDrawer.bind(this);
-    this.toggleDrawerMenu = this.toggleDrawerMenu.bind(this);
-    this.handleLanguageChange = this.handleLanguageChange.bind(this);
-    this.handleModeChange = this.handleModeChange.bind(this);
   }
 
   componentDidMount() {
     this.setState({ mounted: true });
   }
 
-  setShowDrawer(showDrawer) {
+  setShowDrawer = (showDrawer) => {
     this.setState({ showDrawer });
-  }
+  };
 
-  toggleDrawerMenu() {
+  toggleDrawerMenu = () => {
     this.setShowDrawer(!this.state.showDrawer);
-  }
+  };
 
-  handleLanguageChange(language) {
+  handleLanguageChange = (language) => {
     if (!this.state.mounted) {
       return;
     }
     saveLanguagePreference(language);
     window.location.reload(false);
-  }
+  };
 
-  handleModeChange(isAdvancedMode) {
-    console.log({ isAdvancedMode });
+  handleModeChange = (isAdvancedMode) => {
     if (!this.state.mounted) {
       return;
     }
-    console.log({ isAdvancedMode });
     saveAdvancedModePreference(isAdvancedMode);
     window.location.reload(false);
-  }
+  };
 
   render() {
     const dashboard = T.translate("header.dashboard");
     const reports = T.translate("header.reports");
     const help = T.translate("header.help");
-    const projectInfo = T.translate("header.projectInfo");
     const iodaLogoAltText = T.translate("header.iodaLogoAltText");
     const api = T.translate("header.api");
-
-    const acknowledgements = T.translate("header.acknowledgements");
     const viewToggleHelp = T.translate("header.viewToggleHelp");
 
     const modeStatus = this.state.advancedMode ? "Advanced" : "Simple";
