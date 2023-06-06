@@ -52,8 +52,8 @@ import Loading from "../../components/loading/Loading";
 import {
   MIN_IN_DAY,
   getPreviousMinutesAsUTCSecondRange,
-  getSavedLanguagePreference,
-} from "../../utils/core";
+} from "../../utils/timeUtils";
+import { getSavedLanguagePreference } from "../../utils/storage";
 import { Button } from "antd";
 import { DesktopOutlined } from "@ant-design/icons";
 

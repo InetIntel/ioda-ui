@@ -1,9 +1,9 @@
 .dashboard {
   padding-top: $header-height;
-  margin: 1.5rem $gutter-vertical 0;
+  margin: $gutter-vertical auto;
 
   @include respond(phone-440) {
-    margin: 3rem 1rem 0;
+    margin: 3rem auto;
   }
 
   .title {
@@ -42,7 +42,7 @@
 
           &:hover {
             & span {
-              transition: all .4s ease-in-out;
+              transition: all 0.4s ease-in-out;
               filter: brightness(1.05) contrast(1.05);
               transform: scale(1.03);
             }
@@ -55,39 +55,36 @@
 
         & a {
           @include textLink;
-          color: $color-primary!important;
+          color: $color-primary !important;
           border-top-left-radius: 3px;
           border-top-right-radius: 3px;
           border: 1px solid $color-table-cell-border;
-          background-size: 100% 2px!important;
+          background-size: 100% 2px !important;
           box-shadow: $box-shadow;
           z-index: 100;
           position: relative;
 
-          &:link, &:visited {
-            background:
-                    linear-gradient(
-                                    175deg,
-                                    $color-primary-light 0%,
-                                    $color-primary-light 33.3%,
-                                    $color-primary 83.5%,
-                                    $color-primary-dark 100%
-                    )
-                    left
-                    bottom
-                    transparent
-                    no-repeat;
+          &:link,
+          &:visited {
+            background: linear-gradient(
+                175deg,
+                $color-primary-light 0%,
+                $color-primary-light 33.3%,
+                $color-primary 83.5%,
+                $color-primary-dark 100%
+              )
+              left bottom transparent no-repeat;
           }
 
           &:hover {
-            background-size: 100% 2px!important;
+            background-size: 100% 2px !important;
             border-top-left-radius: 3px;
             border-top-right-radius: 3px;
             color: $color-primary;
           }
 
           &:after {
-            content: '';
+            content: "";
             height: 1rem;
             width: 100%;
             background-color: $color-white;
@@ -107,10 +104,6 @@
       box-shadow: $box-shadow;
       height: auto;
 
-      & .row {
-        padding: $gutter-vertical-small;
-      }
-
       &__error {
         font-size: 1.3rem;
 
@@ -121,28 +114,6 @@
           border-radius: 0.4rem;
           font-family: $font-lato-bold;
           text-transform: capitalize;
-        }
-      }
-
-      &__config {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-        margin-bottom: 1.5rem;
-
-        &-button {
-          @include button;
-          padding: 0.2rem;
-          height: 3rem;
-          width: 3rem;
-          font-size: 1rem;
-          margin: 0!important;
-
-          &-img {
-            height: 100%;
-            width: 100%;
-          }
         }
       }
 
@@ -163,7 +134,7 @@
       }
 
       & .horizon-series .label {
-        background-color: rgba(255,255,255,0.4);
+        background-color: rgba(255, 255, 255, 0.4);
         padding: 0 0.4rem;
         border-radius: 0.3rem;
         max-height: 100%;

@@ -1,5 +1,5 @@
-import 'react-app-polyfill/ie11';
-import 'react-app-polyfill/stable';
+import "react-app-polyfill/ie11";
+import "react-app-polyfill/stable";
 // These must be the first lines in src/index.js
 /*
  * This software is Copyright (c) 2013 The Regents of the University of
@@ -36,88 +36,86 @@ import 'react-app-polyfill/stable';
  */
 
 // global CSS styles exported from sass scripts
-import 'css/style.css';
+import "css/style.css";
 // Internationalization Files
-import './constants/strings';
+import "./constants/strings";
 // React imports
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import GA4React from "ga-4-react";
 // Redux
-import { Provider } from 'react-redux';
-import {createStore, applyMiddleware, combineReducers} from "redux";
-import thunk from 'redux-thunk';
-import {iodaApiReducer} from "./data/DataReducer";
+import { Provider } from "react-redux";
+import { createStore, applyMiddleware, combineReducers } from "redux";
+import thunk from "redux-thunk";
+import { iodaApiReducer } from "./data/DataReducer";
 // Global Components
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
 // Routes
-import Home from './pages/home/Home';
-import Dashboard from './pages/dashboard/Dashboard';
-import Entity from './pages/entity/Entity';
-import Reports from './pages/reports/Reports';
-import ProjectInfo from './pages/projectinfo/ProjectInfo';
-import Help from './pages/help/Help';
-import IranReport2020 from './pages/reports/IranReport2020';
+import Home from "./pages/home/Home";
+import Dashboard from "./pages/dashboard/Dashboard";
+import Entity from "./pages/entity/Entity";
+import Reports from "./pages/reports/Reports";
+import ProjectInfo from "./pages/projectinfo/ProjectInfo";
+import Help from "./pages/help/Help";
+import IranReport2020 from "./pages/reports/IranReport2020";
 import ChartShare from "./pages/tests/ChartShare";
 import Acknowledgements from "./pages/acknowledgements/Acknowledgements";
 import TestAPI from "./pages/tests/TestAPI";
-import { ASNVizV2 } from './pages/tmpViz/ASNVizV2';
-import GTRIntegrated from './pages/reports/GTRIntegrated';
+import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
+import GTRIntegrated from "./pages/reports/GTRIntegrated";
 
-
-
-const ga4react = new GA4React('G-XD5MWMBCF9');
-ga4react.initialize().then((ga4) => {
-    ga4.pageview('path');
-    ga4.gtag('event','pageview','path');
-},(err) => {
-    console.error(err)
-});
+const ga4react = new GA4React("G-XD5MWMBCF9");
+ga4react.initialize().then(
+  (ga4) => {
+    ga4.pageview("path");
+    ga4.gtag("event", "pageview", "path");
+  },
+  (err) => {
+    console.error(err);
+  }
+);
 ga4react.initialize();
 
-
 class App extends Component {
-    render() {
-        return <div className="app">
-            <Header/>
-            <Switch>
-                {/*<Route path='/test' component={TestAPI}/>*/}
-                <Route path='/chart/:entityType/:entityCode' component={ChartShare}/>
-                <Route path='/dashboard' component={Dashboard}/>
-                <Route exact path='/reports' component={Reports}/>
-                <Route exact path='/project' component={ProjectInfo}/>
-                <Route exact path='/help' component={Help}/>
-                <Route exact path='/acknowledgements' component={Acknowledgements}/>
-                <Route exact path='/_tmp/asn' component={ASNVizV2}/>
-                <Route path='/reports/2020-iran-report' component={IranReport2020}/>
-                <Route path='/reports/GTR-integrated' component={GTRIntegrated}/>
-                <Route exact path='/:entityType/:entityCode' component={Entity} />
-                <Route path='/' component={Home}/>
-            </Switch>
-            <Footer/>
-        </div>;
-    }
+  render() {
+    return (
+      <div className="app">
+        <Header />
+        <Switch>
+          {/*<Route path='/test' component={TestAPI}/>*/}
+          <Route path="/chart/:entityType/:entityCode" component={ChartShare} />
+          <Route path="/dashboard/:entityType?" component={Dashboard} />
+          <Route exact path="/reports" component={Reports} />
+          <Route exact path="/project" component={ProjectInfo} />
+          <Route exact path="/help" component={Help} />
+          <Route exact path="/acknowledgements" component={Acknowledgements} />
+          <Route exact path="/_tmp/asn" component={ASNVizV2} />
+          <Route path="/reports/2020-iran-report" component={IranReport2020} />
+          <Route path="/reports/GTR-integrated" component={GTRIntegrated} />
+          <Route exact path="/:entityType/:entityCode" component={Entity} />
+          <Route path="/" component={Home} />
+        </Switch>
+        <Footer />
+      </div>
+    );
+  }
 }
 
 const reducers = {
-    iodaApi: iodaApiReducer,
+  iodaApi: iodaApiReducer,
 };
 const rootReducer = combineReducers(reducers);
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
 // await google analytics to initialize
 
-    
-
-    ReactDOM.render(
-        <Provider store={store}>
-            <BrowserRouter>
-                <App/>
-            </BrowserRouter>
-        </Provider>,
-        document.getElementById('root')
-    );
-
-
+ReactDOM.render(
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>,
+  document.getElementById("root")
+);
