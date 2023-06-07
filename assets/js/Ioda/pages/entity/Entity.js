@@ -116,31 +116,21 @@ require("highcharts/modules/offline-exporting")(Highcharts);
 
 import dayjs from "dayjs";
 import { getSavedAdvancedModePreference } from "../../utils/storage";
+import {
+  getNowAsUTC,
+  getNowAsUTCSeconds,
+  getSeconds,
+  millisecondsToSeconds,
+  secondsToMilliseconds,
+  secondsToUTC,
+} from "../../utils/timeUtils";
+import { getDateRangeFromUrl } from "../../utils/urlUtils";
+import { withRouter } from "react-router-dom";
 const utc = require("dayjs/plugin/utc");
 dayjs.extend(utc);
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
-
-/**
- * Extract dates from the URL, or provide defaults if not present in the URL
- * @returns object containing date range (dates as seconds)
- */
-const getRangeDatesFromUrl = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlFromDate = urlParams.get("from");
-  const urlUntilDate = urlParams.get("until");
-
-  const defaultFromDateSeconds = Math.floor(
-    dayjs.utc().subtract(24, "hour").valueOf() / 1000
-  );
-  const defaultUntilDateSeconds = Math.floor(dayjs.utc().valueOf() / 1000);
-
-  return {
-    fromDate: parseInt(urlFromDate) || defaultFromDateSeconds,
-    untilDate: parseInt(urlUntilDate) || defaultUntilDateSeconds,
-  };
-};
 
 /**
  * Extract the entityType and entityCode from the URL
@@ -164,17 +154,15 @@ const getEntityDataFromUrl = () => {
  * @returns object containing date range (dates as seconds)
  */
 const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
-  const MAX_DAYS_AS_MS = controlPanelTimeRangeLimit * 1000;
-  const fromMs = fromDateSeconds * 1000;
-  const untilMs = untilDateSeconds * 1000;
-  const diff = untilMs - fromMs;
+  const MAX_DAYS_AS_SEC = controlPanelTimeRangeLimit;
+  const diff = untilDateSeconds - fromDateSeconds;
 
-  let cappedDiff = Math.min(2 * diff, MAX_DAYS_AS_MS);
-  const newFrom = untilMs - cappedDiff;
+  const cappedDiff = Math.min(2 * diff, MAX_DAYS_AS_SEC);
+  const newFrom = untilDateSeconds - cappedDiff;
 
   return {
-    timeSignalFrom: Math.floor(newFrom / 1000),
-    timeSignalUntil: Math.floor(untilMs / 1000),
+    timeSignalFrom: newFrom,
+    timeSignalUntil: untilDateSeconds,
   };
 };
 
@@ -197,7 +185,11 @@ const getMinValue = (values) =>
 const getMaxValue = (values) =>
   values.reduce((m, v) => (v != null && v > m ? v : m), -Infinity);
 
-const { fromDate, untilDate } = getRangeDatesFromUrl();
+const urlRange = getDateRangeFromUrl();
+const fromDate =
+  urlRange.urlFromDate ?? getSeconds(getNowAsUTC().subtract(24, "hour"));
+const untilDate = urlRange.urlUntilDate ?? getNowAsUTCSeconds();
+
 const { entityCode, entityType } = getEntityDataFromUrl();
 
 class Entity extends Component {
@@ -965,7 +957,9 @@ class Entity extends Component {
       const seriesDataValues = [];
       const seriesDataValuesNormalized = [];
       datasource.values.forEach((value, index) => {
-        const x = 1000 * (datasource.from + datasource.step * index);
+        const x = secondsToMilliseconds(
+          datasource.from + datasource.step * index
+        );
         const normalY = normalize(value, seriesMax);
         const y = this.state.tsDataNormalized ? normalY : value;
 
@@ -1095,9 +1089,9 @@ class Entity extends Component {
     const exportChartTitle = `${T.translate("entity.xyChartTitle")} ${
       this.state.entityName
     }`;
-    const { fromDate, untilDate } = getRangeDatesFromUrl();
-    const fromDayjs = dayjs.utc(fromDate * 1000);
-    const untilDayjs = dayjs.utc(untilDate * 1000);
+    const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
+    const fromDayjs = secondsToUTC(urlFromDate);
+    const untilDayjs = secondsToUTC(urlUntilDate);
 
     const formatExpanded = "MMMM D, YYYY h:mma";
     const formatCompact = "YY-MM-DD-HH-mm";
@@ -1293,7 +1287,7 @@ class Entity extends Component {
       },
       xAxis: {
         type: "datetime",
-        minRange: 5 * 60 * 1000, // 5 minutes as milliseconds
+        minRange: secondsToMilliseconds(5 * 60), // 5 minutes as milliseconds
         dateTimeLabelFormats: dateFormats,
         title: {
           text: xyChartXAxisTitle,
@@ -1378,8 +1372,12 @@ class Entity extends Component {
       series: chartSignals,
     };
 
-    const navigatorLowerBound = this.state.tsDataLegendRangeFrom * 1000;
-    const navigatorUpperBound = this.state.tsDataLegendRangeUntil * 1000;
+    const navigatorLowerBound = secondsToMilliseconds(
+      this.state.tsDataLegendRangeFrom
+    );
+    const navigatorUpperBound = secondsToMilliseconds(
+      this.state.tsDataLegendRangeUntil
+    );
 
     // Rerender chart and set navigator bounds
     this.setState({ xyChartOptions: chartOptions }, () => {
@@ -1389,9 +1387,9 @@ class Entity extends Component {
   }
 
   setDefaultNavigatorTimeRange() {
-    const { fromDate, untilDate } = getRangeDatesFromUrl();
-    const navigatorLowerBound = fromDate * 1000;
-    const navigatorUpperBound = untilDate * 1000;
+    const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
+    const navigatorLowerBound = secondsToMilliseconds(urlFromDate);
+    const navigatorUpperBound = secondsToMilliseconds(urlUntilDate);
 
     this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
   }
@@ -1426,8 +1424,8 @@ class Entity extends Component {
         this.state.eventDataRaw.forEach((event) => {
           alertBands.push({
             color: "rgba(250, 62, 72, 0.2)",
-            from: event.start * 1000,
-            to: (event.start + event.duration) * 1000,
+            from: secondsToMilliseconds(event.start),
+            to: secondsToMilliseconds(event.start + event.duration),
           });
         });
       }
@@ -1529,8 +1527,8 @@ class Entity extends Component {
       return;
     }
 
-    const axisMin = Math.floor(event.min / 1000);
-    const axisMax = Math.floor(event.max / 1000);
+    const axisMin = millisecondsToSeconds(event.min);
+    const axisMax = millisecondsToSeconds(event.max);
 
     this.setState({
       tsDataLegendRangeFrom: axisMin,
@@ -1627,8 +1625,8 @@ class Entity extends Component {
     let eventData = [];
     this.state.eventDataRaw.map((event) => {
       console.log(event.start);
-      const fromDate = dayjs.utc(event.start * 1000);
-      const untilDate = dayjs.utc((event.start + event.duration) * 1000);
+      const fromDate = secondsToUTC(event.start);
+      const untilDate = secondsToUTC(event.start + event.duration);
       const eventItem = {
         age: sd.stringify((event.start + event.duration) / 1000, "s"),
         from: {
@@ -1669,10 +1667,9 @@ class Entity extends Component {
   // Take values from api and format for Alert table
   convertValuesForAlertTable() {
     // Get the relevant values to populate table with
-    let alertData = [];
-    this.state.alertDataRaw.map((alert) => {
-      const alertDate = dayjs.utc(alert.time * 1000);
-      const alertItem = {
+    const alertData = this.state.alertDataRaw.map((alert) => {
+      const alertDate = secondsToUTC(alert.time);
+      return {
         entityName: alert.entity.name,
         level: alert.level,
         date: {
@@ -1688,7 +1685,6 @@ class Entity extends Component {
         actualValue: alert.value,
         baselineValue: alert.historyValue,
       };
-      alertData.push(alertItem);
     });
 
     this.setState({
@@ -2905,8 +2901,8 @@ class Entity extends Component {
                 }
               >
                 <div className="overview__config" ref={this.config}>
-                  <div className="overview__config-heading">
-                    <h3 className="heading-h3">
+                  <div className="flex items-center">
+                    <h3 className="text-2xl mr-1">
                       {xyChartTitle}
                       {this.state.entityName}
                     </h3>
@@ -3523,4 +3519,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Entity);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Entity));
