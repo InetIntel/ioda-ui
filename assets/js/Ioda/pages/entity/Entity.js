@@ -1387,9 +1387,8 @@ class Entity extends Component {
   }
 
   setDefaultNavigatorTimeRange() {
-    const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
-    const navigatorLowerBound = secondsToMilliseconds(urlFromDate);
-    const navigatorUpperBound = secondsToMilliseconds(urlUntilDate);
+    const navigatorLowerBound = secondsToMilliseconds(this.state.from);
+    const navigatorUpperBound = secondsToMilliseconds(this.state.until);
 
     this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
   }
