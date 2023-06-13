@@ -416,77 +416,11 @@
 
 // Styles for ShareLinkModal component
 .linkShareModal {
-  font-size: 1rem;
-  margin: 0;
-  padding: 0 1rem;
-
-  &__download-link {
-    display: inline-block;
-    font-size: 16px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    color: #3975bb;
-    font-weight: 600;
-  }
-
-  &__download-link:hover {
-    text-decoration: underline;
-  }
-
-  &__copy-link {
-    display: flex;
-    gap: 0.75rem;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  &__link {
-    flex: 1;
-    flex-grow: 1;
-    flex-shrink: 1;
-    padding: 1rem;
-    font-size: 1.5rem;
-    background-color: #ccc;
-    border: 1px solid #555;
-    color: #000;
-    border-radius: 5px;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    white-space: nowrap;
-
-    // Show scrollbar but hide it
-    overflow-x: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-
-    ::-webkit-scrollbar {
-      display: none; /* Safari and Chrome */
-    }
-  }
-
-  &__modal-body {
-    padding: 2rem;
-  }
-
-  &__modal-title {
-    font-size: 2rem;
-  }
-
-  &__modal-content {
-    margin-top: 2rem;
-  }
-
   &__share-items {
     margin-top: 2rem;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 4px 10px;
-  }
-
-  &__copy-message {
-    font-size: 0.75rem;
-    font-style: italic;
   }
 }
