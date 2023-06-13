@@ -3351,6 +3351,14 @@ body {
 .u-text-align-center {
   text-align: center !important; }
 
+.ioda-checkbox .ant-checkbox-checked .ant-checkbox-inner,
+.ioda-checkbox .ant-checkbox-checked .ant-checkbox-inner:hover {
+  background-color: var(--background-color) !important;
+  border-color: var(--border-color) !important; }
+
+.ioda-checkbox .ant-checkbox-checked .ant-checkbox-inner:hover::after {
+  border-color: var(--border-color) !important; }
+
 .control-panel {
   background-color: #fff;
   border-radius: 0.3rem;
