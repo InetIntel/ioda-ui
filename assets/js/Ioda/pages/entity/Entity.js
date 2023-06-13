@@ -224,12 +224,7 @@ class Entity extends Component {
       xyChartOptions: null,
       tsDataRaw: null,
       tsDataNormalized: true,
-      // Chart Settings Popover Contents
-      displayChartSettingsPopout: false,
       tsDataDisplayOutageBands: false,
-      // Chart Share Popover
-      displayChartSharePopout: false,
-
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
       // Used for responsively styling the xy chart
@@ -315,30 +310,12 @@ class Entity extends Component {
       currentTab: 1,
       simplifiedView: !getSavedAdvancedModePreference(),
       currentEntitiesChecked: 100,
+
+      // Popovers
+      displayChartSettingsPopover: false,
+      displayChartSharePopover: false,
     };
 
-    this.handleChartLegendSelectionChange =
-      this.handleChartLegendSelectionChange.bind(this);
-    this.handleSelectedSignal = this.handleSelectedSignal.bind(this);
-
-    this.handleTimeFrame = this.handleTimeFrame.bind(this);
-    this.toggleModal = this.toggleModal.bind(this);
-    this.handleEntityShapeClick = this.handleEntityShapeClick.bind(this);
-    this.handleCheckboxEventLoading =
-      this.handleCheckboxEventLoading.bind(this);
-    this.toggleXyChartModal = this.toggleXyChartModal.bind(this);
-
-    this.displayShareLinkModal = this.displayShareLinkModal.bind(this);
-    this.hideShareLinkModal = this.hideShareLinkModal.bind(this);
-    this.manuallyDownloadChart = this.manuallyDownloadChart.bind(this);
-
-    this.changeXyChartNormalization =
-      this.changeXyChartNormalization.bind(this);
-    this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
-    this.updateEntityMetaData = this.updateEntityMetaData.bind(this);
-    this.updateSourceParams = this.updateSourceParams.bind(this);
-    this.toggleView = this.toggleView.bind(this);
-    this.handleSelectTab = this.handleSelectTab.bind(this);
     this.initialTableLimit = 300;
     this.initialHtsLimit = 100;
     this.maxHtsLimit = 150;
@@ -348,7 +325,7 @@ class Entity extends Component {
     });
   }
 
-  updateEntityMetaData(entityName, entityCode) {
+  updateEntityMetaData = (entityName, entityCode) => {
     getEntityMetadata(entityName, entityCode).then((data) => {
       this.setState(
         {
@@ -370,7 +347,7 @@ class Entity extends Component {
         }
       );
     });
-  }
+  };
 
   componentDidMount() {
     // Monitor screen width
@@ -868,7 +845,7 @@ class Entity extends Component {
 
   // Search bar
   // get data for search results that populate in suggested search list
-  getDataSuggestedSearchResults(searchTerm) {
+  getDataSuggestedSearchResults = (searchTerm) => {
     if (this.state.mounted) {
       // Set searchTerm to the value of nextProps, nextProps refers to the current search string value in the field.
       this.setState({ searchTerm: searchTerm });
@@ -887,7 +864,7 @@ class Entity extends Component {
         );
       }
     }
-  }
+  };
 
   // Define what happens when user clicks suggested search result entry
   handleResultClick = (query) => {
@@ -913,7 +890,7 @@ class Entity extends Component {
   };
 
   // Function that returns search bar passed into control panel
-  populateSearchBar() {
+  populateSearchBar = () => {
     return (
       <Searchbar
         placeholder={T.translate("controlPanel.searchBarPlaceholder")}
@@ -925,12 +902,12 @@ class Entity extends Component {
         searchTerm={this.state.searchTerm}
       />
     );
-  }
+  };
 
   // 1st Row
   // XY Chart Functions
   // format data from api to be compatible with chart visual
-  convertValuesForXyViz() {
+  convertValuesForXyViz = () => {
     const signalValues = [];
     const normalizedValues = [];
 
@@ -1365,7 +1342,7 @@ class Entity extends Component {
       this.renderXyChart();
       this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
     });
-  }
+  };
 
   setDefaultNavigatorTimeRange = () => {
     const navigatorLowerBound = secondsToMilliseconds(this.state.from);
@@ -1381,7 +1358,7 @@ class Entity extends Component {
     this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
   };
 
-  getSeriesNameFromSource(source) {
+  getSeriesNameFromSource = (source) => {
     const legendDetails = legend.find((elem) => elem.key === source);
 
     if (!legendDetails) {
@@ -1391,10 +1368,10 @@ class Entity extends Component {
     return legendDetails.key.includes(".")
       ? `Google (${legendDetails.title})`
       : legendDetails.title;
-  }
+  };
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-  createChartSeries(signalValues, normalValues, primaryPartition) {
+  createChartSeries = (signalValues, normalValues, primaryPartition) => {
     const chartSignals = [];
     const alertBands = [];
 
@@ -1488,10 +1465,10 @@ class Entity extends Component {
       alertBands,
       chartSignals,
     };
-  }
+  };
 
   // function for when zoom/pan is used
-  xyPlotRangeChanged(event) {
+  xyPlotRangeChanged = (event) => {
     if (!event.target.series) {
       return;
     }
@@ -1514,10 +1491,10 @@ class Entity extends Component {
       tsDataLegendRangeFrom: axisMin,
       tsDataLegendRangeUntil: axisMax,
     });
-  }
+  };
 
   // populate xy chart UI
-  renderXyChart() {
+  renderXyChart = () => {
     return (
       this.state.xyChartOptions && (
         <div className="overview__xy-wrapper">
@@ -1529,7 +1506,19 @@ class Entity extends Component {
         </div>
       )
     );
-  }
+  };
+
+  handleDisplayChartSettingsPopover = (val) => {
+    this.setState({
+      displayChartSettingsPopover: val,
+    });
+  };
+
+  handleDisplayChartSharePopover = (val) => {
+    this.setState({
+      displayChartSharePopover: val,
+    });
+  };
 
   /**
    * Trigger a download of the chart from outside the chart context. Used in the
@@ -1544,31 +1533,23 @@ class Entity extends Component {
   };
 
   // toggle normalized values and absolute values
-  changeXyChartNormalization() {
+  changeXyChartNormalization = () => {
     this.setState({ tsDataNormalized: !this.state.tsDataNormalized }, () =>
       this.convertValuesForXyViz()
     );
-  }
-
-  handleDisplayChartSettingsPopout = (val) => {
-    this.setState({ displayChartSettingsPopout: val });
-  };
-
-  handleDisplayChartSharePopout = (val) => {
-    this.setState({ displayChartSharePopout: val });
   };
 
   // toggle any populated alert bands to be displayed in chart
-  handleDisplayAlertBands(status) {
+  handleDisplayAlertBands = (status) => {
     const newStatus =
       status === "off" ? false : !this.state.tsDataDisplayOutageBands;
     this.setState({ tsDataDisplayOutageBands: newStatus }, () =>
       this.convertValuesForXyViz()
     );
-  }
+  };
 
   // Track screen width to shift around legend, adjust height of xy chart
-  resize() {
+  resize = () => {
     const tsDataScreenBelow970 = window.innerWidth <= 970;
     if (tsDataScreenBelow970 !== this.state.tsDataScreenBelow970) {
       this.setState({ tsDataScreenBelow970 });
@@ -1580,22 +1561,22 @@ class Entity extends Component {
         this.convertValuesForXyViz();
       });
     }
-  }
+  };
 
-  displayShareLinkModal() {
+  displayShareLinkModal = () => {
     this.setState({
       showShareLinkModal: true,
     });
-  }
+  };
 
-  hideShareLinkModal() {
+  hideShareLinkModal = () => {
     this.setState({
       showShareLinkModal: false,
     });
-  }
+  };
 
   // display modal used for annotation/download
-  toggleXyChartModal() {
+  toggleXyChartModal = () => {
     // force alert bands off
     this.handleDisplayAlertBands("off");
     // open modal and reset time range at the bottom of the chart
@@ -1604,11 +1585,11 @@ class Entity extends Component {
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
     });
-  }
+  };
 
   // Event Table
   // Take values from api and format for Event table
-  convertValuesForEventTable() {
+  convertValuesForEventTable = () => {
     // Get the relevant values to populate table with
     let eventData = [];
     this.state.eventDataRaw.map((event) => {
@@ -1651,9 +1632,9 @@ class Entity extends Component {
     if (this.state.tsDataDisplayOutageBands && this.state.tsDataRaw) {
       this.convertValuesForXyViz();
     }
-  }
+  };
   // Take values from api and format for Alert table
-  convertValuesForAlertTable() {
+  convertValuesForAlertTable = () => {
     // Get the relevant values to populate table with
     const alertData = this.state.alertDataRaw.map((alert) => {
       const alertDate = secondsToUTC(alert.time);
@@ -1678,13 +1659,13 @@ class Entity extends Component {
     this.setState({
       alertDataProcessed: alertData.reverse(),
     });
-  }
+  };
   // Switching between Events and Alerts
 
   // 2nd Row
   // RelatedTo Map
   // Make API call to retrieve topographic data
-  getDataTopo(entityType) {
+  getDataTopo = (entityType) => {
     if (this.state.mounted) {
       getTopoAction(entityType)
         .then((data) =>
@@ -1702,9 +1683,9 @@ class Entity extends Component {
           )
         );
     }
-  }
+  };
   // Process Geo data from api, attribute outage scores to a new topoData property where possible, then render Map
-  getMapScores() {
+  getMapScores = () => {
     if (this.state.topoData && this.state.summaryDataMapRaw) {
       let topoData = this.state.topoData;
       let features = [];
@@ -1737,9 +1718,9 @@ class Entity extends Component {
 
       this.setState({ topoScores: scores, bounds: outageCoords });
     }
-  }
+  };
   // Make API call to retrieve summary data to populate on map
-  getDataRelatedToMapSummary(entityType) {
+  getDataRelatedToMapSummary = (entityType) => {
     if (this.state.mounted) {
       let until = this.state.until;
       let from = this.state.from;
@@ -1777,20 +1758,20 @@ class Entity extends Component {
         includeMetadata
       );
     }
-  }
+  };
 
   // function to manage when a user clicks a country in the map
-  handleEntityShapeClick(entity) {
+  handleEntityShapeClick = (entity) => {
     const { history } = this.props;
     let path = `/region/${entity.properties.id}`;
     if (window.location.search.split("?")[1]) {
       path += `?from=${fromDate}&until=${untilDate}`;
     }
     history.push(path);
-  }
+  };
 
   // Show/hide modal when button is clicked on either panel
-  toggleModal(modalLocation) {
+  toggleModal = (modalLocation) => {
     if (modalLocation === "map") {
       // Get related entities used on table in map modal
       this.setState(
@@ -1837,11 +1818,11 @@ class Entity extends Component {
         }
       );
     }
-  }
+  };
 
   // Summary Table for related ASNs
   // Make API call to retrieve summary data to populate on map
-  getDataRelatedToTableSummary(entityType) {
+  getDataRelatedToTableSummary = (entityType) => {
     if (this.state.mounted) {
       let until = this.state.until;
       let from = this.state.from;
@@ -1880,9 +1861,9 @@ class Entity extends Component {
         includeMetadata
       );
     }
-  }
+  };
   // Make raw values from api compatible with table component
-  convertValuesForSummaryTable() {
+  convertValuesForSummaryTable = () => {
     let summaryData = convertValuesForSummaryTable(
       this.state.relatedToTableSummary
     );
@@ -1900,11 +1881,11 @@ class Entity extends Component {
           this.state.relatedToTableSummaryProcessed.concat(summaryData),
       });
     }
-  }
+  };
 
   // RawSignalsModal Windows
   // Make API call that gets raw signals for a group of entities
-  getSignalsHtsDataEvents(entityType, dataSource) {
+  getSignalsHtsDataEvents = (entityType, dataSource) => {
     let until = this.state.until;
     let from = this.state.from;
     let attr = null;
@@ -2026,9 +2007,9 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // Combine summary outage data with other raw signal data for populating Raw Signal Table
-  combineValuesForSignalsTable(entityType) {
+  combineValuesForSignalsTable = (entityType) => {
     switch (entityType) {
       case "region":
         if (
@@ -2091,9 +2072,9 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // function that decides what data will populate in the horizon time series
-  convertValuesForHtsViz(dataSource, entityType) {
+  convertValuesForHtsViz = (dataSource, entityType) => {
     let visibilityChecked = [];
     let entitiesChecked = 0;
     let rawSignalsNew = [];
@@ -2234,9 +2215,9 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // function to manage what happens when a checkbox is changed in the raw signals table
-  toggleEntityVisibilityInHtsViz(entity, entityType) {
+  toggleEntityVisibilityInHtsViz = (entity, entityType) => {
     let maxEntitiesPopulatedMessage = T.translate(
       "entityModal.maxEntitiesPopulatedMessage"
     );
@@ -2456,9 +2437,9 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // function to manage what happens when the select max/uncheck all buttons are clicked
-  handleSelectAndDeselectAllButtons(event) {
+  handleSelectAndDeselectAllButtons = (event) => {
     if (event.target.name === "checkMaxRegional") {
       this.setState(
         {
@@ -2605,9 +2586,9 @@ class Entity extends Component {
         }
       );
     }
-  }
+  };
   // function to manage what happens when the load all entities button is clicked
-  handleLoadAllEntitiesButton(name) {
+  handleLoadAllEntitiesButton = (name) => {
     if (name === "regionLoadAllEntities") {
       this.setState({
         loadAllButtonEntitiesLoading: true,
@@ -2660,14 +2641,14 @@ class Entity extends Component {
         }
       );
     }
-  }
-  handleAdditionalEntitiesLoading() {
+  };
+  handleAdditionalEntitiesLoading = () => {
     this.setState({
       loadAllButtonEntitiesLoading: true,
     });
-  }
+  };
   // to trigger loading bars on raw signals horizon time series when a checkbox event occurs in the signals table
-  handleCheckboxEventLoading(item) {
+  handleCheckboxEventLoading = (item) => {
     let maxEntitiesPopulatedMessage = T.translate(
       "entityModal.maxEntitiesPopulatedMessage"
     );
@@ -2741,14 +2722,14 @@ class Entity extends Component {
         rawSignalsMaxEntitiesHtsError: maxEntitiesPopulatedMessage,
       });
     }
-  }
+  };
 
   /**
    * Handles users toggling a chart legend series (on the chart itself): when a
    * user clicks in the chart legend, toggle the side checkboxes on the side to
    * match the state
    */
-  handleChartLegendSelectionChange(source) {
+  handleChartLegendSelectionChange = (source) => {
     const currentSeriesVisibility = !!this.state.tsDataSeriesVisibleMap[source];
     const newSeriesVisibility = !currentSeriesVisibility;
     const newVisibility = {
@@ -2759,7 +2740,7 @@ class Entity extends Component {
     this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
       this.convertValuesForXyViz();
     });
-  }
+  };
 
   /**
    * Handles user toggling checkboxes (next to the chart, not on the chart
@@ -2767,7 +2748,7 @@ class Entity extends Component {
    * a selection on the chart legend itself. This will call the
    * handleChartLegendSelectionChange method above to update the checkbox state
    */
-  handleSelectedSignal(source) {
+  handleSelectedSignal = (source) => {
     const currentSeriesVisibility = !!this.state.tsDataSeriesVisibleMap[source];
     const newSeriesVisibility = !currentSeriesVisibility;
     const newVisibility = {
@@ -2779,9 +2760,9 @@ class Entity extends Component {
       this.setSeriesVisibilityInChartLegend(source, newSeriesVisibility);
       this.convertValuesForXyViz();
     });
-  }
+  };
 
-  setSeriesVisibilityInChartLegend(source, visible) {
+  setSeriesVisibilityInChartLegend = (source, visible) => {
     if (!this.timeSeriesChartRef.current) {
       return;
     }
@@ -2801,17 +2782,17 @@ class Entity extends Component {
     } else {
       seriesObject.hide();
     }
-  }
+  };
 
-  updateSourceParams(src) {
+  updateSourceParams = (src) => {
     if (!this.state.sourceParams.includes(src)) {
       this.setState({
         sourceParams: [...this.state.sourceParams, src],
       });
     }
-  }
+  };
 
-  toggleView() {
+  toggleView = () => {
     let tmpVisibleSeries = this.state.prevDataSeriesVisibleMap;
     this.setState(
       {
@@ -2822,16 +2803,16 @@ class Entity extends Component {
       },
       () => this.convertValuesForXyViz()
     );
-  }
+  };
 
-  handleSelectTab(selectedKey) {
+  handleSelectTab = (selectedKey) => {
     if (this.state.currentTab !== selectedKey) {
       this.setState({ currentTab: selectedKey });
       this.toggleView();
     }
-  }
+  };
 
-  render() {
+  render = () => {
     const xyChartTitle = T.translate("entity.xyChartTitle");
     const eventFeedTitle = T.translate("entity.eventFeedTitle");
     const alertFeedTitle = T.translate("entity.alertFeedTitle");
@@ -2902,12 +2883,19 @@ class Entity extends Component {
                   {!this.state.simplifiedView && (
                     <div className="flex items-center">
                       <Popover
+                        open={this.state.displayChartSettingsPopover}
+                        onOpenChange={this.handleDisplayChartSettingsPopover}
+                        trigger="click"
+                        placement="bottomRight"
                         overlayStyle={{
                           width: 180,
                         }}
-                        placement="bottomRight"
                         content={
-                          <>
+                          <div
+                            onClick={() =>
+                              this.handleDisplayChartSettingsPopover(false)
+                            }
+                          >
                             <Checkbox
                               checked={!!this.state.tsDataDisplayOutageBands}
                               onChange={this.handleDisplayAlertBands}
@@ -2927,18 +2915,25 @@ class Entity extends Component {
                             >
                               Reset Zoom
                             </Button>
-                          </>
+                          </div>
                         }
                       >
                         <Button className="mr-3" icon={<SettingOutlined />} />
                       </Popover>
                       <Popover
+                        open={this.state.displayChartSharePopover}
+                        onOpenChange={this.handleDisplayChartSharePopover}
+                        trigger="click"
+                        placement="bottomRight"
                         overlayStyle={{
                           maxWidth: 180,
                         }}
-                        placement="bottomRight"
                         content={
-                          <>
+                          <div
+                            onClick={() =>
+                              this.handleDisplayChartSharePopover(false)
+                            }
+                          >
                             <Button
                               className="w-full mb-2"
                               size="small"
@@ -2973,7 +2968,7 @@ class Entity extends Component {
                             >
                               Download SVG
                             </Button>
-                          </>
+                          </div>
                         }
                       >
                         <Button icon={<ShareAltOutlined />} />
@@ -3156,7 +3151,7 @@ class Entity extends Component {
         )}
       </div>
     );
-  }
+  };
 }
 
 const mapStateToProps = (state) => {
