@@ -74,7 +74,6 @@ import { Searchbar } from "caida-components-library";
 import Table from "../../components/table/Table";
 import EntityRelated from "./EntityRelated";
 import Loading from "../../components/loading/Loading";
-import ToggleButton from "../../components/toggleButton/ToggleButton";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
 import TopoMap from "../../components/map/Map";
 import * as topojson from "topojson";
@@ -114,7 +113,7 @@ import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
-import dayjs from "dayjs";
+import dayjs from "../../utils/dayjs";
 import { getSavedAdvancedModePreference } from "../../utils/storage";
 import {
   getNowAsUTC,
@@ -126,6 +125,8 @@ import {
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
+import { Button, Checkbox, Popover } from "antd";
+import { SettingOutlined, ShareAltOutlined } from "@ant-design/icons";
 const utc = require("dayjs/plugin/utc");
 dayjs.extend(utc);
 
@@ -223,7 +224,12 @@ class Entity extends Component {
       xyChartOptions: null,
       tsDataRaw: null,
       tsDataNormalized: true,
+      // Chart Settings Popover Contents
+      displayChartSettingsPopout: false,
       tsDataDisplayOutageBands: false,
+      // Chart Share Popover
+      displayChartSharePopout: false,
+
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
       // Used for responsively styling the xy chart
@@ -1130,6 +1136,11 @@ class Entity extends Component {
       credits: {
         enabled: false,
       },
+      navigation: {
+        buttonOptions: {
+          enabled: false,
+        },
+      },
       exporting: {
         fallbackToExportServer: false,
         filename: exportFileName,
@@ -1165,36 +1176,6 @@ class Entity extends Component {
               fontWeight: "bold",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-          },
-        },
-        menuItemDefinitions: {
-          // Custom definition
-          resetZoom: {
-            onclick: () => {
-              this.setDefaultNavigatorTimeRange();
-            },
-            text: "Reset Zoom",
-          },
-          share: {
-            onclick: () => {
-              this.displayShareLinkModal();
-            },
-            text: "Share Link",
-          },
-        },
-        buttons: {
-          contextButton: {
-            menuItems: [
-              "resetZoom",
-              "separator",
-              "share",
-              "downloadPNG",
-              "downloadJPEG",
-              "downloadSVG",
-            ],
-            align: "right",
-            x: rightPartition.length ? -35 : -15,
-            y: 0,
           },
         },
         // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
@@ -1386,19 +1367,19 @@ class Entity extends Component {
     });
   }
 
-  setDefaultNavigatorTimeRange() {
+  setDefaultNavigatorTimeRange = () => {
     const navigatorLowerBound = secondsToMilliseconds(this.state.from);
     const navigatorUpperBound = secondsToMilliseconds(this.state.until);
 
     this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
-  }
+  };
 
-  setChartNavigatorTimeRange(fromMs, untilMs) {
+  setChartNavigatorTimeRange = (fromMs, untilMs) => {
     if (!this.timeSeriesChartRef.current) {
       return;
     }
     this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
-  }
+  };
 
   getSeriesNameFromSource(source) {
     const legendDetails = legend.find((elem) => elem.key === source);
@@ -1554,13 +1535,13 @@ class Entity extends Component {
    * Trigger a download of the chart from outside the chart context. Used in the
    * ShareLinkModal to trigger a direct download
    */
-  manuallyDownloadChart() {
+  manuallyDownloadChart = (imageType) => {
     if (this.timeSeriesChartRef.current) {
       this.timeSeriesChartRef.current.chart.exportChartLocal({
-        type: "image/jpeg",
+        type: imageType,
       });
     }
-  }
+  };
 
   // toggle normalized values and absolute values
   changeXyChartNormalization() {
@@ -1568,6 +1549,14 @@ class Entity extends Component {
       this.convertValuesForXyViz()
     );
   }
+
+  handleDisplayChartSettingsPopout = (val) => {
+    this.setState({ displayChartSettingsPopout: val });
+  };
+
+  handleDisplayChartSharePopout = (val) => {
+    this.setState({ displayChartSharePopout: val });
+  };
 
   // toggle any populated alert bands to be displayed in chart
   handleDisplayAlertBands(status) {
@@ -2891,7 +2880,7 @@ class Entity extends Component {
               hideModal={this.hideShareLinkModal}
               showModal={this.displayShareLinkModal}
               entityName={this.state.entityName}
-              handleDownload={this.manuallyDownloadChart}
+              handleDownload={() => this.manuallyDownloadChart("image/jpeg")}
             />
             <div className="row overview">
               <div
@@ -2911,54 +2900,84 @@ class Entity extends Component {
                     />
                   </div>
                   {!this.state.simplifiedView && (
-                    <div className="overview__buttons">
-                      <div className="overview__buttons-col">
-                        <ToggleButton
-                          selected={this.state.tsDataDisplayOutageBands}
-                          toggleSelected={() => this.handleDisplayAlertBands()}
-                          label={xyChartAlertToggleLabel}
-                        />
-                        <ToggleButton
-                          selected={this.state.tsDataNormalized}
-                          toggleSelected={() =>
-                            this.changeXyChartNormalization()
-                          }
-                          label={xyChartNormalizedToggleLabel}
-                        />
-                      </div>
-                      <div className="overview__buttons-col">
-                        {/* {
-                            this.state.xyDataOptions ? <button className="related__modal-button" onClick={this.toggleXyChartModal}>
-                                Export Chart
-                            </button> : null
-                        } */}
-                        {this.state.showXyChartModal && (
-                          <XyChartModal
-                            entityName={this.state.entityName}
-                            toggleModal={this.toggleXyChartModal}
-                            xyDataOptions={this.state.xyDataOptions}
-                            modalStatus={this.state.showXyChartModal}
-                            // for toggles in chart, data and onToggle functions
-                            handleDisplayAlertBands={
-                              this.handleDisplayAlertBands
-                            }
-                            changeXyChartNormalization={
-                              this.changeXyChartNormalization
-                            }
-                            tsDataDisplayOutageBands={
-                              this.state.tsDataDisplayOutageBands
-                            }
-                            tsDataNormalized={this.state.tsDataNormalized}
-                            // for datestamp below chart
-                            tsDataLegendRangeFrom={
-                              this.state.tsDataLegendRangeFrom
-                            }
-                            tsDataLegendRangeUntil={
-                              this.state.tsDataLegendRangeUntil
-                            }
-                          />
-                        )}
-                      </div>
+                    <div className="flex items-center">
+                      <Popover
+                        overlayStyle={{
+                          width: 180,
+                        }}
+                        placement="bottomRight"
+                        content={
+                          <>
+                            <Checkbox
+                              checked={!!this.state.tsDataDisplayOutageBands}
+                              onChange={this.handleDisplayAlertBands}
+                            >
+                              {xyChartAlertToggleLabel}
+                            </Checkbox>
+                            <Checkbox
+                              checked={!!this.state.tsDataNormalized}
+                              onChange={this.changeXyChartNormalization}
+                            >
+                              {xyChartNormalizedToggleLabel}
+                            </Checkbox>
+                            <Button
+                              className="w-full mt-2"
+                              size="small"
+                              onClick={this.setDefaultNavigatorTimeRange}
+                            >
+                              Reset Zoom
+                            </Button>
+                          </>
+                        }
+                      >
+                        <Button className="mr-3" icon={<SettingOutlined />} />
+                      </Popover>
+                      <Popover
+                        overlayStyle={{
+                          maxWidth: 180,
+                        }}
+                        placement="bottomRight"
+                        content={
+                          <>
+                            <Button
+                              className="w-full mb-2"
+                              size="small"
+                              onClick={this.displayShareLinkModal}
+                            >
+                              Share Link
+                            </Button>
+                            <Button
+                              className="w-full mb-2"
+                              size="small"
+                              onClick={() =>
+                                this.manuallyDownloadChart("image/jpeg")
+                              }
+                            >
+                              Download JPEG
+                            </Button>
+                            <Button
+                              className="w-full mb-2"
+                              size="small"
+                              onClick={() =>
+                                this.manuallyDownloadChart("image/png")
+                              }
+                            >
+                              Download PNG
+                            </Button>
+                            <Button
+                              className="w-full"
+                              size="small"
+                              onClick={() =>
+                                this.manuallyDownloadChart("image/svg+xml")
+                              }
+                            >
+                              Download SVG
+                            </Button>
+                          </>
+                        }
+                      >
+                        <Button icon={<ShareAltOutlined />} />
+                      </Popover>
                     </div>
                   )}
                 </div>
