@@ -2880,8 +2880,8 @@ class Entity extends Component {
                       text={tooltipXyPlotTimeSeriesText}
                     />
                   </div>
-                  {!this.state.simplifiedView && (
-                    <div className="flex items-center">
+                  <div className="flex items-center">
+                    {!this.state.simplifiedView && (
                       <Popover
                         open={this.state.displayChartSettingsPopover}
                         onOpenChange={this.handleDisplayChartSettingsPopover}
@@ -2920,61 +2920,61 @@ class Entity extends Component {
                       >
                         <Button className="mr-3" icon={<SettingOutlined />} />
                       </Popover>
-                      <Popover
-                        open={this.state.displayChartSharePopover}
-                        onOpenChange={this.handleDisplayChartSharePopover}
-                        trigger="click"
-                        placement="bottomRight"
-                        overlayStyle={{
-                          maxWidth: 180,
-                        }}
-                        content={
-                          <div
+                    )}
+                    <Popover
+                      open={this.state.displayChartSharePopover}
+                      onOpenChange={this.handleDisplayChartSharePopover}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayStyle={{
+                        maxWidth: 180,
+                      }}
+                      content={
+                        <div
+                          onClick={() =>
+                            this.handleDisplayChartSharePopover(false)
+                          }
+                        >
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            onClick={this.displayShareLinkModal}
+                          >
+                            Share Link
+                          </Button>
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
                             onClick={() =>
-                              this.handleDisplayChartSharePopover(false)
+                              this.manuallyDownloadChart("image/jpeg")
                             }
                           >
-                            <Button
-                              className="w-full mb-2"
-                              size="small"
-                              onClick={this.displayShareLinkModal}
-                            >
-                              Share Link
-                            </Button>
-                            <Button
-                              className="w-full mb-2"
-                              size="small"
-                              onClick={() =>
-                                this.manuallyDownloadChart("image/jpeg")
-                              }
-                            >
-                              Download JPEG
-                            </Button>
-                            <Button
-                              className="w-full mb-2"
-                              size="small"
-                              onClick={() =>
-                                this.manuallyDownloadChart("image/png")
-                              }
-                            >
-                              Download PNG
-                            </Button>
-                            <Button
-                              className="w-full"
-                              size="small"
-                              onClick={() =>
-                                this.manuallyDownloadChart("image/svg+xml")
-                              }
-                            >
-                              Download SVG
-                            </Button>
-                          </div>
-                        }
-                      >
-                        <Button icon={<ShareAltOutlined />} />
-                      </Popover>
-                    </div>
-                  )}
+                            Download JPEG
+                          </Button>
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            onClick={() =>
+                              this.manuallyDownloadChart("image/png")
+                            }
+                          >
+                            Download PNG
+                          </Button>
+                          <Button
+                            className="w-full"
+                            size="small"
+                            onClick={() =>
+                              this.manuallyDownloadChart("image/svg+xml")
+                            }
+                          >
+                            Download SVG
+                          </Button>
+                        </div>
+                      }
+                    >
+                      <Button icon={<ShareAltOutlined />} />
+                    </Popover>
+                  </div>
                 </div>
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
                 <div className="overview__timestamp">
