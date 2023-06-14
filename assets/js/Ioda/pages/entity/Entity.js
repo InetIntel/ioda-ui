@@ -2977,12 +2977,11 @@ class Entity extends Component {
                   </div>
                 </div>
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
-                <div className="overview__timestamp">
-                  <TimeStamp
-                    from={this.state.tsDataLegendRangeFrom}
-                    until={this.state.tsDataLegendRangeUntil}
-                  />
-                </div>
+                <TimeStamp
+                  className="mt-4"
+                  from={this.state.tsDataLegendRangeFrom}
+                  until={this.state.tsDataLegendRangeUntil}
+                />
               </div>
               <div
                 className={
