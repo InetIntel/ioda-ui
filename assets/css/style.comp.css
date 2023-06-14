@@ -3354,6 +3354,18 @@ body {
 .text-center {
   text-align: center; }
 
+.text-right {
+  text-align: right; }
+
+.cursor-pointer {
+  cursor: pointer; }
+
+.cursor-default {
+  cursor: default; }
+
+.cursor-not-allowed {
+  cursor: not-allowed; }
+
 .card {
   background-color: #fff;
   border-radius: 0.3rem;
@@ -3374,6 +3386,9 @@ body {
 
 .text-white {
   color: #fff; }
+
+.italic {
+  font-style: italic; }
 
 .text-color-link {
   color: #1677ff; }
@@ -4784,39 +4799,6 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px 10px; }
-
-.timestamp {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
-  cursor: pointer; }
-  .timestamp__message {
-    background-color: #3975BB;
-    color: #fff;
-    border-radius: 0.5rem;
-    display: flex;
-    width: max-content;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    z-index: 1000;
-    position: absolute;
-    padding: 0.5rem 1rem;
-    top: -2rem;
-    right: 6rem;
-    opacity: 0; }
-    @media only screen and (max-width: 80em) {
-      .timestamp__message {
-        right: -6rem; } }
-  .timestamp__fade {
-    animation-name: fade-out;
-    animation-duration: 1.4s;
-    animation-timing-function: ease-out; }
-  .timestamp__text {
-    font-style: italic;
-    font-size: 1rem;
-    color: #2c3e50; }
 
 .toggle {
   display: flex;

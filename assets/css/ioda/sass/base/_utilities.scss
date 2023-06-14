@@ -3579,6 +3579,22 @@
   text-align: center;
 }
 
+.text-right {
+  text-align: right;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-default {
+  cursor: default;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
+}
+
 .card {
   background-color: #fff;
   border-radius: 0.3rem;
@@ -3603,6 +3619,10 @@
 
 .text-white {
   color: #fff;
+}
+
+.italic {
+  font-style: italic;
 }
 
 .text-color-link {
