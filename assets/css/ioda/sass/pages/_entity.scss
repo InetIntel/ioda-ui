@@ -6,122 +6,15 @@
     margin: 1.5rem auto;
   }
 
-  .col-1-of-3 {
-    position: relative;
+  &__chart-layout {
+    @include respond(tab-port) {
+      flex-direction: column;
+    }
   }
 
-  .overview {
-    @include respond(tab-port) {
-      margin-bottom: 0;
-    }
-
-    .col-3-of-5,
-    .col-2-of-5,
-    &__time-range-error {
-      background-color: $color-white;
-      border-bottom-right-radius: 0.3rem;
-      border-bottom-left-radius: 0.3rem;
-      border-top-right-radius: 0.3rem;
-      min-height: 64rem;
-      box-shadow: $box-shadow;
-      padding: $gutter-vertical-small;
-
-      @include respond(tab-land) {
-        min-height: unset;
-      }
-    }
-
-    .col-3-of-5 {
-      @include respond(tab-port) {
-        margin-bottom: 2.5rem !important;
-      }
-    }
-
-    &__buttons {
-      display: flex;
-
-      &-col:not(:first-child) {
-        margin-left: 2rem;
-      }
-    }
-
-    &__time-range-error {
-      min-height: 6rem;
-      margin-bottom: $gutter-vertical;
-      font-size: 1.3rem;
-    }
-
-    @include respond(tab-land) {
-      .col-3-of-5 {
-        width: 100%;
-        margin-bottom: $gutter-vertical;
-      }
-
-      .col-2-of-5 {
-        width: 100%;
-      }
-    }
-
-    &__config {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-      align-items: center;
-
-      &-heading {
-        display: flex;
-
-        & .heading-h3 {
-          margin-right: 0.5rem;
-        }
-
-        & .help {
-          height: 2.3rem;
-
-          &__modal {
-            top: 0;
-            @include mobileTooltip();
-          }
-        }
-      }
-
-      &-button {
-        @include button;
-        height: 3rem;
-        font-size: 1.1rem;
-        margin: 0;
-        padding: 0 1rem;
-
-        &--alertBands {
-          margin-left: 1rem;
-        }
-      }
-
-      .toggle {
-        &__label {
-          cursor: pointer;
-        }
-
-        &:first-child {
-          margin-bottom: 1rem;
-        }
-      }
-    }
-
-    &__table {
-      &-config {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        margin-bottom: 1.5rem;
-      }
-
-      & .table {
-        margin-bottom: 0;
-        height: inherit;
-      }
-    }
+  &__chart {
+    min-width: 0;
+    max-height: 614px;
   }
 
   .related {
