@@ -1497,7 +1497,7 @@ class Entity extends Component {
   renderXyChart = () => {
     return (
       this.state.xyChartOptions && (
-        <div className="overview__xy-wrapper">
+        <div className="entity__chart">
           <HighchartsReact
             highcharts={Highcharts}
             options={this.state.xyChartOptions}
@@ -2863,118 +2863,112 @@ class Entity extends Component {
               entityName={this.state.entityName}
               handleDownload={() => this.manuallyDownloadChart("image/jpeg")}
             />
-            <div className="row overview">
-              <div
-                className={
-                  this.state.simplifiedView ? "col-4-of-5" : "col-3-of-5"
-                }
-              >
-                <div className="overview__config" ref={this.config}>
-                  <div className="flex items-center">
-                    <h3 className="text-2xl mr-1">
-                      {xyChartTitle}
-                      {this.state.entityName}
-                    </h3>
-                    <Tooltip
-                      title={tooltipXyPlotTimeSeriesTitle}
-                      text={tooltipXyPlotTimeSeriesText}
-                    />
-                  </div>
-                  <div className="flex items-center">
-                    {!this.state.simplifiedView && (
-                      <Popover
-                        open={this.state.displayChartSettingsPopover}
-                        onOpenChange={this.handleDisplayChartSettingsPopover}
-                        trigger="click"
-                        placement="bottomRight"
-                        overlayStyle={{
-                          width: 180,
-                        }}
-                        content={
-                          <div
-                            onClick={() =>
-                              this.handleDisplayChartSettingsPopover(false)
-                            }
-                          >
-                            <Checkbox
-                              checked={!!this.state.tsDataDisplayOutageBands}
-                              onChange={this.handleDisplayAlertBands}
-                            >
-                              {xyChartAlertToggleLabel}
-                            </Checkbox>
-                            <Checkbox
-                              checked={!!this.state.tsDataNormalized}
-                              onChange={this.changeXyChartNormalization}
-                            >
-                              {xyChartNormalizedToggleLabel}
-                            </Checkbox>
-                            <Button
-                              className="w-full mt-2"
-                              size="small"
-                              onClick={this.setDefaultNavigatorTimeRange}
-                            >
-                              Reset Zoom
-                            </Button>
-                          </div>
-                        }
-                      >
-                        <Button className="mr-3" icon={<SettingOutlined />} />
-                      </Popover>
-                    )}
+            <div className="flex items-stretch gap-4 mb-4 entity__chart-layout">
+              <div className="col-2 p-4 card entity__chart">
+                <div className="flex items-center mb-3">
+                  <h3 className="text-2xl mr-1">
+                    {xyChartTitle}
+                    {this.state.entityName}
+                  </h3>
+                  <Tooltip
+                    className="mr-auto"
+                    title={tooltipXyPlotTimeSeriesTitle}
+                    text={tooltipXyPlotTimeSeriesText}
+                  />
+
+                  {!this.state.simplifiedView && (
                     <Popover
-                      open={this.state.displayChartSharePopover}
-                      onOpenChange={this.handleDisplayChartSharePopover}
+                      open={this.state.displayChartSettingsPopover}
+                      onOpenChange={this.handleDisplayChartSettingsPopover}
                       trigger="click"
                       placement="bottomRight"
                       overlayStyle={{
-                        maxWidth: 180,
+                        width: 180,
                       }}
                       content={
                         <div
                           onClick={() =>
-                            this.handleDisplayChartSharePopover(false)
+                            this.handleDisplayChartSettingsPopover(false)
                           }
                         >
-                          <Button
-                            className="w-full mb-2"
-                            size="small"
-                            onClick={this.displayShareLinkModal}
+                          <Checkbox
+                            checked={!!this.state.tsDataDisplayOutageBands}
+                            onChange={this.handleDisplayAlertBands}
                           >
-                            Share Link
-                          </Button>
-                          <Button
-                            className="w-full mb-2"
-                            size="small"
-                            onClick={() =>
-                              this.manuallyDownloadChart("image/jpeg")
-                            }
+                            {xyChartAlertToggleLabel}
+                          </Checkbox>
+                          <Checkbox
+                            checked={!!this.state.tsDataNormalized}
+                            onChange={this.changeXyChartNormalization}
                           >
-                            Download JPEG
-                          </Button>
+                            {xyChartNormalizedToggleLabel}
+                          </Checkbox>
                           <Button
-                            className="w-full mb-2"
+                            className="w-full mt-2"
                             size="small"
-                            onClick={() =>
-                              this.manuallyDownloadChart("image/png")
-                            }
+                            onClick={this.setDefaultNavigatorTimeRange}
                           >
-                            Download PNG
-                          </Button>
-                          <Button
-                            className="w-full"
-                            size="small"
-                            onClick={() =>
-                              this.manuallyDownloadChart("image/svg+xml")
-                            }
-                          >
-                            Download SVG
+                            Reset Zoom
                           </Button>
                         </div>
                       }
                     >
-                      <Button icon={<ShareAltOutlined />} />
+                      <Button className="mr-3" icon={<SettingOutlined />} />
                     </Popover>
-                  </div>
+                  )}
+                  <Popover
+                    open={this.state.displayChartSharePopover}
+                    onOpenChange={this.handleDisplayChartSharePopover}
+                    trigger="click"
+                    placement="bottomRight"
+                    overlayStyle={{
+                      maxWidth: 180,
+                    }}
+                    content={
+                      <div
+                        onClick={() =>
+                          this.handleDisplayChartSharePopover(false)
+                        }
+                      >
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={this.displayShareLinkModal}
+                        >
+                          Share Link
+                        </Button>
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={() =>
+                            this.manuallyDownloadChart("image/jpeg")
+                          }
+                        >
+                          Download JPEG
+                        </Button>
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={() =>
+                            this.manuallyDownloadChart("image/png")
+                          }
+                        >
+                          Download PNG
+                        </Button>
+                        <Button
+                          className="w-full"
+                          size="small"
+                          onClick={() =>
+                            this.manuallyDownloadChart("image/svg+xml")
+                          }
+                        >
+                          Download SVG
+                        </Button>
+                      </div>
+                    }
+                  >
+                    <Button icon={<ShareAltOutlined />} />
+                  </Popover>
                 </div>
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
                 <TimeStamp
@@ -2983,11 +2977,7 @@ class Entity extends Component {
                   until={this.state.tsDataLegendRangeUntil}
                 />
               </div>
-              <div
-                className={
-                  this.state.simplifiedView ? "col-1-of-5" : "col-2-of-5"
-                }
-              >
+              <div className="col-1 p-4 card">
                 <ChartTabCard
                   title={
                     this.state.currentTable === "event"
@@ -3139,13 +3129,9 @@ class Entity extends Component {
             />
           </React.Fragment>
         ) : (
-          <div className="row overview">
-            <div className="col-1-of-1">
-              <p className="overview__time-range-error">
-                {timeDurationTooHighErrorMessage}
-                {secondsToDhms(this.state.until - this.state.from)}.
-              </p>
-            </div>
+          <div className="p-6 text-lg card">
+            {timeDurationTooHighErrorMessage}
+            {secondsToDhms(this.state.until - this.state.from)}.
           </div>
         )}
       </div>

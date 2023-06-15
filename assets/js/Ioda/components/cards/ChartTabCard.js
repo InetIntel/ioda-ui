@@ -63,7 +63,7 @@ class ChartTabCard extends React.Component {
     console.log(this.props.alertDataProcessed);
 
     return (
-      <div className="overview__table-config">
+      <div className="overview__table-config flex-column">
         <div className="tabs">
           <Radio.Group
             onChange={(e) => this.handleSelectTab(e?.target?.value)}

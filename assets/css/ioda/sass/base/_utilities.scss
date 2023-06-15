@@ -3498,6 +3498,22 @@
   gap: 0.75rem;
 }
 
+.gap-4 {
+  gap: 1rem;
+}
+
+.gap-5 {
+  gap: 1.25rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+.rounded {
+  border-radius: 0.5rem;
+}
+
 .row {
   display: flex;
 }
@@ -3512,23 +3528,23 @@
 }
 
 .col-1 {
-  flex: 1;
+  flex: 1 1 0%;
 }
 
 .col-2 {
-  flex: 2;
+  flex: 2 1 0%;
 }
 
 .col-3 {
-  flex: 3;
+  flex: 3 1 0%;
 }
 
 .col-4 {
-  flex: 4;
+  flex: 4 1 0%;
 }
 
 .col-5 {
-  flex: 5;
+  flex: 5 1 0%;
 }
 
 .col-6 {
@@ -3597,9 +3613,8 @@
 
 .card {
   background-color: #fff;
-  border-radius: 0.3rem;
-  box-shadow: 0 2px 2px #9f9d9d;
-  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #bdbdbd;
 }
 
 .max-cont {
@@ -3619,6 +3634,10 @@
 
 .text-white {
   color: #fff;
+}
+
+.bg-white {
+  background-color: #fff;
 }
 
 .italic {

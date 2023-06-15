@@ -8,8 +8,7 @@
   width: 100%;
   border-bottom: 1px solid #111;
 
-
-//type-specific column widths and alignment
+  //type-specific column widths and alignment
   &--event {
     & .table__header-col:nth-child(1),
     & tr td:nth-child(1),
@@ -39,7 +38,7 @@
     }
 
     & tbody {
-      max-height: 49rem;
+      max-height: 450px;
 
       @include respond(big-desktop) {
         max-height: 42rem;
@@ -80,7 +79,6 @@
           justify-content: center;
         }
       }
-
     }
     & .table__header-col:nth-child(2),
     & tr td:nth-child(2) {
@@ -131,7 +129,7 @@
     }
 
     & tbody {
-      max-height: 49rem;
+      max-height: 450px;
     }
   }
 
@@ -166,7 +164,6 @@
       padding-left: 1rem;
     }
 
-
     & .table__header-col:nth-child(3),
     &--asn tbody tr td:nth-child(3),
     &--asn .table__header-col:nth-child(4),
@@ -179,7 +176,7 @@
     }
   }
 
-// general table styles
+  // general table styles
   &__header {
     color: $color-primary;
     border-bottom: 1px solid #111;
@@ -259,28 +256,23 @@
       &:link,
       &:visited {
         @include textLink;
-        color: $color-primary!important;
-        font-weight: 400!important;
-        padding-bottom: 0!important;
-        margin-bottom: 0!important;
-        background-size: 100% 0!important; /* controls underline thickness */
+        color: $color-primary !important;
+        font-weight: 400 !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        background-size: 100% 0 !important; /* controls underline thickness */
         transition: ease-in 0.2s;
 
         &:hover {
-
           & span {
-            background:
-                    linear-gradient(
-                                    175deg,
-                                    $color-primary-light 0%,
-                                    $color-primary-light 33.3%,
-                                    $color-primary 83.5%,
-                                    $color-primary-dark 100%
-                    )
-                    left
-                    bottom
-                    transparent
-                    no-repeat;
+            background: linear-gradient(
+                175deg,
+                $color-primary-light 0%,
+                $color-primary-light 33.3%,
+                $color-primary 83.5%,
+                $color-primary-dark 100%
+              )
+              left bottom transparent no-repeat;
             background-size: 100% 2px;
           }
         }
@@ -324,7 +316,7 @@
       position: absolute;
       width: 1rem;
       top: 5%;
-      left: .5rem;
+      left: 0.5rem;
       border-radius: 3px;
       height: 90%;
       display: flex;
@@ -362,7 +354,8 @@
     }
 
     /* styles for additional score table */
-    & td, & th {
+    & td,
+    & th {
       position: relative;
       z-index: 100;
 
@@ -438,7 +431,7 @@
     }
 
     &:before {
-      content: '';
+      content: "";
       position: absolute;
       background-color: $color-white;
       transform: rotate(45deg);
@@ -477,7 +470,6 @@
       display: flex;
       flex-direction: row;
       font-size: 1rem;
-
 
       &-item {
         position: relative;
@@ -524,14 +516,13 @@
     & td {
       text-align: center;
     }
-
   }
 }
 
-@media not all and (min-resolution:.001dpcm)
-{ @supports (-webkit-appearance:none) {
-
-  .table__cell--overallScore {
-    padding: 1rem 0;
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) {
+    .table__cell--overallScore {
+      padding: 1rem 0;
+    }
   }
-}}
+}
