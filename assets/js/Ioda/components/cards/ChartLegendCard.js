@@ -38,6 +38,7 @@ import React, { useEffect, useState } from "react";
 import { Checkbox, Collapse, Panel } from "antd";
 import { gtrColor, legend } from "../../utils";
 import { debounce } from "lodash";
+import { withRouter } from "react-router-dom";
 // import { NULL } from "node-sass";
 
 const ChartLegendCard = ({
@@ -45,6 +46,7 @@ const ChartLegendCard = ({
   checkedMap,
   updateSourceParams,
   simplifiedView,
+  match,
 }) => {
   const handleChange = (source) => {
     legendHandler(source);
@@ -52,6 +54,8 @@ const ChartLegendCard = ({
       updateSourceParams(source.split(".")[1]);
     }
   };
+
+  const isCountryView = match?.params?.entityType === "country";
 
   const handleChangeDebounced = debounce(handleChange, 180);
 
@@ -93,7 +97,7 @@ const ChartLegendCard = ({
           </div>
         ))}
 
-      {simplifiedView && (
+      {simplifiedView && !isCountryView && (
         <div>
           <Checkbox
             key="gtr.WEB_SEARCH"
@@ -110,7 +114,7 @@ const ChartLegendCard = ({
         </div>
       )}
 
-      {!simplifiedView && (
+      {!simplifiedView && isCountryView && (
         <Collapse rootClassName="mt-4" expandIconPosition="end">
           <Collapse.Panel
             header={
@@ -146,4 +150,4 @@ const ChartLegendCard = ({
   );
 };
 
-export default ChartLegendCard;
+export default withRouter(ChartLegendCard);
