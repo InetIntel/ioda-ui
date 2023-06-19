@@ -2439,8 +2439,8 @@ class Entity extends Component {
     }
   };
   // function to manage what happens when the select max/uncheck all buttons are clicked
-  handleSelectAndDeselectAllButtons = (event) => {
-    if (event.target.name === "checkMaxRegional") {
+  handleSelectAndDeselectAllButtons = (target) => {
+    if (target === "checkMaxRegional") {
       this.setState(
         {
           checkMaxButtonLoading: true,
@@ -2482,7 +2482,7 @@ class Entity extends Component {
         }
       );
     }
-    if (event.target.name === "uncheckAllRegional") {
+    if (target === "uncheckAllRegional") {
       this.setState(
         {
           uncheckAllButtonLoading: true,
@@ -2511,7 +2511,7 @@ class Entity extends Component {
         }
       );
     }
-    if (event.target.name === "checkMaxAsn") {
+    if (target === "checkMaxAsn") {
       // Check if all entities are loaded
       // if (this.state.asnRawSignalsLoadAllButtonClicked) {
       this.setState(
@@ -2555,7 +2555,7 @@ class Entity extends Component {
         }
       );
     }
-    if (event.target.name === "uncheckAllAsn") {
+    if (target === "uncheckAllAsn") {
       this.setState(
         {
           uncheckAllButtonLoading: true,

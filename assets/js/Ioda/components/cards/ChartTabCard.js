@@ -60,8 +60,6 @@ class ChartTabCard extends React.Component {
     const alertTab = T.translate("entity.alertTab");
     const eventTab = T.translate("entity.eventTab");
 
-    console.log(this.props.alertDataProcessed);
-
     return (
       <div className="overview__table-config flex-column">
         <div className="tabs">
