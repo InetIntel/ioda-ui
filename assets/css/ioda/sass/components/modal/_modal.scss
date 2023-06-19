@@ -1,47 +1,10 @@
 .modal {
-  &__background {
-    background: $color-black;
-    opacity: 0.7;
-    width: 100%;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 999;
-  }
-
-  &__window {
-    background: $color-background-white;
-    position: fixed;
-    top: 12vh;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 2px solid $color-table-cell-border;
-    box-shadow: $box-shadow;
-    width: calc(100% - 9rem);
-    z-index: 99999;
-    overflow-y: auto;
-    height: 84vh;
-    padding: 1.5rem;
-    border-radius: 3px;
-
-    @include respond(phone-440) {
-      width: calc(100% - 2rem);
-    }
-  }
-
-  &__row {
-    @include panel;
-
-    &--annotation {
-      padding: 0 0 2rem;
-    }
-  }
-
   &__content {
-    .col-2-of-3 {
-      @include panel;
+    @include respond(tab-port) {
+      flex-direction: column;
+    }
 
+    .col-2 {
       & .horizon-series .label {
         background-color: rgba(255, 255, 255, 0.4);
         padding: 0 0.4rem;
@@ -142,7 +105,6 @@
     }
 
     &-container {
-      @include panel;
       margin-bottom: $gutter-vertical-small;
     }
 
@@ -154,12 +116,6 @@
       border-radius: 3px;
       color: $color-white;
       margin: 1rem 0;
-    }
-  }
-
-  &__map {
-    &-container {
-      @include panel;
     }
   }
 

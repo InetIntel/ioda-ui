@@ -3644,6 +3644,16 @@
   font-style: italic;
 }
 
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mw-0 {
+  min-width: 0;
+}
+
 .text-color-link {
   color: #1677ff;
 }
