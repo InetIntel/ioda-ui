@@ -28,7 +28,7 @@ export const getNowAsUTC = () => {
 };
 
 export const getSeconds = (dayjsObj) => {
-  return millisecondsToSeconds(dayjsObj.valueOf());
+  return millisecondsToSeconds(dayjs.utc(dayjsObj).valueOf());
 };
 
 export const getNowAsUTCMilliseconds = () => {

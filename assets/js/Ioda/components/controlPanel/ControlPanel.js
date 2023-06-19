@@ -16,6 +16,7 @@ import {
   secondsToUTC,
   getSeconds,
   getNowAsUTCSeconds,
+  millisecondsToSeconds,
 } from "../../utils/timeUtils";
 import { ClockCircleOutlined, CloseOutlined } from "@ant-design/icons";
 const { RangePicker } = DatePicker;
@@ -43,6 +44,7 @@ class ControlPanel extends Component {
       popoutOpen: false,
       customDuration: 1,
       customUnit: UNITS.DAY,
+      range: [secondsToUTC(props.from), secondsToUTC(props.until)],
     };
   }
 
@@ -59,9 +61,11 @@ class ControlPanel extends Component {
   };
 
   handleRangeChange = ([fromDayjs, untilDayjs]) => {
-    this.props.onTimeFrameChange({
-      from: getSeconds(fromDayjs),
-      until: getSeconds(untilDayjs),
+    this.setState({ range: [fromDayjs, untilDayjs] }, () => {
+      this.props.onTimeFrameChange({
+        from: getSeconds(fromDayjs.add(fromDayjs.utcOffset(), "minute")),
+        until: getSeconds(untilDayjs.add(untilDayjs.utcOffset(), "minute")),
+      });
     });
   };
 
@@ -69,8 +73,10 @@ class ControlPanel extends Component {
     const { customDuration, customUnit } = this.state;
     const from = getNowAsUTC().subtract(customDuration, customUnit);
     const until = getNowAsUTC();
-    this.handleRangeChange([from, until]);
-
+    this.props.onTimeFrameChange({
+      from: getSeconds(from),
+      until: getSeconds(until),
+    });
     this.handlePopoutOpen(false);
   };
 
@@ -106,9 +112,6 @@ class ControlPanel extends Component {
   };
 
   render() {
-    const { from, until } = this.props;
-    const defaultDateRange = [secondsToUTC(from), secondsToUTC(until)];
-
     const tooltipSearchBarTitle = T.translate("tooltip.searchBar.title");
     const tooltipSearchBarText = T.translate("tooltip.searchBar.text");
     const tooltipTimeRangeTitle = T.translate("tooltip.timeRange.title");
@@ -242,7 +245,7 @@ class ControlPanel extends Component {
             </Popover>
             <RangePicker
               className="col"
-              value={defaultDateRange}
+              value={this.state.range}
               showTime={{ format: "h:mmA" }}
               format="MMM D YYYY h:mma UTC"
               onChange={this.handleRangeChange}
