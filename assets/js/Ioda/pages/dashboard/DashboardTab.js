@@ -56,6 +56,7 @@ class DashboardTab extends Component {
         handleEntityShapeClick={(entity) =>
           this.props.handleEntityShapeClick(entity)
         }
+        entityType={this.props.activeTabType?.toLowerCase()}
       />
     );
   };
