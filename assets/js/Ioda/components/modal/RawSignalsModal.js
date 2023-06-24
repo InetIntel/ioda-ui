@@ -649,6 +649,7 @@ class RawSignalsModal extends PureComponent {
                         handleEntityShapeClick={(entity) =>
                           this.props.handleEntityShapeClick(entity)
                         }
+                        entityType="region"
                       />
                     ) : this.props.summaryDataMapRaw &&
                       this.props.topoScores &&
