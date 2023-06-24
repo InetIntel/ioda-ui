@@ -33,6 +33,7 @@
  */
 import d3 from 'd3';
 import T from 'i18n-react';
+import { getColorFromLinearScale, getEntityScaleColor } from './mapColors';
 
 // Time limit max that a user can select in the calendar -- currently set for 90 days
 export const controlPanelTimeRangeLimit = (90 * 24 * 60 * 60) + 1;
@@ -196,7 +197,6 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
     summaryDataRaw.map((summary, index) => {
         let overallScore = null;
         let summaryScores = [];
-        let color = 'transparent';
 
         // Map through individual scores
         Object.entries(summary["scores"]).map(entry => {
@@ -211,9 +211,6 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
             }
         });
 
-        // get color value from gradient by percentage
-        color = interpolateColor("#E2EDF6", "#F6C3C1", min, max, overallScore);
-
         // If entity type has ip_count/is an ASN
         let summaryItem;
         summary.entity.type === 'asn'
@@ -224,7 +221,7 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
                 score: overallScore,
                 scores: summaryScores,
                 ipCount: humanizeNumber(summary["entity"]["attrs"]["ip_count"], 2),
-                color: color
+                color: `${getColorFromLinearScale(overallScore, min, max)}80`
             }
             : summaryItem = {
                 entityType: summary["entity"].type,
@@ -232,7 +229,7 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
                 name: summary["entity"].name,
                 score: overallScore,
                 scores: summaryScores,
-                color: color
+                color: `${getEntityScaleColor(overallScore, summary["entity"].type)}80`
             };
         summaryData.push(summaryItem);
     });

@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import { Map, TileLayer, GeoJSON } from "react-leaflet";
-import { humanizeNumber, shadeColor, interpolateColor } from "../../utils";
+import { humanizeNumber, shadeColor } from "../../utils";
+import { getEntityScaleColor } from "../../utils/mapColors";
 
 const mapAccessToken =
   "pk.eyJ1Ijoid2ViZXIwMjUiLCJhIjoiY2tmNXp5bG0wMDAzaTMxbWQzcXQ1Y3k2eCJ9.NMu5bfrybATuYQ7HdYvq-g";
+
+const DEFAULT_NONE = "#f2f2f0";
 
 class TopoMap extends Component {
   constructor(props) {
@@ -52,7 +55,7 @@ class TopoMap extends Component {
         let hoverColor =
           e.target.options && e.target.options.fillColor
             ? shadeColor(e.target.options.fillColor, -10)
-            : shadeColor("#f2f2f0", -10);
+            : shadeColor(DEFAULT_NONE, -10);
         e.target.setStyle({
           fillColor: hoverColor,
           color: "#fff",
@@ -86,6 +89,8 @@ class TopoMap extends Component {
     let { scores } = this.props;
     let position = [20, 0];
     let zoom = this.state.screenWidthBelow680 ? 1 : 2;
+
+    const entityType = this.props.entityType;
 
     return (
       <div style={{ position: "relative", height: "inherit", width: "100%" }}>
@@ -122,16 +127,10 @@ class TopoMap extends Component {
               color: "transparent",
               weight: 2,
               fillColor: !scores
-                ? "#f2f2f0"
+                ? DEFAULT_NONE
                 : !feature.properties.score
-                ? "#f2f2f0"
-                : interpolateColor(
-                    "#1387CB",
-                    "#E8080D",
-                    scores[0],
-                    scores[scores.length - 1],
-                    feature.properties.score
-                  ),
+                ? DEFAULT_NONE
+                : getEntityScaleColor(feature.properties.score, entityType),
               fillOpacity: !feature.properties.score ? 0.2 : 0.5,
               dashArray: "2",
             })}
