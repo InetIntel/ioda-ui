@@ -11,13 +11,7 @@ import {
   Select,
   Divider,
 } from "antd";
-import {
-  getNowAsUTC,
-  secondsToUTC,
-  getSeconds,
-  getNowAsUTCSeconds,
-  millisecondsToSeconds,
-} from "../../utils/timeUtils";
+import { getNowAsUTC, secondsToUTC, getSeconds } from "../../utils/timeUtils";
 import { ClockCircleOutlined, CloseOutlined } from "@ant-design/icons";
 const { RangePicker } = DatePicker;
 
@@ -73,39 +67,33 @@ class ControlPanel extends Component {
     const { customDuration, customUnit } = this.state;
     const from = getNowAsUTC().subtract(customDuration, customUnit);
     const until = getNowAsUTC();
-    this.props.onTimeFrameChange({
-      from: getSeconds(from),
-      until: getSeconds(until),
-    });
+    this.handleRangeChange([from, until]);
     this.handlePopoutOpen(false);
   };
 
   handlePredefinedRangeSelection = ({ value }) => {
     if (value === RANGES.LAST_60_MINS) {
-      this.props.onTimeFrameChange({
-        from: getSeconds(getNowAsUTC().subtract(60, "minute")),
-        until: getNowAsUTCSeconds(),
-      });
+      this.handleRangeChange([
+        getNowAsUTC().subtract(60, "minute"),
+        getNowAsUTC(),
+      ]);
     } else if (value === RANGES.LAST_24_HOURS) {
-      this.props.onTimeFrameChange({
-        from: getSeconds(getNowAsUTC().subtract(24, "hour")),
-        until: getNowAsUTCSeconds(),
-      });
+      this.handleRangeChange([
+        getNowAsUTC().subtract(24, "hour"),
+        getNowAsUTC(),
+      ]);
     } else if (value === RANGES.LAST_7_DAYS) {
-      this.props.onTimeFrameChange({
-        from: getSeconds(getNowAsUTC().subtract(7, "day")),
-        until: getNowAsUTCSeconds(),
-      });
+      this.handleRangeChange([getNowAsUTC().subtract(7, "day"), getNowAsUTC()]);
     } else if (value === RANGES.LAST_30_DAYS) {
-      this.props.onTimeFrameChange({
-        from: getSeconds(getNowAsUTC().subtract(30, "day")),
-        until: getNowAsUTCSeconds(),
-      });
+      this.handleRangeChange([
+        getNowAsUTC().subtract(30, "day"),
+        getNowAsUTC(),
+      ]);
     } else if (value === RANGES.THIS_MONTH) {
-      this.props.onTimeFrameChange({
-        from: getSeconds(dayjs.utc().startOf("month")),
-        until: getSeconds(dayjs.utc().endOf("month")),
-      });
+      this.handleRangeChange([
+        dayjs.utc().startOf("month"),
+        dayjs.utc().endOf("month"),
+      ]);
     }
 
     this.handlePopoutOpen(false);
