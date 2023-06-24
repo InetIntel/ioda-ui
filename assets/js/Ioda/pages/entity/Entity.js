@@ -2876,46 +2876,48 @@ class Entity extends Component {
                     text={tooltipXyPlotTimeSeriesText}
                   />
 
-                  {!this.state.simplifiedView && (
-                    <Popover
-                      open={this.state.displayChartSettingsPopover}
-                      onOpenChange={this.handleDisplayChartSettingsPopover}
-                      trigger="click"
-                      placement="bottomRight"
-                      overlayStyle={{
-                        width: 180,
-                      }}
-                      content={
-                        <div
-                          onClick={() =>
-                            this.handleDisplayChartSettingsPopover(false)
-                          }
+                  <Popover
+                    open={this.state.displayChartSettingsPopover}
+                    onOpenChange={this.handleDisplayChartSettingsPopover}
+                    trigger="click"
+                    placement="bottomRight"
+                    overlayStyle={{
+                      width: 180,
+                    }}
+                    content={
+                      <div
+                        onClick={() =>
+                          this.handleDisplayChartSettingsPopover(false)
+                        }
+                      >
+                        {!this.state.simplifiedView && (
+                          <>
+                            <Checkbox
+                              checked={!!this.state.tsDataDisplayOutageBands}
+                              onChange={this.handleDisplayAlertBands}
+                            >
+                              {xyChartAlertToggleLabel}
+                            </Checkbox>
+                            <Checkbox
+                              checked={!!this.state.tsDataNormalized}
+                              onChange={this.changeXyChartNormalization}
+                            >
+                              {xyChartNormalizedToggleLabel}
+                            </Checkbox>
+                          </>
+                        )}
+                        <Button
+                          className="w-full mt-2"
+                          size="small"
+                          onClick={this.setDefaultNavigatorTimeRange}
                         >
-                          <Checkbox
-                            checked={!!this.state.tsDataDisplayOutageBands}
-                            onChange={this.handleDisplayAlertBands}
-                          >
-                            {xyChartAlertToggleLabel}
-                          </Checkbox>
-                          <Checkbox
-                            checked={!!this.state.tsDataNormalized}
-                            onChange={this.changeXyChartNormalization}
-                          >
-                            {xyChartNormalizedToggleLabel}
-                          </Checkbox>
-                          <Button
-                            className="w-full mt-2"
-                            size="small"
-                            onClick={this.setDefaultNavigatorTimeRange}
-                          >
-                            Reset Zoom
-                          </Button>
-                        </div>
-                      }
-                    >
-                      <Button className="mr-3" icon={<SettingOutlined />} />
-                    </Popover>
-                  )}
+                          Reset Zoom
+                        </Button>
+                      </div>
+                    }
+                  >
+                    <Button className="mr-3" icon={<SettingOutlined />} />
+                  </Popover>
                   <Popover
                     open={this.state.displayChartSharePopover}
                     onOpenChange={this.handleDisplayChartSharePopover}
