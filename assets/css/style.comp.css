@@ -3358,10 +3358,13 @@ body {
   align-items: stretch; }
 
 .items-start {
-  align-self: start; }
+  align-items: start; }
 
 .items-end {
   align-items: end; }
+
+.justify-end {
+  justify-content: end; }
 
 .text-center {
   text-align: center; }
@@ -3381,7 +3384,7 @@ body {
 .card {
   background-color: #fff;
   border-radius: 0.5rem;
-  border: 1px solid #bdbdbd; }
+  border: 1px solid #e2e2ea; }
 
 .max-cont {
   max-width: 120rem;
@@ -3432,78 +3435,61 @@ body {
 .ioda-checkbox .ant-checkbox-checked .ant-checkbox-inner:hover::after {
   border-color: var(--border-color) !important; }
 
-.control-panel {
-  background-color: #fff;
-  border-radius: 0.3rem;
-  box-shadow: 0 1px 2px #9F9D9D;
-  padding: 2rem;
-  display: flex; }
-  @media only screen and (max-width: 40em) {
-    .control-panel {
-      flex-direction: column-reverse; } }
-  .control-panel .col-1-of-3 {
-    min-width: 46rem; }
-    @media only screen and (max-width: 30em) {
-      .control-panel .col-1-of-3 {
-        min-width: unset; } }
-  .control-panel .searchbar {
+@media only screen and (max-width: 40em) {
+  .control-panel {
+    flex-direction: column-reverse; } }
+
+.control-panel__controls {
+  min-width: 46rem; }
+  @media only screen and (max-width: 30em) {
+    .control-panel__controls {
+      min-width: unset; } }
+  .control-panel__controls .searchbar {
     margin-bottom: 1rem; }
-    .control-panel .searchbar__heading {
+    .control-panel__controls .searchbar__heading {
       display: flex;
       align-items: center; }
-    .control-panel .searchbar__label {
+    .control-panel__controls .searchbar__label {
       padding-left: 1rem;
       font-style: italic;
       font-size: 1.1rem;
       margin-right: 0.5rem; }
-  .control-panel [class^="search-"] {
+  .control-panel__controls [class^="search-"] {
     margin: 0; }
-  .control-panel [class^="searchbar-"] {
+  .control-panel__controls [class^="searchbar-"] {
     display: flex;
     flex-direction: column; }
-  .control-panel [class^="searchInput-"] {
+  .control-panel__controls [class^="searchInput-"] {
     height: 3rem;
     padding-left: 0.8rem;
     color: #2c3e50;
     line-height: 3rem; }
-    .control-panel [class^="searchInput-"]::placeholder {
+    .control-panel__controls [class^="searchInput-"]::placeholder {
       font-size: 1.2rem;
       color: #2c3e50; }
     @media only screen and (max-width: 40em) {
-      .control-panel [class^="searchInput-"] {
+      .control-panel__controls [class^="searchInput-"] {
         font-size: 1.2rem;
         height: 3.75rem; } }
-    .control-panel [class^="searchInput-"]:focus ~ label {
+    .control-panel__controls [class^="searchInput-"]:focus ~ label {
       margin-top: -5.6rem;
       padding-left: 1rem; }
-  .control-panel [class^="searchLabel-"] {
+  .control-panel__controls [class^="searchLabel-"] {
     display: none; }
-  .control-panel [class^="searchResultsVisible-"] {
+  .control-panel__controls [class^="searchResultsVisible-"] {
     z-index: 1001;
     top: 3.5rem; }
-  .control-panel [class^="searchResultsList-"] {
+  .control-panel__controls [class^="searchResultsList-"] {
     margin: 0; }
-  .control-panel [class^="searchResultsListItem-"],
-  .control-panel [class^="searchResultsListItemActive-"] {
+  .control-panel__controls [class^="searchResultsListItem-"],
+  .control-panel__controls [class^="searchResultsListItemActive-"] {
     padding-left: 5px; }
-  .control-panel [class^="searchResultsListItem-"]:hover:after {
+  .control-panel__controls [class^="searchResultsListItem-"]:hover:after {
     background-color: #3975BB; }
-  .control-panel .range__heading {
-    display: flex; }
-  .control-panel .range__label {
-    padding-left: 1rem;
-    font-style: italic;
-    font-size: 1.1rem;
-    margin-right: 0.5rem; }
+
+@media only screen and (max-width: 40em) {
   .control-panel__title {
-    display: flex;
-    justify-content: flex-end; }
-    @media only screen and (max-width: 40em) {
-      .control-panel__title {
-        justify-content: space-between; } }
-    .control-panel__title .heading-h1 {
-      display: flex;
-      justify-content: flex-end; }
+    justify-content: space-between; } }
 
 .error {
   padding: 1.5rem;

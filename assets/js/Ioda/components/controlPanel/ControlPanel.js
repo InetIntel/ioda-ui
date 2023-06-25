@@ -161,8 +161,8 @@ class ControlPanel extends Component {
     );
 
     return (
-      <div className="row control-panel">
-        <div className="col-1-of-3">
+      <div className="flex items-start card p-6 mb-6 control-panel">
+        <div className="control-panel__controls col-1">
           <div className="searchbar">
             <div className="flex items-center">
               <T.p
@@ -241,16 +241,14 @@ class ControlPanel extends Component {
             />
           </div>
         </div>
-        <div className="col-2-of-3">
-          <div className="control-panel__title flex items-center">
-            <h1 className="text-4xl mr-3 text-right">{this.props.title}</h1>
-            {this.props.onClose && (
-              <Button
-                icon={<CloseOutlined />}
-                onClick={() => this.props.onClose()}
-              />
-            )}
-          </div>
+        <div className="col-1 w-full flex items-center gap-3 justify-end mb-4 control-panel__title">
+          <h1 className="text-4xl text-right">{this.props.title}</h1>
+          {this.props.onClose && (
+            <Button
+              icon={<CloseOutlined />}
+              onClick={() => this.props.onClose()}
+            />
+          )}
         </div>
       </div>
     );

@@ -3584,11 +3584,15 @@
 }
 
 .items-start {
-  align-self: start;
+  align-items: start;
 }
 
 .items-end {
   align-items: end;
+}
+
+.justify-end {
+  justify-content: end;
 }
 
 .text-center {
@@ -3614,7 +3618,7 @@
 .card {
   background-color: #fff;
   border-radius: 0.5rem;
-  border: 1px solid #bdbdbd;
+  border: 1px solid #e2e2ea;
 }
 
 .max-cont {

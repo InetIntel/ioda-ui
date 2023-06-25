@@ -1,116 +1,89 @@
 .control-panel {
-  background-color: $color-white;
-  border-radius: 0.3rem;
-  box-shadow: $box-shadow;
-  padding: $gutter-vertical-small;
-  display: flex;
-
   @include respond(phone-lg) {
     flex-direction: column-reverse;
   }
 
-  .col-1-of-3 {
+  &__controls {
     min-width: 46rem;
 
     @include respond(phone) {
       min-width: unset;
     }
-  }
 
-  .searchbar {
-    margin-bottom: 1rem;
+    .searchbar {
+      margin-bottom: 1rem;
 
-    &__heading {
+      &__heading {
+        display: flex;
+        align-items: center;
+      }
+
+      &__label {
+        padding-left: 1rem;
+        font-style: italic;
+        font-size: $control-panel-input-label-font-size;
+        margin-right: 0.5rem;
+      }
+    }
+
+    // Search bar
+    [class^="search-"] {
+      margin: 0;
+    }
+
+    [class^="searchbar-"] {
       display: flex;
-      align-items: center;
+      flex-direction: column;
     }
 
-    &__label {
-      padding-left: 1rem;
-      font-style: italic;
-      font-size: $control-panel-input-label-font-size;
-      margin-right: 0.5rem;
-    }
-  }
-
-  // Search bar
-  [class^="search-"] {
-    margin: 0;
-  }
-
-  [class^="searchbar-"] {
-    display: flex;
-    flex-direction: column;
-  }
-
-  [class^="searchInput-"] {
-    height: 3rem;
-    padding-left: 0.8rem;
-    color: $color-primary;
-    line-height: 3rem;
-
-    &::placeholder {
-      font-size: 1.2rem;
+    [class^="searchInput-"] {
+      height: 3rem;
+      padding-left: 0.8rem;
       color: $color-primary;
+      line-height: 3rem;
+
+      &::placeholder {
+        font-size: 1.2rem;
+        color: $color-primary;
+      }
+
+      @include respond(phone-lg) {
+        font-size: 1.2rem;
+        height: 3.75rem;
+      }
+
+      &:focus ~ label {
+        margin-top: -5.6rem;
+        padding-left: 1rem;
+      }
     }
 
-    @include respond(phone-lg) {
-      font-size: 1.2rem;
-      height: 3.75rem;
+    [class^="searchLabel-"] {
+      display: none;
     }
 
-    &:focus ~ label {
-      margin-top: -5.6rem;
-      padding-left: 1rem;
-    }
-  }
-
-  [class^="searchLabel-"] {
-    display: none;
-  }
-
-  [class^="searchResultsVisible-"] {
-    z-index: 1001;
-    top: 3.5rem;
-  }
-
-  [class^="searchResultsList-"] {
-    margin: 0;
-  }
-
-  [class^="searchResultsListItem-"],
-  [class^="searchResultsListItemActive-"] {
-    padding-left: 5px;
-  }
-
-  [class^="searchResultsListItem-"]:hover:after {
-    background-color: $color-secondary;
-  }
-
-  .range {
-    &__heading {
-      display: flex;
+    [class^="searchResultsVisible-"] {
+      z-index: 1001;
+      top: 3.5rem;
     }
 
-    &__label {
-      padding-left: 1rem;
-      font-style: italic;
-      font-size: $control-panel-input-label-font-size;
-      margin-right: 0.5rem;
+    [class^="searchResultsList-"] {
+      margin: 0;
+    }
+
+    [class^="searchResultsListItem-"],
+    [class^="searchResultsListItemActive-"] {
+      padding-left: 5px;
+    }
+
+    [class^="searchResultsListItem-"]:hover:after {
+      background-color: $color-secondary;
     }
   }
 
   &__title {
-    display: flex;
-    justify-content: flex-end;
-
     @include respond(phone-lg) {
       justify-content: space-between;
-    }
-
-    .heading-h1 {
-      display: flex;
-      justify-content: flex-end;
     }
   }
 }
