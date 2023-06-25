@@ -508,60 +508,25 @@ class Dashboard extends Component {
           until={this.state.until}
           title={title}
         />
-        <div className="row tabs">
-          <div className="col-1-of-1">
-            <Radio.Group
-              onChange={(e) => this.handleSelectTab(e?.target?.value)}
-              value={activeTabType}
-              style={{ marginBottom: 8 }}
-            >
-              <Radio.Button value={country.type}>
-                {this.countryTab}
-              </Radio.Button>
-              <Radio.Button value={region.type}>{this.regionTab}</Radio.Button>
-              <Radio.Button value={asn.type}>{this.asnTab}</Radio.Button>
-            </Radio.Group>
+        <div className="w-full mb-6">
+          <Radio.Group
+            onChange={(e) => this.handleSelectTab(e?.target?.value)}
+            value={activeTabType}
+            className="mb-8"
+          >
+            <Radio.Button value={country.type}>{this.countryTab}</Radio.Button>
+            <Radio.Button value={region.type}>{this.regionTab}</Radio.Button>
+            <Radio.Button value={asn.type}>{this.asnTab}</Radio.Button>
+          </Radio.Group>
 
-            {activeTabType !== asn.type ? (
-              (this.state.topoData && this.state.topoScores) ||
-              this.state.until - this.state.from > dashboardTimeRangeLimit ? (
-                <DashboardTab
-                  type={this.state.activeTabType}
-                  handleTabChangeViewButton={() =>
-                    this.handleTabChangeViewButton()
-                  }
-                  tabCurrentView={this.state.tabCurrentView}
-                  from={this.state.from}
-                  until={this.state.until}
-                  // display error text if from value is higher than until value
-                  displayTimeRangeError={
-                    this.state.displayDashboardTimeRangeError
-                  }
-                  // to populate summary table
-                  summaryDataProcessed={this.state.summaryDataProcessed}
-                  totalOutages={this.state.totalOutages}
-                  activeTabType={this.state.activeTabType}
-                  genSummaryTableDataProcessed={
-                    this.state.genSummaryTableDataProcessed
-                  }
-                  // to populate horizon time series table
-                  eventDataProcessed={this.state.eventDataProcessed}
-                  // to populate map
-                  topoData={this.state.topoData}
-                  topoScores={this.state.topoScores}
-                  handleEntityShapeClick={this.handleEntityShapeClick}
-                  summaryDataRaw={this.state.summaryDataRaw}
-                />
-              ) : this.state.displayTimeRangeError ? (
-                <Error />
-              ) : (
-                <Loading />
-              )
-            ) : this.state.eventDataProcessed ||
-              this.state.until - this.state.from > dashboardTimeRangeLimit ? (
+          {activeTabType !== asn.type ? (
+            (this.state.topoData && this.state.topoScores) ||
+            this.state.until - this.state.from > dashboardTimeRangeLimit ? (
               <DashboardTab
                 type={this.state.activeTabType}
-                handleTabChangeViewButton={this.handleTabChangeViewButton}
+                handleTabChangeViewButton={() =>
+                  this.handleTabChangeViewButton()
+                }
                 tabCurrentView={this.state.tabCurrentView}
                 from={this.state.from}
                 until={this.state.until}
@@ -578,13 +543,42 @@ class Dashboard extends Component {
                 }
                 // to populate horizon time series table
                 eventDataProcessed={this.state.eventDataProcessed}
+                // to populate map
+                topoData={this.state.topoData}
+                topoScores={this.state.topoScores}
+                handleEntityShapeClick={this.handleEntityShapeClick}
+                summaryDataRaw={this.state.summaryDataRaw}
               />
-            ) : this.state.displayDashboardTimeRangeError ? (
+            ) : this.state.displayTimeRangeError ? (
               <Error />
             ) : (
               <Loading />
-            )}
-          </div>
+            )
+          ) : this.state.eventDataProcessed ||
+            this.state.until - this.state.from > dashboardTimeRangeLimit ? (
+            <DashboardTab
+              type={this.state.activeTabType}
+              handleTabChangeViewButton={this.handleTabChangeViewButton}
+              tabCurrentView={this.state.tabCurrentView}
+              from={this.state.from}
+              until={this.state.until}
+              // display error text if from value is higher than until value
+              displayTimeRangeError={this.state.displayDashboardTimeRangeError}
+              // to populate summary table
+              summaryDataProcessed={this.state.summaryDataProcessed}
+              totalOutages={this.state.totalOutages}
+              activeTabType={this.state.activeTabType}
+              genSummaryTableDataProcessed={
+                this.state.genSummaryTableDataProcessed
+              }
+              // to populate horizon time series table
+              eventDataProcessed={this.state.eventDataProcessed}
+            />
+          ) : this.state.displayDashboardTimeRangeError ? (
+            <Error />
+          ) : (
+            <Loading />
+          )}
         </div>
       </div>
     );
