@@ -243,7 +243,7 @@ class ControlPanel extends Component {
         </div>
         <div className="col-2-of-3">
           <div className="control-panel__title flex items-center">
-            <h1 className="text-4xl mr-3">{this.props.title}</h1>
+            <h1 className="text-4xl mr-3 text-right">{this.props.title}</h1>
             {this.props.onClose && (
               <Button
                 icon={<CloseOutlined />}

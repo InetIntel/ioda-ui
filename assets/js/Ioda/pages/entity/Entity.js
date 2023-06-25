@@ -2863,7 +2863,7 @@ class Entity extends Component {
               entityName={this.state.entityName}
               handleDownload={() => this.manuallyDownloadChart("image/jpeg")}
             />
-            <div className="flex items-stretch gap-4 mb-4 entity__chart-layout">
+            <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
               <div className="col-2 p-4 card entity__chart">
                 <div className="flex items-center mb-3">
                   <h3 className="text-2xl mr-1">
