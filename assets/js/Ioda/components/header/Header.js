@@ -131,6 +131,7 @@ class Header extends Component {
   render() {
     const dashboard = T.translate("header.dashboard");
     const reports = T.translate("header.reports");
+    const project = T.translate("header.projectInfo");
     const help = T.translate("header.help");
     const iodaLogoAltText = T.translate("header.iodaLogoAltText");
     const api = T.translate("header.api");
@@ -163,6 +164,12 @@ class Header extends Component {
             >
               {api}
             </a>
+          </div>
+
+          <div className="header__item">
+            <Link to="/project" className="a-fake">
+              {project}
+            </Link>
           </div>
 
           <div className="header__item">
@@ -242,6 +249,16 @@ class Header extends Component {
             >
               {api}
             </a>
+          </div>
+
+          <div className="header__drawer-item">
+            <Link
+              to="/reports"
+              className="a-fake"
+              onClick={() => this.setShowDrawer(false)}
+            >
+              {project}
+            </Link>
           </div>
 
           <div className="header__drawer-item">
