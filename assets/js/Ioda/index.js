@@ -62,6 +62,7 @@ import Help from "./pages/help/Help";
 import IranReport2020 from "./pages/reports/IranReport2020";
 import ChartShare from "./pages/tests/ChartShare";
 import Acknowledgements from "./pages/acknowledgements/Acknowledgements";
+import Error from "./pages/error/Error";
 import TestAPI from "./pages/tests/TestAPI";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import GTRIntegrated from "./pages/reports/GTRIntegrated";
@@ -79,7 +80,29 @@ ga4react.initialize().then(
 ga4react.initialize();
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      error: null,
+    };
+  }
+
+  static getDerivedStateFromError(errorObject) {
+    // Update state so the next render will show the fallback UI.
+    return { error: errorObject };
+  }
+
   render() {
+    if (this.state.error) {
+      return (
+        <div className="app">
+          <Header />
+          <Error error={this.state.error} />
+          <Footer />
+        </div>
+      );
+    }
     return (
       <div className="app">
         <Header />
