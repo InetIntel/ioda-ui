@@ -93,12 +93,15 @@ class TopoMap extends Component {
     const entityType = this.props.entityType;
 
     return (
-      <div style={{ position: "relative", height: "inherit", width: "100%" }}>
+      <div
+        className="topo-map"
+        style={{ position: "relative", height: "inherit", width: "100%" }}
+      >
         <div
           className={
             this.state.hoverTooltipDisplay
-              ? "tooltip tooltip--visible"
-              : "tooltip"
+              ? "topo-map__tooltip topo-map__tooltip-visible"
+              : "topo-map__tooltip"
           }
         >
           <p>
