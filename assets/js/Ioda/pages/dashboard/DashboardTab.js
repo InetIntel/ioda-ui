@@ -109,17 +109,17 @@ class DashboardTab extends Component {
     );
 
     return (
-      <div className="tab p-8">
+      <div className="card p-8 dashboard__tab">
         {this.props.until - this.props.from < dashboardTimeRangeLimit ? (
-          <div className="row">
+          <div className="flex items-stretch gap-4 dashboard__tab-layout">
             {this.props.totalOutages === 0 ? (
               <div className="col-1-of-1 tab__error tab__error--noOutagesFound">
                 No {this.props.activeTabType} Outages found
               </div>
             ) : (
               <React.Fragment>
-                <div className="col-2-of-3">
-                  <div className="row items-center" ref={this.config}>
+                <div className="col-2 mw-0">
+                  <div className="flex items-center mb-4" ref={this.config}>
                     <div className="font-medium text-3xl">
                       {this.props.type === "country"
                         ? countryOutages
@@ -162,7 +162,7 @@ class DashboardTab extends Component {
                   </div>
                   {this.props.type !== "asn" ? (
                     <div
-                      className="tab__map"
+                      className="dashboard__tab-map"
                       style={
                         this.props.tabCurrentView === "map"
                           ? { display: "block" }
@@ -194,8 +194,8 @@ class DashboardTab extends Component {
                   </div>
                   <TimeStamp from={this.props.from} until={this.props.until} />
                 </div>
-                <div className="col-1-of-3">
-                  <div className="tab__table">
+                <div className="col-1 mw-0">
+                  <div className="dashboard__tab-table">
                     {this.props.activeTabType &&
                     this.props.totalOutages &&
                     this.props.genSummaryTableDataProcessed ? (
@@ -212,8 +212,8 @@ class DashboardTab extends Component {
             )}
           </div>
         ) : (
-          <div className="row">
-            <p className="tab__error">
+          <div className="w-full">
+            <p className="dashboard__tab-error">
               {timeDurationTooHighErrorMessage}
               {secondsToDhms(this.props.until - this.props.from)}.
             </p>

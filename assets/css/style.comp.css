@@ -5330,108 +5330,34 @@ button[class*="searchButton"] {
   @media only screen and (max-width: 27.5em) {
     .dashboard {
       margin: 3rem auto; } }
-  .dashboard .title {
-    margin-bottom: 0; }
-  .dashboard .col-1-of-3 {
-    position: relative; }
-  .dashboard .tabs {
-    margin-bottom: 1.5rem; }
-    .dashboard .tabs .nav-tabs {
-      list-style-type: none;
-      height: 4rem;
-      display: flex;
-      flex-direction: row;
-      justify-content: left; }
-      .dashboard .tabs .nav-tabs li {
-        width: 20rem; }
-        .dashboard .tabs .nav-tabs li a {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: #2c3e50;
-          font-weight: 700;
-          text-decoration: none;
-          padding-bottom: 2px;
-          margin-bottom: 1px;
-          font-size: 1.2rem; }
-          .dashboard .tabs .nav-tabs li a:hover span {
-            transition: all 0.4s ease-in-out;
-            filter: brightness(1.05) contrast(1.05);
-            transform: scale(1.03); }
-      .dashboard .tabs .nav-tabs li.active {
-        background-color: #fff; }
-        .dashboard .tabs .nav-tabs li.active a {
-          color: #2c3e50 !important;
-          border-top-left-radius: 3px;
-          border-top-right-radius: 3px;
-          border: 1px solid #eeeeee;
-          background-size: 100% 2px !important;
-          box-shadow: 0 1px 2px #9F9D9D;
-          z-index: 100;
-          position: relative; }
-          .dashboard .tabs .nav-tabs li.active a:link, .dashboard .tabs .nav-tabs li.active a:visited {
-            color: #3975BB;
-            font-weight: 700;
-            text-decoration: none;
-            padding-bottom: 2px;
-            margin-bottom: 1px;
-            background: linear-gradient(175deg, #598DCC 0%, #598DCC 33.3%, #3975BB 83.5%, #1A5DAE 100%) left bottom transparent no-repeat;
-            background-size: 100% 0;
-            /* controls underline thickness */
-            transition: ease-in-out 0.3s; }
-            .dashboard .tabs .nav-tabs li.active a:link:hover, .dashboard .tabs .nav-tabs li.active a:visited:hover {
-              background-size: 100% 2px; }
-          .dashboard .tabs .nav-tabs li.active a:link, .dashboard .tabs .nav-tabs li.active a:visited {
-            background: linear-gradient(175deg, #617486 0%, #617486 33.3%, #2c3e50 83.5%, #0D2032 100%) left bottom transparent no-repeat; }
-          .dashboard .tabs .nav-tabs li.active a:hover {
-            background-size: 100% 2px !important;
-            border-top-left-radius: 3px;
-            border-top-right-radius: 3px;
-            color: #2c3e50; }
-          .dashboard .tabs .nav-tabs li.active a:after {
-            content: "";
-            height: 1rem;
-            width: 100%;
-            background-color: #fff;
-            position: absolute;
-            bottom: -1rem;
-            left: -1px; }
-    .dashboard .tabs .tab {
-      background-color: #fff;
-      border-bottom-right-radius: 0.3rem;
-      border-bottom-left-radius: 0.3rem;
-      border-top-right-radius: 0.3rem;
-      box-shadow: 0 1px 2px #9F9D9D;
-      height: auto; }
-      .dashboard .tabs .tab__error {
-        font-size: 1.3rem; }
-        .dashboard .tabs .tab__error--noOutagesFound {
-          background-color: #E74C3C;
-          color: #fff;
-          padding: 1rem;
-          border-radius: 0.4rem;
-          font-family: "Lato-Bold", "Helvetica", "arial", sans-serif;
-          text-transform: capitalize; }
-      .dashboard .tabs .tab .horizon-series {
-        border-bottom: 1px solid #ccc; }
-      .dashboard .tabs .tab__heading {
-        display: flex; }
-        .dashboard .tabs .tab__heading .heading-h2 {
-          margin-right: 0.5rem; }
-      .dashboard .tabs .tab__map {
-        height: 52.9rem; }
-      .dashboard .tabs .tab .horizon-series .label {
-        background-color: rgba(255, 255, 255, 0.4);
-        padding: 0 0.4rem;
-        border-radius: 0.3rem;
-        max-height: 100%; }
-      .dashboard .tabs .tab__table .table {
-        margin-bottom: 0;
-        height: inherit; }
-        .dashboard .tabs .tab__table .table tbody {
-          max-height: 54.3rem; }
+  .dashboard__tab {
+    height: auto; }
+    .dashboard__tab .horizon-series {
+      border-bottom: 1px solid #ccc; }
+    .dashboard__tab .horizon-series .label {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 0 0.4rem;
+      border-radius: 0.3rem;
+      max-height: 100%; }
+    @media only screen and (max-width: 64em) {
+      .dashboard__tab-layout {
+        flex-direction: column; } }
+    .dashboard__tab-map {
+      height: 52.9rem; }
+    .dashboard__tab-table .table {
+      margin-bottom: 0;
+      height: inherit; }
+      .dashboard__tab-table .table tbody {
+        max-height: 54.3rem; }
+    .dashboard__tab-error {
+      font-size: 1.3rem; }
+      .dashboard__tab-error--noOutagesFound {
+        background-color: #E74C3C;
+        color: #fff;
+        padding: 1rem;
+        border-radius: 0.4rem;
+        font-family: "Lato-Bold", "Helvetica", "arial", sans-serif;
+        text-transform: capitalize; }
 
 .entity {
   padding-top: 5rem;
