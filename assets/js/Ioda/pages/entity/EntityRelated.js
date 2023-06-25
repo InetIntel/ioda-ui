@@ -240,6 +240,7 @@ class EntityRelated extends Component {
                   {noOutagesOnMapMessage}
                 </h2>
                 <Button
+                  className="mt-4"
                   type="primary"
                   onClick={() => this.props.toggleModal("map")}
                 >
