@@ -103,6 +103,7 @@ class EntityRelated extends Component {
               </div>
               <Button
                 type="primary"
+                size="small"
                 onClick={() => this.props.toggleModal("map")}
               >
                 {regionalModalButtonText}
@@ -274,6 +275,7 @@ class EntityRelated extends Component {
               </div>
               <Button
                 type="primary"
+                size="small"
                 onClick={() => this.props.toggleModal("table")}
               >
                 {asnModalButtonText}
