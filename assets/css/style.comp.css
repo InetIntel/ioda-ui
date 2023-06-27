@@ -4305,6 +4305,35 @@ body {
     .topo-map__tooltip-visible {
       display: flex; }
 
+.map-legend {
+  z-index: 10;
+  width: 60%;
+  --extreme-width: 15%; }
+  .map-legend__title {
+    margin-bottom: -0.3rem; }
+  .map-legend__labels-extreme {
+    width: var(--extreme-width); }
+  .map-legend__bar-background {
+    background: #efefee;
+    position: relative;
+    border-radius: 0.5rem; }
+  .map-legend__bar-wrapper {
+    position: absolute;
+    height: 100%;
+    width: 100%; }
+  .map-legend__bar-gradient {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ffcc30 0%, #ee695b 100%);
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem; }
+  .map-legend__bar-extreme {
+    height: 100%;
+    width: var(--extreme-width);
+    background-color: #ea5362;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem; }
+
 .progress-bar-striped {
   overflow: hidden;
   height: 2rem;
