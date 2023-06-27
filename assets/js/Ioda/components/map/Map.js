@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 import { Map, TileLayer, GeoJSON } from "react-leaflet";
 import { humanizeNumber, shadeColor } from "../../utils";
-import { getEntityScaleColor } from "../../utils/mapColors";
+import {
+  getEntityScaleColor,
+  getThresholdBoundsForCountry,
+  getThresholdBoundsForRegion,
+} from "../../utils/mapColors";
+import MapLegend from "./MapLegend";
 
 const mapAccessToken =
   "pk.eyJ1Ijoid2ViZXIwMjUiLCJhIjoiY2tmNXp5bG0wMDAzaTMxbWQzcXQ1Y3k2eCJ9.NMu5bfrybATuYQ7HdYvq-g";
@@ -92,6 +97,13 @@ class TopoMap extends Component {
 
     const entityType = this.props.entityType;
 
+    let bounds = {};
+    if (entityType === "country") {
+      bounds = getThresholdBoundsForCountry();
+    } else if (entityType === "region") {
+      bounds = getThresholdBoundsForRegion();
+    }
+
     return (
       <div
         className="topo-map"
@@ -109,6 +121,15 @@ class TopoMap extends Component {
             {this.state.hoverScore !== 0 ? ` - ${this.state.hoverScore}` : null}
           </p>
         </div>
+
+        {!this.props.hideLegend && (
+          <MapLegend
+            style={{ position: "absolute", bottom: "1rem", left: "1rem" }}
+            highThreshold={bounds.high ?? 0}
+            lowThreshold={bounds.low ?? 0}
+          />
+        )}
+
         <Map
           center={this.props.bounds ? null : position}
           zoom={this.props.bounds ? null : zoom}
