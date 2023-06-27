@@ -24,7 +24,7 @@ const MapLegend = ({ lowThreshold, highThreshold, className, ...rest }) => {
   return (
     <div className={clsx("card p-4 map-legend", className)} {...rest}>
       <div className="flex items-end gap-4">
-        <div className="text-lg font-medium map-legend__title">
+        <div className="text-lg font-bold map-legend__title">
           Outage Severity Score:
         </div>
         <div className="col">
