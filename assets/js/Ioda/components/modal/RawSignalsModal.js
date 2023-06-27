@@ -650,6 +650,7 @@ class RawSignalsModal extends PureComponent {
                           this.props.handleEntityShapeClick(entity)
                         }
                         entityType="region"
+                        hideLegend
                       />
                     ) : this.props.summaryDataMapRaw &&
                       this.props.topoScores &&
