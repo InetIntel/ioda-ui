@@ -5036,115 +5036,6 @@ body {
     .header__drawer-icon {
       display: block; } }
 
-.acknowledgements {
-  padding-top: 5rem;
-  margin: 4rem 0;
-  color: #2c3e50; }
-  @media only screen and (max-width: 64em) {
-    .acknowledgements {
-      padding: 1.5rem;
-      margin-top: 4rem; } }
-  .acknowledgements .row {
-    max-width: 114rem; }
-  .acknowledgements .img-container {
-    width: 100%;
-    position: relative;
-    height: inherit;
-    display: flex;
-    justify-content: center;
-    align-items: center; }
-    .acknowledgements .img-container div {
-      position: relative !important;
-      width: 100rem !important;
-      height: 46.5rem !important;
-      background-size: contain !important; }
-      @media only screen and (max-width: 64em) {
-        .acknowledgements .img-container div {
-          width: 80rem !important;
-          height: 37.2rem !important; } }
-      @media only screen and (max-width: 54.375em) {
-        .acknowledgements .img-container div {
-          width: 50rem !important;
-          height: 23.25rem !important; } }
-  .acknowledgements img {
-    max-width: 100rem;
-    width: 100%;
-    height: auto;
-    margin: 1.5rem auto;
-    display: block;
-    box-shadow: 0 1px 2px #9F9D9D; }
-  .acknowledgements .img-container div {
-    filter: drop-shadow(0 1px 2px #9F9D9D); }
-  .acknowledgements h2 {
-    font-size: 1.9rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-top: 1rem;
-    margin-top: 1.5rem; }
-    .acknowledgements h2:before {
-      content: "";
-      width: 100%;
-      height: 0.1rem;
-      background-color: #2c3e50;
-      position: absolute;
-      top: 0;
-      left: 0; }
-  .acknowledgements h3 {
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
-    margin-left: 2rem; }
-  .acknowledgements h4 {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-    margin-left: 2rem; }
-  .acknowledgements ul {
-    margin-left: 4rem;
-    margin-bottom: 1rem; }
-    .acknowledgements ul li {
-      font-size: 1.2rem; }
-  .acknowledgements p {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    margin-left: 2rem; }
-  .acknowledgements a:link, .acknowledgements a:visited {
-    word-break: break-all; }
-    .acknowledgements a:link:link, .acknowledgements a:link:visited, .acknowledgements a:visited:link, .acknowledgements a:visited:visited {
-      color: #3975BB;
-      font-weight: 700;
-      text-decoration: none;
-      padding-bottom: 2px;
-      margin-bottom: 1px;
-      background: linear-gradient(175deg, #598DCC 0%, #598DCC 33.3%, #3975BB 83.5%, #1A5DAE 100%) left bottom transparent no-repeat;
-      background-size: 100% 0;
-      /* controls underline thickness */
-      transition: ease-in-out 0.3s; }
-      .acknowledgements a:link:link:hover, .acknowledgements a:link:visited:hover, .acknowledgements a:visited:link:hover, .acknowledgements a:visited:visited:hover {
-        background-size: 100% 2px; }
-  .acknowledgements .thumbnail {
-    background-color: #fff;
-    box-shadow: 0 1px 2px #9F9D9D;
-    border-radius: 0.5rem;
-    padding: 2rem;
-    width: 100%; }
-    .acknowledgements .thumbnail__content {
-      display: flex;
-      flex-direction: column; }
-    .acknowledgements .thumbnail__text {
-      margin-left: 0;
-      color: #2c3e50; }
-    .acknowledgements .thumbnail__img {
-      height: 15rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1rem; }
-    .acknowledgements .thumbnail img {
-      height: auto;
-      max-width: 15rem;
-      max-height: 15rem;
-      width: 100%;
-      box-shadow: none; }
-
 .helpPage {
   padding-top: 5rem;
   margin: 4rem 0;
@@ -5398,90 +5289,19 @@ button[class*="searchButton"] {
   .entity-related .table--summary tbody {
     max-height: 34rem; }
 
-.projectinfo {
-  padding-top: 5rem;
-  margin: 4rem 0;
-  color: #2c3e50; }
-  @media only screen and (max-width: 64em) {
-    .projectinfo {
-      padding: 1.5rem;
-      margin-top: 4rem; } }
-  .projectinfo .row {
-    max-width: 114rem; }
-  .projectinfo .img-container {
-    width: 100%;
-    position: relative;
-    height: inherit;
-    display: flex;
-    justify-content: center;
-    align-items: center; }
-    .projectinfo .img-container div {
-      position: relative !important;
-      width: 100rem !important;
-      height: 46.5rem !important;
-      background-size: contain !important; }
-      @media only screen and (max-width: 64em) {
-        .projectinfo .img-container div {
-          width: 80rem !important;
-          height: 37.2rem !important; } }
-      @media only screen and (max-width: 54.375em) {
-        .projectinfo .img-container div {
-          width: 50rem !important;
-          height: 23.25rem !important; } }
-  .projectinfo img {
-    max-width: 100rem;
-    width: 100%;
-    height: auto;
-    margin: 1.5rem auto;
-    display: block;
-    box-shadow: 0 1px 2px #9F9D9D; }
-  .projectinfo .img-container div {
-    filter: drop-shadow(0 1px 2px #9F9D9D); }
-  .projectinfo h2 {
-    font-size: 1.9rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-top: 1rem;
-    margin-top: 1.5rem; }
-    .projectinfo h2:before {
-      content: "";
-      width: 100%;
-      height: 0.1rem;
-      background-color: #2c3e50;
-      position: absolute;
-      top: 0;
-      left: 0; }
-  .projectinfo h3 {
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
-    margin-left: 2rem; }
-  .projectinfo h4 {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-    margin-left: 2rem; }
-  .projectinfo ul {
-    margin-left: 4rem;
-    margin-bottom: 1rem; }
-    .projectinfo ul li {
-      font-size: 1.2rem; }
-  .projectinfo p {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    margin-left: 2rem; }
-  .projectinfo a:link, .projectinfo a:visited {
-    word-break: break-all; }
-    .projectinfo a:link:link, .projectinfo a:link:visited, .projectinfo a:visited:link, .projectinfo a:visited:visited {
-      color: #3975BB;
-      font-weight: 700;
-      text-decoration: none;
-      padding-bottom: 2px;
-      margin-bottom: 1px;
-      background: linear-gradient(175deg, #598DCC 0%, #598DCC 33.3%, #3975BB 83.5%, #1A5DAE 100%) left bottom transparent no-repeat;
-      background-size: 100% 0;
-      /* controls underline thickness */
-      transition: ease-in-out 0.3s; }
-      .projectinfo a:link:link:hover, .projectinfo a:link:visited:hover, .projectinfo a:visited:link:hover, .projectinfo a:visited:visited:hover {
-        background-size: 100% 2px; }
+.project-info {
+  padding-top: 5rem; }
+
+.acknowledgements__support-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px; }
+  @media only screen and (max-width: 54.375em) {
+    .acknowledgements__support-grid {
+      grid-template-columns: repeat(3, 1fr); } }
+  @media only screen and (max-width: 46em) {
+    .acknowledgements__support-grid {
+      grid-template-columns: repeat(1, 1fr); } }
 
 .reports {
   padding-top: 5rem;

@@ -34,17 +34,6 @@
 
 // React Imports
 import React, { Component } from "react";
-// Internationalization
-import T from "i18n-react";
-// Images
-import otfLogo from "images/logos/otf.png";
-import dhsLogo from "images/logos/dhs.svg";
-import comcastLogo from "images/logos/comcast.svg";
-import nsfLogo from "images/logos/nsf.svg";
-import isocLogo from "images/logos/isoc.svg";
-import dosLogo from "images/logos/dos.png";
-// Constants
-import urls from "../../constants/urls/urls";
 
 class PartnerCard extends Component {
   render() {
