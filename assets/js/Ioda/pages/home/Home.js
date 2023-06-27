@@ -252,7 +252,7 @@ class Home extends Component {
 
         {/* Searchbar section */}
         <div className="max-cont text-center home__search">
-          <div className="text-5xl font-bold search-title">
+          <div className="text-5xl font-semibold search-title">
             {searchBarTitle}
           </div>
           <div className="px-12 mt-8">
@@ -275,7 +275,7 @@ class Home extends Component {
         {/* Map / Twitter Feed Side-by-side */}
         <div className="max-cont row items-stretch home__recent-outages">
           <div className="flex-column home__recent-outages__map-outer">
-            <div className="text-5xl font-bold mb-6">
+            <div className="text-5xl font-semibold mb-6">
               {recentOutages} ({recentOutageTimeFrame})
             </div>
             {!(this.state.topoData && this.state.outageSummaryData) && (
@@ -293,7 +293,9 @@ class Home extends Component {
             )}
           </div>
           <div className="home__recent-outages__twitter-outer">
-            <div className="text-5xl font-bold mb-6">{twitterWidgetTitle}</div>
+            <div className="text-5xl font-semibold mb-6">
+              {twitterWidgetTitle}
+            </div>
             <div className="card twitter-embed">
               <TwitterTimelineEmbed
                 sourceType="profile"
@@ -319,7 +321,7 @@ class Home extends Component {
         {/* Methodology */}
         <div className="max-cont mt-10">
           <div className="home__methodology">
-            <div className="text-5xl font-bold mb-6">Methodology</div>
+            <div className="text-5xl font-semibold mb-6">Methodology</div>
             <div className="text-2xl mb-8">
               IODA combines information from three data sources, establishes the
               relevance of an event and generates alerts. The outage events and
@@ -375,7 +377,9 @@ class Home extends Component {
 
         {/* Partners */}
         <div className="max-cont p-12 mt-10 mb-24">
-          <div className="text-5xl font-bold mb-6">{partnersSectionTitle}</div>
+          <div className="text-5xl font-semibold mb-6">
+            {partnersSectionTitle}
+          </div>
           <div className="partners-grid">
             <PartnerCard
               logo={nsfLogo}

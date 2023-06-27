@@ -113,7 +113,6 @@ class App extends Component {
           <Route exact path="/reports" component={Reports} />
           <Route exact path="/project" component={ProjectInfo} />
           <Route exact path="/help" component={Help} />
-          <Route exact path="/acknowledgements" component={Acknowledgements} />
           <Route exact path="/_tmp/asn" component={ASNVizV2} />
           <Route path="/reports/2020-iran-report" component={IranReport2020} />
           <Route path="/reports/GTR-integrated" component={GTRIntegrated} />

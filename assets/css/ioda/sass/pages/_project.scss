@@ -1,3 +1,19 @@
-.projectinfo {
-  @include staticPageFormatting;
+.project-info {
+  padding-top: $header-height;
+}
+
+.acknowledgements {
+  &__support-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+
+    @include respond(screen-870) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include respond(phone-md) {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
 }
