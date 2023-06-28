@@ -1594,7 +1594,6 @@ class Entity extends Component {
     // Get the relevant values to populate table with
     let eventData = [];
     this.state.eventDataRaw.map((event) => {
-      console.log(event.start);
       const fromDate = secondsToUTC(event.start);
       const untilDate = secondsToUTC(event.start + event.duration);
       const eventItem = {
