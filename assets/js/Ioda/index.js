@@ -61,7 +61,6 @@ import ProjectInfo from "./pages/projectinfo/ProjectInfo";
 import Help from "./pages/help/Help";
 import IranReport2020 from "./pages/reports/IranReport2020";
 import ChartShare from "./pages/tests/ChartShare";
-import Acknowledgements from "./pages/acknowledgements/Acknowledgements";
 import Error from "./pages/error/Error";
 import TestAPI from "./pages/tests/TestAPI";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
