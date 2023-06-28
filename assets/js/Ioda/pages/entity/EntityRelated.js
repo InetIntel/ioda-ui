@@ -231,7 +231,7 @@ class EntityRelated extends Component {
                 handleEntityShapeClick={(entity) =>
                   this.props.handleEntityShapeClick(entity)
                 }
-                entityType={this.props.entityType}
+                entityType="region"
               />
             ) : this.props.summaryDataMapRaw &&
               this.props.topoScores &&
