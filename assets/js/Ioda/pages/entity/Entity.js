@@ -112,6 +112,7 @@ import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
+require("highcharts/modules/accessibility")(Highcharts);
 
 import dayjs from "../../utils/dayjs";
 import { getSavedAdvancedModePreference } from "../../utils/storage";
