@@ -57,14 +57,16 @@ const EventsTable = ({ data }) => {
   return (
     <div className="ioda-table">
       <Table
+        sticky
         bordered
         size="small"
         columns={columns}
         pagination={false}
         dataSource={formattedData}
         rowKey={(event) => event.key}
-        rowClassName={() => "text-xl"}
-        rootClassName="ioda-table"
+        rowClassName={() => "text-lg"}
+        scroll={{ y: "42rem" }}
+        rootClassName="card"
       />
       <div className="w-full mt-3 text-left text-xl">
         Showing {formattedData.length} events

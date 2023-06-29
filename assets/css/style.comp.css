@@ -3506,7 +3506,7 @@ body {
   color: #fff !important; }
 
 .ioda-table .ant-table-column-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   line-height: 1.3; }
 
 .table {
@@ -5221,8 +5221,7 @@ button[class*="searchButton"] {
     .entity__chart-layout {
       flex-direction: column; } }
   .entity__chart {
-    min-width: 0;
-    max-height: 614px; }
+    min-width: 0; }
 
 .entity-related {
   margin-bottom: 1.5rem; }
