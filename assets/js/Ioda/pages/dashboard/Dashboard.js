@@ -13,19 +13,16 @@ import {
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
 import { Searchbar } from "caida-components-library";
-import Tabs from "../../components/tabs/Tabs";
 import DashboardTab from "./DashboardTab";
 import * as topojson from "topojson";
 // Constants
-import { tabOptions, country, region, asn } from "./DashboardConstants";
+import { country, region, asn } from "./DashboardConstants";
 import { connect } from "react-redux";
 // Helper Functions
 import {
   convertValuesForSummaryTable,
   convertTsDataForHtsViz,
-  dateRangeToSeconds,
   dashboardTimeRangeLimit,
-  convertTimeToSecondsForURL,
 } from "../../utils";
 import Loading from "../../components/loading/Loading";
 import Error from "../../components/error/Error";

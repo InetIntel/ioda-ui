@@ -60,9 +60,7 @@ import Reports from "./pages/reports/Reports";
 import ProjectInfo from "./pages/projectinfo/ProjectInfo";
 import Help from "./pages/help/Help";
 import IranReport2020 from "./pages/reports/IranReport2020";
-import ChartShare from "./pages/tests/ChartShare";
 import Error from "./pages/error/Error";
-import TestAPI from "./pages/tests/TestAPI";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import GTRIntegrated from "./pages/reports/GTRIntegrated";
 
@@ -106,8 +104,6 @@ class App extends Component {
       <div className="app">
         <Header />
         <Switch>
-          {/*<Route path='/test' component={TestAPI}/>*/}
-          <Route path="/chart/:entityType/:entityCode" component={ChartShare} />
           <Route path="/dashboard/:entityType?" component={Dashboard} />
           <Route exact path="/reports" component={Reports} />
           <Route exact path="/project" component={ProjectInfo} />
