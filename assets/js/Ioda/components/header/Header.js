@@ -253,7 +253,7 @@ class Header extends Component {
 
           <div className="header__drawer-item">
             <Link
-              to="/reports"
+              to="/project"
               className="a-fake"
               onClick={() => this.setShowDrawer(false)}
             >
