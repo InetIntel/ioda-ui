@@ -3505,6 +3505,10 @@ body {
 .ioda-help-tooltip .ant-popover-inner-content {
   color: #fff !important; }
 
+.ioda-table .ant-table-column-title {
+  font-size: 1.25rem;
+  line-height: 1.3; }
+
 .table {
   background-color: #fff;
   padding: 0;

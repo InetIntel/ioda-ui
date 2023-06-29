@@ -97,6 +97,7 @@
         "redux": "^4.0.5",
         "redux-thunk": "^2.3.0",
         "topojson": "1.6.18",
+        "uuid": "^9.0.0",
         "watermarkjs": "^2.1.1"
     },
     "browserslist": {

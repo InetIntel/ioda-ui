@@ -247,8 +247,8 @@ class Entity extends Component {
       currentTable: "alert",
       eventDataRaw: null,
       eventDataProcessed: [],
+
       alertDataRaw: null,
-      alertDataProcessed: [],
       // relatedTo entity Map
       topoData: null,
       topoScores: null,
@@ -472,9 +472,7 @@ class Entity extends Component {
 
     // After API call for Alert Table data completes, check for lengths to set display counts and then process to populate
     if (this.props.alerts !== prevProps.alerts) {
-      this.setState({ alertDataRaw: this.props.alerts }, () => {
-        this.convertValuesForAlertTable();
-      });
+      this.setState({ alertDataRaw: this.props.alerts });
     }
 
     // After API call for outage summary data completes, pass summary data to map function for data merging
@@ -1635,33 +1633,7 @@ class Entity extends Component {
       this.convertValuesForXyViz();
     }
   };
-  // Take values from api and format for Alert table
-  convertValuesForAlertTable = () => {
-    // Get the relevant values to populate table with
-    const alertData = this.state.alertDataRaw.map((alert) => {
-      const alertDate = secondsToUTC(alert.time);
-      return {
-        entityName: alert.entity.name,
-        level: alert.level,
-        date: {
-          month: alertDate.format("MMMM"),
-          day: alertDate.format("D"),
-          year: alertDate.format("YYYY"),
-          hours: alertDate.format("hh"),
-          minutes: alertDate.format("mm"),
-          meridian: alertDate.format("a"),
-        },
-        dateStamp: alertDate.toDate(),
-        dataSource: alert.datasource,
-        actualValue: alert.value,
-        baselineValue: alert.historyValue,
-      };
-    });
 
-    this.setState({
-      alertDataProcessed: alertData.reverse(),
-    });
-  };
   // Switching between Events and Alerts
 
   // 2nd Row
@@ -2990,7 +2962,7 @@ class Entity extends Component {
                   }
                   type={this.props.type}
                   eventDataProcessed={this.state.eventDataProcessed}
-                  alertDataProcessed={this.state.alertDataProcessed}
+                  alertsData={this.state.alertDataRaw}
                   legendHandler={this.handleSelectedSignal}
                   tsDataSeriesVisibleMap={this.state.tsDataSeriesVisibleMap}
                   updateSourceParams={this.updateSourceParams}

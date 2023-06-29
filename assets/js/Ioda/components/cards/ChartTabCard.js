@@ -42,6 +42,7 @@ import { Radio } from "antd";
 import Tabs from "../tabs/Tabs";
 import T from "i18n-react";
 import ChartLegendCard from "./ChartLegendCard";
+import AlertsTable from "../table/AlertsTable";
 
 class ChartTabCard extends React.Component {
   constructor(props) {
@@ -89,12 +90,8 @@ class ChartTabCard extends React.Component {
 
         {this.state.currentTab === 2 && (
           <>
-            {this.props.alertDataProcessed ? (
-              <Table
-                type="alert"
-                data={this.props.alertDataProcessed}
-                totalCount={this.props.alertDataProcessed.length}
-              />
+            {this.props.alertsData ? (
+              <AlertsTable data={this.props.alertsData} />
             ) : (
               <Loading />
             )}

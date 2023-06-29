@@ -99,6 +99,7 @@ class Table extends Component {
     setTableData = (data) => {
         if (this.props.type === "alert") {
             // Alert Table default sort
+            console.log(data)
             this.setState({
                 alertData: data,
                 sortedColumn: {
