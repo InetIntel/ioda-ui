@@ -29,7 +29,8 @@ const columns = [
     title: "",
     dataIndex: "level",
     key: "level",
-    render(value, record) {
+    width: "34px",
+    render(value) {
       if (value === "critical") {
         return (
           <div className="text-center">
@@ -51,6 +52,7 @@ const columns = [
     title: dateStampTitle,
     dataIndex: "time",
     key: "time",
+    width: "35%",
     render(value) {
       return secondsToUTC(value).format("MMM D, YYYY h:mma");
     },
@@ -94,14 +96,16 @@ const AlertsTable = ({ data }) => {
   return (
     <div className="ioda-table">
       <Table
+        sticky
         bordered
         size="small"
         columns={columns}
         pagination={false}
         dataSource={formattedData}
         rowKey={(alert) => alert.key}
-        rowClassName={() => "text-xl"}
-        rootClassName="ioda-table"
+        rowClassName={() => "text-lg"}
+        scroll={{ y: "42rem" }}
+        rootClassName="card"
       />
       <div className="w-full mt-3 text-left text-xl">
         Showing {formattedData.length} alerts
