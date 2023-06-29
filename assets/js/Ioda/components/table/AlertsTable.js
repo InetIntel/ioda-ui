@@ -104,7 +104,7 @@ const AlertsTable = ({ data }) => {
         dataSource={formattedData}
         rowKey={(alert) => alert.key}
         rowClassName={() => "text-lg"}
-        scroll={{ y: "42rem" }}
+        scroll={{ y: "450px" }}
         rootClassName="card"
       />
       <div className="w-full mt-3 text-left text-xl">
