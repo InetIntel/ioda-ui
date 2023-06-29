@@ -65,7 +65,7 @@ const EventsTable = ({ data }) => {
         dataSource={formattedData}
         rowKey={(event) => event.key}
         rowClassName={() => "text-lg"}
-        scroll={{ y: "42rem" }}
+        scroll={{ y: "450px" }}
         rootClassName="card"
       />
       <div className="w-full mt-3 text-left text-xl">
