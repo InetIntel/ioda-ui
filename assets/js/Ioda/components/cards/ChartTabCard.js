@@ -35,14 +35,12 @@
  * MODIFICATIONS.
  */
 import React from "react";
-import Table from "../table/Table";
 import Loading from "../loading/Loading";
-import Tooltip from "../tooltip/Tooltip";
 import { Radio } from "antd";
-import Tabs from "../tabs/Tabs";
 import T from "i18n-react";
 import ChartLegendCard from "./ChartLegendCard";
 import AlertsTable from "../table/AlertsTable";
+import EventsTable from "../table/EventsTable";
 
 class ChartTabCard extends React.Component {
   constructor(props) {
@@ -100,12 +98,8 @@ class ChartTabCard extends React.Component {
 
         {this.state.currentTab === 3 && (
           <>
-            {this.props.eventDataProcessed ? (
-              <Table
-                type="event"
-                data={this.props.eventDataProcessed}
-                totalCount={this.props.eventDataProcessed.length}
-              />
+            {this.props.eventData ? (
+              <EventsTable data={this.props.eventData} />
             ) : (
               <Loading />
             )}
