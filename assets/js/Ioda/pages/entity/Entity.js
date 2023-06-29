@@ -71,41 +71,28 @@ import {
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
 import { Searchbar } from "caida-components-library";
-import Table from "../../components/table/Table";
 import EntityRelated from "./EntityRelated";
 import Loading from "../../components/loading/Loading";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
-import TopoMap from "../../components/map/Map";
 import * as topojson from "topojson";
-import * as d3 from "d3-shape";
+
 import Tooltip from "../../components/tooltip/Tooltip";
-// Event Table Dependencies
-import * as sd from "simple-duration";
+
 // Helper Functions
 import {
-  convertSecondsToDateValues,
-  humanizeNumber,
-  toDateTime,
   convertValuesForSummaryTable,
   combineValuesForSignalsTable,
   convertTsDataForHtsViz,
   getOutageCoords,
-  dateRangeToSeconds,
   normalize,
   secondsToDhms,
   controlPanelTimeRangeLimit,
-  alertBandColor,
-  xyChartBackgroundLineColor,
-  convertTimeToSecondsForURL,
   legend,
 } from "../../utils";
 import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
-import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from "../../components/cards/ChartTabCard";
 import ShareLinkModal from "../../components/modal/ShareLinkModal";
-import { element } from "prop-types";
-import Tabs from "../../components/tabs/Tabs";
 
 // Chart libraries
 import Highcharts from "highcharts/highstock";
@@ -246,8 +233,6 @@ class Entity extends Component {
       // Event/Table Data
       currentTable: "alert",
       eventDataRaw: null,
-      eventDataProcessed: [],
-
       alertDataRaw: null,
       // relatedTo entity Map
       topoData: null,
@@ -465,9 +450,7 @@ class Entity extends Component {
 
     // Make API call for data to populate event table
     if (this.props.events !== prevProps.events) {
-      this.setState({ eventDataRaw: this.props.events }, () => {
-        this.convertValuesForEventTable();
-      });
+      this.setState({ eventDataRaw: this.props.events });
     }
 
     // After API call for Alert Table data completes, check for lengths to set display counts and then process to populate
@@ -1586,52 +1569,6 @@ class Entity extends Component {
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
     });
-  };
-
-  // Event Table
-  // Take values from api and format for Event table
-  convertValuesForEventTable = () => {
-    // Get the relevant values to populate table with
-    let eventData = [];
-    this.state.eventDataRaw.map((event) => {
-      const fromDate = secondsToUTC(event.start);
-      const untilDate = secondsToUTC(event.start + event.duration);
-      const eventItem = {
-        age: sd.stringify((event.start + event.duration) / 1000, "s"),
-        from: {
-          month: fromDate.format("MMMM"),
-          day: fromDate.format("D"),
-          year: fromDate.format("YYYY"),
-          hours: fromDate.format("hh"),
-          minutes: fromDate.format("mm"),
-          meridian: fromDate.format("a"),
-        },
-        fromDate: fromDate.toDate(),
-        until: {
-          month: untilDate.format("MMMM"),
-          day: untilDate.format("D"),
-          year: untilDate.format("YYYY"),
-          hours: untilDate.format("hh"),
-          minutes: untilDate.format("mm"),
-          meridian: untilDate.format("a"),
-        },
-        untilDate: untilDate.toDate(),
-        duration: sd.stringify(event.duration, "s"),
-        score: humanizeNumber(event.score),
-      };
-      eventData.push(eventItem);
-    });
-
-    this.setState({
-      eventDataProcessed: eventData,
-    });
-
-    /* Force alert bands to be drawn in cases where the graph was
-     * drawn before our event data arrived.
-     */
-    if (this.state.tsDataDisplayOutageBands && this.state.tsDataRaw) {
-      this.convertValuesForXyViz();
-    }
   };
 
   // Switching between Events and Alerts
@@ -2955,13 +2892,8 @@ class Entity extends Component {
               </div>
               <div className="col-1 p-4 card">
                 <ChartTabCard
-                  title={
-                    this.state.currentTable === "event"
-                      ? `${eventFeedTitle} ${this.state.entityName}`
-                      : `${alertFeedTitle} ${this.state.entityName}`
-                  }
                   type={this.props.type}
-                  eventDataProcessed={this.state.eventDataProcessed}
+                  eventData={this.state.eventDataRaw}
                   alertsData={this.state.alertDataRaw}
                   legendHandler={this.handleSelectedSignal}
                   tsDataSeriesVisibleMap={this.state.tsDataSeriesVisibleMap}
