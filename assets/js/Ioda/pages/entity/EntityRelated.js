@@ -85,7 +85,7 @@ class EntityRelated extends Component {
           <div className="mb-6">
             <div className="flex items-center">
               <div className="col-1 mw-0 flex items-center">
-                <h3 className="text-2xl truncate">
+                <h3 className="text-2xl">
                   {this.props.entityType === "country"
                     ? `${regionalSectionTitleCountryType} ${this.props.entityName}`
                     : this.props.entityType === "region"
@@ -236,10 +236,8 @@ class EntityRelated extends Component {
             ) : this.props.summaryDataMapRaw &&
               this.props.topoScores &&
               this.props.topoScores.length === 0 ? (
-              <div className="related__no-outages">
-                <h2 className="related__no-outages-title">
-                  {noOutagesOnMapMessage}
-                </h2>
+              <div className="h-full flex-column items-center justify-center">
+                <h2 className="text-2xl">{noOutagesOnMapMessage}</h2>
                 <Button
                   className="mt-4"
                   type="primary"
@@ -259,7 +257,7 @@ class EntityRelated extends Component {
           <div className="related__heading">
             <div className="flex items-center gap-3 mb-6">
               <div className="col-1 mw-0 flex items-center">
-                <h3 className="text-2xl truncate">
+                <h3 className="text-2xl">
                   {this.props.entityType === "country"
                     ? `Outages of ASNs/ISPs operating in ${this.props.entityName}`
                     : this.props.entityType === "region"
