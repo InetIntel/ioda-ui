@@ -48,13 +48,11 @@ import {
   horizonChartSeriesColor,
   humanizeNumber,
   maxHtsLimit,
-  secondaryColor,
-  secondaryColorDark,
-  secondaryColorLight,
 } from "../../utils";
 import HorizonTSChart from "horizon-timeseries-chart";
 import Style from "react-style-tag/lib/Style";
 import { Button, Modal } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 
 class RawSignalsModal extends PureComponent {
   constructor(props) {
@@ -412,6 +410,7 @@ class RawSignalsModal extends PureComponent {
         className="modal"
         footer={null}
         centered={true}
+        closeIcon={<></>}
       >
         <Style>{`
                     .renderingDataPingSlash24 {
@@ -455,6 +454,13 @@ class RawSignalsModal extends PureComponent {
                 title={tooltipEntityRawSignalsHeadingTitle}
                 text={tooltipEntityRawSignalsHeadingText}
               />
+              <div className="col"></div>
+              <Button
+                type="primary"
+                className="ml-auto"
+                icon={<CloseOutlined />}
+                onClick={() => this.props.toggleModal(this.props.modalLocation)}
+              />
             </div>
             {this.props.modalLocation === "map" ? (
               <p className="modal__hts-count">
@@ -484,7 +490,7 @@ class RawSignalsModal extends PureComponent {
             <div className="col-1 mw-0">
               <div className="modal__table-container rounded card p-3 mb-6">
                 <div className="flex items-center mb-3">
-                  <h3 className="col text-2xl truncate">
+                  <h3 className="col text-2xl">
                     {this.props.modalLocation === "map"
                       ? regionalTableTitle
                       : asnTableTitle}
