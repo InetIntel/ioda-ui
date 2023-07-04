@@ -105,12 +105,9 @@ class App extends Component {
         <Header />
         <Switch>
           <Route path="/dashboard/:entityType?" component={Dashboard} />
-          <Route exact path="/reports" component={Reports} />
           <Route exact path="/project" component={ProjectInfo} />
           <Route exact path="/help" component={Help} />
           <Route exact path="/_tmp/asn" component={ASNVizV2} />
-          <Route path="/reports/2020-iran-report" component={IranReport2020} />
-          <Route path="/reports/GTR-integrated" component={GTRIntegrated} />
           <Route exact path="/:entityType/:entityCode" component={Entity} />
           <Route path="/" component={Home} />
         </Switch>
