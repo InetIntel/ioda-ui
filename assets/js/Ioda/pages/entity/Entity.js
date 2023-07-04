@@ -996,9 +996,8 @@ class Entity extends Component {
     const exportChartTitle = `${T.translate("entity.xyChartTitle")} ${
       this.state.entityName
     }`;
-    const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
-    const fromDayjs = secondsToUTC(urlFromDate);
-    const untilDayjs = secondsToUTC(urlUntilDate);
+    const fromDayjs = secondsToUTC(this.state.from);
+    const untilDayjs = secondsToUTC(this.state.until);
 
     const formatExpanded = "MMMM D, YYYY h:mma";
     const formatCompact = "YY-MM-DD-HH-mm";
