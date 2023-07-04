@@ -5,6 +5,10 @@
   top: 0;
   z-index: 100000;
 
+  &__language-select {
+    z-index: 100001;
+  }
+
   &__item {
     margin-left: 12px;
     margin-right: 12px;
