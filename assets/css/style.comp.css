@@ -4876,6 +4876,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 100000; }
+  .header__language-select {
+    z-index: 100001; }
   .header__item {
     margin-left: 12px;
     margin-right: 12px;

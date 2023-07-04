@@ -191,6 +191,7 @@ class Header extends Component {
               className="ml-md"
               onChange={this.handleLanguageChange}
               options={languageOptions}
+              popupClassName="header__language-select"
             />
           </div>
 
