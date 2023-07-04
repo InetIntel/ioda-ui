@@ -173,9 +173,9 @@ class Header extends Component {
           </div>
 
           <div className="header__item">
-            <Link to="/reports" className="a-fake">
+            <a href="/reports" className="a-fake">
               {reports}
-            </Link>
+            </a>
           </div>
 
           <div className="header__item">
@@ -263,13 +263,9 @@ class Header extends Component {
           </div>
 
           <div className="header__drawer-item">
-            <Link
-              to="/reports"
-              className="a-fake"
-              onClick={() => this.setShowDrawer(false)}
-            >
+            <a href="/reports" className="a-fake">
               {reports}
-            </Link>
+            </a>
           </div>
 
           <div className="header__drawer-item">
