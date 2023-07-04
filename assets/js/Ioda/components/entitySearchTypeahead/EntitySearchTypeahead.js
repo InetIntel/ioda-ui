@@ -10,7 +10,7 @@ const MAX_LIMITS = 11;
 
 const SearchInput = ({ onSelect, className, placeholder, size }) => {
   const [searchResults, setSearchResults] = useState([]);
-  const [searchText, setSearchText] = useState();
+  const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async (newSearchText) => {
@@ -73,7 +73,7 @@ const SearchInput = ({ onSelect, className, placeholder, size }) => {
       showSearch
       allowClear
       size={size ?? "medium"}
-      value={searchText}
+      value={searchText ? searchText : undefined}
       placeholder={searchBarPlaceholder ?? placeholder}
       defaultActiveFirstOption={false}
       showArrow={false}
