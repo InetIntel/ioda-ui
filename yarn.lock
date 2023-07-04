@@ -3291,11 +3291,6 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
-caida-components-library@^1.0.20:
-  version "1.0.22"
-  resolved "https://registry.yarnpkg.com/caida-components-library/-/caida-components-library-1.0.22.tgz#f82cda65b6005334204627e433b5c3e676eacea3"
-  integrity sha512-q/AnmBPQo4gKIDiTKdeuCfgJA1KWeb+wc/aTT5aAlFm+0m5UgQ/LIUYQ6u2snhN9qcTMOtWQ5nXRZ+utZPWkcA==
-
 call-bind@^1.0.0, call-bind@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/call-bind/-/call-bind-1.0.2.tgz#b1d4e89e688119c3c9a903ad30abb2f6a919be3c"

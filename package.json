@@ -54,7 +54,6 @@
         "@ant-design/icons": "^5.1.0",
         "antd": "^5.5.0",
         "axios": "^0.21.1",
-        "caida-components-library": "^1.0.20",
         "clsx": "^1.2.1",
         "core-js": "^3.16.2",
         "d3": "3",
