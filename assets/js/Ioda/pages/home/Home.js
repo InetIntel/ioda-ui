@@ -39,11 +39,10 @@ import { Helmet } from "react-helmet";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
-import { searchEntities } from "../../data/ActionEntities";
 import { getTopoAction } from "../../data/ActionTopo";
 import { searchSummary } from "../../data/ActionOutages";
+
 // Components
-import { Searchbar } from "caida-components-library";
 import { TwitterTimelineEmbed } from "react-twitter-embed";
 import TopoMap from "../../components/map/Map";
 import * as topojson from "topojson";
@@ -65,13 +64,14 @@ import nsfLogo from "images/logos/nsf.svg";
 import isocLogo from "images/logos/isoc.svg";
 import dosLogo from "images/logos/dos.png";
 import PartnerCard from "./PartnerCard";
+import EntitySearchTypeahead from "../../components/entitySearchTypeahead/EntitySearchTypeahead";
+import { getDateRangeFromUrl } from "../../utils/urlUtils";
 
 class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
       mounted: false,
-      suggestedSearchResults: null,
       searchTerm: null,
       lastFetched: 0,
       topoData: null,
@@ -93,15 +93,6 @@ class Home extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // After API call for suggested search results completes, update suggestedSearchResults state with fresh data
-    if (
-      this.props.suggestedSearchResults !== prevProps.suggestedSearchResults
-    ) {
-      this.setState({
-        suggestedSearchResults: this.props.suggestedSearchResults,
-      });
-    }
-
     // After API call for outage summary data completes, pass summary data to map function for data merging
     if (this.props.summary !== prevProps.summary) {
       this.setState(
@@ -113,49 +104,11 @@ class Home extends Component {
     }
   }
 
-  // Search bar
-  // get data for search results that populate in suggested search list
-  getDataSuggestedSearchResults = (searchTerm) => {
-    if (this.state.mounted) {
-      // Set searchTerm to the value of nextProps, nextProps refers to the current search string value in the field.
-      this.setState({ searchTerm: searchTerm });
-      // // Make api call
-      if (
-        searchTerm.length >= 2 &&
-        new Date() - new Date(this.state.lastFetched) > 300
-      ) {
-        this.setState(
-          {
-            lastFetched: Date.now(),
-          },
-          () => {
-            this.props.searchEntitiesAction(searchTerm, 11);
-          }
-        );
-      }
-    }
-  };
   // Define what happens when user clicks suggested search result entry
-  handleResultClick = (query) => {
+  handleResultClick = (entity) => {
+    if (!entity) return;
     const { history } = this.props;
-    let entity;
-    typeof query === "object" && query !== null
-      ? (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query.name;
-        }))
-      : (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query;
-        }));
-    entity = entity[0];
     history.push(`/${entity.type}/${entity.code}`);
-  };
-
-  // Reset searchbar with searchterm value when a selection is made, no customizations needed here.
-  handleQueryUpdate = (query) => {
-    this.forceUpdate();
-    this.setState({
-      searchTerm: query,
-    });
   };
 
   // Map: Make API call to retrieve summary data to populate on map
@@ -213,16 +166,14 @@ class Home extends Component {
       this.setState({ topoScores: scores });
     }
   };
+
   // function to manage when a user clicks a country in the map
   handleEntityShapeClick = (entity) => {
     const { history } = this.props;
+    const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
     history.push(
-      window.location.search.split("?")[1]
-        ? `/country/${entity.properties.usercode}?from=${
-            window.location.search.split("?")[1].split("&")[0].split("=")[1]
-          }&until=${
-            window.location.search.split("?")[1].split("&")[1].split("=")[1]
-          }`
+      urlFromDate && urlUntilDate
+        ? `/country/${entity.properties.usercode}?from=${urlFromDate}&until=${urlUntilDate}`
         : `/country/${entity.properties.usercode}`
     );
   };
@@ -252,20 +203,16 @@ class Home extends Component {
 
         {/* Searchbar section */}
         <div className="max-cont text-center home__search">
-          <div className="text-5xl font-semibold search-title">
+          <div className="text-5xl font-semibold home__search-title">
             {searchBarTitle}
           </div>
           <div className="px-12 mt-8">
-            <Searchbar
+            <EntitySearchTypeahead
+              className="mb-4"
               placeholder={searchBarPlaceholder}
-              getData={this.getDataSuggestedSearchResults.bind(this)}
-              itemPropertyName={"name"}
-              handleResultClick={(event) => this.handleResultClick(event)}
-              searchResults={this.state.suggestedSearchResults}
-              handleQueryUpdate={this.handleQueryUpdate}
+              onSelect={(entity) => this.handleResultClick(entity)}
+              size={"large"}
             />
-          </div>
-          <div>
             <Button size="large" type="link" href="/dashboard">
               {searchBarDashboardText} {searchBarDashboardLink}
             </Button>
@@ -439,16 +386,12 @@ class Home extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    suggestedSearchResults: state.iodaApi.entities,
     summary: state.iodaApi.summary,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    searchEntitiesAction: (searchQuery, limit = 15) => {
-      searchEntities(dispatch, searchQuery, limit);
-    },
     searchSummaryAction: (
       from,
       until,

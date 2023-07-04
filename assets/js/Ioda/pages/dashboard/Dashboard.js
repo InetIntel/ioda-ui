@@ -3,7 +3,6 @@ import React, { Component } from "react";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
-import { searchEntities } from "../../data/ActionEntities";
 import { getTopoAction } from "../../data/ActionTopo";
 import { searchSummary, totalOutages } from "../../data/ActionOutages";
 import {
@@ -12,7 +11,7 @@ import {
 } from "../../data/ActionSignals";
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
-import { Searchbar } from "caida-components-library";
+import EntitySearchTypeahead from "../../components/entitySearchTypeahead/EntitySearchTypeahead";
 import DashboardTab from "./DashboardTab";
 import * as topojson from "topojson";
 // Constants
@@ -69,9 +68,6 @@ class Dashboard extends Component {
       //Tab View Changer Button
       tabCurrentView:
         entityType === asn.type ? TAB_VIEW_TIME_SERIES : TAB_VIEW_MAP,
-      // Search Bar
-      suggestedSearchResults: null,
-      searchTerm: null,
       // Map Data
       topoData: null,
       topoScores: null,
@@ -408,6 +404,7 @@ class Dashboard extends Component {
       order
     );
   }
+
   convertValuesForHtsViz() {
     let eventDataProcessed = [];
     // Create visualization-friendly data objects
@@ -422,52 +419,22 @@ class Dashboard extends Component {
     });
   }
 
-  // Search bar
-  // get data for search results that populate in suggested search list
-  getDataSuggestedSearchResults(searchTerm) {
-    if (this.state.mounted) {
-      // Set searchTerm to the value of nextProps, nextProps refers to the current search string value in the field.
-      this.setState({ searchTerm: searchTerm });
-      // Make api call
-      this.props.searchEntitiesAction(searchTerm, 11);
-    }
-  }
   // Define what happens when user clicks suggested search result entry
-  handleResultClick = (query) => {
+  handleResultClick = (entity) => {
+    if (!entity) return;
     const { history } = this.props;
-    let entity;
-    typeof query === "object" && query !== null
-      ? (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query.name;
-        }))
-      : (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query;
-        }));
-    entity = entity[0];
     history.push(`/${entity.type}/${entity.code}`);
   };
 
-  // Reset search bar with search term value when a selection is made, no customizations needed here.
-  handleQueryUpdate = (query) => {
-    this.forceUpdate();
-    this.setState({
-      searchTerm: query,
-    });
-  };
-
   // Function that returns search bar passed into control panel
-  populateSearchBar() {
+  populateSearchBar = () => {
     return (
-      <Searchbar
+      <EntitySearchTypeahead
         placeholder={T.translate("controlPanel.searchBarPlaceholder")}
-        getData={this.getDataSuggestedSearchResults.bind(this)}
-        itemPropertyName={"name"}
-        handleResultClick={(event) => this.handleResultClick(event)}
-        searchResults={this.state.suggestedSearchResults}
-        handleQueryUpdate={this.handleQueryUpdate}
+        onSelect={(entity) => this.handleResultClick(entity)}
       />
     );
-  }
+  };
 
   // Summary Table
   convertValuesForSummaryTable() {
@@ -584,7 +551,6 @@ class Dashboard extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    suggestedSearchResults: state.iodaApi.entities,
     summary: state.iodaApi.summary,
     topoData: state.iodaApi.topo,
     totalOutages: state.iodaApi.summaryTotalCount,
@@ -595,9 +561,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    searchEntitiesAction: (searchQuery, limit = 15) => {
-      searchEntities(dispatch, searchQuery, limit);
-    },
     searchSummaryAction: (
       from,
       until,
