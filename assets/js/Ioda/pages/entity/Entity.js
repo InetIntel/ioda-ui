@@ -42,7 +42,6 @@ import { connect } from "react-redux";
 import T from "i18n-react";
 // Data Hooks
 import {
-  searchEntities,
   getEntityMetadata,
   regionalSignalsTableSummaryDataAction,
   asnSignalsTableSummaryDataAction,
@@ -3023,9 +3022,6 @@ const mapDispatchToProps = (dispatch) => {
   return {
     getDatasourcesAction: () => {
       getDatasourcesAction(dispatch);
-    },
-    searchEntitiesAction: (searchQuery, limit = 15) => {
-      searchEntities(dispatch, searchQuery, limit);
     },
     searchEventsAction: (
       from,
