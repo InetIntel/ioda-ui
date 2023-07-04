@@ -41,9 +41,11 @@
     </head>
     <body>
         <div id="root">
+            <!--
             <div class="contentLoading">
                 <img width="180" src="/apple-touch-icon.png" alt="IODA logo" />
             </div>
+            -->
         </div>
         <script>
             const div = document.querySelector('.contentLoading');
@@ -51,10 +53,10 @@
             let msie = document.documentMode;
             let html;
             // IF IE, serve browser not supported statement
-            if (msie) {
+            if (div && msie) {
                 html = '<h1 class="u-full-max-width u-text-align-center">Browser&nbsp;not&nbsp;Supported</h1>';
                 div.insertAdjacentHTML('beforeend', html);
-            } else {
+            } else if (div) {
                 html = '<div class="contentLoading__progressBar progress-bar-striped"><div style="width:100%;"><strong>Loading...</strong></div></div>';
                 div.insertAdjacentHTML('beforeend', html);
             }
