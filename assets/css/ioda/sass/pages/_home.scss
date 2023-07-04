@@ -7,36 +7,6 @@ button[class*="searchButton"] {
   padding-top: $header-height;
   margin-top: 4rem;
 
-  &__search {
-    margin-bottom: 5rem;
-
-    [class^="searchLabel-"] {
-      display: none;
-    }
-
-    [class^="searchResultsVisible-"] {
-      z-index: 1001;
-    }
-
-    [class^="searchResultsListItem-"]:hover:after {
-      background-color: $color-secondary;
-    }
-
-    .search-title {
-      margin-bottom: -1rem;
-    }
-
-    &__text {
-      font-size: 1.5rem;
-      margin-top: 0.5rem;
-    }
-
-    &__link {
-      @include textLink;
-      margin-left: 0.5rem;
-    }
-  }
-
   &__recent-outages {
     gap: 16px;
 

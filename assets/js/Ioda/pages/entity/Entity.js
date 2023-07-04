@@ -70,7 +70,7 @@ import {
 } from "../../data/ActionSignals";
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
-import { Searchbar } from "caida-components-library";
+import EntitySearchTypeahead from "../../components/entitySearchTypeahead/EntitySearchTypeahead";
 import EntityRelated from "./EntityRelated";
 import Loading from "../../components/loading/Loading";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
@@ -202,10 +202,7 @@ class Entity extends Component {
       from: fromDate,
       until: untilDate,
       // Search Bar
-      suggestedSearchResults: null,
       sourceParams: ["WEB_SEARCH"],
-      searchTerm: "",
-      lastFetched: 0,
       // XY Plot Time Series
       xyDataOptions: null,
       xyChartOptions: null,
@@ -428,15 +425,6 @@ class Entity extends Component {
         3000,
         this.state.sourceParams
       );
-    }
-
-    // After API call for suggested search results completes, update suggestedSearchResults state with fresh data
-    if (
-      this.props.suggestedSearchResults !== prevProps.suggestedSearchResults
-    ) {
-      this.setState({
-        suggestedSearchResults: this.props.suggestedSearchResults,
-      });
     }
 
     // Make API call for data to populate XY Chart
@@ -824,63 +812,19 @@ class Entity extends Component {
     );
   };
 
-  // Search bar
-  // get data for search results that populate in suggested search list
-  getDataSuggestedSearchResults = (searchTerm) => {
-    if (this.state.mounted) {
-      // Set searchTerm to the value of nextProps, nextProps refers to the current search string value in the field.
-      this.setState({ searchTerm: searchTerm });
-      // Make api call
-      if (
-        searchTerm.length >= 2 &&
-        new Date() - new Date(this.state.lastFetched) > 0
-      ) {
-        this.setState(
-          {
-            lastFetched: Date.now(),
-          },
-          () => {
-            this.props.searchEntitiesAction(searchTerm, 11);
-          }
-        );
-      }
-    }
-  };
-
   // Define what happens when user clicks suggested search result entry
-  handleResultClick = (query) => {
+  handleResultClick = (entity) => {
+    if (!entity) return;
     const { history } = this.props;
-    let entity;
-    typeof query === "object" && query !== null
-      ? (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query.name;
-        }))
-      : (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query;
-        }));
-    entity = entity[0];
     history.push(`/${entity.type}/${entity.code}`);
-  };
-
-  // Reset search bar with search term value when a selection is made, no customizations needed here.
-  handleQueryUpdate = (query) => {
-    this.forceUpdate();
-    this.setState({
-      searchTerm: query,
-    });
   };
 
   // Function that returns search bar passed into control panel
   populateSearchBar = () => {
     return (
-      <Searchbar
+      <EntitySearchTypeahead
         placeholder={T.translate("controlPanel.searchBarPlaceholder")}
-        getData={this.getDataSuggestedSearchResults.bind(this)}
-        itemPropertyName={"name"}
-        handleResultClick={(event) => this.handleResultClick(event)}
-        searchResults={this.state.suggestedSearchResults}
-        handleQueryUpdate={this.handleQueryUpdate}
-        searchTerm={this.state.searchTerm}
+        onSelect={(entity) => this.handleResultClick(entity)}
       />
     );
   };
@@ -3050,7 +2994,6 @@ class Entity extends Component {
 const mapStateToProps = (state) => {
   return {
     datasources: state.iodaApi.datasources,
-    suggestedSearchResults: state.iodaApi.entities,
     relatedEntities: state.iodaApi.relatedEntities,
     relatedToMapSummary: state.iodaApi.relatedToMapSummary,
     relatedToTableSummary: state.iodaApi.relatedToTableSummary,
