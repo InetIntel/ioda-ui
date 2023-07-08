@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import T from "i18n-react";
 import {
-  convertSecondsToDateValues,
-  secondsToDhms,
   dashboardTimeRangeLimit,
   horizonChartSeriesColor,
   humanizeNumber,
@@ -16,6 +14,7 @@ import TopoMap from "../../components/map/Map";
 import { Button } from "antd";
 import { asn } from "./DashboardConstants";
 import { AreaChartOutlined, GlobalOutlined } from "@ant-design/icons";
+import { getSecondsAsErrorDurationString } from "../../utils/timeUtils";
 
 class DashboardTab extends Component {
   constructor(props) {
@@ -215,7 +214,10 @@ class DashboardTab extends Component {
           <div className="w-full">
             <p className="dashboard__tab-error">
               {timeDurationTooHighErrorMessage}
-              {secondsToDhms(this.props.until - this.props.from)}.
+              {getSecondsAsErrorDurationString(
+                this.props.until - this.props.from
+              )}
+              .
             </p>
           </div>
         )}

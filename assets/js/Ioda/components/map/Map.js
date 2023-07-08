@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { Map, TileLayer, GeoJSON } from "react-leaflet";
-import { humanizeNumber, shadeColor } from "../../utils";
+import { humanizeNumber } from "../../utils";
 import {
+  shadeColor,
   getEntityScaleColor,
   getThresholdBoundsForCountry,
   getThresholdBoundsForRegion,
