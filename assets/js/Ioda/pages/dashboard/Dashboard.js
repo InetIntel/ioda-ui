@@ -30,7 +30,7 @@ import {
   getNowAsUTCSeconds,
   getPreviousMinutesAsUTCSecondRange,
 } from "../../utils/timeUtils";
-import { getDateRangeFromUrl } from "../../utils/urlUtils";
+import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
 import { Radio } from "antd";
 
@@ -255,7 +255,7 @@ class Dashboard extends Component {
       totalEventCount: 0,
     });
 
-    if (window.location.search) {
+    if (hasDateRangeInUrl()) {
       history.push(`${url}/?from=${this.state.from}&until=${this.state.until}`);
     } else {
       history.push(url);
@@ -374,7 +374,7 @@ class Dashboard extends Component {
         : entity.properties.id;
     let path = `/${this.state.activeTabType}/${entityCode}`;
 
-    if (window.location.search) {
+    if (hasDateRangeInUrl()) {
       path = `${path}/?from=${this.state.from}&until=${this.state.until}`;
     }
 

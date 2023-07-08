@@ -11,12 +11,7 @@ export const getDateRangeFromUrl = () => {
   };
 };
 
-export const getEntityDataFromUrl = () => {
-  const urlEntityType = window.location.pathname.split("/")[1] ?? null;
-  const urlEntityCode = window.location.pathname.split("/")[2] ?? null;
-
-  return {
-    urlEntityType,
-    urlEntityCode,
-  };
+export const hasDateRangeInUrl = () => {
+  const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
+  return !!(urlFromDate && urlUntilDate);
 };

@@ -84,7 +84,6 @@ import {
   convertTsDataForHtsViz,
   getOutageCoords,
   normalize,
-  secondsToDhms,
   controlPanelTimeRangeLimit,
   legend,
 } from "../../utils";
@@ -99,39 +98,23 @@ import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
-import dayjs from "../../utils/dayjs";
 import { getSavedAdvancedModePreference } from "../../utils/storage";
 import {
   getNowAsUTC,
   getNowAsUTCSeconds,
   getSeconds,
+  getSecondsAsErrorDurationString,
   millisecondsToSeconds,
   secondsToMilliseconds,
   secondsToUTC,
 } from "../../utils/timeUtils";
-import { getDateRangeFromUrl } from "../../utils/urlUtils";
+import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
 import { Button, Checkbox, Popover } from "antd";
 import { SettingOutlined, ShareAltOutlined } from "@ant-design/icons";
-const utc = require("dayjs/plugin/utc");
-dayjs.extend(utc);
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
-
-/**
- * Extract the entityType and entityCode from the URL
- * @returns
- */
-const getEntityDataFromUrl = () => {
-  const entityType = window.location.pathname.split("/")[1];
-  const entityCode = window.location.pathname.split("/")[2];
-
-  return {
-    entityCode,
-    entityType,
-  };
-};
 
 /**
  * Calculate the time range for the time series chart. The range shown in the
@@ -177,13 +160,14 @@ const fromDate =
   urlRange.urlFromDate ?? getSeconds(getNowAsUTC().subtract(24, "hour"));
 const untilDate = urlRange.urlUntilDate ?? getNowAsUTCSeconds();
 
-const { entityCode, entityType } = getEntityDataFromUrl();
-
 class Entity extends Component {
   constructor(props) {
     super(props);
 
     this.timeSeriesChartRef = React.createRef();
+
+    const entityType = this.props?.match?.params?.entityType;
+    const entityCode = this.props?.match?.params?.entityCode;
 
     this.state = {
       // Global
@@ -340,8 +324,6 @@ class Entity extends Component {
       return;
     }
 
-    const { entityCode, entityType } = getEntityDataFromUrl();
-
     this.setState(
       {
         mounted: true,
@@ -349,8 +331,6 @@ class Entity extends Component {
         until: untilDate,
         tsDataLegendRangeFrom: fromDate,
         tsDataLegendRangeUntil: untilDate,
-        entityCode: entityCode,
-        entityType: entityType,
       },
       () => {
         // If the difference is larger than the limit, terminate
@@ -362,6 +342,8 @@ class Entity extends Component {
           fromDate,
           untilDate
         );
+
+        const { entityType, entityCode } = this.state;
 
         // Overview Panel
         // Pull events from the same range as time series signal to show all
@@ -390,6 +372,7 @@ class Entity extends Component {
           3000,
           this.state.sourceParams
         );
+
         // Get entity name from code provided in url
         this.updateEntityMetaData(entityType, entityCode);
       }
@@ -413,6 +396,8 @@ class Entity extends Component {
       this.state.from,
       this.state.until
     );
+
+    const { entityType, entityCode } = this.state;
 
     if (this.state.sourceParams !== prevState.sourceParams) {
       this.props.getSignalsAction(
@@ -805,7 +790,7 @@ class Entity extends Component {
   handleControlPanelClose = () => {
     const { history } = this.props;
     history.push(
-      window.location.search.split("?")[1]
+      hasDateRangeInUrl()
         ? `/dashboard?from=${this.state.from}&until=${this.state.until}`
         : `/dashboard`
     );
@@ -1617,7 +1602,7 @@ class Entity extends Component {
   handleEntityShapeClick = (entity) => {
     const { history } = this.props;
     let path = `/region/${entity.properties.id}`;
-    if (window.location.search.split("?")[1]) {
+    if (hasDateRangeInUrl()) {
       path += `?from=${fromDate}&until=${untilDate}`;
     }
     history.push(path);
@@ -1625,6 +1610,7 @@ class Entity extends Component {
 
   // Show/hide modal when button is clicked on either panel
   toggleModal = (modalLocation) => {
+    const { entityType, entityCode } = this.state;
     if (modalLocation === "map") {
       // Get related entities used on table in map modal
       this.setState(
@@ -2981,7 +2967,10 @@ class Entity extends Component {
         ) : (
           <div className="p-6 text-lg card">
             {timeDurationTooHighErrorMessage}
-            {secondsToDhms(this.state.until - this.state.from)}.
+            {getSecondsAsErrorDurationString(
+              this.state.until - this.state.from
+            )}
+            .
           </div>
         )}
       </div>
