@@ -191,7 +191,11 @@ class DashboardTab extends Component {
                       ? this.genChart()
                       : null}
                   </div>
-                  <TimeStamp from={this.props.from} until={this.props.until} />
+                  <TimeStamp
+                    className="mt-4"
+                    from={this.props.from}
+                    until={this.props.until}
+                  />
                 </div>
                 <div className="col-1 mw-0">
                   <div className="dashboard__tab-table">
