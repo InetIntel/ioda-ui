@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import { Table } from "antd";
 import { v4 as uuidv4 } from "uuid";
-import { secondsToUTC } from "../../utils/timeUtils";
+import {
+  getSecondsAsDurationString,
+  secondsToUTC,
+} from "../../utils/timeUtils";
 import T from "i18n-react";
 import { humanizeNumber } from "../../utils";
-import * as sd from "simple-duration";
 
 const fromDateTitle = T.translate("table.eventHeaders.fromDate");
 const untilDateTitle = T.translate("table.eventHeaders.untilDate");
@@ -30,7 +32,7 @@ const columns = [
     title: durationTitle,
     dataIndex: "duration",
     key: "duration",
-    render: (value) => sd.stringify(value, "s"),
+    render: (value) => getSecondsAsDurationString(value),
     sorter: (a, b) => a.duration - b.duration,
   },
   {
