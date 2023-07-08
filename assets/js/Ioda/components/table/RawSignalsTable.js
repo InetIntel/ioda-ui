@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React, { Component, useEffect, useState } from "react";
 import { Table } from "antd";
 import { v4 as uuidv4 } from "uuid";
-import { secondsToUTC } from "../../utils/timeUtils";
 import T from "i18n-react";
 import { humanizeNumber } from "../../utils";
-import * as sd from "simple-duration";
+import { Link } from "react-router-dom";
+import { getSecondsAsDurationString } from "../../utils/timeUtils";
 
 const getColumnsFromEntityType = (entityType) => {
   const nameTitle =
@@ -23,12 +23,15 @@ const getColumnsFromEntityType = (entityType) => {
         dataIndex: "name",
         key: "name",
         sorter: (a, b) => a.localeCompare(b),
+        render: (value, row) => (
+          <Link to={`/${row.entityType}/${row.entityCode}`}>{value}</Link>
+        ),
       },
       {
         title: ipCountTitle,
         dataIndex: "ipCount",
-        key: "duration",
-        render: (value) => sd.stringify(value, "s"),
+        key: "ipCount",
+        render: (value) => getSecondsAsDurationString(value),
         sorter: (a, b) => a.duration - b.duration,
       },
       {
@@ -40,12 +43,15 @@ const getColumnsFromEntityType = (entityType) => {
       },
     ];
   } else {
-    [
+    return [
       {
         title: nameTitle,
         dataIndex: "name",
         key: "name",
         sorter: (a, b) => a.localeCompare(b),
+        render: (value, row) => (
+          <Link to={`/${row.entityType}/${row.entityCode}`}>{value}</Link>
+        ),
       },
       {
         title: scoreTitle,
@@ -58,18 +64,38 @@ const getColumnsFromEntityType = (entityType) => {
   }
 };
 
-const RawSignalsTable = ({ data, entityType }) => {
+const RawSignalsTable = ({
+  data,
+  entityType,
+  toggleEntityVisibilityInHtsViz,
+  handleEntityClick,
+  handleCheckboxEventLoading,
+}) => {
   const columns = getColumnsFromEntityType(entityType);
 
   // Take values from api and format for Alert table
   const formattedData = (data ?? []).map((event) => {
     return {
       key: uuidv4(),
-      name: event.start,
+      name: event.name,
       ipCount: event.ipCount,
       score: event.score,
+      entityType: event.entityType,
+      entityCode: event.entityCode,
     };
   });
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedRowKeys, selectedRows) => {
+      selectedRows.forEach((row) => {
+        handleCheckboxEventLoading(row);
+      });
+    },
+    onSelectAll: () => {
+      toggleEntityVisibilityInHtsViz();
+    },
+  };
 
   return (
     <div className="ioda-table">
@@ -80,6 +106,7 @@ const RawSignalsTable = ({ data, entityType }) => {
         columns={columns}
         pagination={false}
         dataSource={formattedData}
+        rowSelection={{ ...rowSelection }}
         rowKey={(event) => event.key}
         rowClassName={() => "text-lg"}
         scroll={{ y: "450px" }}

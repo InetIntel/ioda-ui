@@ -61,3 +61,16 @@ export const formatUTCSeconds = (
   const milliseconds = secondsToMilliseconds(seconds);
   return formatUTCMilliseconds(milliseconds, format);
 };
+
+export const getSecondsAsDurationString = (seconds) => {
+  return dayjs
+    .duration(secondsToMilliseconds(seconds))
+    .format("Y[y] M[m] D[d] H[h] m[m] s[s]")
+    .replace(/\b0y\b/, "")
+    .replace(/\b0m\b/, "")
+    .replace(/\b0d\b/, "")
+    .replace(/\b0h\b/, "")
+    .replace(/\b0m\b/, "")
+    .replace(/\b0s\b/, "")
+    .trim();
+};
