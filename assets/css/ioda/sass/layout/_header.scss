@@ -1,13 +1,12 @@
 .header {
-  --header-z-index: 10000;
   background-color: $color-primary;
   box-shadow: 0 1px 2px #9f9d9d;
   position: sticky;
   top: 0;
-  z-index: var(--header-z-index);
+  z-index: 10000;
 
   &__language-select {
-    z-index: calc(var(--header-z-index) + 1);
+    z-index: 10001;
   }
 
   &__item {
