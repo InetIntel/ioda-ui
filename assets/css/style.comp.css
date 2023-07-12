@@ -4871,14 +4871,13 @@ body {
     width: calc( 5 * ((100% - (5 * 1.5rem)) / 6) + (4 * 1.5rem)); }
 
 .header {
-  --header-z-index: 10000;
   background-color: #2c3e50;
   box-shadow: 0 1px 2px #9f9d9d;
   position: sticky;
   top: 0;
-  z-index: var(--header-z-index); }
+  z-index: 10000; }
   .header__language-select {
-    z-index: calc(var(--header-z-index) + 1); }
+    z-index: 10001; }
   .header__item {
     margin-left: 12px;
     margin-right: 12px;
