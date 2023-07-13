@@ -10,7 +10,7 @@ message.config({
 const TimeStamp = ({ from, until, className }) => {
   const [messageApi, contextHolder] = message.useMessage();
 
-  const format = "MMMM D, YYYY h:mma UTC";
+  const format = "MMM D, YYYY h:mma UTC";
   const fromDate = secondsToUTC(from).format(format);
   const untilDate = secondsToUTC(until).format(format);
   const timestamp = `${fromDate} - ${untilDate}`;
