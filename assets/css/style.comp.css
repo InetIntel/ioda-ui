@@ -3438,6 +3438,9 @@ body {
 .ioda-checkbox .ant-checkbox-checked .ant-checkbox-inner:hover::after {
   border-color: var(--border-color) !important; }
 
+.ant-message {
+  z-index: 100000; }
+
 @media only screen and (max-width: 40em) {
   .control-panel {
     flex-direction: column-reverse; } }
