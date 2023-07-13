@@ -67,7 +67,8 @@ class SummaryTableRow extends Component {
         // set states for outage source indicator in score cell
 
         this.props.data.scores.map(score => {
-            switch (score.source) {
+	    let source = score.source.split('.')[0];
+            switch (source) {
                 case "ping-slash24":
                     this.setState({pingSlash24ScoreAvailable: true});
                     break;

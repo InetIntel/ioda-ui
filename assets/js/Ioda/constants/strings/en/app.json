@@ -218,7 +218,8 @@
       "activeProbing": "Active Probing",
       "bgp": "BGP",
       "darknet": "Telescope",
-      "merit": "Telescope"
+      "merit": "Telescope",
+      "gtr": "Google (Web Search)"
     },
     "eventHeaders": {
       "fromDate": "From",

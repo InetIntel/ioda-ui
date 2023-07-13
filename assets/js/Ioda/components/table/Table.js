@@ -464,6 +464,7 @@ class Table extends Component {
                                             <td>
                                                 {
                                                     alert.dataSource === "ping-slash24" ? T.translate("table.alertLabels.activeProbing") :
+                                                    alert.dataSource === "gtr" ? T.translate("table.alertLabels.gtr") :
                                                     alert.dataSource === "bgp" ? T.translate("table.alertLabels.bgp") :
                                                     alert.dataSource === "ucsd-nt" ? T.translate("table.alertLabels.darknet") :
                                                     alert.dataSource === "merit-nt" ? T.translate("table.alertLabels.merit") : null

@@ -94,6 +94,9 @@ const buildAlertsConfig = (from, until, entityType=null, entityCode=null, dataso
     url += limit!==null ? `&limit=${limit}`: "";
     url += page!==null ? `&page=${page}`: "";
 
+    /* TEMPORARY -- ask API to discard all SARIMA alerts */
+    url += "&ignoreMethods=*.sarima"
+
     return {
         method: "get",
         url: url
@@ -115,6 +118,8 @@ const buildEventsConfig = (from, until, entityType=null, entityCode=null, attr, 
     url += page!==null ? `&page=${page}`: "";
     url += attr!==null && order!==null ? `&orderBy=${attr}/${order}`: "";
 
+    /* TEMPORARY -- ask API to discard all SARIMA alerts */
+    url += "&ignoreMethods=*.sarima"
     return {
         method: "get",
         url: url
@@ -130,6 +135,8 @@ const buildSummaryConfig = (from, until, entityType=null, entityCode=null, limit
     url += limit!==null ? `&limit=${limit}`: "";
     url += page!==null ? `&page=${page}`: "";
 
+    /* TEMPORARY -- ask API to discard all SARIMA alerts */
+    url += "&ignoreMethods=*.sarima"
     return {
         method: "get",
         url: url
@@ -145,6 +152,8 @@ const buildRelatedToSummaryConfig = (from, until, entityType, relatedToEntityTyp
     url += page!==null ? `&page=${page}`: "";
     url += relatedToEntityType!==null ? `&relatedTo=${relatedToEntityType}/${relatedToEntityCode}` : "";
 
+    /* TEMPORARY -- ask API to discard all SARIMA alerts */
+    url += "&ignoreMethods=*.sarima"
     return {
         method: "get",
         url: url

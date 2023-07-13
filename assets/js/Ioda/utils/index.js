@@ -211,7 +211,7 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
             }
         });
 
-        // get color value from gradient by percentage
+	// get color value from gradient by percentage
         color = interpolateColor("#E2EDF6", "#F6C3C1", min, max, overallScore);
 
         // If entity type has ip_count/is an ASN
