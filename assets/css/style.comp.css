@@ -4962,15 +4962,12 @@ button[class*="searchButton"] {
     border-radius: 0.5rem;
     color: #fff;
     background: #06529f;
-    background: -webkit-linear-gradient(to right, #021b79, #06529f);
-    background: linear-gradient(to right, #021b79, #06529f);
     text-align: center; }
   .home__methodology {
     background: #fff;
     border-radius: 0.5rem;
     padding: 4rem;
-    border: 1px solid #e2e2ea;
-    box-shadow: 0 2px 2px #9f9d9d; }
+    border: 1px solid #e2e2ea; }
     .home__methodology__options {
       display: flex;
       gap: 12px;
