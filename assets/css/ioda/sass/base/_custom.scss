@@ -1,0 +1,11 @@
+.ioda-checkbox {
+  .ant-checkbox-checked .ant-checkbox-inner,
+  .ant-checkbox-checked .ant-checkbox-inner:hover {
+    background-color: var(--background-color) !important;
+    border-color: var(--border-color) !important;
+  }
+
+  .ant-checkbox-checked .ant-checkbox-inner:hover::after {
+    border-color: var(--border-color) !important;
+  }
+}

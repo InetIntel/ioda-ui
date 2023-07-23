@@ -1,4 +1,4 @@
-/*!
+/*
  * This software is Copyright (c) 2013 The Regents of the University of
  * California. All Rights Reserved. Permission to copy, modify, and distribute this
  * software and its documentation for academic research and education purposes,
@@ -32,96 +32,24 @@
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-.anticon {
-  vertical-align: 0.025rem !important;
-}
+// React Imports
+import React, { Component } from "react";
 
-::selection {
-  background-color: $color-primary;
-  color: $color-white;
-}
+class PartnerCard extends Component {
+  render() {
+    const { logo, logoHref, children } = this.props;
 
-*,
-*:before,
-*:after {
-  margin: 0;
-  padding: 0;
-  box-sizing: inherit;
-}
-
-html {
-  font-size: 62.5%; // 1rem = 10px; 10px / 16px = 62.5%
-
-  @include respond(tab-land) {
-    // 1rem = 9px; 9px / 16px = 56.25%
-    font-size: 56.25%;
-  }
-
-  @include respond(tab-port) {
-    // 1rem = 8px; 8px / 16px = 50%
-    font-size: 50%;
-  }
-
-  @include respond(phone) {
-    //1rem = 7px; 7px / 16px = 43.75%
-    font-size: 43.75%;
-  }
-
-  @include respond(big-desktop) {
-    // 1rem = 12px; 12px / 16px = 75%
-    font-size: 75%;
+    return (
+      <div className="partner-card">
+        <a href={logoHref}>
+          <div className="mb-6 partner-card__logo">
+            <img src={logo} alt="" />
+          </div>
+        </a>
+        <div className="text-xl">{children}</div>
+      </div>
+    );
   }
 }
 
-body {
-  box-sizing: border-box;
-}
-
-::selection {
-  background-color: $color-primary;
-  color: $color-white;
-}
-
-html,
-body {
-  height: 100%;
-  background: $color-background-white;
-}
-
-body {
-  background-color: $color-background-white;
-}
-
-.app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-
-  & > div:nth-child(2) {
-    flex-grow: 1;
-  }
-}
-
-// initial logo loading before content loads
-.contentLoading {
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-
-  &__progressBar {
-    width: calc(100% - 3rem);
-    max-width: 48rem;
-    height: 3rem !important;
-
-    & > div {
-      font-size: 1.8rem !important;
-      line-height: 3rem !important;
-    }
-  }
-}
-.full-page-loader > img {
-  animation: 1.8s infinite heartbeat;
-}
+export default PartnerCard;

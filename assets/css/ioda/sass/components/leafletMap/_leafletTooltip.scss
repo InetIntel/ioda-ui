@@ -1,5 +1,7 @@
-.map__content, .map, .tab__map {
-  .tooltip {
+.topo-map {
+  position: relative;
+
+  &__tooltip {
     display: none;
     background-color: $color-background-white;
     border-radius: 3px;
@@ -15,9 +17,8 @@
     align-items: center;
     z-index: 1000;
 
-    &--visible {
+    &-visible {
       display: flex;
     }
   }
 }
-

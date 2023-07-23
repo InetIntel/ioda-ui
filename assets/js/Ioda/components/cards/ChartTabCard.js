@@ -35,91 +35,76 @@
  * MODIFICATIONS.
  */
 import React from "react";
-import Table from "../table/Table";
 import Loading from "../loading/Loading";
-import Tooltip from "../tooltip/Tooltip";
-import Tabs from "../tabs/Tabs";
+import { Radio } from "antd";
 import T from "i18n-react";
 import ChartLegendCard from "./ChartLegendCard";
+import AlertsTable from "../table/AlertsTable";
+import EventsTable from "../table/EventsTable";
 
 class ChartTabCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = { currentTab: 1 };
-    this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
-  handleSelectTab(selectedKey) {
+  handleSelectTab = (selectedKey) => {
     this.setState({ currentTab: selectedKey });
-  }
+  };
 
   render() {
+    const { simplifiedView } = this.props;
+
     const selectedSignal = T.translate("entity.selectedSignal");
     const alertTab = T.translate("entity.alertTab");
     const eventTab = T.translate("entity.eventTab");
+
     return (
-      <div className="overview__table-config">
+      <div className="overview__table-config flex-column">
         <div className="tabs">
-          <Tabs
-            tabOptions={
-              this.props.simplifiedView
-                ? [selectedSignal]
-                : [selectedSignal,alertTab, eventTab]
-            }
-            activeTab={this.props.simplifiedView ? 1 :this.state.currentTab}
-            handleSelectTab={this.handleSelectTab}
-          />
+          <Radio.Group
+            onChange={(e) => this.handleSelectTab(e?.target?.value)}
+            value={this.state.currentTab}
+            style={{ marginBottom: 8 }}
+          >
+            <Radio.Button value={1}>{selectedSignal}</Radio.Button>
+            {!simplifiedView && (
+              <Radio.Button value={2}>{alertTab}</Radio.Button>
+            )}
+            {!simplifiedView && (
+              <Radio.Button value={3}>{eventTab}</Radio.Button>
+            )}
+          </Radio.Group>
         </div>
 
-        <div
-          style={
-            this.state.currentTab === 1
-              ? { display: "block" }
-              : { display: "none" }
-          }
-        >
+        {this.state.currentTab === 1 && (
           <ChartLegendCard
             legendHandler={this.props.legendHandler}
             checkedMap={this.props.tsDataSeriesVisibleMap}
             updateSourceParams={this.props.updateSourceParams}
             simplifiedView={this.props.simplifiedView}
           />
-        </div>
+        )}
 
-        <div
-          style={
-            this.state.currentTab === 2
-              ? { display: "block" }
-              : { display: "none" }
-          }
-        >
-          {this.props.alertDataProcessed ? (
-            <Table
-              type="alert"
-              data={this.props.alertDataProcessed}
-              totalCount={this.props.alertDataProcessed.length}
-            />
-          ) : (
-            <Loading />
-          )}
-        </div>
-        <div
-          style={
-            this.state.currentTab === 3
-              ? { display: "block" }
-              : { display: "none" }
-          }
-        >
-          {this.props.eventDataProcessed ? (
-            <Table
-              type={"event"}
-              data={this.props.eventDataProcessed}
-              totalCount={this.props.eventDataProcessed.length}
-            />
-          ) : (
-            <Loading />
-          )}
-        </div>
+        {this.state.currentTab === 2 && (
+          <>
+            {this.props.alertsData ? (
+              <AlertsTable data={this.props.alertsData} />
+            ) : (
+              <Loading />
+            )}
+          </>
+        )}
+
+        {this.state.currentTab === 3 && (
+          <>
+            {this.props.eventData ? (
+              <EventsTable data={this.props.eventData} />
+            ) : (
+              <Loading />
+            )}
+          </>
+        )}
       </div>
     );
   }

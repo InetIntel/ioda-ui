@@ -42,7 +42,6 @@ import { connect } from "react-redux";
 import T from "i18n-react";
 // Data Hooks
 import {
-  searchEntities,
   getEntityMetadata,
   regionalSignalsTableSummaryDataAction,
   asnSignalsTableSummaryDataAction,
@@ -70,43 +69,28 @@ import {
 } from "../../data/ActionSignals";
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
-import { Searchbar } from "caida-components-library";
-import Table from "../../components/table/Table";
+import EntitySearchTypeahead from "../../components/entitySearchTypeahead/EntitySearchTypeahead";
 import EntityRelated from "./EntityRelated";
 import Loading from "../../components/loading/Loading";
-import ToggleButton from "../../components/toggleButton/ToggleButton";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
-import TopoMap from "../../components/map/Map";
 import * as topojson from "topojson";
-import * as d3 from "d3-shape";
+
 import Tooltip from "../../components/tooltip/Tooltip";
-// Event Table Dependencies
-import * as sd from "simple-duration";
+
 // Helper Functions
 import {
-  convertSecondsToDateValues,
-  humanizeNumber,
-  toDateTime,
   convertValuesForSummaryTable,
   combineValuesForSignalsTable,
   convertTsDataForHtsViz,
   getOutageCoords,
-  dateRangeToSeconds,
   normalize,
-  secondsToDhms,
   controlPanelTimeRangeLimit,
-  alertBandColor,
-  xyChartBackgroundLineColor,
-  convertTimeToSecondsForURL,
   legend,
 } from "../../utils";
 import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
-import XyChartModal from "../../components/modal/XyChartModal";
 import ChartTabCard from "../../components/cards/ChartTabCard";
 import ShareLinkModal from "../../components/modal/ShareLinkModal";
-import { element } from "prop-types";
-import Tabs from "../../components/tabs/Tabs";
 
 // Chart libraries
 import Highcharts from "highcharts/highstock";
@@ -114,46 +98,23 @@ import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
-import dayjs from "dayjs";
-const utc = require("dayjs/plugin/utc");
-dayjs.extend(utc);
+import { getSavedAdvancedModePreference } from "../../utils/storage";
+import {
+  getNowAsUTC,
+  getNowAsUTCSeconds,
+  getSeconds,
+  getSecondsAsErrorDurationString,
+  millisecondsToSeconds,
+  secondsToMilliseconds,
+  secondsToUTC,
+} from "../../utils/timeUtils";
+import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
+import { withRouter } from "react-router-dom";
+import { Button, Checkbox, Popover } from "antd";
+import { SettingOutlined, ShareAltOutlined } from "@ant-design/icons";
 
-const CUSTOM_FONT_FAMILY = "Lato-Regular, sans-serif";
+const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
-
-/**
- * Extract dates from the URL, or provide defaults if not present in the URL
- * @returns object containing date range (dates as seconds)
- */
-const getRangeDatesFromUrl = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const urlFromDate = urlParams.get("from");
-  const urlUntilDate = urlParams.get("until");
-
-  const defaultFromDateSeconds = Math.floor(
-    dayjs.utc().subtract(24, "hour").valueOf() / 1000
-  );
-  const defaultUntilDateSeconds = Math.floor(dayjs.utc().valueOf() / 1000);
-
-  return {
-    fromDate: parseInt(urlFromDate) || defaultFromDateSeconds,
-    untilDate: parseInt(urlUntilDate) || defaultUntilDateSeconds,
-  };
-};
-
-/**
- * Extract the entityType and entityCode from the URL
- * @returns
- */
-const getEntityDataFromUrl = () => {
-  const entityType = window.location.pathname.split("/")[1];
-  const entityCode = window.location.pathname.split("/")[2];
-
-  return {
-    entityCode,
-    entityType,
-  };
-};
 
 /**
  * Calculate the time range for the time series chart. The range shown in the
@@ -163,17 +124,15 @@ const getEntityDataFromUrl = () => {
  * @returns object containing date range (dates as seconds)
  */
 const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
-  const MAX_DAYS_AS_MS = controlPanelTimeRangeLimit * 1000;
-  const fromMs = fromDateSeconds * 1000;
-  const untilMs = untilDateSeconds * 1000;
-  const diff = untilMs - fromMs;
+  const MAX_DAYS_AS_SEC = controlPanelTimeRangeLimit;
+  const diff = untilDateSeconds - fromDateSeconds;
 
-  let cappedDiff = Math.min(2 * diff, MAX_DAYS_AS_MS);
-  const newFrom = untilMs - cappedDiff;
+  const cappedDiff = Math.min(2 * diff, MAX_DAYS_AS_SEC);
+  const newFrom = untilDateSeconds - cappedDiff;
 
   return {
-    timeSignalFrom: Math.floor(newFrom / 1000),
-    timeSignalUntil: Math.floor(untilMs / 1000),
+    timeSignalFrom: newFrom,
+    timeSignalUntil: untilDateSeconds,
   };
 };
 
@@ -196,14 +155,19 @@ const getMinValue = (values) =>
 const getMaxValue = (values) =>
   values.reduce((m, v) => (v != null && v > m ? v : m), -Infinity);
 
-const { fromDate, untilDate } = getRangeDatesFromUrl();
-const { entityCode, entityType } = getEntityDataFromUrl();
+const urlRange = getDateRangeFromUrl();
+const fromDate =
+  urlRange.urlFromDate ?? getSeconds(getNowAsUTC().subtract(24, "hour"));
+const untilDate = urlRange.urlUntilDate ?? getNowAsUTCSeconds();
 
 class Entity extends Component {
   constructor(props) {
     super(props);
 
     this.timeSeriesChartRef = React.createRef();
+
+    const entityType = this.props?.match?.params?.entityType;
+    const entityCode = this.props?.match?.params?.entityCode;
 
     this.state = {
       // Global
@@ -221,10 +185,7 @@ class Entity extends Component {
       from: fromDate,
       until: untilDate,
       // Search Bar
-      suggestedSearchResults: null,
       sourceParams: ["WEB_SEARCH"],
-      searchTerm: "",
-      lastFetched: 0,
       // XY Plot Time Series
       xyDataOptions: null,
       xyChartOptions: null,
@@ -252,9 +213,7 @@ class Entity extends Component {
       // Event/Table Data
       currentTable: "alert",
       eventDataRaw: null,
-      eventDataProcessed: [],
       alertDataRaw: null,
-      alertDataProcessed: [],
       // relatedTo entity Map
       topoData: null,
       topoScores: null,
@@ -314,32 +273,14 @@ class Entity extends Component {
       additionalRawSignalRequestedUcsdNt: false,
       additionalRawSignalRequestedMeritNt: false,
       currentTab: 1,
-      simplifiedView: localStorage.getItem("simplified_view") === "true",
+      simplifiedView: !getSavedAdvancedModePreference(),
       currentEntitiesChecked: 100,
+
+      // Popovers
+      displayChartSettingsPopover: false,
+      displayChartSharePopover: false,
     };
 
-    this.handleChartLegendSelectionChange =
-      this.handleChartLegendSelectionChange.bind(this);
-    this.handleSelectedSignal = this.handleSelectedSignal.bind(this);
-
-    this.handleTimeFrame = this.handleTimeFrame.bind(this);
-    this.toggleModal = this.toggleModal.bind(this);
-    this.handleEntityShapeClick = this.handleEntityShapeClick.bind(this);
-    this.handleCheckboxEventLoading =
-      this.handleCheckboxEventLoading.bind(this);
-    this.toggleXyChartModal = this.toggleXyChartModal.bind(this);
-
-    this.displayShareLinkModal = this.displayShareLinkModal.bind(this);
-    this.hideShareLinkModal = this.hideShareLinkModal.bind(this);
-    this.manuallyDownloadChart = this.manuallyDownloadChart.bind(this);
-
-    this.changeXyChartNormalization =
-      this.changeXyChartNormalization.bind(this);
-    this.handleDisplayAlertBands = this.handleDisplayAlertBands.bind(this);
-    this.updateEntityMetaData = this.updateEntityMetaData.bind(this);
-    this.updateSourceParams = this.updateSourceParams.bind(this);
-    this.toggleView = this.toggleView.bind(this);
-    this.handleSelectTab = this.handleSelectTab.bind(this);
     this.initialTableLimit = 300;
     this.initialHtsLimit = 100;
     this.maxHtsLimit = 150;
@@ -349,7 +290,7 @@ class Entity extends Component {
     });
   }
 
-  updateEntityMetaData(entityName, entityCode) {
+  updateEntityMetaData = (entityName, entityCode) => {
     getEntityMetadata(entityName, entityCode).then((data) => {
       this.setState(
         {
@@ -371,7 +312,7 @@ class Entity extends Component {
         }
       );
     });
-  }
+  };
 
   componentDidMount() {
     // Monitor screen width
@@ -383,8 +324,6 @@ class Entity extends Component {
       return;
     }
 
-    const { entityCode, entityType } = getEntityDataFromUrl();
-
     this.setState(
       {
         mounted: true,
@@ -392,8 +331,6 @@ class Entity extends Component {
         until: untilDate,
         tsDataLegendRangeFrom: fromDate,
         tsDataLegendRangeUntil: untilDate,
-        entityCode: entityCode,
-        entityType: entityType,
       },
       () => {
         // If the difference is larger than the limit, terminate
@@ -405,6 +342,8 @@ class Entity extends Component {
           fromDate,
           untilDate
         );
+
+        const { entityType, entityCode } = this.state;
 
         // Overview Panel
         // Pull events from the same range as time series signal to show all
@@ -433,6 +372,7 @@ class Entity extends Component {
           3000,
           this.state.sourceParams
         );
+
         // Get entity name from code provided in url
         this.updateEntityMetaData(entityType, entityCode);
       }
@@ -457,6 +397,8 @@ class Entity extends Component {
       this.state.until
     );
 
+    const { entityType, entityCode } = this.state;
+
     if (this.state.sourceParams !== prevState.sourceParams) {
       this.props.getSignalsAction(
         entityType,
@@ -467,15 +409,6 @@ class Entity extends Component {
         3000,
         this.state.sourceParams
       );
-    }
-
-    // After API call for suggested search results completes, update suggestedSearchResults state with fresh data
-    if (
-      this.props.suggestedSearchResults !== prevProps.suggestedSearchResults
-    ) {
-      this.setState({
-        suggestedSearchResults: this.props.suggestedSearchResults,
-      });
     }
 
     // Make API call for data to populate XY Chart
@@ -489,16 +422,12 @@ class Entity extends Component {
 
     // Make API call for data to populate event table
     if (this.props.events !== prevProps.events) {
-      this.setState({ eventDataRaw: this.props.events }, () => {
-        this.convertValuesForEventTable();
-      });
+      this.setState({ eventDataRaw: this.props.events });
     }
 
     // After API call for Alert Table data completes, check for lengths to set display counts and then process to populate
     if (this.props.alerts !== prevProps.alerts) {
-      this.setState({ alertDataRaw: this.props.alerts }, () => {
-        this.convertValuesForAlertTable();
-      });
+      this.setState({ alertDataRaw: this.props.alerts });
     }
 
     // After API call for outage summary data completes, pass summary data to map function for data merging
@@ -851,79 +780,43 @@ class Entity extends Component {
 
   // Control Panel
   // manage the date selected in the input
-  handleTimeFrame(dateRange, timeRange) {
+  handleTimeFrame = ({ from, until }) => {
     const { history } = this.props;
     history.push(
-      `/${this.state.entityType}/${this.state.entityCode}?from=${Math.floor(
-        dateRange.startDate / 1000
-      )}&until=${Math.floor(dateRange.endDate / 1000)}`
+      `/${this.state.entityType}/${this.state.entityCode}?from=${from}&until=${until}`
     );
-  }
-  // Search bar
-  // get data for search results that populate in suggested search list
-  getDataSuggestedSearchResults(searchTerm) {
-    if (this.state.mounted) {
-      // Set searchTerm to the value of nextProps, nextProps refers to the current search string value in the field.
-      this.setState({ searchTerm: searchTerm });
-      // Make api call
-      if (
-        searchTerm.length >= 2 &&
-        new Date() - new Date(this.state.lastFetched) > 0
-      ) {
-        this.setState(
-          {
-            lastFetched: Date.now(),
-          },
-          () => {
-            this.props.searchEntitiesAction(searchTerm, 11);
-          }
-        );
-      }
-    }
-  }
+  };
+
+  handleControlPanelClose = () => {
+    const { history } = this.props;
+    history.push(
+      hasDateRangeInUrl()
+        ? `/dashboard?from=${this.state.from}&until=${this.state.until}`
+        : `/dashboard`
+    );
+  };
 
   // Define what happens when user clicks suggested search result entry
-  handleResultClick = (query) => {
+  handleResultClick = (entity) => {
+    if (!entity) return;
     const { history } = this.props;
-    let entity;
-    typeof query === "object" && query !== null
-      ? (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query.name;
-        }))
-      : (entity = this.state.suggestedSearchResults.filter((result) => {
-          return result.name === query;
-        }));
-    entity = entity[0];
     history.push(`/${entity.type}/${entity.code}`);
   };
 
-  // Reset search bar with search term value when a selection is made, no customizations needed here.
-  handleQueryUpdate = (query) => {
-    this.forceUpdate();
-    this.setState({
-      searchTerm: query,
-    });
-  };
-
   // Function that returns search bar passed into control panel
-  populateSearchBar() {
+  populateSearchBar = () => {
     return (
-      <Searchbar
+      <EntitySearchTypeahead
         placeholder={T.translate("controlPanel.searchBarPlaceholder")}
-        getData={this.getDataSuggestedSearchResults.bind(this)}
-        itemPropertyName={"name"}
-        handleResultClick={(event) => this.handleResultClick(event)}
-        searchResults={this.state.suggestedSearchResults}
-        handleQueryUpdate={this.handleQueryUpdate}
-        searchTerm={this.state.searchTerm}
+        onSelect={(entity) => this.handleResultClick(entity)}
       />
     );
-  }
+  };
 
   // 1st Row
   // XY Chart Functions
   // format data from api to be compatible with chart visual
-  convertValuesForXyViz() {
+  convertValuesForXyViz = () => {
     const signalValues = [];
     const normalizedValues = [];
 
@@ -956,7 +849,9 @@ class Entity extends Component {
       const seriesDataValues = [];
       const seriesDataValuesNormalized = [];
       datasource.values.forEach((value, index) => {
-        const x = 1000 * (datasource.from + datasource.step * index);
+        const x = secondsToMilliseconds(
+          datasource.from + datasource.step * index
+        );
         const normalY = normalize(value, seriesMax);
         const y = this.state.tsDataNormalized ? normalY : value;
 
@@ -1086,9 +981,8 @@ class Entity extends Component {
     const exportChartTitle = `${T.translate("entity.xyChartTitle")} ${
       this.state.entityName
     }`;
-    const { fromDate, untilDate } = getRangeDatesFromUrl();
-    const fromDayjs = dayjs.utc(fromDate * 1000);
-    const untilDayjs = dayjs.utc(untilDate * 1000);
+    const fromDayjs = secondsToUTC(this.state.from);
+    const untilDayjs = secondsToUTC(this.state.until);
 
     const formatExpanded = "MMMM D, YYYY h:mma";
     const formatCompact = "YY-MM-DD-HH-mm";
@@ -1124,8 +1018,16 @@ class Entity extends Component {
           fontFamily: CUSTOM_FONT_FAMILY,
         },
       },
+      accessibility: {
+        enabled: false,
+      },
       credits: {
         enabled: false,
+      },
+      navigation: {
+        buttonOptions: {
+          enabled: false,
+        },
       },
       exporting: {
         fallbackToExportServer: false,
@@ -1162,36 +1064,6 @@ class Entity extends Component {
               fontWeight: "bold",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-          },
-        },
-        menuItemDefinitions: {
-          // Custom definition
-          resetZoom: {
-            onclick: () => {
-              this.setDefaultNavigatorTimeRange();
-            },
-            text: "Reset Zoom",
-          },
-          share: {
-            onclick: () => {
-              this.displayShareLinkModal();
-            },
-            text: "Share Link",
-          },
-        },
-        buttons: {
-          contextButton: {
-            menuItems: [
-              "resetZoom",
-              "separator",
-              "share",
-              "downloadPNG",
-              "downloadJPEG",
-              "downloadSVG",
-            ],
-            align: "right",
-            x: rightPartition.length ? -35 : -15,
-            y: 0,
           },
         },
         // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
@@ -1284,7 +1156,7 @@ class Entity extends Component {
       },
       xAxis: {
         type: "datetime",
-        minRange: 5 * 60 * 1000, // 5 minutes as milliseconds
+        minRange: secondsToMilliseconds(5 * 60), // 5 minutes as milliseconds
         dateTimeLabelFormats: dateFormats,
         title: {
           text: xyChartXAxisTitle,
@@ -1369,32 +1241,35 @@ class Entity extends Component {
       series: chartSignals,
     };
 
-    const navigatorLowerBound = this.state.tsDataLegendRangeFrom * 1000;
-    const navigatorUpperBound = this.state.tsDataLegendRangeUntil * 1000;
+    const navigatorLowerBound = secondsToMilliseconds(
+      this.state.tsDataLegendRangeFrom
+    );
+    const navigatorUpperBound = secondsToMilliseconds(
+      this.state.tsDataLegendRangeUntil
+    );
 
     // Rerender chart and set navigator bounds
     this.setState({ xyChartOptions: chartOptions }, () => {
       this.renderXyChart();
       this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
     });
-  }
+  };
 
-  setDefaultNavigatorTimeRange() {
-    const { fromDate, untilDate } = getRangeDatesFromUrl();
-    const navigatorLowerBound = fromDate * 1000;
-    const navigatorUpperBound = untilDate * 1000;
+  setDefaultNavigatorTimeRange = () => {
+    const navigatorLowerBound = secondsToMilliseconds(this.state.from);
+    const navigatorUpperBound = secondsToMilliseconds(this.state.until);
 
     this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
-  }
+  };
 
-  setChartNavigatorTimeRange(fromMs, untilMs) {
+  setChartNavigatorTimeRange = (fromMs, untilMs) => {
     if (!this.timeSeriesChartRef.current) {
       return;
     }
     this.timeSeriesChartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
-  }
+  };
 
-  getSeriesNameFromSource(source) {
+  getSeriesNameFromSource = (source) => {
     const legendDetails = legend.find((elem) => elem.key === source);
 
     if (!legendDetails) {
@@ -1404,10 +1279,10 @@ class Entity extends Component {
     return legendDetails.key.includes(".")
       ? `Google (${legendDetails.title})`
       : legendDetails.title;
-  }
+  };
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-  createChartSeries(signalValues, normalValues, primaryPartition) {
+  createChartSeries = (signalValues, normalValues, primaryPartition) => {
     const chartSignals = [];
     const alertBands = [];
 
@@ -1417,8 +1292,8 @@ class Entity extends Component {
         this.state.eventDataRaw.forEach((event) => {
           alertBands.push({
             color: "rgba(250, 62, 72, 0.2)",
-            from: event.start * 1000,
-            to: (event.start + event.duration) * 1000,
+            from: secondsToMilliseconds(event.start),
+            to: secondsToMilliseconds(event.start + event.duration),
           });
         });
       }
@@ -1501,10 +1376,10 @@ class Entity extends Component {
       alertBands,
       chartSignals,
     };
-  }
+  };
 
   // function for when zoom/pan is used
-  xyPlotRangeChanged(event) {
+  xyPlotRangeChanged = (event) => {
     if (!event.target.series) {
       return;
     }
@@ -1520,20 +1395,20 @@ class Entity extends Component {
       return;
     }
 
-    const axisMin = Math.floor(event.min / 1000);
-    const axisMax = Math.floor(event.max / 1000);
+    const axisMin = millisecondsToSeconds(event.min);
+    const axisMax = millisecondsToSeconds(event.max);
 
     this.setState({
       tsDataLegendRangeFrom: axisMin,
       tsDataLegendRangeUntil: axisMax,
     });
-  }
+  };
 
   // populate xy chart UI
-  renderXyChart() {
+  renderXyChart = () => {
     return (
       this.state.xyChartOptions && (
-        <div className="overview__xy-wrapper">
+        <div className="entity__chart">
           <HighchartsReact
             highcharts={Highcharts}
             options={this.state.xyChartOptions}
@@ -1542,38 +1417,50 @@ class Entity extends Component {
         </div>
       )
     );
-  }
+  };
+
+  handleDisplayChartSettingsPopover = (val) => {
+    this.setState({
+      displayChartSettingsPopover: val,
+    });
+  };
+
+  handleDisplayChartSharePopover = (val) => {
+    this.setState({
+      displayChartSharePopover: val,
+    });
+  };
 
   /**
    * Trigger a download of the chart from outside the chart context. Used in the
    * ShareLinkModal to trigger a direct download
    */
-  manuallyDownloadChart() {
+  manuallyDownloadChart = (imageType) => {
     if (this.timeSeriesChartRef.current) {
       this.timeSeriesChartRef.current.chart.exportChartLocal({
-        type: "image/jpeg",
+        type: imageType,
       });
     }
-  }
+  };
 
   // toggle normalized values and absolute values
-  changeXyChartNormalization() {
+  changeXyChartNormalization = () => {
     this.setState({ tsDataNormalized: !this.state.tsDataNormalized }, () =>
       this.convertValuesForXyViz()
     );
-  }
+  };
 
   // toggle any populated alert bands to be displayed in chart
-  handleDisplayAlertBands(status) {
+  handleDisplayAlertBands = (status) => {
     const newStatus =
       status === "off" ? false : !this.state.tsDataDisplayOutageBands;
     this.setState({ tsDataDisplayOutageBands: newStatus }, () =>
       this.convertValuesForXyViz()
     );
-  }
+  };
 
   // Track screen width to shift around legend, adjust height of xy chart
-  resize() {
+  resize = () => {
     const tsDataScreenBelow970 = window.innerWidth <= 970;
     if (tsDataScreenBelow970 !== this.state.tsDataScreenBelow970) {
       this.setState({ tsDataScreenBelow970 });
@@ -1585,22 +1472,22 @@ class Entity extends Component {
         this.convertValuesForXyViz();
       });
     }
-  }
+  };
 
-  displayShareLinkModal() {
+  displayShareLinkModal = () => {
     this.setState({
       showShareLinkModal: true,
     });
-  }
+  };
 
-  hideShareLinkModal() {
+  hideShareLinkModal = () => {
     this.setState({
       showShareLinkModal: false,
     });
-  }
+  };
 
   // display modal used for annotation/download
-  toggleXyChartModal() {
+  toggleXyChartModal = () => {
     // force alert bands off
     this.handleDisplayAlertBands("off");
     // open modal and reset time range at the bottom of the chart
@@ -1609,89 +1496,14 @@ class Entity extends Component {
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
     });
-  }
+  };
 
-  // Event Table
-  // Take values from api and format for Event table
-  convertValuesForEventTable() {
-    // Get the relevant values to populate table with
-    let eventData = [];
-    this.state.eventDataRaw.map((event) => {
-      console.log(event.start);
-      const fromDate = dayjs.utc(event.start * 1000);
-      const untilDate = dayjs.utc((event.start + event.duration) * 1000);
-      const eventItem = {
-        age: sd.stringify((event.start + event.duration) / 1000, "s"),
-        from: {
-          month: fromDate.format("MMMM"),
-          day: fromDate.format("D"),
-          year: fromDate.format("YYYY"),
-          hours: fromDate.format("hh"),
-          minutes: fromDate.format("mm"),
-          meridian: fromDate.format("a"),
-        },
-        fromDate: fromDate.toDate(),
-        until: {
-          month: untilDate.format("MMMM"),
-          day: untilDate.format("D"),
-          year: untilDate.format("YYYY"),
-          hours: untilDate.format("hh"),
-          minutes: untilDate.format("mm"),
-          meridian: untilDate.format("a"),
-        },
-        untilDate: untilDate.toDate(),
-        duration: sd.stringify(event.duration, "s"),
-        score: humanizeNumber(event.score),
-      };
-      eventData.push(eventItem);
-    });
-
-    this.setState({
-      eventDataProcessed: eventData,
-    });
-
-    /* Force alert bands to be drawn in cases where the graph was
-     * drawn before our event data arrived.
-     */
-    if (this.state.tsDataDisplayOutageBands && this.state.tsDataRaw) {
-      this.convertValuesForXyViz();
-    }
-  }
-  // Take values from api and format for Alert table
-  convertValuesForAlertTable() {
-    // Get the relevant values to populate table with
-    let alertData = [];
-    this.state.alertDataRaw.map((alert) => {
-      const alertDate = dayjs.utc(alert.time * 1000);
-      const alertItem = {
-        entityName: alert.entity.name,
-        level: alert.level,
-        date: {
-          month: alertDate.format("MMMM"),
-          day: alertDate.format("D"),
-          year: alertDate.format("YYYY"),
-          hours: alertDate.format("hh"),
-          minutes: alertDate.format("mm"),
-          meridian: alertDate.format("a"),
-        },
-        dateStamp: alertDate.toDate(),
-        dataSource: alert.datasource,
-        actualValue: alert.value,
-        baselineValue: alert.historyValue,
-      };
-      alertData.push(alertItem);
-    });
-
-    this.setState({
-      alertDataProcessed: alertData.reverse(),
-    });
-  }
   // Switching between Events and Alerts
 
   // 2nd Row
   // RelatedTo Map
   // Make API call to retrieve topographic data
-  getDataTopo(entityType) {
+  getDataTopo = (entityType) => {
     if (this.state.mounted) {
       getTopoAction(entityType)
         .then((data) =>
@@ -1709,9 +1521,9 @@ class Entity extends Component {
           )
         );
     }
-  }
+  };
   // Process Geo data from api, attribute outage scores to a new topoData property where possible, then render Map
-  getMapScores() {
+  getMapScores = () => {
     if (this.state.topoData && this.state.summaryDataMapRaw) {
       let topoData = this.state.topoData;
       let features = [];
@@ -1744,9 +1556,9 @@ class Entity extends Component {
 
       this.setState({ topoScores: scores, bounds: outageCoords });
     }
-  }
+  };
   // Make API call to retrieve summary data to populate on map
-  getDataRelatedToMapSummary(entityType) {
+  getDataRelatedToMapSummary = (entityType) => {
     if (this.state.mounted) {
       let until = this.state.until;
       let from = this.state.from;
@@ -1784,20 +1596,21 @@ class Entity extends Component {
         includeMetadata
       );
     }
-  }
+  };
 
   // function to manage when a user clicks a country in the map
-  handleEntityShapeClick(entity) {
+  handleEntityShapeClick = (entity) => {
     const { history } = this.props;
     let path = `/region/${entity.properties.id}`;
-    if (window.location.search.split("?")[1]) {
+    if (hasDateRangeInUrl()) {
       path += `?from=${fromDate}&until=${untilDate}`;
     }
     history.push(path);
-  }
+  };
 
   // Show/hide modal when button is clicked on either panel
-  toggleModal(modalLocation) {
+  toggleModal = (modalLocation) => {
+    const { entityType, entityCode } = this.state;
     if (modalLocation === "map") {
       // Get related entities used on table in map modal
       this.setState(
@@ -1844,11 +1657,11 @@ class Entity extends Component {
         }
       );
     }
-  }
+  };
 
   // Summary Table for related ASNs
   // Make API call to retrieve summary data to populate on map
-  getDataRelatedToTableSummary(entityType) {
+  getDataRelatedToTableSummary = (entityType) => {
     if (this.state.mounted) {
       let until = this.state.until;
       let from = this.state.from;
@@ -1887,9 +1700,9 @@ class Entity extends Component {
         includeMetadata
       );
     }
-  }
+  };
   // Make raw values from api compatible with table component
-  convertValuesForSummaryTable() {
+  convertValuesForSummaryTable = () => {
     let summaryData = convertValuesForSummaryTable(
       this.state.relatedToTableSummary
     );
@@ -1907,11 +1720,11 @@ class Entity extends Component {
           this.state.relatedToTableSummaryProcessed.concat(summaryData),
       });
     }
-  }
+  };
 
   // RawSignalsModal Windows
   // Make API call that gets raw signals for a group of entities
-  getSignalsHtsDataEvents(entityType, dataSource) {
+  getSignalsHtsDataEvents = (entityType, dataSource) => {
     let until = this.state.until;
     let from = this.state.from;
     let attr = null;
@@ -2033,9 +1846,9 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // Combine summary outage data with other raw signal data for populating Raw Signal Table
-  combineValuesForSignalsTable(entityType) {
+  combineValuesForSignalsTable = (entityType) => {
     switch (entityType) {
       case "region":
         if (
@@ -2098,9 +1911,9 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // function that decides what data will populate in the horizon time series
-  convertValuesForHtsViz(dataSource, entityType) {
+  convertValuesForHtsViz = (dataSource, entityType) => {
     let visibilityChecked = [];
     let entitiesChecked = 0;
     let rawSignalsNew = [];
@@ -2241,9 +2054,9 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // function to manage what happens when a checkbox is changed in the raw signals table
-  toggleEntityVisibilityInHtsViz(entity, entityType) {
+  toggleEntityVisibilityInHtsViz = (entity, entityType) => {
     let maxEntitiesPopulatedMessage = T.translate(
       "entityModal.maxEntitiesPopulatedMessage"
     );
@@ -2463,10 +2276,10 @@ class Entity extends Component {
         }
         break;
     }
-  }
+  };
   // function to manage what happens when the select max/uncheck all buttons are clicked
-  handleSelectAndDeselectAllButtons(event) {
-    if (event.target.name === "checkMaxRegional") {
+  handleSelectAndDeselectAllButtons = (target) => {
+    if (target === "checkMaxRegional") {
       this.setState(
         {
           checkMaxButtonLoading: true,
@@ -2508,7 +2321,7 @@ class Entity extends Component {
         }
       );
     }
-    if (event.target.name === "uncheckAllRegional") {
+    if (target === "uncheckAllRegional") {
       this.setState(
         {
           uncheckAllButtonLoading: true,
@@ -2537,7 +2350,7 @@ class Entity extends Component {
         }
       );
     }
-    if (event.target.name === "checkMaxAsn") {
+    if (target === "checkMaxAsn") {
       // Check if all entities are loaded
       // if (this.state.asnRawSignalsLoadAllButtonClicked) {
       this.setState(
@@ -2581,7 +2394,7 @@ class Entity extends Component {
         }
       );
     }
-    if (event.target.name === "uncheckAllAsn") {
+    if (target === "uncheckAllAsn") {
       this.setState(
         {
           uncheckAllButtonLoading: true,
@@ -2612,9 +2425,9 @@ class Entity extends Component {
         }
       );
     }
-  }
+  };
   // function to manage what happens when the load all entities button is clicked
-  handleLoadAllEntitiesButton(name) {
+  handleLoadAllEntitiesButton = (name) => {
     if (name === "regionLoadAllEntities") {
       this.setState({
         loadAllButtonEntitiesLoading: true,
@@ -2667,14 +2480,14 @@ class Entity extends Component {
         }
       );
     }
-  }
-  handleAdditionalEntitiesLoading() {
+  };
+  handleAdditionalEntitiesLoading = () => {
     this.setState({
       loadAllButtonEntitiesLoading: true,
     });
-  }
+  };
   // to trigger loading bars on raw signals horizon time series when a checkbox event occurs in the signals table
-  handleCheckboxEventLoading(item) {
+  handleCheckboxEventLoading = (item) => {
     let maxEntitiesPopulatedMessage = T.translate(
       "entityModal.maxEntitiesPopulatedMessage"
     );
@@ -2748,14 +2561,14 @@ class Entity extends Component {
         rawSignalsMaxEntitiesHtsError: maxEntitiesPopulatedMessage,
       });
     }
-  }
+  };
 
   /**
    * Handles users toggling a chart legend series (on the chart itself): when a
    * user clicks in the chart legend, toggle the side checkboxes on the side to
    * match the state
    */
-  handleChartLegendSelectionChange(source) {
+  handleChartLegendSelectionChange = (source) => {
     const currentSeriesVisibility = !!this.state.tsDataSeriesVisibleMap[source];
     const newSeriesVisibility = !currentSeriesVisibility;
     const newVisibility = {
@@ -2766,7 +2579,7 @@ class Entity extends Component {
     this.setState({ tsDataSeriesVisibleMap: newVisibility }, () => {
       this.convertValuesForXyViz();
     });
-  }
+  };
 
   /**
    * Handles user toggling checkboxes (next to the chart, not on the chart
@@ -2774,7 +2587,7 @@ class Entity extends Component {
    * a selection on the chart legend itself. This will call the
    * handleChartLegendSelectionChange method above to update the checkbox state
    */
-  handleSelectedSignal(source) {
+  handleSelectedSignal = (source) => {
     const currentSeriesVisibility = !!this.state.tsDataSeriesVisibleMap[source];
     const newSeriesVisibility = !currentSeriesVisibility;
     const newVisibility = {
@@ -2786,9 +2599,9 @@ class Entity extends Component {
       this.setSeriesVisibilityInChartLegend(source, newSeriesVisibility);
       this.convertValuesForXyViz();
     });
-  }
+  };
 
-  setSeriesVisibilityInChartLegend(source, visible) {
+  setSeriesVisibilityInChartLegend = (source, visible) => {
     if (!this.timeSeriesChartRef.current) {
       return;
     }
@@ -2808,17 +2621,17 @@ class Entity extends Component {
     } else {
       seriesObject.hide();
     }
-  }
+  };
 
-  updateSourceParams(src) {
+  updateSourceParams = (src) => {
     if (!this.state.sourceParams.includes(src)) {
       this.setState({
         sourceParams: [...this.state.sourceParams, src],
       });
     }
-  }
+  };
 
-  toggleView() {
+  toggleView = () => {
     let tmpVisibleSeries = this.state.prevDataSeriesVisibleMap;
     this.setState(
       {
@@ -2829,16 +2642,16 @@ class Entity extends Component {
       },
       () => this.convertValuesForXyViz()
     );
-  }
+  };
 
-  handleSelectTab(selectedKey) {
+  handleSelectTab = (selectedKey) => {
     if (this.state.currentTab !== selectedKey) {
       this.setState({ currentTab: selectedKey });
       this.toggleView();
     }
-  }
+  };
 
-  render() {
+  render = () => {
     const xyChartTitle = T.translate("entity.xyChartTitle");
     const eventFeedTitle = T.translate("entity.eventFeedTitle");
     const alertFeedTitle = T.translate("entity.alertFeedTitle");
@@ -2860,7 +2673,7 @@ class Entity extends Component {
     );
 
     return (
-      <div className="entity">
+      <div className="w-full max-cont entity">
         <Helmet>
           <title>IODA | Internet Outages for {this.state.entityName}</title>
           <meta
@@ -2871,10 +2684,10 @@ class Entity extends Component {
         <ControlPanel
           from={this.state.from}
           until={this.state.until}
-          timeFrame={this.handleTimeFrame}
           searchbar={() => this.populateSearchBar()}
+          onTimeFrameChange={this.handleTimeFrame}
+          onClose={this.handleControlPanelClose}
           title={this.state.entityName}
-          history={this.props.history}
         />
         {this.state.displayTimeRangeError ? (
           <Error />
@@ -2887,99 +2700,129 @@ class Entity extends Component {
               hideModal={this.hideShareLinkModal}
               showModal={this.displayShareLinkModal}
               entityName={this.state.entityName}
-              handleDownload={this.manuallyDownloadChart}
+              handleDownload={() => this.manuallyDownloadChart("image/jpeg")}
             />
-            <div className="row overview">
-              <div
-                className={
-                  this.state.simplifiedView ? "col-4-of-5" : "col-3-of-5"
-                }
-              >
-                <div className="overview__config" ref={this.config}>
-                  <div className="overview__config-heading">
-                    <h3 className="heading-h3">
-                      {xyChartTitle}
-                      {this.state.entityName}
-                    </h3>
-                    <Tooltip
-                      title={tooltipXyPlotTimeSeriesTitle}
-                      text={tooltipXyPlotTimeSeriesText}
-                    />
-                  </div>
-                  {!this.state.simplifiedView && (
-                    <div className="overview__buttons">
-                      <div className="overview__buttons-col">
-                        <ToggleButton
-                          selected={this.state.tsDataDisplayOutageBands}
-                          toggleSelected={() => this.handleDisplayAlertBands()}
-                          label={xyChartAlertToggleLabel}
-                        />
-                        <ToggleButton
-                          selected={this.state.tsDataNormalized}
-                          toggleSelected={() =>
-                            this.changeXyChartNormalization()
-                          }
-                          label={xyChartNormalizedToggleLabel}
-                        />
-                      </div>
-                      <div className="overview__buttons-col">
-                        {/* {
-                            this.state.xyDataOptions ? <button className="related__modal-button" onClick={this.toggleXyChartModal}>
-                                Export Chart
-                            </button> : null
-                        } */}
-                        {this.state.showXyChartModal && (
-                          <XyChartModal
-                            entityName={this.state.entityName}
-                            toggleModal={this.toggleXyChartModal}
-                            xyDataOptions={this.state.xyDataOptions}
-                            modalStatus={this.state.showXyChartModal}
-                            // for toggles in chart, data and onToggle functions
-                            handleDisplayAlertBands={
-                              this.handleDisplayAlertBands
-                            }
-                            changeXyChartNormalization={
-                              this.changeXyChartNormalization
-                            }
-                            tsDataDisplayOutageBands={
-                              this.state.tsDataDisplayOutageBands
-                            }
-                            tsDataNormalized={this.state.tsDataNormalized}
-                            // for datestamp below chart
-                            tsDataLegendRangeFrom={
-                              this.state.tsDataLegendRangeFrom
-                            }
-                            tsDataLegendRangeUntil={
-                              this.state.tsDataLegendRangeUntil
-                            }
-                          />
+            <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
+              <div className="col-2 p-4 card entity__chart">
+                <div className="flex items-center mb-3">
+                  <h3 className="text-2xl mr-1">
+                    {xyChartTitle}
+                    {this.state.entityName}
+                  </h3>
+                  <Tooltip
+                    className="mr-auto"
+                    title={tooltipXyPlotTimeSeriesTitle}
+                    text={tooltipXyPlotTimeSeriesText}
+                  />
+
+                  <Popover
+                    open={this.state.displayChartSettingsPopover}
+                    onOpenChange={this.handleDisplayChartSettingsPopover}
+                    trigger="click"
+                    placement="bottomRight"
+                    overlayStyle={{
+                      width: 180,
+                    }}
+                    content={
+                      <div
+                        onClick={() =>
+                          this.handleDisplayChartSettingsPopover(false)
+                        }
+                      >
+                        {!this.state.simplifiedView && (
+                          <>
+                            <Checkbox
+                              checked={!!this.state.tsDataDisplayOutageBands}
+                              onChange={this.handleDisplayAlertBands}
+                            >
+                              {xyChartAlertToggleLabel}
+                            </Checkbox>
+                            <Checkbox
+                              checked={!!this.state.tsDataNormalized}
+                              onChange={this.changeXyChartNormalization}
+                            >
+                              {xyChartNormalizedToggleLabel}
+                            </Checkbox>
+                          </>
                         )}
+                        <Button
+                          className="w-full mt-2"
+                          size="small"
+                          onClick={this.setDefaultNavigatorTimeRange}
+                        >
+                          Reset Zoom
+                        </Button>
                       </div>
-                    </div>
-                  )}
+                    }
+                  >
+                    <Button className="mr-3" icon={<SettingOutlined />} />
+                  </Popover>
+                  <Popover
+                    open={this.state.displayChartSharePopover}
+                    onOpenChange={this.handleDisplayChartSharePopover}
+                    trigger="click"
+                    placement="bottomRight"
+                    overlayStyle={{
+                      maxWidth: 180,
+                    }}
+                    content={
+                      <div
+                        onClick={() =>
+                          this.handleDisplayChartSharePopover(false)
+                        }
+                      >
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={this.displayShareLinkModal}
+                        >
+                          Share Link
+                        </Button>
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={() =>
+                            this.manuallyDownloadChart("image/jpeg")
+                          }
+                        >
+                          Download JPEG
+                        </Button>
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={() =>
+                            this.manuallyDownloadChart("image/png")
+                          }
+                        >
+                          Download PNG
+                        </Button>
+                        <Button
+                          className="w-full"
+                          size="small"
+                          onClick={() =>
+                            this.manuallyDownloadChart("image/svg+xml")
+                          }
+                        >
+                          Download SVG
+                        </Button>
+                      </div>
+                    }
+                  >
+                    <Button icon={<ShareAltOutlined />} />
+                  </Popover>
                 </div>
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
-                <div className="overview__timestamp">
-                  <TimeStamp
-                    from={this.state.tsDataLegendRangeFrom}
-                    until={this.state.tsDataLegendRangeUntil}
-                  />
-                </div>
+                <TimeStamp
+                  className="mt-4"
+                  from={this.state.tsDataLegendRangeFrom}
+                  until={this.state.tsDataLegendRangeUntil}
+                />
               </div>
-              <div
-                className={
-                  this.state.simplifiedView ? "col-1-of-5" : "col-2-of-5"
-                }
-              >
+              <div className="col-1 p-4 card">
                 <ChartTabCard
-                  title={
-                    this.state.currentTable === "event"
-                      ? `${eventFeedTitle} ${this.state.entityName}`
-                      : `${alertFeedTitle} ${this.state.entityName}`
-                  }
                   type={this.props.type}
-                  eventDataProcessed={this.state.eventDataProcessed}
-                  alertDataProcessed={this.state.alertDataProcessed}
+                  eventData={this.state.eventDataRaw}
+                  alertsData={this.state.alertDataRaw}
                   legendHandler={this.handleSelectedSignal}
                   tsDataSeriesVisibleMap={this.state.tsDataSeriesVisibleMap}
                   updateSourceParams={this.updateSourceParams}
@@ -3122,24 +2965,22 @@ class Entity extends Component {
             />
           </React.Fragment>
         ) : (
-          <div className="row overview">
-            <div className="col-1-of-1">
-              <p className="overview__time-range-error">
-                {timeDurationTooHighErrorMessage}
-                {secondsToDhms(this.state.until - this.state.from)}.
-              </p>
-            </div>
+          <div className="p-6 text-lg card">
+            {timeDurationTooHighErrorMessage}
+            {getSecondsAsErrorDurationString(
+              this.state.until - this.state.from
+            )}
+            .
           </div>
         )}
       </div>
     );
-  }
+  };
 }
 
 const mapStateToProps = (state) => {
   return {
     datasources: state.iodaApi.datasources,
-    suggestedSearchResults: state.iodaApi.entities,
     relatedEntities: state.iodaApi.relatedEntities,
     relatedToMapSummary: state.iodaApi.relatedToMapSummary,
     relatedToTableSummary: state.iodaApi.relatedToTableSummary,
@@ -3169,9 +3010,6 @@ const mapDispatchToProps = (dispatch) => {
   return {
     getDatasourcesAction: () => {
       getDatasourcesAction(dispatch);
-    },
-    searchEntitiesAction: (searchQuery, limit = 15) => {
-      searchEntities(dispatch, searchQuery, limit);
     },
     searchEventsAction: (
       from,
@@ -3514,4 +3352,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Entity);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Entity));
