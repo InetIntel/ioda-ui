@@ -80,6 +80,8 @@ import {
     OUTAGE_TOTAL_COUNT
 } from "./ActionCommons";
 
+let IGNORE_PARAM="&ignoreMethods=bgp.sarima,merit-nt.sarima,ping-slash24.sarima";
+
 /*
 BUILDING CONNECTION CONFIGS
  */
@@ -95,7 +97,7 @@ const buildAlertsConfig = (from, until, entityType=null, entityCode=null, dataso
     url += page!==null ? `&page=${page}`: "";
 
     /* TEMPORARY -- ask API to discard all SARIMA alerts */
-    url += "&ignoreMethods=*.sarima"
+    url += IGNORE_PARAM;
 
     return {
         method: "get",
@@ -119,7 +121,7 @@ const buildEventsConfig = (from, until, entityType=null, entityCode=null, attr, 
     url += attr!==null && order!==null ? `&orderBy=${attr}/${order}`: "";
 
     /* TEMPORARY -- ask API to discard all SARIMA alerts */
-    url += "&ignoreMethods=*.sarima"
+    url += IGNORE_PARAM;
     return {
         method: "get",
         url: url
@@ -136,7 +138,7 @@ const buildSummaryConfig = (from, until, entityType=null, entityCode=null, limit
     url += page!==null ? `&page=${page}`: "";
 
     /* TEMPORARY -- ask API to discard all SARIMA alerts */
-    url += "&ignoreMethods=*.sarima"
+    url += IGNORE_PARAM;
     return {
         method: "get",
         url: url
@@ -153,7 +155,7 @@ const buildRelatedToSummaryConfig = (from, until, entityType, relatedToEntityTyp
     url += relatedToEntityType!==null ? `&relatedTo=${relatedToEntityType}/${relatedToEntityCode}` : "";
 
     /* TEMPORARY -- ask API to discard all SARIMA alerts */
-    url += "&ignoreMethods=*.sarima"
+    url += IGNORE_PARAM;
     return {
         method: "get",
         url: url

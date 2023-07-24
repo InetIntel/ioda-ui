@@ -19,6 +19,8 @@ const translateDataSource = (dataSource) => {
     return T.translate("table.alertLabels.darknet");
   } else if (dataSource === "merit-nt") {
     return T.translate("table.alertLabels.merit");
+  } else if (dataSource === "gtr") {
+    return T.translate("table.alertLabels.gtr");
   } else {
     return null;
   }
