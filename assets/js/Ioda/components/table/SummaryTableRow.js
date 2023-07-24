@@ -69,22 +69,23 @@ class SummaryTableRow extends Component {
     // set states for outage source indicator in score cell
 
     this.props.data.scores.map((score) => {
-      switch (score.source) {
+      let source = score.source.split('.')[0];
+      switch (source) {
         case "ping-slash24":
-          this.setState({ pingSlash24ScoreAvailable: true });
+          this.setState({pingSlash24ScoreAvailable: true});
           break;
         case "bgp":
-          this.setState({ bgpScoreAvailable: true });
+          this.setState({bgpScoreAvailable: true});
           break;
         case "ucsd-nt":
-          this.setState({ ucsdNtScoreAvailable: true });
+          this.setState({ucsdNtScoreAvailable: true});
           break;
         case "merit-nt":
-          this.setState({ meritNtScoreAvailable: true });
+          this.setState({meritNtScoreAvailable: true});
           break;
       }
     });
-  };
+  }
 
   componentWillUnmount = () => {
     document.removeEventListener("click", this.handleRowScoreHide, true);
