@@ -1,74 +1,47 @@
-import React, { Component } from 'react';
-import {convertSecondsToDateValues} from "../../utils";
+import React, { Component } from "react";
 import T from "i18n-react";
+import { secondsToUTC } from "../../utils/timeUtils";
+import { message } from "antd";
 
+message.config({
+  maxCount: 3,
+});
 
-class TimeStamp extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            fade: false,
-            messageTop: 0,
-            messageLeft: 0,
-            screenBelow1024: false
-        }
-    }
+const TimeStamp = ({ from, until, className }) => {
+  const [messageApi, contextHolder] = message.useMessage();
 
-    componentDidMount() {
-        window.addEventListener("resize", this.resize.bind(this));
-        this.resize();
-    }
+  const format = "MMM D, YYYY h:mma UTC";
+  const fromDate = secondsToUTC(from).format(format);
+  const untilDate = secondsToUTC(until).format(format);
+  const timestamp = `${fromDate} - ${untilDate}`;
 
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.resize.bind(this));
-    }
+  const hoverTitle = T.translate("timestamp.hoverTitle");
+  const copyToClipboardMessage = T.translate(
+    "timestamp.copyToClipboardMessage"
+  );
 
-    resize() {
-        let screenBelow1024 = (window.innerWidth <= 1024 || navigator.userAgent.match(/(iPad)/));
-        if (screenBelow1024 !== this.state.screenBelow1024) {
-            this.setState({
-                screenBelow1024: screenBelow1024
-            });
-        }
-    }
+  const copyTimestamp = (timestamp) => {
+    // copy to clipboard
+    navigator.clipboard.writeText(timestamp);
+    messageApi.open({
+      type: "success",
+      content: copyToClipboardMessage,
+      duration: 1,
+    });
+  };
 
-    copyTimestamp(e, timestamp) {
-        // copy to clipboard
-        navigator.clipboard.writeText(timestamp);
-
-        // trigger animation
-        this.setState({
-            fade: true,
-            messageTop: event.target.offsetTop - 15,
-            messageLeft: this.state.screenBelow1024 ? event.clientX - 105 : event.clientX + 15
-        });
-    }
-
-    resetFadeState() {
-        this.setState({fade: false});
-    }
-
-    render() {
-        const timestamp = `${this.props.from.month} ${this.props.from.day}, ${this.props.from.year} ${this.props.from.hours}:${this.props.from.minutes}${this.props.from.meridian} — ${this.props.until.month} ${this.props.until.day}, ${this.props.until.year} ${this.props.until.hours}:${this.props.until.minutes}${this.props.until.meridian}`;
-        const fade = this.state.fade;
-        const hoverTitle = T.translate("timestamp.hoverTitle");
-        const copyToClipboardMessage = T.translate("timestamp.copyToClipboardMessage");
-        return (
-            <div className="timestamp" onClick={(e) => this.copyTimestamp(e, timestamp)}>
-                <div
-                    className={fade ? 'timestamp__message timestamp__fade' : 'timestamp__message'}
-                    onAnimationEnd={() => this.resetFadeState()}
-                    style={{top: `${this.state.messageTop}px`, left: `${this.state.messageLeft}px`}}
-                >
-                    {copyToClipboardMessage}
-                </div>
-                <div className="timestamp__text" title={hoverTitle}>
-                    {timestamp}
-                </div>
-            </div>
-
-        );
-    }
-}
+  return (
+    <>
+      {contextHolder}
+      <div
+        className={`text-right cursor-pointer italic text-lg ${className}`}
+        onClick={() => copyTimestamp(timestamp)}
+        title={hoverTitle}
+      >
+        {timestamp}
+      </div>
+    </>
+  );
+};
 
 export default TimeStamp;

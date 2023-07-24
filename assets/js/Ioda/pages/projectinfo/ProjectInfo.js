@@ -7,7 +7,7 @@
  * three paragraphs appear in all copies. Permission to make use of this
  * software for other than academic research and education purposes may be
  * obtained by contacting:
-*
+ *
  *  Office of Technology Licensing
  *  Georgia Institute of Technology
  *  926 Dalney Street, NW
@@ -33,50 +33,248 @@
  * HEREUNDER IS ON AN "AS IS" BASIS, AND  GEORGIA TECH RESEARCH CORPORATION HAS
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
-*/
+ */
 
 // React Imports
-import React, { PureComponent } from 'react';
-import { Link } from 'react-router-dom';
-// Internationalization
-import T from 'i18n-react';
-import {Helmet} from "react-helmet";
-import Acknowledgements from '../acknowledgements/Acknowledgements';
+import React, { PureComponent, Fragment } from "react";
 
+// Internationalization
+import T from "i18n-react";
+import { Helmet } from "react-helmet";
+
+// Images
+import comcast from "images/acknowledgements/comcast.svg";
+import dhs from "images/acknowledgements/dhs.svg";
+import isoc from "images/acknowledgements/ISOC.png";
+import nersc from "images/acknowledgements/nersc.png";
+import nsf from "images/acknowledgements/nsf.svg";
+import otf from "images/acknowledgements/otf.png";
+import sdsc from "images/acknowledgements/sdsc.svg";
+import ucsd from "images/acknowledgements/ucsd.svg";
+import usdos from "images/acknowledgements/usdos.png";
+import xsedeBlack from "images/acknowledgements/xsede-black.png";
+import caida from "images/logos/caida.png";
+
+import PartnerCard from "../home/PartnerCard";
+import { Alert } from "antd";
+
+const data = [
+  {
+    logo: nsf,
+    logoHref: "https://www.caida.org/funding/ioda/",
+    children: `The development of this platform at UC San Diego was supported by NSF grant CNS-1228994 [Detection and Analysis of Large-scale Internet Infrastructure Outages (IODA)].`,
+  },
+  {
+    logo: dhs,
+    logoHref: "https://www.dhs.gov",
+    children: `The development of this platform at UC San Diego was also supported by Department of Homeland Security Science and Technology Directorate (DHS S&T) contract 70RSAT18CB0000015 [IODA-NP: Multi-source Realtime Detection of Macroscopic Internet Connectivity Disruption], and DHS S&T cooperative agreement FA8750-12-2-0326 [Supporting Research and Development of Security Technologies through Network and Security Data Collection].`,
+  },
+  {
+    logo: otf,
+    logoHref:
+      "https://www.opentech.fund/results/supported-projects/internet-outage-detection-and-analysis/",
+    children: `This platform was also supported by the Open Technology Fund under contract number 1002-2018-027.`,
+  },
+  {
+    logo: isoc,
+    logoHref: "https://insights.internetsociety.org/",
+    children: `Additional funding to support this platform was generously provided by a grant from the Internet Society.`,
+  },
+  {
+    logo: comcast,
+    logoHref: "https://innovationfund.comcast.com/",
+    children:
+      "Additional funding to work on visualization interfaces was generously provided by a Comcast research grant.",
+  },
+  {
+    logo: nersc,
+    logoHref: "https://www.nersc.gov",
+    children:
+      "Storage resources for the UCSD Network Telescope were supported by NERSC, a DOE Office of Science User Facility supported by the Office of Science of the U.S. Department of Energy under Contract No. DE-AC02-05CH11231.",
+  },
+  {
+    logo: xsedeBlack,
+    logoHref: "https://www.xsede.org",
+    children:
+      "Computational resources were supported by National Science Foundation grant number ACI-1053575.",
+  },
+  {
+    logo: sdsc,
+    logoHref: "https://www.sdsc.edu",
+    children:
+      "This project was originally developed at CAIDA, San Diego Supercomputer Center, UC San Diego.",
+  },
+  {
+    logo: ucsd,
+    logoHref: "https://www.ucsd.edu",
+    children: "This project was originally developed at CAIDA, UC San Diego.",
+  },
+  {
+    logo: usdos,
+    logoHref: "https://www.state.gov",
+    children: (
+      <Fragment>
+        This platform was/is supported by the{" "}
+        <a
+          className="a-fake text-color-link"
+          href="https://www.state.gov/bureaus-offices/under-secretary-for-civilian-security-democracy-and-human-rights/bureau-of-democracy-human-rights-and-labor/"
+        >
+          U.S. Department of State, Bureau of Democracy, Human Rights, and Labor
+        </a>{" "}
+        (2020) and{" "}
+        <a
+          className="a-fake text-color-link"
+          href="https://www.state.gov/bureaus-offices/under-secretary-for-political-affairs/bureau-of-near-eastern-affairs/"
+        >
+          Bureau of Near Eastern Affairs
+        </a>{" "}
+        (2021-2022).
+      </Fragment>
+    ),
+  },
+  {
+    logo: caida,
+    logoHref: "https://www.caida.org",
+    children: (
+      <Fragment>
+        This project was originally developed at{" "}
+        <a className="a-fake text-color-link" href="https://www.caida.org">
+          CAIDA
+        </a>
+        , UC San Diego.
+      </Fragment>
+    ),
+  },
+];
 
 class ProjectInfo extends PureComponent {
+  render() {
+    const title = T.translate("projectinfo.title");
+    const acknowledgementsTitle = T.translate("header.acknowledgements");
+    const text = T.translate("projectinfo.text");
+    const labLink = T.translate("projectinfo.link1"); // TODO rename
 
-    render() {
-        const title = T.translate("projectinfo.title");
-	const text = T.translate("projectinfo.text");
-	const link1 = T.translate("projectinfo.link1");	// TODO rename
-    const center = {
-        display: "flex",
-        justifyContent: "center"
-    }
+    return (
+      <div className="max-cont project-info">
+        <Helmet>
+          <title>IODA | Project Information</title>
+          <meta
+            name="description"
+            content="More detailed information about the IODA project."
+          />
+        </Helmet>
 
-	return (
-	    <div className="reports">
-            <p style={center}>
-                For inquiries or feedback please contact the IODA team at Georgia Tech’s &nbsp;<a href="https://inetintel.notion.site/Internet-Intelligence-Research-Lab-d186184563d345bab51901129d812ed6" target="_blank">Internet Intelligence Lab</a>: ioda-info@cc.gatech.edu.</p>
-                <Helmet>
-                    <title>IODA | Project Information</title>
-                    <meta name="description" content="More detailed information about the IODA project."/>
-                </Helmet>
-                <div className="row list">
-                    <div className="col-1-of-1">
-                        <h1 className="section-header">{title}</h1>
-                        <p className="projectinfo__text">{text}</p>
-                        <p className="projectinfo__text">
-                            <a href="https://www.caida.org/projects/ioda/" target="_blank">{link1}</a>
-                        </p>
-                    </div>
-                </div>
-                <Acknowledgements/>
+        <div className="mb-24">
+          <Alert
+            showIcon
+            description={
+              <p className="text-2xl font-med">
+                For inquiries or feedback please contact the IODA team at
+                Georgia Tech's{" "}
+                <a
+                  className="a-fake text-color-link"
+                  href="https://inetintel.notion.site/Internet-Intelligence-Research-Lab-d186184563d345bab51901129d812ed6"
+                  target="_blank"
+                >
+                  Internet Intelligence Lab
+                </a>
+                : ioda-info@cc.gatech.edu.
+              </p>
+            }
+          />
         </div>
+
+        {/* Project Info */}
+        <div className="mb-24">
+          <h1 className="text-5xl font-semibold mb-6">{title}</h1>
+          <p className="text-2xl">
+            {text}{" "}
+            <a
+              className="a-fake text-color-link"
+              href="https://www.caida.org/projects/ioda/"
+              target="_blank"
+            >
+              {labLink}
+            </a>
+            .
+          </p>
+        </div>
+
+        {/* Acknowledgements */}
+        <div className="mb-24">
+          <h1 className="text-5xl font-semibold mb-6">
+            {acknowledgementsTitle}
+          </h1>
+          <div className="acknowledgements__support-grid">
+            {data.map(({ logo, logoHref, children }) => (
+              <PartnerCard key={logoHref} logo={logo} logoHref={logoHref}>
+                {children}
+              </PartnerCard>
+            ))}
+          </div>
+        </div>
+
+        {/* Data Sources */}
+        <div className="mb-24">
+          <h1 className="text-5xl font-semibold mb-6">Data Sources</h1>
+          <div className="text-2xl">
+            <p>
+              See the{" "}
+              <a
+                className="a-fake text-color-link"
+                href="http://www.caida.org/projects/ioda/"
+              >
+                IODA project page
+              </a>{" "}
+              for scientific references and for more information about our
+              methodology.{" "}
+            </p>
+            <h2 className="text-2xl font-semibold mt-6">
+              Global Internet Routing Data
+            </h2>
+            <ul style={{ listStyle: "inside" }}>
+              <li>
+                RIPE NCC's{" "}
+                <a
+                  className="a-fake text-color-link"
+                  href="http://ris.ripe.net/"
+                >
+                  Routing Information Service (RIS)
+                </a>
+              </li>
+              <li>
+                University of Oregon's{" "}
+                <a
+                  className="a-fake text-color-link"
+                  href="http://www.routeviews.org/"
+                >
+                  Route Views Project
+                </a>
+              </li>
+            </ul>
+            <h2 className="text-2xl font-semibold mt-6">
+              Internet Background Radiation Data
+            </h2>
+            <ul style={{ listStyle: "inside" }}>
+              <li>
+                The{" "}
+                <a
+                  className="a-fake text-color-link"
+                  href="https://www.merit.edu/initiatives/orion-network-telescope/"
+                >
+                  Merit Network Telescope
+                </a>
+              </li>
+            </ul>
+            <h2 className="text-2xl font-semibold mt-6">Active Probing Data</h2>
+            <ul style={{ listStyle: "inside" }}>
+              <li>Active measurements conducted from Georgia Tech servers.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     );
-    }
+  }
 }
 
 export default ProjectInfo;
-

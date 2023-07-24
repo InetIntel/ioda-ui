@@ -35,15 +35,10 @@
  * MODIFICATIONS.
  */
 import React, { useEffect, useState } from "react";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import Typography from "@material-ui/core/Typography";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Checkbox, Collapse, Panel } from "antd";
 import { gtrColor, legend } from "../../utils";
+import { debounce } from "lodash";
+import { withRouter } from "react-router-dom";
 // import { NULL } from "node-sass";
 
 const ChartLegendCard = ({
@@ -51,124 +46,108 @@ const ChartLegendCard = ({
   checkedMap,
   updateSourceParams,
   simplifiedView,
+  match,
 }) => {
-
-  const [googleLegendSelected, setGoogleLegendSelected] = useState(true);
-
-  const handleChange = (event) => {
-    legendHandler(event.target.name);
-    if (event.target.name.includes("gtr.")) {
-      updateSourceParams(event.target.name.split(".")[1]);
+  const handleChange = (source) => {
+    legendHandler(source);
+    if (source.includes("gtr.")) {
+      updateSourceParams(source.split(".")[1]);
     }
   };
 
-  useEffect(()=>{
-    let status = false;
-    for(const k in checkedMap) {
-      if(k.includes(".") ){
-          status = status || checkedMap[k];
-      }
-    }
-    setGoogleLegendSelected(status);
-  },[checkedMap])
+  const isCountryView = match?.params?.entityType === "country";
+
+  const handleChangeDebounced = debounce(handleChange, 180);
+
+  const googleSeries = legend.filter((item) => item.key.includes("gtr"));
+  const selectedGoogleSeries = googleSeries.filter(
+    (item) => !!checkedMap[item.key]
+  );
+
+  // The expandable checkbox for Google is checked if all Google series are
+  // checked, or not checked if none are checked. We use null to signify that
+  // the checkbox is in an indeterminate state.
+  const googleExpandableChecked =
+    googleSeries.length === selectedGoogleSeries.length
+      ? true
+      : selectedGoogleSeries.length === 0
+      ? false
+      : null;
 
   return (
-    <FormGroup>
+    <>
       {legend
-        .filter((item) => !item.key.includes("."))
-        .map(
-          (item) =>
-            checkedMap[item.key] != undefined && (
-              <FormControlLabel
-                key={item.key}
-                control={
-                  <Checkbox
-                    checked={checkedMap[item.key]}
-                    onChange={handleChange}
-                    name={item.key}
-                    style={{
-                      transform: "scale(1.5)",
-                      paddingBottom: "1em",
-                      color: item.color,
-                    }}
-                  />
-                }
-                label={<Typography variant="h5">{item.title}</Typography>}
-              />
-            )
-        )}
-      {simplifiedView ? (
-        <FormControlLabel
-          key={"gtr.WEB_SEARCH"}
-          control={
+        .filter(
+          (item) => !item.key.includes(".") && checkedMap[item.key] != null
+        )
+        .map((item) => (
+          <div key={item.key}>
             <Checkbox
-              checked={checkedMap["gtr.WEB_SEARCH"]}
-              onChange={handleChange}
-              disabled={window.location.pathname.split("/")[1]=="country"?false:true}
-              name={"gtr.WEB_SEARCH"}
+              className="ioda-checkbox mb-2"
+              checked={checkedMap[item.key]}
+              onChange={() => handleChangeDebounced(item.key)}
+              name={item.key}
               style={{
-                transform: "scale(1.5)",
-                paddingBottom: "1em",
-                color: gtrColor,
+                "--background-color": item.color,
+                "--border-color": item.color,
               }}
-            />
-          }
-          label={<Typography variant="h5">Google (Search)</Typography>}
-        />
-      ) : (
-        <Accordion elevation={0}>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon style={{ transform: "scale(1.5)" }} />}
-            aria-label="Expand"
-            aria-controls="additional-actions1-content"
-            id="additional-actions1-header"
-            style={{ paddingLeft: "0", margin: "0" }}
-            disabled={window.location.pathname.split("/")[1]=="country"?false:true}
+            >
+              {item.title}
+            </Checkbox>
+          </div>
+        ))}
+
+      {simplifiedView && !isCountryView && (
+        <div>
+          <Checkbox
+            key="gtr.WEB_SEARCH"
+            className="ioda-checkbox mb-2"
+            checked={checkedMap["gtr.WEB_SEARCH"]}
+            onChange={() => handleChangeDebounced("gtr.WEB_SEARCH")}
+            style={{
+              "--background-color": gtrColor,
+              "--border-color": gtrColor,
+            }}
           >
-            <FormControlLabel
-            key="google-dropdown"
-            label={<Typography variant="h5">Google</Typography>}
-            control={
-              <Checkbox
-              indeterminate={googleLegendSelected}
-              checked={false}
-              style={{
-                transform: "scale(1.5)",
-                paddingBottom: "1em",
-                color: gtrColor,
-              }}
-              />
-            }
-            />
-          </AccordionSummary>
-          <AccordionDetails style={{ flexDirection: "column" }}>
-            {legend
-              .filter((item) => item.key.includes("gtr"))
-              .map((item) => (
-                <FormControlLabel
-                  key={item.key}
-                  control={
-                    <Checkbox
-                      checked={
-                        checkedMap[item.key] ? checkedMap[item.key] : false
-                      }
-                      onChange={handleChange}
-                      name={item.key}
-                      style={{
-                        transform: "scale(1.5)",
-                        paddingBottom: "1em",
-                        color: item.color,
-                      }}
-                    />
-                  }
-                  label={<Typography variant="h5">{item.title}</Typography>}
-                />
-              ))}
-          </AccordionDetails>
-        </Accordion>
+            Google (Search)
+          </Checkbox>
+        </div>
       )}
-    </FormGroup>
+
+      {!simplifiedView && isCountryView && (
+        <Collapse rootClassName="mt-4" expandIconPosition="end">
+          <Collapse.Panel
+            header={
+              <Checkbox
+                indeterminate={googleExpandableChecked === null}
+                onChange={() => {}}
+                checked={googleExpandableChecked}
+              >
+                Google ({selectedGoogleSeries.length})
+              </Checkbox>
+            }
+            key="1"
+          >
+            {googleSeries.map((item) => (
+              <div key={item.key}>
+                <Checkbox
+                  className="ioda-checkbox mb-2"
+                  checked={!!checkedMap[item.key]}
+                  onChange={() => handleChangeDebounced(item.key)}
+                  style={{
+                    "--background-color": item.color,
+                    "--border-color": item.color,
+                  }}
+                >
+                  {item.title}
+                </Checkbox>
+              </div>
+            ))}
+          </Collapse.Panel>
+        </Collapse>
+      )}
+    </>
   );
 };
 
-export default ChartLegendCard;
+export default withRouter(ChartLegendCard);

@@ -23,30 +23,6 @@ Encore
     /* TODO: figure out which entries we want here */
     .addEntry('ioda', ['babel-polyfill', './assets/js/Ioda/index.js'])
 
-    // shim to webpackify the horribly old jquery BBQ plugin
-    .addLoader({
-        test: require.resolve('jquery2-bbq'),
-        loader: 'exports-loader?jQuery.bbq!imports-loader?jQuery=jquery,this=>window'
-    })
-
-    // shim for jstree to inject jquery
-    .addLoader({
-        test: require.resolve('jstree'),
-        loader: 'imports-loader?jQuery=jquery'
-    })
-
-    // boostrap-select
-    .addLoader({
-        test: require.resolve('bootstrap-select/dist/js/bootstrap-select'),
-        loader: 'imports-loader?jQuery=jquery'
-    })
-
-    // bootstrap
-    .addLoader({
-        test: require.resolve('bootstrap/dist/js/bootstrap'),
-        loader: 'imports-loader?jQuery=jquery'
-    })
-
     // yaml-loader
     .addLoader({
         test: require.resolve('yaml-loader'),
@@ -93,9 +69,6 @@ Encore
 let webpackConfig = Encore.getWebpackConfig();
 
 webpackConfig.resolve.alias = {
-    // hax to get daterangepicker to work correctly
-    'jquery': require.resolve('jquery'),
-
     // convenience for accessing our local static assets
     'css': path.resolve(__dirname, './assets/css/'),
     'images': path.resolve(__dirname, './assets/images/'),

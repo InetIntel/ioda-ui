@@ -20,6 +20,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 {#        Stylesheet #}
         <link rel="stylesheet" href="{{ asset('build/ioda.css') }}">
+{#        Open Graph Metadata #}
+        <meta name="description" content="IODA (Internet Outage Detection and Analysis) monitors Internet infrastructure connectivity to identify outages.">
+
+        <!-- Facebook Meta Tags -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="">
+        <meta property="og:title" content="IODA">
+        <meta property="og:description" content="IODA (Internet Outage Detection and Analysis) monitors Internet infrastructure connectivity to identify outages.">
+        <meta property="og:image" content="https://ioda.inetintel.cc.gatech.edu/ioda-og.jpg">
+        <meta property="og:image:alt" content="IODA Banner" />
+
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta property="twitter:domain" content="ioda-dev.inetintel.cc.gatech.edu/country/SZ">
+        <meta property="twitter:url" content="">
+        <meta name="twitter:title" content="IODA">
+        <meta name="twitter:description" content="IODA (Internet Outage Detection and Analysis) monitors Internet infrastructure connectivity to identify outages.">
+        <meta name="twitter:image" content="https://ioda.inetintel.cc.gatech.edu/ioda-og.jpg">
     </head>
     <body>
         <div id="root">
@@ -33,10 +51,10 @@
             let msie = document.documentMode;
             let html;
             // IF IE, serve browser not supported statement
-            if (msie) {
+            if (div && msie) {
                 html = '<h1 class="u-full-max-width u-text-align-center">Browser&nbsp;not&nbsp;Supported</h1>';
                 div.insertAdjacentHTML('beforeend', html);
-            } else {
+            } else if (div) {
                 html = '<div class="contentLoading__progressBar progress-bar-striped"><div style="width:100%;"><strong>Loading...</strong></div></div>';
                 div.insertAdjacentHTML('beforeend', html);
             }

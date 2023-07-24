@@ -41,7 +41,7 @@
  * three paragraphs appear in all copies. Permission to make use of this
  * software for other than academic research and education purposes may be
  * obtained by contacting:
-*
+ *
  *  Office of Technology Licensing
  *  Georgia Institute of Technology
  *  926 Dalney Street, NW
@@ -67,165 +67,246 @@
  * HEREUNDER IS ON AN "AS IS" BASIS, AND  GEORGIA TECH RESEARCH CORPORATION HAS
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
-*/
+ */
 
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import T from "i18n-react";
+import iodaLogo from "images/logos/ioda-logo.svg";
 
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import T from 'i18n-react';
-import iodaLogo from 'images/logos/ioda-logo.svg';
-import {  ThemeProvider, withStyles,createTheme } from '@material-ui/core/styles';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import { Switch,FormControlLabel, Typography,Tooltip } from '@material-ui/core';
+import { Select, Tooltip, Switch, Button, Drawer } from "antd";
+import {
+  getSavedAdvancedModePreference,
+  getSavedLanguagePreference,
+  saveAdvancedModePreference,
+  saveLanguagePreference,
+} from "../../utils/storage";
+import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 
-const useStyles = (theme) => ({
-    formControl: {
-      margin: theme.spacing(1),
-      minWidth: 90,
-      display: "flex",
-      flexDirection: "row"
-    },
-  });
+const languageOptions = [
+  { value: "en", label: "English" },
+  { value: "fa", label: "Farsi" },
+];
 
-  const theme = createTheme({
-    palette: {
-      type: 'dark',
-    },
-  });
+class Header extends Component {
+  constructor(props) {
+    super(props);
 
-  const LightTooltip = withStyles((theme) => ({
-    tooltip: {
-      backgroundColor: theme.palette.common.white,
-      color: 'rgba(0, 0, 0, 0.87)',
-      boxShadow: theme.shadows[1]
-    },
-  }))(Tooltip);
+    this.state = {
+      language: getSavedLanguagePreference(),
+      advancedMode: getSavedAdvancedModePreference(),
+      showDrawer: false,
+      mounted: false,
+    };
+  }
 
-  const label = { inputProps: { 'aria-label': 'view-toggle' } };
+  componentDidMount() {
+    this.setState({ mounted: true });
+  }
 
-class Nav extends Component { 
-    constructor(props) {
-        super(props);
-        this.state = {
-            language: localStorage.getItem("lang") ? localStorage.getItem("lang") : "en" ,
-            toggle: localStorage.getItem('simplified_view') == 'true'
-        }
-        this.checkbox = React.createRef();
-        this.toggleMenu = this.toggleMenu.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.toogleSimplifiedView = this.toogleSimplifiedView.bind(this);
+  setShowDrawer = (showDrawer) => {
+    this.setState({ showDrawer });
+  };
+
+  toggleDrawerMenu = () => {
+    this.setShowDrawer(!this.state.showDrawer);
+  };
+
+  handleLanguageChange = (language) => {
+    if (!this.state.mounted) {
+      return;
     }
+    saveLanguagePreference(language);
+    window.location.reload(false);
+  };
 
-    componentDidMount() {
-        if(localStorage.getItem("simplified_view") == null){
-            localStorage.setItem('simplified_view',"true");
-            this.setState({toggle:true})
-        }
+  handleModeChange = (isAdvancedMode) => {
+    if (!this.state.mounted) {
+      return;
     }
+    saveAdvancedModePreference(isAdvancedMode);
+    window.location.reload(false);
+  };
 
-    toggleMenu(event) {
-        this.checkbox.current.click();
-    }
+  render() {
+    const dashboard = T.translate("header.dashboard");
+    const reports = T.translate("header.reports");
+    const project = T.translate("header.projectInfo");
+    const help = T.translate("header.help");
+    const iodaLogoAltText = T.translate("header.iodaLogoAltText");
+    const api = T.translate("header.api");
+    const viewToggleHelp = T.translate("header.viewToggleHelp");
 
-    handleChange(event) {
-        this.setState({
-            language: event.target.value
-        },()=> {
-            localStorage.setItem("lang",this.state.language);
-            window.location.reload(false);
-             }
-        )
-      };
+    const modeStatus = this.state.advancedMode ? "Advanced" : "Simple";
 
-      toogleSimplifiedView(e){
-        console.log(e.target.checked)
-        localStorage.setItem('simplified_view',e.target.checked);
-        window.location.reload(false);
-      }
+    return (
+      <div className="header">
+        <div className="header__container p-6 max-cont row items-center">
+          <div className="header__logo mr-auto">
+            <Link to="/">
+              <img
+                src={iodaLogo}
+                alt={iodaLogoAltText}
+                width="97"
+                height="35"
+              />
+            </Link>
+          </div>
+          <div className="header__item">
+            <Link to="/dashboard" className="a-fake">
+              {dashboard}
+            </Link>
+          </div>
+          <div className="header__item">
+            <a
+              href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+              className="a-fake"
+            >
+              {api}
+            </a>
+          </div>
 
-    render() {
-        const { classes } = this.props;
-        const dashboard = T.translate("header.dashboard");
-        const reports = T.translate("header.reports");
-        const help = T.translate("header.help");
-        const projectInfo = T.translate("header.projectInfo");
-        const iodaLogoAltText = T.translate("header.iodaLogoAltText");
-        const acknowledgements = T.translate("header.acknowledgements");
-        const api = T.translate("header.api");
-        const viewToggleHelp = T.translate("header.viewToggleHelp");
+          <div className="header__item">
+            <Link to="/project" className="a-fake">
+              {project}
+            </Link>
+          </div>
 
-        return(
-            <div className="header">
-                <div className="header__container">
-                    <div className="header__logo">
-                        <Link to="/">
-                            <img src={iodaLogo} alt={iodaLogoAltText} width="97" height="35"/>
-                        </Link>
-                    </div>
-                    <div className="header__menu">
-                        <input type="checkbox" className="header__checkbox" ref={this.checkbox} id="nav-toggle" />
-                        <label htmlFor="nav-toggle" className="header__button">
-                            <span className="header__icon">&nbsp;</span>
-                        </label>
-                        <div className="header__background"></div>
-                        <nav className="header__nav">
-                            <ul className="header__list">
-                                <li className="header__item">
-                                    <Link to="/dashboard" className="header__link" onClick={() => this.toggleMenu()}>
-                                        {dashboard}
-                                    </Link>
-                                </li>
-                                <li className="header__item">
-                                    <a href="https://api.ioda.inetintel.cc.gatech.edu/v2/" className="header__link" onClick={() => this.toggleMenu()}>
-                                        {api}
-                                    </a>
-                                </li>
-                                <li className="header__item">
-                                    <Link to="/project" className="header__link" onClick={() => this.toggleMenu()}>
-                                        {projectInfo}
-                                    </Link>
-                                </li>
-                                <li className="header__item">
-                                    <Link to="/reports" className="header__link" onClick={() => this.toggleMenu()}>
-                                        {reports}
-                                    </Link>
-                                </li>
-                                <li className="header__item">
-                                    <Link to="/help" className="header__link" onClick={() => this.toggleMenu()}>
-                                        {help}
-                                    </Link>
-                                </li>
-                                <li className="header__item">                              
-                                <ThemeProvider theme={theme}>
-                                    <FormControl className={classes.formControl}>
-                                        <Select
-                                        value={this.state.language}
-                                        onChange={this.handleChange}
-                                        inputProps={{MenuProps: {disableScrollLock: true}}}                                  
-                                        >
-                                            <MenuItem key={"en"} value={"en"}>English</MenuItem>
-                                            <MenuItem key={"fa"} value={'fa'}>Farsi</MenuItem>
-                                        </Select>
-                                        <div style={{marginLeft: "2em"}}>
-                                        <LightTooltip title={<Typography variant='h5'>{viewToggleHelp}</Typography>}>
-                                            <FormControlLabel
-                                                control={<Switch {...label} onChange={this.toogleSimplifiedView} checked={this.state.toggle} />}
-                                                label={<Typography style={{color:"white"}}>{this.state.toggle?"Simplified":"Advanced"}</Typography>}
-                                            /> 
-                                        </LightTooltip>
-                                        </div>
-                                    </FormControl> 
-                                </ThemeProvider>
-                        </li>
-                        </ul>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+          <div className="header__item">
+            <a href="/reports" className="a-fake">
+              {reports}
+            </a>
+          </div>
+
+          <div className="header__item">
+            <Link to="/help" className="a-fake">
+              {help}
+            </Link>
+          </div>
+
+          <div className="header__item">
+            <Select
+              value={this.state.language}
+              style={{ width: 100 }}
+              className="ml-md"
+              onChange={this.handleLanguageChange}
+              options={languageOptions}
+              popupClassName="header__language-select"
+            />
+          </div>
+
+          <div className="header__item">
+            <Tooltip title={viewToggleHelp}>
+              <div className="row items-center">
+                <Switch
+                  className="mr-3"
+                  checked={this.state.advancedMode}
+                  onChange={this.handleModeChange}
+                />
+                <span className="text-lg">{modeStatus}</span>
+              </div>
+            </Tooltip>
+          </div>
+
+          <div className="header__drawer-icon">
+            <Button icon={<MenuOutlined />} onClick={this.toggleDrawerMenu} />
+          </div>
+        </div>
+
+        {/* DRAWER MENU */}
+        <Drawer
+          placement="right"
+          onClose={() => this.setShowDrawer(false)}
+          open={this.state.showDrawer}
+          className="header__drawer-body"
+          closeIcon={
+            <CloseOutlined style={{ fontSize: "16px", color: "#fff" }} />
+          }
+          extra={
+            <Link to="/" onClick={() => this.setShowDrawer(false)}>
+              <img
+                src={iodaLogo}
+                alt={iodaLogoAltText}
+                width="97"
+                height="35"
+              />
+            </Link>
+          }
+          width={320}
+        >
+          <div className="header__drawer-item">
+            <Link
+              to="/dashboard"
+              className="a-fake"
+              onClick={() => this.setShowDrawer(false)}
+            >
+              {dashboard}
+            </Link>
+          </div>
+          <div className="header__drawer-item">
+            <a
+              href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+              className="a-fake"
+            >
+              {api}
+            </a>
+          </div>
+
+          <div className="header__drawer-item">
+            <Link
+              to="/project"
+              className="a-fake"
+              onClick={() => this.setShowDrawer(false)}
+            >
+              {project}
+            </Link>
+          </div>
+
+          <div className="header__drawer-item">
+            <a href="/reports" className="a-fake">
+              {reports}
+            </a>
+          </div>
+
+          <div className="header__drawer-item">
+            <Link
+              to="/help"
+              className="a-fake"
+              onClick={() => this.setShowDrawer(false)}
+            >
+              {help}
+            </Link>
+          </div>
+
+          <div
+            className="header__drawer-item mt-6 pt-6"
+            style={{ borderTop: "1px solid gray" }}
+          >
+            <Select
+              value={this.state.language}
+              style={{ width: 100 }}
+              className="ml-md"
+              onChange={this.handleLanguageChange}
+              options={languageOptions}
+            />
+          </div>
+
+          <div className="header__drawer-item">
+            <Tooltip title={viewToggleHelp}>
+              <div className="ml-6 row items-center">
+                <Switch
+                  className="mr-3"
+                  checked={this.state.advancedMode}
+                  onChange={this.handleModeChange}
+                />
+                <span>{modeStatus}</span>
+              </div>
+            </Tooltip>
+          </div>
+        </Drawer>
+      </div>
+    );
+  }
 }
 
-export default withStyles(useStyles)(Nav);
+export default Header;

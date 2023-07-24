@@ -96,11 +96,36 @@ class Table extends Component {
         };
     }
 
-    componentDidMount() {
+    setTableData = (data) => {
+        if (this.props.type === "alert") {
+            // Alert Table default sort
+            console.log(data)
+            this.setState({
+                alertData: data,
+                sortedColumn: {
+                    name: "dateStamp",
+                    position: "desc",
+                    arrow: iconSortDesc
+                }
+            });
+        }
+
+        if (this.props.type === "event") {
+            // Event Table default sort
+            this.setState({
+                eventData: data,
+                sortedColumn: {
+                    name: "fromDate",
+                    position: "desc",
+                    arrow: iconSortDesc
+                }
+            });
+        }
+
         if (this.props.type === "summary") {
             // Summary Table default sort
             this.setState({
-                summaryData: this.props.data,
+                summaryData: data,
                 sortedColumn: {
                     name: "score",
                     position: "desc",
@@ -112,7 +137,7 @@ class Table extends Component {
         if (this.props.type === "signal") {
             // Signal Table default sort
             this.setState({
-                signalData: this.props.data,
+                signalData: data,
                 sortedColumn: {
                     name: "score",
                     position: "desc",
@@ -122,55 +147,13 @@ class Table extends Component {
         }
     }
 
+    componentDidMount() {
+        this.setTableData(this.props.data);
+    }
+
     componentDidUpdate(prevProps) {
         if (this.props.data !== prevProps.data) {
-            if (this.props.type === "alert") {
-                // Alert Table default sort
-                this.setState({
-                    alertData: this.props.data,
-                    sortedColumn: {
-                        name: "dateStamp",
-                        position: "desc",
-                        arrow: iconSortDesc
-                    }
-                });
-            }
-
-            if (this.props.type === "event") {
-                // Event Table default sort
-                this.setState({
-                    eventData: this.props.data,
-                    sortedColumn: {
-                        name: "fromDate",
-                        position: "desc",
-                        arrow: iconSortDesc
-                    }
-                });
-            }
-
-            if (this.props.type === "summary") {
-                // Summary Table default sort
-                this.setState({
-                    summaryData: this.props.data,
-                    sortedColumn: {
-                        name: "score",
-                        position: "desc",
-                        arrow: iconSortDesc
-                    }
-                });
-            }
-
-            if (this.props.type === "signal") {
-                // Signal Table default sort
-                this.setState({
-                    signalData: this.props.data,
-                    sortedColumn: {
-                        name: "score",
-                        position: "desc",
-                        arrow: iconSortDesc
-                    }
-                });
-            }
+            this.setTableData(this.props.data);
         }
 
         // Check for getting relatedTo Outage Summary data on Entity Page to populate
@@ -464,6 +447,7 @@ class Table extends Component {
                                             <td>
                                                 {
                                                     alert.dataSource === "ping-slash24" ? T.translate("table.alertLabels.activeProbing") :
+                                                    alert.dataSource === "gtr" ? T.translate("table.alertLabels.gtr") :
                                                     alert.dataSource === "bgp" ? T.translate("table.alertLabels.bgp") :
                                                     alert.dataSource === "ucsd-nt" ? T.translate("table.alertLabels.darknet") :
                                                     alert.dataSource === "merit-nt" ? T.translate("table.alertLabels.merit") : null
