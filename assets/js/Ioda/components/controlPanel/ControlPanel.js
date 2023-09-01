@@ -152,6 +152,7 @@ class ControlPanel extends Component {
         {predefinedRanges.map((item) => (
           <Button
             key={item.value}
+            className="w-full"
             onClick={() => this.handlePredefinedRangeSelection(item)}
           >
             {item.label}
