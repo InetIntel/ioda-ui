@@ -508,8 +508,8 @@ export default function AnnotationStudioModal({
         <canvas ref={fabricCanvas} width={800} height={448} />
       </div>
 
-      <div className="flex gap-4">
-        {loadedChart && (
+      {loadedChart && (
+        <div className="flex gap-4">
           <div>
             <div className="text-xl">Draw</div>
             <div className="p-4 card gap-3 drawPalette">
@@ -519,110 +519,122 @@ export default function AnnotationStudioModal({
               <Button icon={<TriangleOutlineIcon />} onClick={addTriangle} />
             </div>
           </div>
-        )}
 
-        {activeObject && (
           <div className="col">
             <div className="text-xl">Style</div>
             <div className="p-4 card">
-              <div className="flex gap-3 mb-3 stylePalette">
-                {SUPPORTS_FILL.includes(activeObject.type) && (
-                  <ColorPicker
-                    format="hex"
-                    value={activeObjectAttributes?.fill}
-                    destroyTooltipOnHide={true}
-                    showText={() => "Fill"}
-                    onChange={(val) =>
-                      handlePalettePropertyChange("fill", val.toHexString())
-                    }
-                    allowClear={true}
-                    onClear={() => handlePalettePropertyChange("fill", null)}
-                  />
-                )}
-
-                {SUPPORTS_BACKGROUND_COLOR.includes(activeObject.type) && (
-                  <ColorPicker
-                    format="hex"
-                    value={activeObjectAttributes?.backgroundColor}
-                    destroyTooltipOnHide={true}
-                    showText={() => "Background"}
-                    onChange={(val) =>
-                      handlePalettePropertyChange(
-                        "backgroundColor",
-                        val.toHexString()
-                      )
-                    }
-                    allowClear={true}
-                    onClear={() =>
-                      handlePalettePropertyChange("backgroundColor", null)
-                    }
-                  />
-                )}
-
-                {SUPPORTS_STROKE.includes(activeObject.type) && (
-                  <ColorPicker
-                    format="hex"
-                    value={activeObjectAttributes?.stroke}
-                    destroyTooltipOnHide={true}
-                    showText={() => "Stroke"}
-                    onChange={(val) =>
-                      handlePalettePropertyChange("stroke", val.toHexString())
-                    }
-                    allowClear={true}
-                    onClear={() => handlePalettePropertyChange("stroke", null)}
-                  />
-                )}
-
-                {SUPPORTS_STROKE.includes(activeObject.type) &&
-                  activeObjectAttributes.stroke && (
-                    <div className="card flex items-center gap-3 w-72 px-2">
-                      <div style={{ marginBottom: "-2px" }}>Stroke Width</div>
-                      <Slider
-                        className="col-1 h-1"
-                        min={1}
-                        max={20}
+              {!activeObject && <div>Select an existing object, or draw a new one.</div>}
+              {activeObject && (
+                <>
+                  <div className="flex gap-3 mb-3 stylePalette">
+                    {SUPPORTS_FILL.includes(activeObject.type) && (
+                      <ColorPicker
+                        format="hex"
+                        value={activeObjectAttributes?.fill}
+                        destroyTooltipOnHide={true}
+                        showText={() => "Fill"}
                         onChange={(val) =>
-                          handlePalettePropertyChange("strokeWidth", val)
+                          handlePalettePropertyChange("fill", val.toHexString())
                         }
-                        value={activeObjectAttributes?.strokeWidth ?? 1}
+                        allowClear={true}
+                        onClear={() =>
+                          handlePalettePropertyChange("fill", null)
+                        }
                       />
-                    </div>
-                  )}
-              </div>
-              <div className="flex gap-3 arrangePalette">
-                <Button
-                  icon={<ArrangeBringForwardIcon />}
-                  onClick={() => {
-                    bringActiveObjectForward();
-                    focusCanvasContainer();
-                  }}
-                />
-                <Button
-                  icon={<ArrangeBringToFrontIcon />}
-                  onClick={() => {
-                    bringActiveObjectToFront();
-                    focusCanvasContainer();
-                  }}
-                />
-                <Button
-                  icon={<ArrangeSendBackwardIcon />}
-                  onClick={() => {
-                    sendActiveObjectBackward();
-                    focusCanvasContainer();
-                  }}
-                />
-                <Button
-                  icon={<ArrangeSendToBackIcon />}
-                  onClick={() => {
-                    sendActiveObjectToBack();
-                    focusCanvasContainer();
-                  }}
-                />
-              </div>
+                    )}
+
+                    {SUPPORTS_BACKGROUND_COLOR.includes(activeObject.type) && (
+                      <ColorPicker
+                        format="hex"
+                        value={activeObjectAttributes?.backgroundColor}
+                        destroyTooltipOnHide={true}
+                        showText={() => "Background"}
+                        onChange={(val) =>
+                          handlePalettePropertyChange(
+                            "backgroundColor",
+                            val.toHexString()
+                          )
+                        }
+                        allowClear={true}
+                        onClear={() =>
+                          handlePalettePropertyChange("backgroundColor", null)
+                        }
+                      />
+                    )}
+
+                    {SUPPORTS_STROKE.includes(activeObject.type) && (
+                      <ColorPicker
+                        format="hex"
+                        value={activeObjectAttributes?.stroke}
+                        destroyTooltipOnHide={true}
+                        showText={() => "Stroke"}
+                        onChange={(val) =>
+                          handlePalettePropertyChange(
+                            "stroke",
+                            val.toHexString()
+                          )
+                        }
+                        allowClear={true}
+                        onClear={() =>
+                          handlePalettePropertyChange("stroke", null)
+                        }
+                      />
+                    )}
+
+                    {SUPPORTS_STROKE.includes(activeObject.type) &&
+                      activeObjectAttributes.stroke && (
+                        <div className="card flex items-center gap-3 w-72 px-2">
+                          <div style={{ marginBottom: "-2px" }}>
+                            Stroke Width
+                          </div>
+                          <Slider
+                            className="col-1 h-1"
+                            min={1}
+                            max={20}
+                            onChange={(val) =>
+                              handlePalettePropertyChange("strokeWidth", val)
+                            }
+                            value={activeObjectAttributes?.strokeWidth ?? 1}
+                          />
+                        </div>
+                      )}
+                  </div>
+                  <div className="flex gap-3 arrangePalette">
+                    <Button
+                      icon={<ArrangeBringForwardIcon />}
+                      onClick={() => {
+                        bringActiveObjectForward();
+                        focusCanvasContainer();
+                      }}
+                    />
+                    <Button
+                      icon={<ArrangeBringToFrontIcon />}
+                      onClick={() => {
+                        bringActiveObjectToFront();
+                        focusCanvasContainer();
+                      }}
+                    />
+                    <Button
+                      icon={<ArrangeSendBackwardIcon />}
+                      onClick={() => {
+                        sendActiveObjectBackward();
+                        focusCanvasContainer();
+                      }}
+                    />
+                    <Button
+                      icon={<ArrangeSendToBackIcon />}
+                      onClick={() => {
+                        sendActiveObjectToBack();
+                        focusCanvasContainer();
+                      }}
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </Modal>
   );
 }
