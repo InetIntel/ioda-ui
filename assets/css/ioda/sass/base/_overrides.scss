@@ -5,3 +5,16 @@
 .ant-message {
   z-index: 100000;
 }
+
+.ant-btn {
+  display: flex;
+  align-items: center;
+  width: min-content;
+}
+
+.ant-btn-icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min-content;
+}

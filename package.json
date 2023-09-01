@@ -50,8 +50,9 @@
         "sitemap": "babel-node assets/js/Ioda/constants/sitemap/Generator.js"
     },
     "dependencies": {
+        "@2fd/ant-design-icons": "^2.6.0",
         "@ant-design/icons": "^5.1.0",
-        "antd": "^5.5.0",
+        "antd": "^5.7.0",
         "axios": "^0.21.1",
         "clsx": "^1.2.1",
         "core-js": "^3.16.2",
@@ -59,6 +60,8 @@
         "d3-shape": "^2.1.0",
         "dayjs": "^1.11.7",
         "dotenv-webpack": "^1.7.0",
+        "fabric": "^5.3.0",
+        "ga-4-react": "^0.1.281",
         "highcharts": "^10.3.3",
         "highcharts-react-official": "^3.1.0",
         "horizon-timeseries-chart": "^1.6.4",

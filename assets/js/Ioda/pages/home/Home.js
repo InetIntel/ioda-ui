@@ -264,7 +264,12 @@ class Home extends Component {
         <div className="max-cont">
           <div className="home__about">
             <T.p className="about__text text-3xl mb-12" text="home.about" />
-            <Button icon={<DesktopOutlined />} size="large" href="/dashboard">
+            <Button
+              icon={<DesktopOutlined />}
+              size="large"
+              href="/dashboard"
+              className="mx-auto"
+            >
               {aboutButtonText}
             </Button>
           </div>

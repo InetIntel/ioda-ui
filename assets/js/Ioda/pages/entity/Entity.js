@@ -91,6 +91,7 @@ import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
 import ChartTabCard from "../../components/cards/ChartTabCard";
 import ShareLinkModal from "../../components/modal/ShareLinkModal";
+import AnnotationStudioModal from "./components/AnnotationStudioModal";
 
 // Chart libraries
 import Highcharts from "highcharts/highstock";
@@ -111,7 +112,11 @@ import {
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
 import { Button, Checkbox, Popover } from "antd";
-import { SettingOutlined, ShareAltOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  SettingOutlined,
+  ShareAltOutlined,
+} from "@ant-design/icons";
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -203,6 +208,9 @@ class Entity extends Component {
       showXyChartModal: false,
       // display link sharing modal
       showShareLinkModal: false,
+      // display annotation studio modal
+      showAnnotationStudioModal: false,
+      annotationStudioSvgBaseString: "",
       // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
       tsDataSeriesVisibleMap: dataSource.reduce((result, item) => {
         result[item] = true;
@@ -815,6 +823,35 @@ class Entity extends Component {
     );
   };
 
+  getChartExportTitle = () => {
+    return `${T.translate(
+      "entity.xyChartTitle"
+    )} ${this.state.entityName?.trim()}`;
+  };
+
+  getChartExportSubtitle = () => {
+    const fromDayjs = secondsToUTC(this.state.from);
+    const untilDayjs = secondsToUTC(this.state.until);
+
+    const formatExpanded = "MMMM D, YYYY h:mma";
+
+    return `${fromDayjs.format(formatExpanded)} - ${untilDayjs.format(
+      formatExpanded
+    )} UTC`;
+  };
+
+  getChartExportFileName = () => {
+    const fromDayjs = secondsToUTC(this.state.from);
+
+    const formatCompact = "YY-MM-DD-HH-mm";
+
+    const exportFileNameBase = `ioda-${
+      this.state.entityName
+    }-${fromDayjs.format(formatCompact)}`;
+
+    return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
+  };
+
   // 1st Row
   // XY Chart Functions
   // format data from api to be compatible with chart visual
@@ -980,26 +1017,11 @@ class Entity extends Component {
     );
 
     // Set necessary fields for chart exporting
-    const exportChartTitle = `${T.translate("entity.xyChartTitle")} ${
-      this.state.entityName
-    }`;
-    const fromDayjs = secondsToUTC(this.state.from);
-    const untilDayjs = secondsToUTC(this.state.until);
+    const exportChartTitle = this.getChartExportTitle();
 
-    const formatExpanded = "MMMM D, YYYY h:mma";
-    const formatCompact = "YY-MM-DD-HH-mm";
+    const exportChartSubtitle = this.getChartExportSubtitle();
 
-    const exportChartSubtitle = `${fromDayjs.format(
-      formatExpanded
-    )} - ${untilDayjs.format(formatExpanded)} UTC`;
-
-    const exportFileNameBase = `ioda-${
-      this.state.entityName
-    }-${fromDayjs.format(formatCompact)}`;
-
-    const exportFileName = exportFileNameBase
-      .replace(/\s+/g, "-")
-      .toLowerCase();
+    const exportFileName = this.getChartExportFileName();
 
     const chartOptions = {
       chart: {
@@ -1446,6 +1468,29 @@ class Entity extends Component {
         type: imageType,
       });
     }
+  };
+
+  /**
+   * Get an SVG node of the chart
+   */
+  getChartSvg = () => {
+    if (this.timeSeriesChartRef.current) {
+      return this.timeSeriesChartRef.current.chart.getSVG();
+    }
+    return null;
+  };
+
+  showAnnotationStudioModal = () => {
+    this.setState({
+      showAnnotationStudioModal: true,
+      annotationStudioSvgBaseString: this.getChartSvg(),
+    });
+  };
+
+  hideAnnotationStudioModal = () => {
+    this.setState({
+      showAnnotationStudioModal: false,
+    });
   };
 
   // toggle normalized values and absolute values
@@ -2693,6 +2738,14 @@ class Entity extends Component {
               entityName={this.state.entityName}
               handleDownload={() => this.manuallyDownloadChart("image/jpeg")}
             />
+            <AnnotationStudioModal
+              open={this.state.showAnnotationStudioModal}
+              svgString={this.state.annotationStudioSvgBaseString}
+              hideModal={this.hideAnnotationStudioModal}
+              chartTitle={this.getChartExportTitle()}
+              chartSubtitle={this.getChartExportSubtitle()}
+              exportFileName={this.getChartExportFileName()}
+            />
             <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
               <div className="col-2 p-4 card entity__chart">
                 <div className="flex items-center mb-3">
@@ -2750,6 +2803,11 @@ class Entity extends Component {
                   >
                     <Button className="mr-3" icon={<SettingOutlined />} />
                   </Popover>
+                  <Button
+                    className="mr-3"
+                    icon={<EditOutlined />}
+                    onClick={this.showAnnotationStudioModal}
+                  />
                   <Popover
                     open={this.state.displayChartSharePopover}
                     onOpenChange={this.handleDisplayChartSharePopover}
