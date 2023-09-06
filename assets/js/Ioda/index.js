@@ -43,7 +43,6 @@ import "./constants/strings";
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import GA4React from "ga-4-react";
 // Redux
 import { Provider } from "react-redux";
 import { createStore, applyMiddleware, combineReducers } from "redux";
@@ -56,14 +55,14 @@ import Footer from "./components/footer/Footer";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Entity from "./pages/entity/Entity";
-import Reports from "./pages/reports/Reports";
 import ProjectInfo from "./pages/projectinfo/ProjectInfo";
 import Help from "./pages/help/Help";
-import IranReport2020 from "./pages/reports/IranReport2020";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
-import GTRIntegrated from "./pages/reports/GTRIntegrated";
 
+import ReactGA from "react-ga4";
+
+/*
 const ga4react = new GA4React("G-XD5MWMBCF9");
 ga4react.initialize().then(
   (ga4) => {
@@ -75,6 +74,14 @@ ga4react.initialize().then(
   }
 );
 ga4react.initialize();
+*/
+
+ReactGA.initialize([
+  // new property
+  { trackingId: "G-3J1FMTEGCV" },
+  // previous property, owned by CAIDA
+  { trackingId: "G-XD5MWMBCF9" },
+]);
 
 class App extends Component {
   constructor(props) {
