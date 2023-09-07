@@ -15,14 +15,18 @@ import ArrangeSendToBackIcon from "@2fd/ant-design-icons/lib/ArrangeSendToBack";
 import MagnifyPlusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyPlusOutline";
 import MagnifyMinusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyMinusOutline";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
+import ArrowTopRightThinIcon from "@2fd/ant-design-icons/lib/ArrowTopRightThin";
 
 import { CloseOutlined } from "@ant-design/icons";
 
+const ARROW_TYPE = "arrow";
+
 const DEFAULT_SHAPE_FILL = "#F93D4EC0";
 
-const SUPPORTS_FILL = ["circle", "rect", "textbox", "triangle"];
+const SUPPORTS_FILL = ["circle", "rect", "textbox"];
 const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
-const SUPPORTS_STROKE = ["circle", "rect", "triangle"];
+const SUPPORTS_STROKE = ["circle", "rect", ARROW_TYPE];
+const SUPPORTS_STROKE_WIDTH = ["circle", "rect"];
 
 const MIN_ZOOM = 0.75;
 const MAX_ZOOM = 20;
@@ -218,6 +222,18 @@ export default function AnnotationStudioModal({
       canvas.on("selection:cleared", handleObjectSelectionChange);
 
       canvas.on("mouse:wheel", handleCanvasZoom);
+
+      canvas.on("object:scaling", function (e) {
+        if (e.target.get("type") === ARROW_TYPE) {
+          adjustArrowsSize(e.target._objects, e.target.get("scaleY"));
+        }
+      });
+
+      canvas.on("object:scaled", function (e) {
+        if (e.target.get("type") === ARROW_TYPE) {
+          adjustArrowsSize(e.target._objects, e.target.get("scaleY"));
+        }
+      });
 
       // http://fabricjs.com/fabric-intro-part-5 These handlers are not
       // delegated to separate methods because we need direct namespace access
@@ -470,18 +486,85 @@ export default function AnnotationStudioModal({
     addObjectToCanvas(textbox);
   };
 
-  const addTriangle = () => {
-    const triangle = new fabric.Triangle({
-      width: 100,
-      height: 100,
-      fill: DEFAULT_SHAPE_FILL,
-      stroke: null,
-      strokeWidth: 1,
-      strokeUniform: true,
-      left: canvas.width / 2 - 100 / 2,
-      top: canvas.height / 2 - 100 / 2,
+  function adjustArrowsSize(arrowObjects, objectScaleY) {
+    let triangleCount = 0;
+    const triangles = [];
+
+    arrowObjects.forEach(function (object) {
+      if (object.get("type") === "triangle") {
+        triangles[triangleCount] = object;
+        triangleCount++;
+        let ratio = 1 / objectScaleY;
+        object.set("scaleY", ratio);
+      }
     });
-    addObjectToCanvas(triangle);
+
+    canvas.requestRenderAll();
+  }
+
+  const adjustArrowProperty = (arrow, property, val) => {
+    if (property === "stroke") {
+      arrow._objects.forEach((obj) => {
+        if (obj.get("type") === "line") {
+          obj.set({ stroke: val });
+        } else if (obj.get("type") === "triangle") {
+          obj.set({ fill: val });
+        }
+      });
+    } else if (property === "strokeWidth") {
+      arrow._objects.forEach((obj) => {
+        if (obj.get("type") === "line") {
+          obj.set({ strokeWidth: val });
+        }
+      });
+    }
+  };
+
+  const addArrow = () => {
+    const arrowLength = 150;
+    const arrowStroke = 6;
+    const arrowHeadWidth = 20;
+    const arrowHeadHeight = 20;
+    const line = new fabric.Line([0, 0, 0, arrowLength - arrowHeadHeight], {
+      strokeUniform: true,
+      lockScalingX: true,
+      borderColor: "transparent",
+      left: arrowHeadWidth / 2 - arrowStroke / 2,
+      top: arrowHeadHeight / 4,
+      strokeWidth: arrowStroke,
+      stroke: "#000",
+    });
+    const arrowHead = new fabric.Triangle({
+      width: arrowHeadWidth,
+      height: arrowHeadHeight,
+      fill: "#000",
+      scaleX: 1,
+      scaleY: 1,
+      strokeUniform: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      left: 0,
+      top: 0,
+    });
+    const groupItems = [line, arrowHead];
+    const group = new fabric.Group(groupItems, {
+      hasControls: true,
+      left: canvas.width / 2,
+      top: canvas.height / 2,
+      strokeUniform: true,
+      lockScalingX: true,
+      angle: 45,
+    })
+      .setControlsVisibility({
+        ...lockControlVisibility,
+        mt: true,
+        mb: true,
+        mtr: true,
+      })
+      .set("type", ARROW_TYPE)
+      .set("stroke", "#000");
+
+    addObjectToCanvas(group);
   };
 
   const downloadImage = () => {
@@ -504,6 +587,9 @@ export default function AnnotationStudioModal({
 
   const handlePalettePropertyChange = (property, val) => {
     if (!activeObject) return;
+    if (activeObject.type === ARROW_TYPE) {
+      adjustArrowProperty(activeObject, property, val);
+    }
     activeObject.set({ [property]: val });
     setActiveObjectAttributes({ ...activeObjectAttributes, [property]: val });
     canvas.renderAll();
@@ -587,7 +673,7 @@ export default function AnnotationStudioModal({
                 <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
                 <Button icon={<SquareOutlineIcon />} onClick={addRectangle} />
                 <Button icon={<FormatText />} onClick={addTextbox} />
-                <Button icon={<TriangleOutlineIcon />} onClick={addTriangle} />
+                <Button icon={<ArrowTopRightThinIcon />} onClick={addArrow} />
               </div>
             </div>
 
@@ -659,7 +745,7 @@ export default function AnnotationStudioModal({
                         />
                       )}
 
-                      {SUPPORTS_STROKE.includes(activeObject.type) &&
+                      {SUPPORTS_STROKE_WIDTH.includes(activeObject.type) &&
                         activeObjectAttributes.stroke && (
                           <div className="card flex items-center gap-3 w-72 px-2">
                             <div style={{ marginBottom: "-2px" }}>
