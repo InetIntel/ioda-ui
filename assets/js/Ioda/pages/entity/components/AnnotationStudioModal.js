@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, ColorPicker, Modal, Popconfirm, Slider } from "antd";
+import { Button, ColorPicker, Modal, Slider } from "antd";
 import { fabric } from "fabric";
 
 import iodaWatermark from "images/ioda-canvas-watermark.png";
@@ -30,7 +30,7 @@ const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
 const SUPPORTS_STROKE = ["circle", "rect", ARROW_TYPE];
 const SUPPORTS_STROKE_WIDTH = ["circle", "rect"];
 
-const MIN_ZOOM = 0.75;
+const MIN_ZOOM = 1;
 const MAX_ZOOM = 20;
 
 const controlProperties = {
