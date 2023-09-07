@@ -268,7 +268,7 @@ class Home extends Component {
               icon={<DesktopOutlined />}
               size="large"
               href="/dashboard"
-              className="mx-auto"
+              className="mx-auto w-min"
             >
               {aboutButtonText}
             </Button>
