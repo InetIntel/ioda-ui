@@ -7,7 +7,6 @@ import iodaWatermark from "images/ioda-canvas-watermark.png";
 import FormatText from "@2fd/ant-design-icons/lib/FormatText";
 import SquareOutlineIcon from "@2fd/ant-design-icons/lib/SquareOutline";
 import CircleOutlineIcon from "@2fd/ant-design-icons/lib/CircleOutline";
-import TriangleOutlineIcon from "@2fd/ant-design-icons/lib/TriangleOutline";
 import ArrangeBringForwardIcon from "@2fd/ant-design-icons/lib/ArrangeBringForward";
 import ArrangeSendBackwardIcon from "@2fd/ant-design-icons/lib/ArrangeSendBackward";
 import ArrangeBringToFrontIcon from "@2fd/ant-design-icons/lib/ArrangeBringToFront";
@@ -16,8 +15,11 @@ import MagnifyPlusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyPlusOutline
 import MagnifyMinusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyMinusOutline";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 import ArrowTopRightThinIcon from "@2fd/ant-design-icons/lib/ArrowTopRightThin";
+import DeleteIcon from "@2fd/ant-design-icons/lib/Delete";
+import ContentDuplicateIcon from "@2fd/ant-design-icons/lib/ContentDuplicate";
 
-import { CloseOutlined } from "@ant-design/icons";
+import { CloseOutlined, EditOutlined } from "@ant-design/icons";
+import Icon from "@ant-design/icons/lib/components/Icon";
 
 const ARROW_TYPE = "arrow";
 
@@ -367,8 +369,8 @@ export default function AnnotationStudioModal({
     copySelection.forEach((obj) => {
       obj.clone((clone) => {
         clone.set({
-          top: clone.top + 10,
-          left: clone.left + 10,
+          top: obj.top + 10,
+          left: obj.left + 10,
         });
         canvas.add(clone);
         copiedObjects.push(clone);
@@ -380,6 +382,28 @@ export default function AnnotationStudioModal({
     });
     canvas.setActiveObject(newSelection);
     canvas.renderAll();
+  };
+
+  const duplicateSelection = () => {
+    canvas.getActiveObject().clone((clonedObj) => {
+      canvas.discardActiveObject();
+      clonedObj.set({
+        left: clonedObj.left + 10,
+        top: clonedObj.top + 10,
+        evented: true,
+      });
+      if (clonedObj.type === "activeSelection") {
+        clonedObj.canvas = canvas;
+        clonedObj.forEachObject(function (obj) {
+          canvas.add(obj);
+        });
+        clonedObj.setCoords();
+      } else {
+        canvas.add(clonedObj);
+      }
+      canvas.setActiveObject(clonedObj);
+      canvas.requestRenderAll();
+    });
   };
 
   const handleObjectSelectionChange = (e) => {
@@ -636,182 +660,175 @@ export default function AnnotationStudioModal({
       }}
       destroyOnClose={true}
     >
-      <div
-        ref={canvasContainer}
-        tabIndex="1000"
-        onKeyDown={handleCanvasKeys}
-        style={{ outline: "none" }}
-        className="relative mb-4 card flex items-center justify-center"
-      >
-        {!loadedChart && (
-          <div className="absolute z-1 text-center w-1/3">
-            <p className="text-2xl font-bold">
-              Introducing the Annotation Studio
-            </p>
-            <p className="text-xl mt-4">
-              Use the annotation studio to markup the current chart view. When
-              you're done, save the image to share.
-            </p>
-            <Button
-              className="mx-auto mt-4"
-              type="primary"
-              onClick={loadCanvasImageBase}
-            >
-              Start
-            </Button>
+      <div className="flex items-start gap-3">
+        {loadedChart && (
+          <div className="flex-column gap-4">
+            <div className="flex-column gap-4 p-4 card">
+              <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
+              <Button icon={<SquareOutlineIcon />} onClick={addRectangle} />
+              <Button icon={<FormatText />} onClick={addTextbox} />
+              <Button icon={<ArrowTopRightThinIcon />} onClick={addArrow} />
+            </div>
+
+            <div className="flex-column gap-4 p-4 card">
+              <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
+              <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
+              <Button
+                icon={<MagnifyExpandIcon />}
+                onClick={resetCanvasZoomAndPosition}
+              />
+            </div>
+
+            <div className="flex-column gap-4 p-4 card">
+              <Button
+                icon={<ContentDuplicateIcon />}
+                onClick={duplicateSelection}
+              />
+              <Button
+                icon={<DeleteIcon />}
+                danger
+                onClick={canvasDeleteHandler}
+              />
+            </div>
           </div>
         )}
-        <canvas ref={fabricCanvas} width={800} height={448} />
-      </div>
-
-      {loadedChart && (
-        <>
-          <div className="flex gap-4">
-            <div>
-              <div className="text-xl">Draw</div>
-              <div className="p-4 card gap-3 drawPalette">
-                <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
-                <Button icon={<SquareOutlineIcon />} onClick={addRectangle} />
-                <Button icon={<FormatText />} onClick={addTextbox} />
-                <Button icon={<ArrowTopRightThinIcon />} onClick={addArrow} />
+        <div className="col">
+          <div
+            ref={canvasContainer}
+            tabIndex="1000"
+            onKeyDown={handleCanvasKeys}
+            style={{ outline: "none" }}
+            className="w-full relative mb-4 card flex items-center justify-center"
+          >
+            {!loadedChart && (
+              <div className="absolute z-1 text-center w-1/3">
+                <Icon
+                  className="mb-4"
+                  style={{ fontSize: "60px" }}
+                  component={EditOutlined}
+                />
+                <p className="text-2xl font-bold">
+                  Introducing the Annotation Studio
+                </p>
+                <p className="text-xl mt-4">
+                  Use the annotation studio to markup the current chart view.
+                  When you're done, save the image to share.
+                </p>
+                <Button
+                  className="mx-auto mt-4"
+                  type="primary"
+                  onClick={loadCanvasImageBase}
+                >
+                  Start
+                </Button>
               </div>
-            </div>
-
-            <div className="col">
+            )}
+            <canvas ref={fabricCanvas} width={800} height={448} />
+          </div>
+          {loadedChart && activeObject && (
+            <div>
               <div className="text-xl">Style</div>
               <div className="p-4 card">
-                {!activeObject && (
-                  <div>Select an existing object, or draw a new one.</div>
-                )}
-                {activeObject && (
-                  <>
-                    <div className="flex gap-3 mb-3 stylePalette">
-                      {SUPPORTS_FILL.includes(activeObject.type) && (
-                        <ColorPicker
-                          format="hex"
-                          value={activeObjectAttributes?.fill}
-                          destroyTooltipOnHide={true}
-                          showText={() => "Fill"}
-                          onChange={(val) =>
-                            handlePalettePropertyChange(
-                              "fill",
-                              val.toHexString()
-                            )
-                          }
-                          allowClear={true}
-                          onClear={() =>
-                            handlePalettePropertyChange("fill", null)
-                          }
-                        />
-                      )}
+                <div className="flex gap-3 stylePalette">
+                  {SUPPORTS_FILL.includes(activeObject.type) && (
+                    <ColorPicker
+                      format="hex"
+                      value={activeObjectAttributes?.fill}
+                      destroyTooltipOnHide={true}
+                      showText={() => "Fill"}
+                      onChange={(val) =>
+                        handlePalettePropertyChange("fill", val.toHexString())
+                      }
+                      allowClear={true}
+                      onClear={() => handlePalettePropertyChange("fill", null)}
+                    />
+                  )}
 
-                      {SUPPORTS_BACKGROUND_COLOR.includes(
-                        activeObject.type
-                      ) && (
-                        <ColorPicker
-                          format="hex"
-                          value={activeObjectAttributes?.backgroundColor}
-                          destroyTooltipOnHide={true}
-                          showText={() => "Background"}
-                          onChange={(val) =>
-                            handlePalettePropertyChange(
-                              "backgroundColor",
-                              val.toHexString()
-                            )
-                          }
-                          allowClear={true}
-                          onClear={() =>
-                            handlePalettePropertyChange("backgroundColor", null)
-                          }
-                        />
-                      )}
+                  {SUPPORTS_BACKGROUND_COLOR.includes(activeObject.type) && (
+                    <ColorPicker
+                      format="hex"
+                      value={activeObjectAttributes?.backgroundColor}
+                      destroyTooltipOnHide={true}
+                      showText={() => "Background"}
+                      onChange={(val) =>
+                        handlePalettePropertyChange(
+                          "backgroundColor",
+                          val.toHexString()
+                        )
+                      }
+                      allowClear={true}
+                      onClear={() =>
+                        handlePalettePropertyChange("backgroundColor", null)
+                      }
+                    />
+                  )}
 
-                      {SUPPORTS_STROKE.includes(activeObject.type) && (
-                        <ColorPicker
-                          format="hex"
-                          value={activeObjectAttributes?.stroke}
-                          destroyTooltipOnHide={true}
-                          showText={() => "Stroke"}
-                          onChange={(val) =>
-                            handlePalettePropertyChange(
-                              "stroke",
-                              val.toHexString()
-                            )
-                          }
-                          allowClear={true}
-                          onClear={() =>
-                            handlePalettePropertyChange("stroke", null)
-                          }
-                        />
-                      )}
+                  {SUPPORTS_STROKE.includes(activeObject.type) && (
+                    <ColorPicker
+                      format="hex"
+                      value={activeObjectAttributes?.stroke}
+                      destroyTooltipOnHide={true}
+                      showText={() => "Stroke"}
+                      onChange={(val) =>
+                        handlePalettePropertyChange("stroke", val.toHexString())
+                      }
+                      allowClear={true}
+                      onClear={() =>
+                        handlePalettePropertyChange("stroke", null)
+                      }
+                    />
+                  )}
 
-                      {SUPPORTS_STROKE_WIDTH.includes(activeObject.type) &&
-                        activeObjectAttributes.stroke && (
-                          <div className="card flex items-center gap-3 w-72 px-2">
-                            <div style={{ marginBottom: "-2px" }}>
-                              Stroke Width
-                            </div>
-                            <Slider
-                              className="col-1 h-1"
-                              min={1}
-                              max={20}
-                              onChange={(val) =>
-                                handlePalettePropertyChange("strokeWidth", val)
-                              }
-                              value={activeObjectAttributes?.strokeWidth ?? 1}
-                            />
-                          </div>
-                        )}
-                    </div>
-                    <div className="flex gap-3 arrangePalette">
-                      <Button
-                        icon={<ArrangeBringForwardIcon />}
-                        onClick={() => {
-                          bringActiveObjectForward();
-                          focusCanvasContainer();
-                        }}
-                      />
-                      <Button
-                        icon={<ArrangeBringToFrontIcon />}
-                        onClick={() => {
-                          bringActiveObjectToFront();
-                          focusCanvasContainer();
-                        }}
-                      />
-                      <Button
-                        icon={<ArrangeSendBackwardIcon />}
-                        onClick={() => {
-                          sendActiveObjectBackward();
-                          focusCanvasContainer();
-                        }}
-                      />
-                      <Button
-                        icon={<ArrangeSendToBackIcon />}
-                        onClick={() => {
-                          sendActiveObjectToBack();
-                          focusCanvasContainer();
-                        }}
-                      />
-                    </div>
-                  </>
-                )}
+                  {SUPPORTS_STROKE_WIDTH.includes(activeObject.type) &&
+                    activeObjectAttributes.stroke && (
+                      <div className="card flex items-center gap-3 w-72 px-2">
+                        <div style={{ marginBottom: "-2px" }}>Stroke Width</div>
+                        <Slider
+                          className="col-1 h-1"
+                          min={1}
+                          max={20}
+                          onChange={(val) =>
+                            handlePalettePropertyChange("strokeWidth", val)
+                          }
+                          value={activeObjectAttributes?.strokeWidth ?? 1}
+                        />
+                      </div>
+                    )}
+
+                  <Button
+                    icon={<ArrangeBringForwardIcon />}
+                    onClick={() => {
+                      bringActiveObjectForward();
+                      focusCanvasContainer();
+                    }}
+                  />
+                  <Button
+                    icon={<ArrangeBringToFrontIcon />}
+                    onClick={() => {
+                      bringActiveObjectToFront();
+                      focusCanvasContainer();
+                    }}
+                  />
+                  <Button
+                    icon={<ArrangeSendBackwardIcon />}
+                    onClick={() => {
+                      sendActiveObjectBackward();
+                      focusCanvasContainer();
+                    }}
+                  />
+                  <Button
+                    icon={<ArrangeSendToBackIcon />}
+                    onClick={() => {
+                      sendActiveObjectToBack();
+                      focusCanvasContainer();
+                    }}
+                  />
+                </div>
               </div>
             </div>
-
-            <div>
-              <div className="text-xl">Zoom</div>
-              <div className="p-4 card flex gap-3 zoomPalette">
-                <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
-                <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
-                <Button
-                  icon={<MagnifyExpandIcon />}
-                  onClick={resetCanvasZoomAndPosition}
-                />
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+          )}
+        </div>
+      </div>
     </Modal>
   );
 }
