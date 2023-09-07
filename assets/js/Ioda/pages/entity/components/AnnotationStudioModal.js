@@ -12,6 +12,9 @@ import ArrangeBringForwardIcon from "@2fd/ant-design-icons/lib/ArrangeBringForwa
 import ArrangeSendBackwardIcon from "@2fd/ant-design-icons/lib/ArrangeSendBackward";
 import ArrangeBringToFrontIcon from "@2fd/ant-design-icons/lib/ArrangeBringToFront";
 import ArrangeSendToBackIcon from "@2fd/ant-design-icons/lib/ArrangeSendToBack";
+import MagnifyPlusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyPlusOutline";
+import MagnifyMinusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyMinusOutline";
+import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 
 import { CloseOutlined } from "@ant-design/icons";
 
@@ -20,6 +23,9 @@ const DEFAULT_SHAPE_FILL = "#F93D4EC0";
 const SUPPORTS_FILL = ["circle", "rect", "textbox", "triangle"];
 const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
 const SUPPORTS_STROKE = ["circle", "rect", "triangle"];
+
+const MIN_ZOOM = 0.75;
+const MAX_ZOOM = 20;
 
 const controlProperties = {
   centeredRotation: true,
@@ -112,6 +118,12 @@ export default function AnnotationStudioModal({
   const [chartElement, setChartElement] = React.useState(null);
   const [watermarkElement, setWatermarkElement] = React.useState(null);
 
+  // Drag and pan related state
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [lastDragX, setLastDragX] = React.useState(null);
+  const [lastDragY, setLastDragY] = React.useState(null);
+  const [viewpoint, setViewpoint] = React.useState([1, 0, 0, 1, 0, 0]);
+
   const initCanvas = () => {
     const canvas = new fabric.Canvas(fabricCanvas.current, {
       height: 480,
@@ -123,6 +135,11 @@ export default function AnnotationStudioModal({
     });
 
     return canvas;
+  };
+
+  const resetCanvasZoomAndPosition = () => {
+    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    canvas.renderAll();
   };
 
   const wipeCanvas = () => {
@@ -200,8 +217,60 @@ export default function AnnotationStudioModal({
       canvas.on("selection:updated", handleObjectSelectionChange);
       canvas.on("selection:cleared", handleObjectSelectionChange);
 
+      canvas.on("mouse:wheel", handleCanvasZoom);
+
+      // http://fabricjs.com/fabric-intro-part-5 These handlers are not
+      // delegated to separate methods because we need direct namespace access
+      // to the canvas object
+      canvas.on("mouse:down", function (opt) {
+        if (!opt.e?.altKey) return false;
+
+        this.isDragging = true;
+        this.selection = false;
+        this.lastPosX = opt.e?.clientX;
+        this.lastPosY = opt.e?.clientY;
+      });
+
+      canvas.on("mouse:move", function (opt) {
+        if (!this.isDragging) return;
+        const e = opt.e;
+        const vpt = this.viewportTransform;
+        vpt[4] += e.clientX - this.lastPosX;
+        vpt[5] += e.clientY - this.lastPosY;
+        this.requestRenderAll();
+        this.lastPosX = e.clientX;
+        this.lastPosY = e.clientY;
+      });
+
+      canvas.on("mouse:up", function (opt) {
+        this.setViewportTransform(this.viewportTransform);
+        this.isDragging = false;
+        this.selection = true;
+      });
+
       setLoadedChart(true);
     });
+  };
+
+  const handleCanvasZoom = (opt) => {
+    const delta = opt.e.deltaY;
+    let zoom = canvas.getZoom();
+    zoom *= 0.999 ** delta;
+    if (zoom > MAX_ZOOM) zoom = MAX_ZOOM;
+    if (zoom < MIN_ZOOM) zoom = MIN_ZOOM;
+    canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+    opt.e.preventDefault();
+    opt.e.stopPropagation();
+  };
+
+  const zoomIn = () => {
+    const zoom = Math.min(canvas.getZoom() * 1.1, MAX_ZOOM);
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
+  };
+
+  const zoomOut = () => {
+    const zoom = Math.max(canvas.getZoom() * 0.9, MIN_ZOOM);
+    canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
   };
 
   const focusCanvasContainer = () => {
@@ -416,6 +485,7 @@ export default function AnnotationStudioModal({
   };
 
   const downloadImage = () => {
+    //resetCanvasZoomAndPosition();
     const dataURL = canvas.toDataURL({
       width: canvas.width,
       height: canvas.height,
@@ -509,131 +579,152 @@ export default function AnnotationStudioModal({
       </div>
 
       {loadedChart && (
-        <div className="flex gap-4">
-          <div>
-            <div className="text-xl">Draw</div>
-            <div className="p-4 card gap-3 drawPalette">
-              <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
-              <Button icon={<SquareOutlineIcon />} onClick={addRectangle} />
-              <Button icon={<FormatText />} onClick={addTextbox} />
-              <Button icon={<TriangleOutlineIcon />} onClick={addTriangle} />
+        <>
+          <div className="flex gap-4">
+            <div>
+              <div className="text-xl">Draw</div>
+              <div className="p-4 card gap-3 drawPalette">
+                <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
+                <Button icon={<SquareOutlineIcon />} onClick={addRectangle} />
+                <Button icon={<FormatText />} onClick={addTextbox} />
+                <Button icon={<TriangleOutlineIcon />} onClick={addTriangle} />
+              </div>
             </div>
-          </div>
 
-          <div className="col">
-            <div className="text-xl">Style</div>
-            <div className="p-4 card">
-              {!activeObject && <div>Select an existing object, or draw a new one.</div>}
-              {activeObject && (
-                <>
-                  <div className="flex gap-3 mb-3 stylePalette">
-                    {SUPPORTS_FILL.includes(activeObject.type) && (
-                      <ColorPicker
-                        format="hex"
-                        value={activeObjectAttributes?.fill}
-                        destroyTooltipOnHide={true}
-                        showText={() => "Fill"}
-                        onChange={(val) =>
-                          handlePalettePropertyChange("fill", val.toHexString())
-                        }
-                        allowClear={true}
-                        onClear={() =>
-                          handlePalettePropertyChange("fill", null)
-                        }
-                      />
-                    )}
-
-                    {SUPPORTS_BACKGROUND_COLOR.includes(activeObject.type) && (
-                      <ColorPicker
-                        format="hex"
-                        value={activeObjectAttributes?.backgroundColor}
-                        destroyTooltipOnHide={true}
-                        showText={() => "Background"}
-                        onChange={(val) =>
-                          handlePalettePropertyChange(
-                            "backgroundColor",
-                            val.toHexString()
-                          )
-                        }
-                        allowClear={true}
-                        onClear={() =>
-                          handlePalettePropertyChange("backgroundColor", null)
-                        }
-                      />
-                    )}
-
-                    {SUPPORTS_STROKE.includes(activeObject.type) && (
-                      <ColorPicker
-                        format="hex"
-                        value={activeObjectAttributes?.stroke}
-                        destroyTooltipOnHide={true}
-                        showText={() => "Stroke"}
-                        onChange={(val) =>
-                          handlePalettePropertyChange(
-                            "stroke",
-                            val.toHexString()
-                          )
-                        }
-                        allowClear={true}
-                        onClear={() =>
-                          handlePalettePropertyChange("stroke", null)
-                        }
-                      />
-                    )}
-
-                    {SUPPORTS_STROKE.includes(activeObject.type) &&
-                      activeObjectAttributes.stroke && (
-                        <div className="card flex items-center gap-3 w-72 px-2">
-                          <div style={{ marginBottom: "-2px" }}>
-                            Stroke Width
-                          </div>
-                          <Slider
-                            className="col-1 h-1"
-                            min={1}
-                            max={20}
-                            onChange={(val) =>
-                              handlePalettePropertyChange("strokeWidth", val)
-                            }
-                            value={activeObjectAttributes?.strokeWidth ?? 1}
-                          />
-                        </div>
+            <div className="col">
+              <div className="text-xl">Style</div>
+              <div className="p-4 card">
+                {!activeObject && (
+                  <div>Select an existing object, or draw a new one.</div>
+                )}
+                {activeObject && (
+                  <>
+                    <div className="flex gap-3 mb-3 stylePalette">
+                      {SUPPORTS_FILL.includes(activeObject.type) && (
+                        <ColorPicker
+                          format="hex"
+                          value={activeObjectAttributes?.fill}
+                          destroyTooltipOnHide={true}
+                          showText={() => "Fill"}
+                          onChange={(val) =>
+                            handlePalettePropertyChange(
+                              "fill",
+                              val.toHexString()
+                            )
+                          }
+                          allowClear={true}
+                          onClear={() =>
+                            handlePalettePropertyChange("fill", null)
+                          }
+                        />
                       )}
-                  </div>
-                  <div className="flex gap-3 arrangePalette">
-                    <Button
-                      icon={<ArrangeBringForwardIcon />}
-                      onClick={() => {
-                        bringActiveObjectForward();
-                        focusCanvasContainer();
-                      }}
-                    />
-                    <Button
-                      icon={<ArrangeBringToFrontIcon />}
-                      onClick={() => {
-                        bringActiveObjectToFront();
-                        focusCanvasContainer();
-                      }}
-                    />
-                    <Button
-                      icon={<ArrangeSendBackwardIcon />}
-                      onClick={() => {
-                        sendActiveObjectBackward();
-                        focusCanvasContainer();
-                      }}
-                    />
-                    <Button
-                      icon={<ArrangeSendToBackIcon />}
-                      onClick={() => {
-                        sendActiveObjectToBack();
-                        focusCanvasContainer();
-                      }}
-                    />
-                  </div>
-                </>
-              )}
+
+                      {SUPPORTS_BACKGROUND_COLOR.includes(
+                        activeObject.type
+                      ) && (
+                        <ColorPicker
+                          format="hex"
+                          value={activeObjectAttributes?.backgroundColor}
+                          destroyTooltipOnHide={true}
+                          showText={() => "Background"}
+                          onChange={(val) =>
+                            handlePalettePropertyChange(
+                              "backgroundColor",
+                              val.toHexString()
+                            )
+                          }
+                          allowClear={true}
+                          onClear={() =>
+                            handlePalettePropertyChange("backgroundColor", null)
+                          }
+                        />
+                      )}
+
+                      {SUPPORTS_STROKE.includes(activeObject.type) && (
+                        <ColorPicker
+                          format="hex"
+                          value={activeObjectAttributes?.stroke}
+                          destroyTooltipOnHide={true}
+                          showText={() => "Stroke"}
+                          onChange={(val) =>
+                            handlePalettePropertyChange(
+                              "stroke",
+                              val.toHexString()
+                            )
+                          }
+                          allowClear={true}
+                          onClear={() =>
+                            handlePalettePropertyChange("stroke", null)
+                          }
+                        />
+                      )}
+
+                      {SUPPORTS_STROKE.includes(activeObject.type) &&
+                        activeObjectAttributes.stroke && (
+                          <div className="card flex items-center gap-3 w-72 px-2">
+                            <div style={{ marginBottom: "-2px" }}>
+                              Stroke Width
+                            </div>
+                            <Slider
+                              className="col-1 h-1"
+                              min={1}
+                              max={20}
+                              onChange={(val) =>
+                                handlePalettePropertyChange("strokeWidth", val)
+                              }
+                              value={activeObjectAttributes?.strokeWidth ?? 1}
+                            />
+                          </div>
+                        )}
+                    </div>
+                    <div className="flex gap-3 arrangePalette">
+                      <Button
+                        icon={<ArrangeBringForwardIcon />}
+                        onClick={() => {
+                          bringActiveObjectForward();
+                          focusCanvasContainer();
+                        }}
+                      />
+                      <Button
+                        icon={<ArrangeBringToFrontIcon />}
+                        onClick={() => {
+                          bringActiveObjectToFront();
+                          focusCanvasContainer();
+                        }}
+                      />
+                      <Button
+                        icon={<ArrangeSendBackwardIcon />}
+                        onClick={() => {
+                          sendActiveObjectBackward();
+                          focusCanvasContainer();
+                        }}
+                      />
+                      <Button
+                        icon={<ArrangeSendToBackIcon />}
+                        onClick={() => {
+                          sendActiveObjectToBack();
+                          focusCanvasContainer();
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-xl">Zoom</div>
+              <div className="p-4 card flex gap-3 zoomPalette">
+                <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
+                <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
+                <Button
+                  icon={<MagnifyExpandIcon />}
+                  onClick={resetCanvasZoomAndPosition}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </Modal>
   );
