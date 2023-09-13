@@ -484,6 +484,7 @@ export default function AnnotationStudioModal({
   const exitFreeDrawingMode = () => {
     setFreeDrawingMode(false);
     canvas.isDrawingMode = false;
+    bringWatermarkToFront();
   };
 
   const toggleFreeDrawingMode = () => {
@@ -637,6 +638,7 @@ export default function AnnotationStudioModal({
 
   const downloadImage = () => {
     //resetCanvasZoomAndPosition();
+    bringWatermarkToFront();
     const dataURL = canvas.toDataURL({
       width: canvas.width,
       height: canvas.height,
