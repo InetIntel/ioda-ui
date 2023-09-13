@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, ColorPicker, Modal, Slider } from "antd";
+import { Button, ColorPicker, Modal, Popover, Slider, Tooltip } from "antd";
 import { fabric } from "fabric";
 
 import iodaWatermark from "images/ioda-canvas-watermark.png";
@@ -17,6 +17,9 @@ import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 import ArrowTopRightThinIcon from "@2fd/ant-design-icons/lib/ArrowTopRightThin";
 import DeleteIcon from "@2fd/ant-design-icons/lib/Delete";
 import ContentDuplicateIcon from "@2fd/ant-design-icons/lib/ContentDuplicate";
+import DrawIcon from "@2fd/ant-design-icons/lib/Draw";
+import DrawingIcon from "@2fd/ant-design-icons/lib/Drawing";
+import CursorDefaultIcon from "@2fd/ant-design-icons/lib/CursorDefault";
 
 import { CloseOutlined, EditOutlined } from "@ant-design/icons";
 import Icon from "@ant-design/icons/lib/components/Icon";
@@ -27,8 +30,8 @@ const DEFAULT_SHAPE_FILL = "#F93D4EC0";
 
 const SUPPORTS_FILL = ["circle", "rect", "textbox"];
 const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
-const SUPPORTS_STROKE = ["circle", "rect", ARROW_TYPE];
-const SUPPORTS_STROKE_WIDTH = ["circle", "rect"];
+const SUPPORTS_STROKE = ["circle", "rect", ARROW_TYPE, "path"];
+const SUPPORTS_STROKE_WIDTH = ["circle", "rect", "path"];
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 20;
@@ -123,12 +126,6 @@ export default function AnnotationStudioModal({
 
   const [chartElement, setChartElement] = React.useState(null);
   const [watermarkElement, setWatermarkElement] = React.useState(null);
-
-  // Drag and pan related state
-  const [isDragging, setIsDragging] = React.useState(false);
-  const [lastDragX, setLastDragX] = React.useState(null);
-  const [lastDragY, setLastDragY] = React.useState(null);
-  const [viewpoint, setViewpoint] = React.useState([1, 0, 0, 1, 0, 0]);
 
   const initCanvas = () => {
     const canvas = new fabric.Canvas(fabricCanvas.current, {
@@ -304,6 +301,7 @@ export default function AnnotationStudioModal({
       canvasPasteHandler();
     } else if (e.key === "Escape") {
       canvas.discardActiveObject().renderAll();
+      exitFreeDrawingMode();
     } else if (e.keyCode === 37) {
       nudgeSelection("left");
     } else if (e.keyCode === 38) {
@@ -469,7 +467,49 @@ export default function AnnotationStudioModal({
     focusCanvasContainer();
   };
 
+  const [drawShapePopoverOpen, setDrawShapePopoverOpen] = React.useState(false);
+
+  const [freeDrawingMode, setFreeDrawingMode] = React.useState(false);
+  const [freeDrawStroke, setFreeDrawStroke] = React.useState("#000000");
+  const [freeDrawStrokeWidth, setFreeDrawStrokeWidth] = React.useState(5);
+
+  const enterFreeDrawingMode = () => {
+    canvas.discardActiveObject().renderAll();
+    setFreeDrawingMode(true);
+    canvas.isDrawingMode = true;
+    canvas.freeDrawingBrush.width = freeDrawStrokeWidth;
+    canvas.freeDrawingBrush.color = freeDrawStroke;
+  };
+
+  const exitFreeDrawingMode = () => {
+    setFreeDrawingMode(false);
+    canvas.isDrawingMode = false;
+  };
+
+  const toggleFreeDrawingMode = () => {
+    if (freeDrawingMode) {
+      exitFreeDrawingMode();
+    } else {
+      enterFreeDrawingMode();
+    }
+  };
+
+  const handleFreeDrawStrokeChange = (val) => {
+    setFreeDrawStroke(val);
+    canvas.freeDrawingBrush.color = val;
+  };
+
+  const handleFreeDrawStrokeWidthChange = (val) => {
+    setFreeDrawStrokeWidth(val);
+    canvas.freeDrawingBrush.width = val;
+  };
+
+  const beforeDrawShape = () => {
+    exitFreeDrawingMode();
+  };
+
   const addCircle = () => {
+    beforeDrawShape();
     const circle = new fabric.Circle({
       radius: 50,
       fill: DEFAULT_SHAPE_FILL,
@@ -483,6 +523,7 @@ export default function AnnotationStudioModal({
   };
 
   const addRectangle = () => {
+    beforeDrawShape();
     const rect = new fabric.Rect({
       width: 100,
       height: 100,
@@ -497,6 +538,7 @@ export default function AnnotationStudioModal({
   };
 
   const addTextbox = () => {
+    beforeDrawShape();
     const textbox = new fabric.Textbox("Enter text", {
       width: 75,
       fontSize: 16,
@@ -545,6 +587,8 @@ export default function AnnotationStudioModal({
   };
 
   const addArrow = () => {
+    beforeDrawShape();
+
     const arrowLength = 150;
     const arrowStroke = 6;
     const arrowHeadWidth = 20;
@@ -663,32 +707,91 @@ export default function AnnotationStudioModal({
       <div className="flex items-start gap-3">
         {loadedChart && (
           <div className="flex-column gap-4">
-            <div className="flex-column gap-4 p-4 card">
-              <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
-              <Button icon={<SquareOutlineIcon />} onClick={addRectangle} />
-              <Button icon={<FormatText />} onClick={addTextbox} />
-              <Button icon={<ArrowTopRightThinIcon />} onClick={addArrow} />
+            <div className="flex-column gap-2 p-2 card">
+              <Tooltip placement="right" title="Select">
+                <Button
+                  icon={<CursorDefaultIcon />}
+                  type={!freeDrawingMode ? "primary" : "default"}
+                  onClick={toggleFreeDrawingMode}
+                />
+              </Tooltip>
+              <Tooltip placement="right" title="Free Draw">
+                <Button
+                  icon={<DrawIcon />}
+                  type={freeDrawingMode ? "primary" : "default"}
+                  onClick={toggleFreeDrawingMode}
+                />
+              </Tooltip>
+
+              <Popover
+                open={drawShapePopoverOpen}
+                onOpenChange={setDrawShapePopoverOpen}
+                placement="rightTop"
+                trigger="click"
+                content={
+                  <div
+                    className="flex-column gap-2"
+                    onClick={() => setDrawShapePopoverOpen(false)}
+                  >
+                    <Tooltip placement="right" title="Rectangle">
+                      <Button
+                        icon={<SquareOutlineIcon />}
+                        onClick={addRectangle}
+                      />
+                    </Tooltip>
+                    <Tooltip placement="right" title="Text">
+                      <Button icon={<FormatText />} onClick={addTextbox} />
+                    </Tooltip>
+                    <Tooltip placement="right" title="Arrow">
+                      <Button
+                        icon={<ArrowTopRightThinIcon />}
+                        onClick={addArrow}
+                      />
+                    </Tooltip>
+                    <Tooltip placement="right" title="Circle">
+                      <Button
+                        icon={<CircleOutlineIcon />}
+                        onClick={addCircle}
+                      />
+                    </Tooltip>
+                  </div>
+                }
+              >
+                <Tooltip placement="right" title="Draw Shape">
+                  <Button icon={<DrawingIcon />} />
+                </Tooltip>
+              </Popover>
             </div>
 
-            <div className="flex-column gap-4 p-4 card">
-              <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
-              <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
-              <Button
-                icon={<MagnifyExpandIcon />}
-                onClick={resetCanvasZoomAndPosition}
-              />
+            <div className="flex-column gap-2 p-2 card">
+              <Tooltip placement="right" title="Zoom In">
+                <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
+              </Tooltip>
+              <Tooltip placement="right" title="Zoom Out">
+                <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
+              </Tooltip>
+              <Tooltip placement="right" title="Reset Zoom">
+                <Button
+                  icon={<MagnifyExpandIcon />}
+                  onClick={resetCanvasZoomAndPosition}
+                />
+              </Tooltip>
             </div>
 
-            <div className="flex-column gap-4 p-4 card">
-              <Button
-                icon={<ContentDuplicateIcon />}
-                onClick={duplicateSelection}
-              />
-              <Button
-                icon={<DeleteIcon />}
-                danger
-                onClick={canvasDeleteHandler}
-              />
+            <div className="flex-column gap-2 p-2 card">
+              <Tooltip placement="right" title="Copy Selection">
+                <Button
+                  icon={<ContentDuplicateIcon />}
+                  onClick={duplicateSelection}
+                />
+              </Tooltip>
+              <Tooltip placement="right" title="Delete Selection">
+                <Button
+                  icon={<DeleteIcon />}
+                  danger
+                  onClick={canvasDeleteHandler}
+                />
+              </Tooltip>
             </div>
           </div>
         )}
@@ -725,62 +828,24 @@ export default function AnnotationStudioModal({
             )}
             <canvas ref={fabricCanvas} width={800} height={448} />
           </div>
-          {loadedChart && activeObject && (
+          {/* Show style control if we've selected a shape OR we're currently free drawing */}
+          {loadedChart && (freeDrawingMode || activeObject) && (
             <div>
               <div className="text-xl">Style</div>
               <div className="p-4 card">
                 <div className="flex gap-3 stylePalette">
-                  {SUPPORTS_FILL.includes(activeObject.type) && (
-                    <ColorPicker
-                      format="hex"
-                      value={activeObjectAttributes?.fill}
-                      destroyTooltipOnHide={true}
-                      showText={() => "Fill"}
-                      onChange={(val) =>
-                        handlePalettePropertyChange("fill", val.toHexString())
-                      }
-                      allowClear={true}
-                      onClear={() => handlePalettePropertyChange("fill", null)}
-                    />
-                  )}
-
-                  {SUPPORTS_BACKGROUND_COLOR.includes(activeObject.type) && (
-                    <ColorPicker
-                      format="hex"
-                      value={activeObjectAttributes?.backgroundColor}
-                      destroyTooltipOnHide={true}
-                      showText={() => "Background"}
-                      onChange={(val) =>
-                        handlePalettePropertyChange(
-                          "backgroundColor",
-                          val.toHexString()
-                        )
-                      }
-                      allowClear={true}
-                      onClear={() =>
-                        handlePalettePropertyChange("backgroundColor", null)
-                      }
-                    />
-                  )}
-
-                  {SUPPORTS_STROKE.includes(activeObject.type) && (
-                    <ColorPicker
-                      format="hex"
-                      value={activeObjectAttributes?.stroke}
-                      destroyTooltipOnHide={true}
-                      showText={() => "Stroke"}
-                      onChange={(val) =>
-                        handlePalettePropertyChange("stroke", val.toHexString())
-                      }
-                      allowClear={true}
-                      onClear={() =>
-                        handlePalettePropertyChange("stroke", null)
-                      }
-                    />
-                  )}
-
-                  {SUPPORTS_STROKE_WIDTH.includes(activeObject.type) &&
-                    activeObjectAttributes.stroke && (
+                  {/* Controls for free drawing */}
+                  {freeDrawingMode && (
+                    <>
+                      <ColorPicker
+                        format="hex"
+                        value={freeDrawStroke}
+                        destroyTooltipOnHide={true}
+                        showText={() => "Stroke"}
+                        onChange={(val) =>
+                          handleFreeDrawStrokeChange(val.toHexString())
+                        }
+                      />
                       <div className="card flex items-center gap-3 w-72 px-2">
                         <div style={{ marginBottom: "-2px" }}>Stroke Width</div>
                         <Slider
@@ -788,41 +853,132 @@ export default function AnnotationStudioModal({
                           min={1}
                           max={20}
                           onChange={(val) =>
-                            handlePalettePropertyChange("strokeWidth", val)
+                            handleFreeDrawStrokeWidthChange(val)
                           }
-                          value={activeObjectAttributes?.strokeWidth ?? 1}
+                          value={freeDrawStrokeWidth}
                         />
                       </div>
-                    )}
+                    </>
+                  )}
 
-                  <Button
-                    icon={<ArrangeBringForwardIcon />}
-                    onClick={() => {
-                      bringActiveObjectForward();
-                      focusCanvasContainer();
-                    }}
-                  />
-                  <Button
-                    icon={<ArrangeBringToFrontIcon />}
-                    onClick={() => {
-                      bringActiveObjectToFront();
-                      focusCanvasContainer();
-                    }}
-                  />
-                  <Button
-                    icon={<ArrangeSendBackwardIcon />}
-                    onClick={() => {
-                      sendActiveObjectBackward();
-                      focusCanvasContainer();
-                    }}
-                  />
-                  <Button
-                    icon={<ArrangeSendToBackIcon />}
-                    onClick={() => {
-                      sendActiveObjectToBack();
-                      focusCanvasContainer();
-                    }}
-                  />
+                  {/* Controls for selected object */}
+                  {activeObject && (
+                    <>
+                      {SUPPORTS_FILL.includes(activeObject.type) && (
+                        <ColorPicker
+                          format="hex"
+                          value={activeObjectAttributes?.fill}
+                          destroyTooltipOnHide={true}
+                          showText={() => "Fill"}
+                          onChange={(val) =>
+                            handlePalettePropertyChange(
+                              "fill",
+                              val.toHexString()
+                            )
+                          }
+                          allowClear={true}
+                          onClear={() =>
+                            handlePalettePropertyChange("fill", null)
+                          }
+                        />
+                      )}
+                      {SUPPORTS_BACKGROUND_COLOR.includes(
+                        activeObject.type
+                      ) && (
+                        <ColorPicker
+                          format="hex"
+                          value={activeObjectAttributes?.backgroundColor}
+                          destroyTooltipOnHide={true}
+                          showText={() => "Background"}
+                          onChange={(val) =>
+                            handlePalettePropertyChange(
+                              "backgroundColor",
+                              val.toHexString()
+                            )
+                          }
+                          allowClear={true}
+                          onClear={() =>
+                            handlePalettePropertyChange("backgroundColor", null)
+                          }
+                        />
+                      )}
+                      {SUPPORTS_STROKE.includes(activeObject.type) && (
+                        <ColorPicker
+                          format="hex"
+                          value={activeObjectAttributes?.stroke}
+                          destroyTooltipOnHide={true}
+                          showText={() => "Stroke"}
+                          onChange={(val) =>
+                            handlePalettePropertyChange(
+                              "stroke",
+                              val.toHexString()
+                            )
+                          }
+                          allowClear={true}
+                          onClear={() =>
+                            handlePalettePropertyChange("stroke", null)
+                          }
+                        />
+                      )}
+                      {SUPPORTS_STROKE_WIDTH.includes(activeObject.type) &&
+                        activeObjectAttributes.stroke && (
+                          <div className="card flex items-center gap-3 w-72 px-2">
+                            <div style={{ marginBottom: "-2px" }}>
+                              Stroke Width
+                            </div>
+                            <Slider
+                              className="col-1 h-1"
+                              min={1}
+                              max={20}
+                              onChange={(val) =>
+                                handlePalettePropertyChange("strokeWidth", val)
+                              }
+                              value={activeObjectAttributes?.strokeWidth ?? 1}
+                            />
+                          </div>
+                        )}
+                      {
+                        <>
+                          <Tooltip placement="top" title="Bring Forward">
+                            <Button
+                              icon={<ArrangeBringForwardIcon />}
+                              onClick={() => {
+                                bringActiveObjectForward();
+                                focusCanvasContainer();
+                              }}
+                            />
+                          </Tooltip>
+                          <Tooltip placement="top" title="Bring to Front">
+                            <Button
+                              icon={<ArrangeBringToFrontIcon />}
+                              onClick={() => {
+                                bringActiveObjectToFront();
+                                focusCanvasContainer();
+                              }}
+                            />
+                          </Tooltip>
+                          <Tooltip placement="top" title="Send Backward">
+                            <Button
+                              icon={<ArrangeSendBackwardIcon />}
+                              onClick={() => {
+                                sendActiveObjectBackward();
+                                focusCanvasContainer();
+                              }}
+                            />
+                          </Tooltip>
+                          <Tooltip placement="top" title="Send to Back">
+                            <Button
+                              icon={<ArrangeSendToBackIcon />}
+                              onClick={() => {
+                                sendActiveObjectToBack();
+                                focusCanvasContainer();
+                              }}
+                            />
+                          </Tooltip>
+                        </>
+                      }
+                    </>
+                  )}
                 </div>
               </div>
             </div>
