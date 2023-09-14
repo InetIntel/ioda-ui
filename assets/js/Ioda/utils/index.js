@@ -263,7 +263,7 @@ export function convertTsDataForHtsViz(tsData) {
                 entityCode: signal.entityCode,
                 entityName: signal.entityName,
                 datasource: signal.datasource,
-                ts: secondsToUTC(signal.from * 1000 + signal.step * 1000 * index).toDate(),
+                ts: secondsToUTC(signal.from + signal.step * index).toDate(),
                 val: value
             };
             const max = Math.max.apply(null, values);
