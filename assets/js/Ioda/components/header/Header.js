@@ -144,12 +144,7 @@ class Header extends Component {
         <div className="header__container p-6 max-cont row items-center">
           <div className="header__logo mr-auto">
             <Link to="/">
-              <img
-                src={iodaLogo}
-                alt={iodaLogoAltText}
-                width="97"
-                height="35"
-              />
+              <img src={iodaLogo} alt={iodaLogoAltText} width="97" />
             </Link>
           </div>
           <div className="header__item">
