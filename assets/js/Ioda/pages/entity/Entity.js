@@ -1124,6 +1124,9 @@ class Entity extends Component {
         },
         yAxis: {
           visible: false,
+          floor: 0,
+          min: 0,
+          max: 110,
         },
       },
       time: {
