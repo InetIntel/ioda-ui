@@ -206,14 +206,19 @@ class Home extends Component {
           <div className="text-5xl font-semibold home__search-title">
             {searchBarTitle}
           </div>
-          <div className="px-12 mt-8">
+          <div className="px-12">
             <EntitySearchTypeahead
-              className="mb-4"
+              className="my-8"
               placeholder={searchBarPlaceholder}
               onSelect={(entity) => this.handleResultClick(entity)}
               size={"large"}
             />
-            <Button size="large" type="link" href="/dashboard">
+            <Button
+              size="large"
+              type="primary"
+              href="/dashboard"
+              className="mx-auto w-min"
+            >
               {searchBarDashboardText} {searchBarDashboardLink}
             </Button>
           </div>

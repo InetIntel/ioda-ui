@@ -169,6 +169,8 @@ class Entity extends Component {
     const entityType = this.props?.match?.params?.entityType;
     const entityCode = this.props?.match?.params?.entityCode;
 
+    const isAdvancedMode = getSavedAdvancedModePreference();
+
     this.state = {
       // Global
       mounted: false,
@@ -191,7 +193,7 @@ class Entity extends Component {
       xyChartOptions: null,
       tsDataRaw: null,
       tsDataNormalized: true,
-      tsDataDisplayOutageBands: false,
+      tsDataDisplayOutageBands: isAdvancedMode,
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
       // Used for responsively styling the xy chart
@@ -273,7 +275,7 @@ class Entity extends Component {
       additionalRawSignalRequestedUcsdNt: false,
       additionalRawSignalRequestedMeritNt: false,
       currentTab: 1,
-      simplifiedView: !getSavedAdvancedModePreference(),
+      simplifiedView: !isAdvancedMode,
       currentEntitiesChecked: 100,
 
       // Popovers
@@ -1124,6 +1126,9 @@ class Entity extends Component {
         },
         yAxis: {
           visible: false,
+          floor: 0,
+          min: 0,
+          max: 110,
         },
       },
       time: {
@@ -1451,10 +1456,8 @@ class Entity extends Component {
   };
 
   // toggle any populated alert bands to be displayed in chart
-  handleDisplayAlertBands = (status) => {
-    const newStatus =
-      status === "off" ? false : !this.state.tsDataDisplayOutageBands;
-    this.setState({ tsDataDisplayOutageBands: newStatus }, () =>
+  handleDisplayAlertBands = (showBands) => {
+    this.setState({ tsDataDisplayOutageBands: showBands }, () =>
       this.convertValuesForXyViz()
     );
   };
@@ -1483,18 +1486,6 @@ class Entity extends Component {
   hideShareLinkModal = () => {
     this.setState({
       showShareLinkModal: false,
-    });
-  };
-
-  // display modal used for annotation/download
-  toggleXyChartModal = () => {
-    // force alert bands off
-    this.handleDisplayAlertBands("off");
-    // open modal and reset time range at the bottom of the chart
-    this.setState({
-      showXyChartModal: !this.state.showXyChartModal,
-      tsDataLegendRangeFrom: fromDate,
-      tsDataLegendRangeUntil: untilDate,
     });
   };
 
@@ -2733,7 +2724,9 @@ class Entity extends Component {
                           <>
                             <Checkbox
                               checked={!!this.state.tsDataDisplayOutageBands}
-                              onChange={this.handleDisplayAlertBands}
+                              onChange={(e) =>
+                                this.handleDisplayAlertBands(e.target.checked)
+                              }
                             >
                               {xyChartAlertToggleLabel}
                             </Checkbox>

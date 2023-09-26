@@ -3473,11 +3473,12 @@ body {
   font-size: 1.3rem;
   font-weight: 700; }
 
-.ioda-help-tooltip .ant-popover-title {
-  color: #fff !important; }
-
-.ioda-help-tooltip .ant-popover-inner-content {
-  color: #fff !important; }
+.ioda-help-tooltip {
+  z-index: 10000000000; }
+  .ioda-help-tooltip .ant-popover-title {
+    color: #fff !important; }
+  .ioda-help-tooltip .ant-popover-inner-content {
+    color: #fff !important; }
 
 .ioda-table .ant-table-column-title {
   font-size: 1.125rem;
@@ -4878,9 +4879,9 @@ body {
   box-shadow: 0 1px 2px #9f9d9d;
   position: sticky;
   top: 0;
-  z-index: 10000; }
+  z-index: 1000; }
   .header__language-select {
-    z-index: 10001; }
+    z-index: 1001; }
   .header__item {
     margin-left: 12px;
     margin-right: 12px;
@@ -4961,7 +4962,7 @@ button[class*="searchButton"] {
     padding: 4rem;
     border-radius: 0.5rem;
     color: #fff;
-    background: #06529f;
+    background: #2c3e50;
     text-align: center; }
   .home__methodology {
     background: #fff;
