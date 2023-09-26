@@ -136,10 +136,19 @@ class Help extends PureComponent {
             <ul>
               <li>
                 <a
+                  href="https://advocacyassembly.org/en/courses/67"
+                  target="_blank"
+                  className="a-fake text-color-link"
+                >
+                  Shutdown Academy Course (Advocacy Assembly)
+                </a>
+              </li>
+              <li>
+                <a
                   className="a-fake text-color-link"
                   href="https://www.youtube.com/watch?v=jpOkIjAHKNc"
                 >
-                  NEW: Dashboard - Overview and Case Studies
+                  Dashboard - Overview and Case Studies
                 </a>
               </li>
               <li>
