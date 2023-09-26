@@ -41,7 +41,7 @@ const SearchInput = ({ onSelect, className, placeholder, size }) => {
     }
   };
 
-  const debouncedHandleSearch = debounce(handleSearch, 300);
+  const debouncedHandleSearch = debounce(handleSearch, 200);
 
   const handleSelect = (id) => {
     const entity = searchResults.find((d) => d.id === id)?.entity ?? null;
@@ -50,7 +50,6 @@ const SearchInput = ({ onSelect, className, placeholder, size }) => {
   };
 
   const handleChange = (newSearchText) => {
-    console.log(newSearchText);
     setSearchText(newSearchText);
   };
 
@@ -75,8 +74,8 @@ const SearchInput = ({ onSelect, className, placeholder, size }) => {
       size={size ?? "medium"}
       value={searchText ? searchText : undefined}
       placeholder={searchBarPlaceholder ?? placeholder}
-      defaultActiveFirstOption={false}
-      showArrow={false}
+      defaultActiveFirstOption={true}
+      suffixIcon={null}
       filterOption={false}
       onSearch={debouncedHandleSearch}
       onChange={handleChange}
