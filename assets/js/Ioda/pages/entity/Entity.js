@@ -97,6 +97,7 @@ import AnnotationStudioModal from "./components/AnnotationStudioModal";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
+require("highcharts/modules/export-data")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 
 import { getSavedAdvancedModePreference } from "../../utils/storage";
@@ -113,6 +114,7 @@ import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
 import { Button, Checkbox, Popover } from "antd";
 import {
+  DownloadOutlined,
   EditOutlined,
   SettingOutlined,
   ShareAltOutlined,
@@ -1470,6 +1472,43 @@ class Entity extends Component {
     }
   };
 
+  handleCSVDownload = () => {
+    if (!this.timeSeriesChartRef.current) {
+      return;
+    }
+
+    const csvString = this.timeSeriesChartRef.current.chart.getCSV();
+
+    // The first column is the timestamp, and each following column is
+    // duplicated because we duplicate each series for the navigator to always
+    // show the normalized data. As such, we need to remove the duplicates.
+    const parsedCSV = csvString
+      .split("\n")
+      .map((line) => {
+        return line.split(",").filter((val, index) => {
+          // Always keep the timestamp column
+          if (index === 0) return true;
+          // Duplicates are located at the even indices
+          if (index % 2 === 1) return true;
+          return false;
+        });
+      })
+      .join("\n");
+
+    const isNormalized = !!this.state.tsDataNormalized;
+    const fileName =
+      this.getChartExportFileName() + (isNormalized ? "-normalized" : "-raw");
+
+    const blob = new Blob([parsedCSV], { type: "text/csv;charset=utf-8," });
+    const objUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", objUrl);
+    link.setAttribute("download", `${fileName}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   /**
    * Get an SVG node of the chart
    */
@@ -2808,6 +2847,11 @@ class Entity extends Component {
                     icon={<EditOutlined />}
                     onClick={this.showAnnotationStudioModal}
                   />
+                  <Button
+                    className="mr-3"
+                    icon={<ShareAltOutlined />}
+                    onClick={this.displayShareLinkModal}
+                  />
                   <Popover
                     open={this.state.displayChartSharePopover}
                     onOpenChange={this.handleDisplayChartSharePopover}
@@ -2825,9 +2869,9 @@ class Entity extends Component {
                         <Button
                           className="w-full mb-2"
                           size="small"
-                          onClick={this.displayShareLinkModal}
+                          onClick={this.handleCSVDownload}
                         >
-                          Share Link
+                          Data CSV
                         </Button>
                         <Button
                           className="w-full mb-2"
@@ -2836,7 +2880,7 @@ class Entity extends Component {
                             this.manuallyDownloadChart("image/jpeg")
                           }
                         >
-                          Download JPEG
+                          Chart JPEG
                         </Button>
                         <Button
                           className="w-full mb-2"
@@ -2845,7 +2889,7 @@ class Entity extends Component {
                             this.manuallyDownloadChart("image/png")
                           }
                         >
-                          Download PNG
+                          Chart PNG
                         </Button>
                         <Button
                           className="w-full"
@@ -2854,12 +2898,12 @@ class Entity extends Component {
                             this.manuallyDownloadChart("image/svg+xml")
                           }
                         >
-                          Download SVG
+                          Chart SVG
                         </Button>
                       </div>
                     }
                   >
-                    <Button icon={<ShareAltOutlined />} />
+                    <Button icon={<DownloadOutlined />} />
                   </Popover>
                 </div>
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
