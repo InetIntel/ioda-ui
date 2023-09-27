@@ -47,6 +47,7 @@ import * as d3 from "d3-shape";
 import {
   horizonChartSeriesColor,
   humanizeNumber,
+  legend,
   maxHtsLimit,
 } from "../../utils";
 import HorizonTSChart from "horizon-timeseries-chart";
@@ -267,6 +268,11 @@ class RawSignalsModal extends PureComponent {
             `${entityType}-horizon-chart--${dataSourceForCSS}`
           )
         );
+
+        const color =
+          legend.find((item) => item.key === dataSource).color ??
+          horizonChartSeriesColor;
+
         chart
           .data(rawSignalsProcessedArray)
           .series("entityName")
@@ -279,9 +285,11 @@ class RawSignalsModal extends PureComponent {
           .enableZoom(false)
           .showRuler(true)
           .interpolationCurve(d3.curveStepAfter)
-          .positiveColors(["white", horizonChartSeriesColor]).toolTipContent =
-          ({ series, ts, val }) =>
-            `${series}<br>${ts}:&nbsp;${humanizeNumber(val)}`;
+          .positiveColors(["white", color]).toolTipContent = ({
+          series,
+          ts,
+          val,
+        }) => `${series}<br>${ts}:&nbsp;${humanizeNumber(val)}`;
       }
 
       if (
