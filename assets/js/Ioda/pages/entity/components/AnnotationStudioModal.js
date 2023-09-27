@@ -2,7 +2,7 @@ import * as React from "react";
 import { Button, ColorPicker, Modal, Popover, Slider, Tooltip } from "antd";
 import { fabric } from "fabric";
 
-import iodaWatermark from "images/ioda-canvas-watermark.png";
+import iodaWatermark from "images/ioda-canvas-watermark.svg";
 
 import FormatText from "@2fd/ant-design-icons/lib/FormatText";
 import SquareOutlineIcon from "@2fd/ant-design-icons/lib/SquareOutline";
@@ -171,7 +171,7 @@ export default function AnnotationStudioModal({
       // Load watermark image
       fabric.Image.fromURL(iodaWatermark, (watermark) => {
         setWatermarkElement(watermark);
-        const watermarkWidth = canvas.width / 8;
+        const watermarkWidth = canvas.width / 5;
         watermark.scaleToWidth(watermarkWidth).set({
           top: 10,
           left: canvas.width - watermarkWidth - 10,

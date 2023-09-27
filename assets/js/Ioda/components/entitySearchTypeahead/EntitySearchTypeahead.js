@@ -74,11 +74,7 @@ const SearchInput = ({ onSelect, className, placeholder, size }) => {
       size={size ?? "medium"}
       value={searchText ? searchText : undefined}
       placeholder={searchBarPlaceholder ?? placeholder}
-<<<<<<< HEAD
       defaultActiveFirstOption={true}
-=======
-      defaultActiveFirstOption={false}
->>>>>>> f2d962d (introduce base annotation studio)
       suffixIcon={null}
       filterOption={false}
       onSearch={debouncedHandleSearch}
