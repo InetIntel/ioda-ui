@@ -591,7 +591,7 @@ export default function AnnotationStudioModal({
     beforeDrawShape();
 
     const arrowLength = 150;
-    const arrowStroke = 6;
+    const arrowStroke = 4;
     const arrowHeadWidth = 20;
     const arrowHeadHeight = 20;
     const line = new fabric.Line([0, 0, 0, arrowLength - arrowHeadHeight], {
@@ -599,9 +599,10 @@ export default function AnnotationStudioModal({
       lockScalingX: true,
       borderColor: "transparent",
       left: arrowHeadWidth / 2 - arrowStroke / 2,
-      top: arrowHeadHeight / 4,
+      top: arrowHeadHeight / 2,
       strokeWidth: arrowStroke,
       stroke: "#000",
+      strokeLineCap: "round",
     });
     const arrowHead = new fabric.Triangle({
       width: arrowHeadWidth,
