@@ -26,7 +26,7 @@ import Icon from "@ant-design/icons/lib/components/Icon";
 
 const ARROW_TYPE = "arrow";
 
-const DEFAULT_SHAPE_FILL = "#F93D4EC0";
+const DEFAULT_SHAPE_FILL = "#F93D4E30";
 
 const SUPPORTS_FILL = ["circle", "rect", "textbox"];
 const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
@@ -540,8 +540,8 @@ export default function AnnotationStudioModal({
 
   const addTextbox = () => {
     beforeDrawShape();
-    const textbox = new fabric.Textbox("Enter text", {
-      width: 75,
+    const textbox = new fabric.Textbox("Double click to type", {
+      width: 175,
       fontSize: 16,
       fill: "#000",
       backgroundColor: null,
@@ -726,6 +726,10 @@ export default function AnnotationStudioModal({
                 />
               </Tooltip>
 
+              <Tooltip placement="right" title="Text">
+                <Button icon={<FormatText />} onClick={addTextbox} />
+              </Tooltip>
+
               <Popover
                 open={drawShapePopoverOpen}
                 onOpenChange={setDrawShapePopoverOpen}
@@ -741,9 +745,6 @@ export default function AnnotationStudioModal({
                         icon={<SquareOutlineIcon />}
                         onClick={addRectangle}
                       />
-                    </Tooltip>
-                    <Tooltip placement="right" title="Text">
-                      <Button icon={<FormatText />} onClick={addTextbox} />
                     </Tooltip>
                     <Tooltip placement="right" title="Arrow">
                       <Button
