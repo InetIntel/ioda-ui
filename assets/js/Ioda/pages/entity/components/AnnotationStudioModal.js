@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Button,
   ColorPicker,
+  Form,
   Input,
   Modal,
   Popover,
@@ -52,9 +53,9 @@ const MIN_ZOOM = 1;
 const MAX_ZOOM = 20;
 
 const EXPORT_QUALITY = {
-  LOW: 1,
-  MED: 1.5,
-  HIGH: 2,
+  LOW: 1000,
+  MED: 2000,
+  HIGH: 3000,
 };
 
 const controlProperties = {
@@ -745,14 +746,14 @@ export default function AnnotationStudioModal({
 
   const downloadImage = () => {
     //resetCanvasZoomAndPosition();
+    const scale = exportQuality / canvas.width;
     bringWatermarkToFront();
     const dataURL = canvas.toDataURL({
       width: canvas.width,
       height: canvas.height,
       format: "png",
       quality: 1,
-      multiplier: exportQuality,
-      enableRetinaScaling: true,
+      multiplier: Math.max(scale, 1),
     });
     const link = document.createElement("a");
     link.download = `${fileName}.png`;
@@ -812,11 +813,15 @@ export default function AnnotationStudioModal({
                   <div className="w-96">
                     <div className="mb-2">
                       <div>File Name:</div>
-                      <Input
-                        defaultValue={exportFileName}
-                        value={fileName}
-                        onChange={(e) => setFileName(e.target.value)}
-                      />
+                      <Form onFinish={downloadImage}>
+                        <Form.Item>
+                          <Input
+                            defaultValue={exportFileName}
+                            value={fileName}
+                            onChange={(e) => setFileName(e.target.value)}
+                          />
+                        </Form.Item>
+                      </Form>
                     </div>
                     <div>
                       <div>Image Quality:</div>
@@ -874,7 +879,7 @@ export default function AnnotationStudioModal({
       <div className="flex items-start gap-4">
         {loadedChart && (
           <div className="flex-column gap-4">
-            <div className="flex-column gap-2.5 p-2.5 card">
+            <div className="flex-column gap-3 p-2.5 card">
               <Tooltip placement="right" title="Select">
                 <Button
                   icon={<CursorDefaultIcon />}
@@ -931,7 +936,7 @@ export default function AnnotationStudioModal({
               </Popover>
             </div>
 
-            <div className="flex-column gap-2.5 p-2.5 card">
+            <div className="flex-column gap-3 p-2.5 card">
               <Tooltip placement="right" title="Zoom In">
                 <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
               </Tooltip>
@@ -946,7 +951,7 @@ export default function AnnotationStudioModal({
               </Tooltip>
             </div>
 
-            <div className="flex-column gap-2.5 p-2.5 card">
+            <div className="flex-column gap-3 p-2.5 card">
               <Tooltip placement="right" title="Undo">
                 <Button
                   icon={<UndoIcon />}
