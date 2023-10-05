@@ -1,5 +1,14 @@
 import * as React from "react";
-import { Button, ColorPicker, Modal, Popover, Slider, Tooltip } from "antd";
+import {
+  Button,
+  ColorPicker,
+  Input,
+  Modal,
+  Popover,
+  Radio,
+  Slider,
+  Tooltip,
+} from "antd";
 import { fabric } from "fabric";
 
 import iodaWatermark from "images/ioda-canvas-watermark.svg";
@@ -21,7 +30,7 @@ import DrawIcon from "@2fd/ant-design-icons/lib/Draw";
 import DrawingIcon from "@2fd/ant-design-icons/lib/Drawing";
 import CursorDefaultIcon from "@2fd/ant-design-icons/lib/CursorDefault";
 
-import { CloseOutlined, EditOutlined } from "@ant-design/icons";
+import { CloseOutlined, DownOutlined, EditOutlined } from "@ant-design/icons";
 import Icon from "@ant-design/icons/lib/components/Icon";
 
 const ARROW_TYPE = "arrow";
@@ -35,6 +44,12 @@ const SUPPORTS_STROKE_WIDTH = ["circle", "rect", "path"];
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 20;
+
+const EXPORT_QUALITY = {
+  LOW: 1,
+  MED: 1.5,
+  HIGH: 2,
+};
 
 const controlProperties = {
   centeredRotation: true,
@@ -71,15 +86,15 @@ const getBase64PNGFromSVGString = (svgString) => {
       img.src =
         "data:image/svg+xml;base64," +
         window.btoa(unescape(encodeURIComponent(svgString)));
-      img.width = 2000;
-      img.height = 1125;
+      img.width = 4000;
+      img.height = 2250;
 
       // Wait for the image to load
       img.onload = function () {
         // Create a Canvas element
         const canvas = document.createElement("canvas");
-        canvas.width = 2000;
-        canvas.height = 1125;
+        canvas.width = 4000;
+        canvas.height = 2250;
 
         // Get the Canvas rendering context
         const ctx = canvas.getContext("2d");
@@ -126,6 +141,15 @@ export default function AnnotationStudioModal({
 
   const [chartElement, setChartElement] = React.useState(null);
   const [watermarkElement, setWatermarkElement] = React.useState(null);
+
+  const [exportQuality, setExportQuality] = React.useState(EXPORT_QUALITY.MED);
+  const [fileName, setFileName] = React.useState(exportFileName);
+
+  React.useEffect(() => {
+    if (exportFileName !== fileName) {
+      setFileName(exportFileName);
+    }
+  }, [exportFileName]);
 
   const initCanvas = () => {
     const canvas = new fabric.Canvas(fabricCanvas.current, {
@@ -645,11 +669,11 @@ export default function AnnotationStudioModal({
       height: canvas.height,
       format: "png",
       quality: 1,
-      multiplier: 2,
+      multiplier: exportQuality,
       enableRetinaScaling: true,
     });
     const link = document.createElement("a");
-    link.download = `${exportFileName}.png`;
+    link.download = `${fileName}.png`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
@@ -688,11 +712,69 @@ export default function AnnotationStudioModal({
         <div className="flex items-center">
           <div className="col-1 truncate">Annotation Studio</div>
           {loadedChart && (
-            <Button type="primary" className="mr-3" onClick={downloadImage}>
-              Save
-            </Button>
+            <div className="flex">
+              <Button
+                type="primary"
+                onClick={downloadImage}
+                style={{
+                  borderTopRightRadius: "0px",
+                  borderBottomRightRadius: "0px",
+                }}
+              >
+                Save
+              </Button>
+              <Popover
+                placement="bottomRight"
+                trigger="click"
+                content={
+                  <div className="w-96">
+                    <div className="mb-2">
+                      <div>File Name:</div>
+                      <Input
+                        defaultValue={exportFileName}
+                        value={fileName}
+                        onChange={(e) => setFileName(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <div>Image Quality:</div>
+                      <Radio.Group
+                        defaultValue={EXPORT_QUALITY.MED}
+                        onChange={(e) => setExportQuality(e.target.value)}
+                        buttonStyle="solid"
+                        className="w-full"
+                      >
+                        <Radio.Button value={EXPORT_QUALITY.LOW}>
+                          Low
+                        </Radio.Button>
+                        <Radio.Button value={EXPORT_QUALITY.MED}>
+                          Med
+                        </Radio.Button>
+                        <Radio.Button value={EXPORT_QUALITY.HIGH}>
+                          High
+                        </Radio.Button>
+                      </Radio.Group>
+                    </div>
+                  </div>
+                }
+              >
+                <Button
+                  type="primary"
+                  icon={<DownOutlined />}
+                  style={{
+                    borderTopLeftRadius: "0px",
+                    borderBottomLeftRadius: "0px",
+                    borderLeft: "1px solid #fff",
+                  }}
+                />
+              </Popover>
+            </div>
           )}
-          <Button icon={<CloseOutlined />} onClick={confirmClose} />
+          <Button
+            className="ml-4"
+            icon={<CloseOutlined />}
+            onClick={confirmClose}
+          />
         </div>
       }
       footer={null}
