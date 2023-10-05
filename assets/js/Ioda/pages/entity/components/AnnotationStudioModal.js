@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "antd";
 import { fabric } from "fabric";
+import "fabric-history";
 
 import iodaWatermark from "images/ioda-canvas-watermark.svg";
 
@@ -29,6 +30,8 @@ import ContentDuplicateIcon from "@2fd/ant-design-icons/lib/ContentDuplicate";
 import DrawIcon from "@2fd/ant-design-icons/lib/Draw";
 import DrawingIcon from "@2fd/ant-design-icons/lib/Drawing";
 import CursorDefaultIcon from "@2fd/ant-design-icons/lib/CursorDefault";
+import RedoIcon from "@2fd/ant-design-icons/lib/Redo";
+import UndoIcon from "@2fd/ant-design-icons/lib/Undo";
 
 import { CloseOutlined, DownOutlined, EditOutlined } from "@ant-design/icons";
 import Icon from "@ant-design/icons/lib/components/Icon";
@@ -36,6 +39,9 @@ import Icon from "@ant-design/icons/lib/components/Icon";
 const ARROW_TYPE = "arrow";
 
 const DEFAULT_SHAPE_FILL = "#F93D4E30";
+
+const CANVAS_TYPE = "canvasObject";
+const CANVAS_ID = "canvasId";
 
 const SUPPORTS_FILL = ["circle", "rect", "textbox"];
 const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
@@ -139,11 +145,11 @@ export default function AnnotationStudioModal({
 
   const [copySelection, setCopySelection] = React.useState(null);
 
-  const [chartElement, setChartElement] = React.useState(null);
-  const [watermarkElement, setWatermarkElement] = React.useState(null);
-
   const [exportQuality, setExportQuality] = React.useState(EXPORT_QUALITY.MED);
   const [fileName, setFileName] = React.useState(exportFileName);
+
+  const [canUndo, setCanUndo] = React.useState(false);
+  const [canRedo, setCanRedo] = React.useState(false);
 
   React.useEffect(() => {
     if (exportFileName !== fileName) {
@@ -177,118 +183,153 @@ export default function AnnotationStudioModal({
     setCopySelection(null);
   };
 
+  const loadCanvasChartBackground = (chartImage) => {
+    return new Promise((resolve, reject) => {
+      fabric.Image.fromURL(chartImage, (chartImage) => {
+        chartImage
+          .scaleToWidth(canvas.width)
+          .set({
+            top: 28,
+            left: 0,
+            selectable: false,
+            evented: false,
+            noScaleCache: false,
+          })
+          .set(CANVAS_ID, "chartBackground");
+        canvas.add(chartImage).renderAll();
+        resolve();
+      });
+    });
+  };
+
+  const loadCanvasWatermark = () => {
+    return new Promise((resolve, reject) => {
+      fabric.Image.fromURL(iodaWatermark, (watermark) => {
+        const watermarkWidth = canvas.width / 5;
+        watermark
+          .scaleToWidth(watermarkWidth)
+          .set({
+            top: 10,
+            left: canvas.width - watermarkWidth - 10,
+            selectable: false,
+            evented: false,
+            noScaleCache: false,
+          })
+          .set(CANVAS_ID, "watermark");
+        canvas.add(watermark).renderAll();
+        resolve();
+      });
+    });
+  };
+
+  const getObjectById = (id) => {
+    return canvas.getObjects().find((obj) => obj.get(CANVAS_ID) === id) ?? null;
+  };
+
   const loadCanvasImageBase = async () => {
     if (!canvas) return;
     const chartImage = await getBase64PNGFromSVGString(svgString);
-    fabric.Image.fromURL(chartImage, (chartImage) => {
-      // Load background image in
-      setChartElement(chartImage);
-      chartImage.scaleToWidth(canvas.width).set({
-        top: 28,
-        left: 0,
-        selectable: false,
-        evented: false,
-        noScaleCache: false,
-      });
-      canvas.add(chartImage).renderAll();
+    await loadCanvasChartBackground(chartImage);
 
-      // Load watermark image
-      fabric.Image.fromURL(iodaWatermark, (watermark) => {
-        setWatermarkElement(watermark);
-        const watermarkWidth = canvas.width / 5;
-        watermark.scaleToWidth(watermarkWidth).set({
-          top: 10,
-          left: canvas.width - watermarkWidth - 10,
-          selectable: false,
-          evented: false,
-          noScaleCache: false,
-        });
-        canvas.add(watermark).renderAll();
-      });
-
-      // Add title and subtitle
-      canvas.add(
-        new fabric.Textbox(chartTitle, {
-          top: 10,
-          left: 8,
-          fill: "#000",
-          backgroundColor: "#fff",
-          fontFamily: "Inter, sans-serif",
-          fontWeight: "bold",
-          fontSize: 16,
-          width: canvas.width / 2,
-          lockMovementY: true,
-          lockMovementX: true,
-        }).setControlsVisibility({
+    // Add title and subtitle
+    canvas.add(
+      new fabric.Textbox(chartTitle, {
+        top: 10,
+        left: 8,
+        fill: "#000",
+        backgroundColor: "#fff",
+        fontFamily: "Inter, sans-serif",
+        fontWeight: "bold",
+        fontSize: 16,
+        width: canvas.width / 2,
+        lockMovementY: true,
+        lockMovementX: true,
+      })
+        .setControlsVisibility({
           ...lockControlVisibility,
         })
-      );
-      canvas.add(
-        new fabric.Textbox(chartSubtitle, {
-          top: 32,
-          left: 8,
-          fill: "#000",
-          backgroundColor: "#fff",
-          fontFamily: "Inter, sans-serif",
-          fontSize: 12,
-          width: canvas.width - 16,
-          lockMovementY: true,
-          lockMovementX: true,
-        }).setControlsVisibility({
+        .set(CANVAS_TYPE, "textbox")
+    );
+
+    canvas.add(
+      new fabric.Textbox(chartSubtitle, {
+        top: 32,
+        left: 8,
+        fill: "#000",
+        backgroundColor: "#fff",
+        fontFamily: "Inter, sans-serif",
+        fontSize: 12,
+        width: canvas.width - 16,
+        lockMovementY: true,
+        lockMovementX: true,
+      })
+        .setControlsVisibility({
           ...lockControlVisibility,
         })
-      );
-      canvas.renderAll();
+        .set(CANVAS_TYPE, "textbox")
+    );
 
-      canvas.on("selection:created", handleObjectSelectionChange);
-      canvas.on("selection:updated", handleObjectSelectionChange);
-      canvas.on("selection:cleared", handleObjectSelectionChange);
+    await loadCanvasWatermark();
 
-      canvas.on("mouse:wheel", handleCanvasZoom);
+    canvas.on("selection:created", handleObjectSelectionChange);
+    canvas.on("selection:updated", handleObjectSelectionChange);
+    canvas.on("selection:cleared", handleObjectSelectionChange);
 
-      canvas.on("object:scaling", function (e) {
-        if (e.target.get("type") === ARROW_TYPE) {
-          adjustArrowsSize(e.target._objects, e.target.get("scaleY"));
-        }
-      });
+    canvas.on("mouse:wheel", handleCanvasZoom);
 
-      canvas.on("object:scaled", function (e) {
-        if (e.target.get("type") === ARROW_TYPE) {
-          adjustArrowsSize(e.target._objects, e.target.get("scaleY"));
-        }
-      });
-
-      // http://fabricjs.com/fabric-intro-part-5 These handlers are not
-      // delegated to separate methods because we need direct namespace access
-      // to the canvas object
-      canvas.on("mouse:down", function (opt) {
-        if (!opt.e?.altKey) return false;
-
-        this.isDragging = true;
-        this.selection = false;
-        this.lastPosX = opt.e?.clientX;
-        this.lastPosY = opt.e?.clientY;
-      });
-
-      canvas.on("mouse:move", function (opt) {
-        if (!this.isDragging) return;
-        const e = opt.e;
-        const vpt = this.viewportTransform;
-        vpt[4] += e.clientX - this.lastPosX;
-        vpt[5] += e.clientY - this.lastPosY;
-        this.requestRenderAll();
-        this.lastPosX = e.clientX;
-        this.lastPosY = e.clientY;
-      });
-
-      canvas.on("mouse:up", function (opt) {
-        this.setViewportTransform(this.viewportTransform);
-        this.isDragging = false;
-        this.selection = true;
-      });
-
-      setLoadedChart(true);
+    canvas.on("object:scaling", function (e) {
+      if (e.target.get(CANVAS_TYPE) === ARROW_TYPE) {
+        adjustArrowsSize(e.target._objects, e.target.get("scaleY"));
+      }
     });
+
+    canvas.on("object:scaled", function (e) {
+      if (e.target.get(CANVAS_TYPE) === ARROW_TYPE) {
+        adjustArrowsSize(e.target._objects, e.target.get("scaleY"));
+      }
+    });
+
+    // http://fabricjs.com/fabric-intro-part-5 These handlers are not
+    // delegated to separate methods because we need direct namespace access
+    // to the canvas object
+    canvas.on("mouse:down", function (opt) {
+      if (!opt.e?.altKey) return false;
+
+      this.isDragging = true;
+      this.selection = false;
+      this.lastPosX = opt.e?.clientX;
+      this.lastPosY = opt.e?.clientY;
+    });
+
+    canvas.on("mouse:move", function (opt) {
+      if (!this.isDragging) return;
+      const e = opt.e;
+      const vpt = this.viewportTransform;
+      vpt[4] += e.clientX - this.lastPosX;
+      vpt[5] += e.clientY - this.lastPosY;
+      this.requestRenderAll();
+      this.lastPosX = e.clientX;
+      this.lastPosY = e.clientY;
+    });
+
+    canvas.on("mouse:up", function (opt) {
+      this.setViewportTransform(this.viewportTransform);
+      this.isDragging = false;
+      this.selection = true;
+    });
+
+    canvas.on("history:append", captureHistoryCapabilities);
+    canvas.on("history:undo", captureHistoryCapabilities);
+    canvas.on("history:redo", captureHistoryCapabilities);
+    canvas.on("history:clear", captureHistoryCapabilities);
+
+    setLoadedChart(true);
+    canvas.clearHistory();
+  };
+
+  const captureHistoryCapabilities = () => {
+    setCanUndo(canvas.historyUndo.length > 0);
+    setCanRedo(canvas.historyRedo.length > 0);
   };
 
   const handleCanvasZoom = (opt) => {
@@ -318,23 +359,58 @@ export default function AnnotationStudioModal({
 
   const handleCanvasKeys = (e) => {
     if (e.key === "Delete" || e.key === "Backspace") {
+      // Delete
+      e.preventDefault();
       canvasDeleteHandler();
     } else if (e.keyCode === 67 && (e.ctrlKey || e.metaKey)) {
+      // CMD/CTRL + C
+      e.preventDefault();
       canvasCopyHandler();
     } else if (e.keyCode === 86 && (e.ctrlKey || e.metaKey)) {
+      // CMD/CTRL + V
+      e.preventDefault();
       canvasPasteHandler();
+    } else if (
+      // CMD/CTRL + SHIFT + Z or CMD/CTRL + Y
+      (e.keyCode === 90 && e.shiftKey && (e.ctrlKey || e.metaKey)) ||
+      (e.keyCode === 89 && (e.ctrlKey || e.metaKey))
+    ) {
+      e.preventDefault();
+      canvasRedoHandler();
+    } else if (e.keyCode === 90 && (e.ctrlKey || e.metaKey)) {
+      // CMD/CTRL + Z
+      e.preventDefault();
+      canvasUndoHandler();
     } else if (e.key === "Escape") {
+      // Escape
+      e.preventDefault();
       canvas.discardActiveObject().renderAll();
       exitFreeDrawingMode();
     } else if (e.keyCode === 37) {
+      // Left Arrow
+      e.preventDefault();
       nudgeSelection("left");
     } else if (e.keyCode === 38) {
+      // Up Arrow
+      e.preventDefault();
       nudgeSelection("up");
     } else if (e.keyCode === 39) {
+      // Right Arrow
+      e.preventDefault();
       nudgeSelection("right");
     } else if (e.keyCode === 40) {
+      // Down Arrow
+      e.preventDefault();
       nudgeSelection("down");
     }
+  };
+
+  const canvasUndoHandler = () => {
+    canvas.undo();
+  };
+
+  const canvasRedoHandler = () => {
+    canvas.redo();
   };
 
   const canvasDeleteHandler = () => {
@@ -450,14 +526,16 @@ export default function AnnotationStudioModal({
 
   // Used to ensure the chart is always at the back
   const sendChartToBack = () => {
-    if (!chartElement) return;
-    canvas.sendToBack(chartElement);
+    const chartBackground = getObjectById("chartBackground");
+    if (!chartBackground) return;
+    canvas.sendToBack(chartBackground);
   };
 
   // Used to ensure the watermark is always at the front
   const bringWatermarkToFront = () => {
-    if (!watermarkElement) return;
-    canvas.bringToFront(watermarkElement);
+    const watermark = getObjectById("watermark");
+    if (!watermark) return;
+    canvas.bringToFront(watermark);
   };
 
   const bringActiveObjectForward = () => {
@@ -508,6 +586,11 @@ export default function AnnotationStudioModal({
   const exitFreeDrawingMode = () => {
     setFreeDrawingMode(false);
     canvas.isDrawingMode = false;
+
+    // Register all paths with our custom type
+    const paths = canvas.getObjects().filter((obj) => obj.type === "path");
+    paths.forEach((path) => path.set(CANVAS_TYPE, "path"));
+
     bringWatermarkToFront();
   };
 
@@ -543,7 +626,7 @@ export default function AnnotationStudioModal({
       strokeUniform: true,
       left: canvas.width / 2 - 50 / 2,
       top: canvas.height / 2 - 50 / 2,
-    });
+    }).set(CANVAS_TYPE, "circle");
     addObjectToCanvas(circle);
   };
 
@@ -558,7 +641,7 @@ export default function AnnotationStudioModal({
       strokeUniform: true,
       left: canvas.width / 2 - 100 / 2,
       top: canvas.height / 2 - 100 / 2,
-    });
+    }).set(CANVAS_TYPE, "rect");
     addObjectToCanvas(rect);
   };
 
@@ -573,7 +656,7 @@ export default function AnnotationStudioModal({
       fontFamily: "Inter, sans-serif",
       left: canvas.width / 2,
       top: canvas.height / 2,
-    });
+    }).set(CANVAS_TYPE, "textbox");
     addObjectToCanvas(textbox);
   };
 
@@ -655,8 +738,7 @@ export default function AnnotationStudioModal({
         mb: true,
         mtr: true,
       })
-      .set("type", ARROW_TYPE)
-      .set("stroke", "#000");
+      .set(CANVAS_TYPE, ARROW_TYPE);
 
     addObjectToCanvas(group);
   };
@@ -682,7 +764,7 @@ export default function AnnotationStudioModal({
 
   const handlePalettePropertyChange = (property, val) => {
     if (!activeObject) return;
-    if (activeObject.type === ARROW_TYPE) {
+    if (activeObject[CANVAS_TYPE] === ARROW_TYPE) {
       adjustArrowProperty(activeObject, property, val);
     }
     activeObject.set({ [property]: val });
@@ -789,10 +871,10 @@ export default function AnnotationStudioModal({
       }}
       destroyOnClose={true}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         {loadedChart && (
           <div className="flex-column gap-4">
-            <div className="flex-column gap-2 p-2 card">
+            <div className="flex-column gap-2.5 p-2.5 card">
               <Tooltip placement="right" title="Select">
                 <Button
                   icon={<CursorDefaultIcon />}
@@ -849,7 +931,7 @@ export default function AnnotationStudioModal({
               </Popover>
             </div>
 
-            <div className="flex-column gap-2 p-2 card">
+            <div className="flex-column gap-2.5 p-2.5 card">
               <Tooltip placement="right" title="Zoom In">
                 <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
               </Tooltip>
@@ -864,7 +946,21 @@ export default function AnnotationStudioModal({
               </Tooltip>
             </div>
 
-            <div className="flex-column gap-2 p-2 card">
+            <div className="flex-column gap-2.5 p-2.5 card">
+              <Tooltip placement="right" title="Undo">
+                <Button
+                  icon={<UndoIcon />}
+                  onClick={canvasUndoHandler}
+                  disabled={!canUndo}
+                />
+              </Tooltip>
+              <Tooltip placement="right" title="Redo">
+                <Button
+                  icon={<RedoIcon />}
+                  onClick={canvasRedoHandler}
+                  disabled={!canRedo}
+                />
+              </Tooltip>
               <Tooltip placement="right" title="Copy Selection">
                 <Button
                   icon={<ContentDuplicateIcon />}
@@ -950,7 +1046,7 @@ export default function AnnotationStudioModal({
                   {/* Controls for selected object */}
                   {activeObject && (
                     <>
-                      {SUPPORTS_FILL.includes(activeObject.type) && (
+                      {SUPPORTS_FILL.includes(activeObject[CANVAS_TYPE]) && (
                         <ColorPicker
                           format="hex"
                           value={activeObjectAttributes?.fill}
@@ -969,7 +1065,7 @@ export default function AnnotationStudioModal({
                         />
                       )}
                       {SUPPORTS_BACKGROUND_COLOR.includes(
-                        activeObject.type
+                        activeObject[CANVAS_TYPE]
                       ) && (
                         <ColorPicker
                           format="hex"
@@ -988,7 +1084,7 @@ export default function AnnotationStudioModal({
                           }
                         />
                       )}
-                      {SUPPORTS_STROKE.includes(activeObject.type) && (
+                      {SUPPORTS_STROKE.includes(activeObject[CANVAS_TYPE]) && (
                         <ColorPicker
                           format="hex"
                           value={activeObjectAttributes?.stroke}
@@ -1006,7 +1102,9 @@ export default function AnnotationStudioModal({
                           }
                         />
                       )}
-                      {SUPPORTS_STROKE_WIDTH.includes(activeObject.type) &&
+                      {SUPPORTS_STROKE_WIDTH.includes(
+                        activeObject[CANVAS_TYPE]
+                      ) &&
                         activeObjectAttributes.stroke && (
                           <div className="card flex items-center gap-3 w-72 px-2">
                             <div style={{ marginBottom: "-2px" }}>
