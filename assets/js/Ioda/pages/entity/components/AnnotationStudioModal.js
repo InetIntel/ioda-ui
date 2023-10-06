@@ -48,6 +48,7 @@ const DEFAULT_SHAPE_FILL = "#F93D4E30";
 const CANVAS_TYPE = "canvasObject";
 const CANVAS_ID = "canvasId";
 
+// Property support by object type
 const SUPPORTS_FILL = ["circle", "rect", "textbox"];
 const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
 const SUPPORTS_STROKE = ["circle", "rect", ARROW_TYPE, "path"];
@@ -792,6 +793,20 @@ export default function AnnotationStudioModal({
     document.body.removeChild(link);
   };
 
+  const objectSupportsProperty = (object, property) => {
+    if (!object) return false;
+    if (property === "fill") {
+      return SUPPORTS_FILL.includes(object.get(CANVAS_TYPE));
+    } else if (property === "backgroundColor") {
+      return SUPPORTS_BACKGROUND_COLOR.includes(object.get(CANVAS_TYPE));
+    } else if (property === "stroke") {
+      return SUPPORTS_STROKE.includes(object.get(CANVAS_TYPE));
+    } else if (property === "strokeWidth") {
+      return SUPPORTS_STROKE_WIDTH.includes(object.get(CANVAS_TYPE));
+    }
+    return false;
+  };
+
   const handlePalettePropertyChange = (property, val) => {
     if (!activeObject) return;
     if (activeObject[CANVAS_TYPE] === ARROW_TYPE) {
@@ -1095,7 +1110,8 @@ export default function AnnotationStudioModal({
                   {/* Controls for selected object */}
                   {activeObject && (
                     <>
-                      {SUPPORTS_FILL.includes(activeObject[CANVAS_TYPE]) && (
+                      {/* FILL CONTROL */}
+                      {objectSupportsProperty(activeObject, "fill") && (
                         <ColorPicker
                           format="hex"
                           value={activeObjectAttributes?.fill}
@@ -1113,8 +1129,11 @@ export default function AnnotationStudioModal({
                           }
                         />
                       )}
-                      {SUPPORTS_BACKGROUND_COLOR.includes(
-                        activeObject[CANVAS_TYPE]
+
+                      {/* BACKGROUND COLOR CONTROL */}
+                      {objectSupportsProperty(
+                        activeObject,
+                        "backgroundColor"
                       ) && (
                         <ColorPicker
                           format="hex"
@@ -1133,7 +1152,9 @@ export default function AnnotationStudioModal({
                           }
                         />
                       )}
-                      {SUPPORTS_STROKE.includes(activeObject[CANVAS_TYPE]) && (
+
+                      {/* STROKE COLOR CONTROL */}
+                      {objectSupportsProperty(activeObject, "stroke") && (
                         <ColorPicker
                           format="hex"
                           value={activeObjectAttributes?.stroke}
@@ -1151,9 +1172,9 @@ export default function AnnotationStudioModal({
                           }
                         />
                       )}
-                      {SUPPORTS_STROKE_WIDTH.includes(
-                        activeObject[CANVAS_TYPE]
-                      ) &&
+
+                      {/* STROKE WIDTH CONTROL */}
+                      {objectSupportsProperty(activeObject, "strokeWidth") &&
                         activeObjectAttributes.stroke && (
                           <div className="card flex items-center gap-3 w-72 px-2">
                             <div style={{ marginBottom: "-2px" }}>
@@ -1170,6 +1191,8 @@ export default function AnnotationStudioModal({
                             />
                           </div>
                         )}
+
+                      {/* LAYER CONTROLS */}
                       {
                         <>
                           <Tooltip placement="top" title="Bring Forward">
