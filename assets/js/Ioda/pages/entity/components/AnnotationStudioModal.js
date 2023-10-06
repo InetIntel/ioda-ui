@@ -58,6 +58,11 @@ const EXPORT_QUALITY = {
   HIGH: 3000,
 };
 
+const EXPORT_TYPE = {
+  JPEG: "jpeg",
+  PNG: "png",
+};
+
 const controlProperties = {
   centeredRotation: true,
   cornerStyle: "circle",
@@ -148,6 +153,7 @@ export default function AnnotationStudioModal({
 
   const [exportQuality, setExportQuality] = React.useState(EXPORT_QUALITY.MED);
   const [fileName, setFileName] = React.useState(exportFileName);
+  const [fileType, setFileType] = React.useState(EXPORT_TYPE.PNG);
 
   const [canUndo, setCanUndo] = React.useState(false);
   const [canRedo, setCanRedo] = React.useState(false);
@@ -751,12 +757,12 @@ export default function AnnotationStudioModal({
     const dataURL = canvas.toDataURL({
       width: canvas.width,
       height: canvas.height,
-      format: "png",
+      format: fileType,
       quality: 1,
       multiplier: Math.max(scale, 1),
     });
     const link = document.createElement("a");
-    link.download = `${fileName}.png`;
+    link.download = `${fileName}.${fileType}`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
@@ -811,37 +817,49 @@ export default function AnnotationStudioModal({
                 trigger="click"
                 content={
                   <div className="w-96">
-                    <div className="mb-2">
-                      <div>File Name:</div>
-                      <Form onFinish={downloadImage}>
-                        <Form.Item>
-                          <Input
-                            defaultValue={exportFileName}
-                            value={fileName}
-                            onChange={(e) => setFileName(e.target.value)}
-                          />
-                        </Form.Item>
-                      </Form>
-                    </div>
-                    <div>
-                      <div>Image Quality:</div>
-                      <Radio.Group
-                        defaultValue={EXPORT_QUALITY.MED}
-                        onChange={(e) => setExportQuality(e.target.value)}
-                        buttonStyle="solid"
-                        className="w-full"
-                      >
-                        <Radio.Button value={EXPORT_QUALITY.LOW}>
-                          Low
-                        </Radio.Button>
-                        <Radio.Button value={EXPORT_QUALITY.MED}>
-                          Med
-                        </Radio.Button>
-                        <Radio.Button value={EXPORT_QUALITY.HIGH}>
-                          High
-                        </Radio.Button>
-                      </Radio.Group>
-                    </div>
+                    <Form onFinish={downloadImage}>
+                      <div className="mb-2">
+                        <div>File Name:</div>
+                        <Input
+                          defaultValue={exportFileName}
+                          value={fileName}
+                          onChange={(e) => setFileName(e.target.value)}
+                        />
+                      </div>
+                      <div className="mb-2">
+                        <div>File Type:</div>
+                        <Radio.Group
+                          defaultValue={EXPORT_TYPE.PNG}
+                          onChange={(e) => setFileType(e.target.value)}
+                          buttonStyle="solid"
+                        >
+                          <Radio.Button value={EXPORT_TYPE.PNG}>
+                            PNG
+                          </Radio.Button>
+                          <Radio.Button value={EXPORT_TYPE.JPEG}>
+                            JPEG
+                          </Radio.Button>
+                        </Radio.Group>
+                      </div>
+                      <div>
+                        <div>Image Quality:</div>
+                        <Radio.Group
+                          defaultValue={EXPORT_QUALITY.MED}
+                          onChange={(e) => setExportQuality(e.target.value)}
+                          buttonStyle="solid"
+                        >
+                          <Radio.Button value={EXPORT_QUALITY.LOW}>
+                            Low
+                          </Radio.Button>
+                          <Radio.Button value={EXPORT_QUALITY.MED}>
+                            Med
+                          </Radio.Button>
+                          <Radio.Button value={EXPORT_QUALITY.HIGH}>
+                            High
+                          </Radio.Button>
+                        </Radio.Group>
+                      </div>
+                    </Form>
                   </div>
                 }
               >
