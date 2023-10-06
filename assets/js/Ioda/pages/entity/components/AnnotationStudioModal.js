@@ -9,6 +9,7 @@ import {
   Radio,
   Slider,
   Tooltip,
+  Typography,
 } from "antd";
 import { fabric } from "fabric";
 import "fabric-history";
@@ -36,6 +37,9 @@ import UndoIcon from "@2fd/ant-design-icons/lib/Undo";
 
 import { CloseOutlined, DownOutlined, EditOutlined } from "@ant-design/icons";
 import Icon from "@ant-design/icons/lib/components/Icon";
+import clsx from "clsx";
+
+const { Text } = Typography;
 
 const ARROW_TYPE = "arrow";
 
@@ -150,6 +154,8 @@ export default function AnnotationStudioModal({
   });
 
   const [copySelection, setCopySelection] = React.useState(null);
+  const [zoomLevel, setZoomLevel] = React.useState(1);
+  const [canvasCentered, setCanvasCentered] = React.useState(true);
 
   const [exportQuality, setExportQuality] = React.useState(EXPORT_QUALITY.MED);
   const [fileName, setFileName] = React.useState(exportFileName);
@@ -180,6 +186,8 @@ export default function AnnotationStudioModal({
   const resetCanvasZoomAndPosition = () => {
     canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
     canvas.renderAll();
+    setZoomLevel(1);
+    setCanvasCentered(true);
   };
 
   const wipeCanvas = () => {
@@ -323,6 +331,10 @@ export default function AnnotationStudioModal({
       this.setViewportTransform(this.viewportTransform);
       this.isDragging = false;
       this.selection = true;
+      // Set canvas centered based on position after panning
+      setCanvasCentered(
+        this.viewportTransform[4] === 0 && this.viewportTransform[5] === 0
+      );
     });
 
     canvas.on("history:append", captureHistoryCapabilities);
@@ -348,16 +360,23 @@ export default function AnnotationStudioModal({
     canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
     opt.e.preventDefault();
     opt.e.stopPropagation();
+
+    setZoomLevel(zoom);
+    setCanvasCentered(
+      canvas.viewportTransform[4] === 0 && canvas.viewportTransform[5] === 0
+    );
   };
 
   const zoomIn = () => {
     const zoom = Math.min(canvas.getZoom() * 1.1, MAX_ZOOM);
     canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
+    setZoomLevel(zoom);
   };
 
   const zoomOut = () => {
     const zoom = Math.max(canvas.getZoom() * 0.9, MIN_ZOOM);
     canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
+    setZoomLevel(zoom);
   };
 
   const focusCanvasContainer = () => {
@@ -388,6 +407,10 @@ export default function AnnotationStudioModal({
       // CMD/CTRL + Z
       e.preventDefault();
       canvasUndoHandler();
+    } else if (e.keyCode === 48 && (e.ctrlKey || e.metaKey)) {
+      // CMD/CTRL + 0
+      e.preventDefault();
+      resetCanvasZoomAndPosition();
     } else if (e.key === "Escape") {
       // Escape
       e.preventDefault();
@@ -792,6 +815,9 @@ export default function AnnotationStudioModal({
     }
   };
 
+  const showStylePalette = loadedChart && (freeDrawingMode || activeObject);
+  const showZoomPanel = loadedChart && (zoomLevel !== 1 || !canvasCentered);
+
   return (
     <Modal
       className="annotationStudioModal"
@@ -1034,9 +1060,9 @@ export default function AnnotationStudioModal({
             <canvas ref={fabricCanvas} width={800} height={448} />
           </div>
           {/* Show style control if we've selected a shape OR we're currently free drawing */}
-          {loadedChart && (freeDrawingMode || activeObject) && (
-            <div>
-              <div className="text-xl">Style</div>
+          {showStylePalette && (
+            <div className={clsx(showZoomPanel && "mb-4")}>
+              <div>Style</div>
               <div className="p-4 card">
                 <div className="flex gap-3 stylePalette">
                   {/* Controls for free drawing */}
@@ -1186,6 +1212,28 @@ export default function AnnotationStudioModal({
                       }
                     </>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {showZoomPanel && (
+            <div>
+              <div className="flex items-center gap-4">
+                <div className="p-4 card w-36">
+                  <div>Zoom:</div>
+                  <div className="font-bold">
+                    {Math.round(zoomLevel * 100)}%
+                  </div>
+                </div>
+                <div className="p-4 card col">
+                  <div>
+                    To pan, hold <Text code>Alt</Text> and drag
+                  </div>
+                  <div>
+                    To reset zoom, use <Text code>Ctrl + 0</Text> or button on
+                    left panel
+                  </div>
                 </div>
               </div>
             </div>
