@@ -418,6 +418,254 @@ class Help extends PureComponent {
               scores are summed to give the total shown when hovering over a
               country or region.
             </p>
+
+            <hr className="my-12" />
+
+            <h2 className="text-3xl font-semibold mb-6">
+              Repositories and Data Access
+            </h2>
+            <p className="mb-6">
+              IODA is entirely based on open-source software. The following is
+              the list of repositories of the various software components and
+              libraries used by IODA:
+            </p>
+
+            <h3 className="text-2xl font-semibold">Software Repositories</h3>
+            <ul className="mb-6">
+              <li>
+                <b>IODA UI: </b>
+                <a
+                  href="https://github.com/InetIntel/ioda-ui"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/ioda-ui
+                </a>
+              </li>
+              <li>
+                <b>IODA API: </b>
+                <a
+                  href="https://github.com/InetIntel/ioda-api"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/ioda-api
+                </a>
+              </li>
+              <li>
+                <b>BGPStream: </b>
+                <a
+                  href="https://bgpstream.caida.org"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://bgpstream.caida.org
+                </a>
+              </li>
+
+              <li>
+                <b>BGPView: </b>
+                <a
+                  href="https://bgpstream.caida.org"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/bgpview
+                </a>
+                <ul>
+                  <li>
+                    Library for efficient (re-)construction, transport and
+                    analysis of BGP routing tables
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Libipmeta: </b>
+                <a
+                  href="https://github.com/InetIntel/libipmeta"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/libipmeta
+                </a>
+                <ul>
+                  <li>IP metadata querying library</li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Trinarkular: </b>
+                <a
+                  href="https://github.com/CAIDA/trinarkular"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/CAIDA/trinarkular
+                </a>
+                <ul>
+                  <li>
+                    IODA's interpretation and implementation of the Trinocular
+                    methodology described at{" "}
+                    <a
+                      href="https://dl.acm.org/doi/10.1145/2534169.2486017"
+                      className="a-fake text-color-link"
+                      target="_blank"
+                    >
+                      https://dl.acm.org/doi/10.1145/2534169.2486017
+                    </a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Corsaro3: </b>
+                <a
+                  href="https://github.com/InetIntel/corsaro3"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/corsaro3
+                </a>{" "}
+                <ul>
+                  <li>Used to generate the telescope signals</li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Watchtower Sentry: </b>
+                <a
+                  href="https://github.com/InetIntel/watchtower-sentry"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/watchtower-sentry
+                </a>{" "}
+                <ul>
+                  <li>
+                    Anomaly detection for real time and historical time series
+                    data
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Watchtower Alert: </b>
+                <a
+                  href="https://github.com/InetIntel/watchtower-alert"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/watchtower-alert
+                </a>{" "}
+                <ul>
+                  <li>Alerting component of the watchtower framework</li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Chocolatine: </b>
+                <a
+                  href="https://github.com/InetIntel/chocolatine"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  {" "}
+                  https://github.com/InetIntel/chocolatine
+                </a>{" "}
+                <ul>
+                  <li>S-ARIMA based anomaly detection</li>
+                </ul>
+              </li>
+
+              <li>
+                <b>IODA GTR: </b>
+                <a
+                  href="https://github.com/InetIntel/ioda-gtr"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/InetIntel/ioda-gtr
+                </a>
+                <ul>
+                  <li>
+                    Used to fetch the Google Transparency Report data from the
+                    public API
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Telegraf Friendly Tagger: </b>
+                <a
+                  href="https://github.com/CAIDA/telegraf-friendlytagger"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/CAIDA/telegraf-friendlytagger
+                </a>{" "}
+                <ul>
+                  <li>
+                    Telegraf plugin for augmenting time series metadata with
+                    human readable names
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <b>Libtimeseries: </b>
+                <a
+                  href="https://github.com/CAIDA/libtimeseries"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/CAIDA/libtimeseries
+                </a>
+                <ul>
+                  <li>Time series abstraction library</li>
+                </ul>
+              </li>
+            </ul>
+
+            <p className="mb-6">
+              In addition, IODA relies on various external open source projects
+              such as Apache Kafka, InfluxDB, Telegraf, and Docker Engine.
+            </p>
+
+            <h3 className="text-2xl font-semibold">Data</h3>
+            <ul className="mb-24">
+              <li>
+                <a
+                  href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://api.ioda.inetintel.cc.gatech.edu/v2/
+                </a>
+                <ul>
+                  <li>
+                    The IODA APIs which allow retrieval of all outage event and
+                    time series data
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+                <a
+                  href="https://github.com/CAIDA/ioda-geo-polygons/"
+                  className="a-fake text-color-link"
+                  target="_blank"
+                >
+                  https://github.com/CAIDA/ioda-geo-polygons/
+                </a>
+                <ul>
+                  <li>
+                    Collection of GeoJSON and TopoJSON datasets developed as
+                    part of the IODA project during its time at CAIDA
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
