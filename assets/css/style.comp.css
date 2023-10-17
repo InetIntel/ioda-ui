@@ -3369,6 +3369,9 @@ body {
 .justify-end {
   justify-content: end; }
 
+.justify-between {
+  justify-content: space-between; }
+
 .text-center {
   text-align: center; }
 
@@ -4561,18 +4564,6 @@ body {
   @supports (-webkit-appearance: none) {
     .modal__button {
       align-items: flex-end; } } }
-
-.linkShareModal__share-items {
-  margin-top: 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px 10px; }
-
-.annotationStudioModal .drawPalette {
-  display: grid;
-  grid-template-rows: repeat(2, min-content);
-  grid-auto-flow: column; }
 
 .markupStudioModal .markupPanelButton {
   border: 0px !important;

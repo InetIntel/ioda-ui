@@ -2784,6 +2784,8 @@ class Entity extends Component {
               chartTitle={this.getChartExportTitle()}
               chartSubtitle={this.getChartExportSubtitle()}
               exportFileName={this.getChartExportFileName()}
+              shareLink={window.location.href}
+              entityName={this.state.entityName}
             />
             <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
               <div className="col-2 p-4 card entity__chart">

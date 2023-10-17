@@ -132,22 +132,3 @@
     }
   }
 }
-
-// Styles for ShareLinkModal component
-.linkShareModal {
-  &__share-items {
-    margin-top: 2rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px 10px;
-  }
-}
-
-.annotationStudioModal {
-  .drawPalette {
-    display: grid;
-    grid-template-rows: repeat(2, min-content);
-    grid-auto-flow: column;
-  }
-}

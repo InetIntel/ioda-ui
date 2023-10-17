@@ -43,10 +43,15 @@ import LeadPencilIcon from "@2fd/ant-design-icons/lib/LeadPencil";
 import PaletteIcon from "@2fd/ant-design-icons/lib/Palette";
 import CogIcon from "@2fd/ant-design-icons/lib/Cog";
 
-import { CloseOutlined, EditOutlined } from "@ant-design/icons";
-import Icon from "@ant-design/icons/lib/components/Icon";
+import { CloseOutlined } from "@ant-design/icons";
+import MarkupStudioEntry from "./MarkupStudioEntry";
+import MarkupStudioShare from "./MarkupStudioShare";
 
-const { Text } = Typography;
+const MODAL_SCREENS = {
+  ENTRY: "entry",
+  EDITING: "editing",
+  SHARE: "share",
+};
 
 const ARROW_TYPE = "arrow";
 
@@ -146,9 +151,13 @@ export default function MarkupStudioModal({
   chartTitle,
   chartSubtitle,
   exportFileName,
+  entityName,
+  shareLink,
 }) {
   const fabricCanvas = React.useRef(null);
   const canvasContainer = React.useRef(null);
+
+  const [modalScreen, setModalScreen] = React.useState(MODAL_SCREENS.ENTRY);
 
   const [loadedChart, setLoadedChart] = React.useState(false);
   const [canvas, setCanvas] = React.useState(new fabric.Canvas());
@@ -167,6 +176,7 @@ export default function MarkupStudioModal({
   const [zoomLevel, setZoomLevel] = React.useState(1);
   const [canvasCentered, setCanvasCentered] = React.useState(true);
 
+  const [canvasImage, setCanvasImage] = React.useState(null);
   const [exportQuality, setExportQuality] = React.useState(EXPORT_QUALITY.MED);
   const [fileName, setFileName] = React.useState(exportFileName);
   const [fileType, setFileType] = React.useState(EXPORT_TYPE.PNG);
@@ -206,6 +216,7 @@ export default function MarkupStudioModal({
     setLoadedChart(false);
     setActiveObject(null);
     setCopySelection(null);
+    setModalScreen(MODAL_SCREENS.ENTRY);
   };
 
   const loadCanvasChartBackground = (chartImage) => {
@@ -353,6 +364,7 @@ export default function MarkupStudioModal({
     canvas.on("history:clear", captureHistoryCapabilities);
 
     setLoadedChart(true);
+    setModalScreen(MODAL_SCREENS.EDITING);
     canvas.clearHistory();
   };
 
@@ -792,23 +804,40 @@ export default function MarkupStudioModal({
     addObjectToCanvas(group);
   };
 
-  const downloadImage = () => {
-    //resetCanvasZoomAndPosition();
+  const getCanvasAsBase64 = () => {
     const scale = exportQuality / canvas.width;
     bringWatermarkToFront();
-    const dataURL = canvas.toDataURL({
+    return canvas.toDataURL({
       width: canvas.width,
       height: canvas.height,
       format: fileType,
       quality: 1,
       multiplier: Math.max(scale, 1),
     });
+  };
+
+  const downloadImageFromDataUrl = (dataURL) => {
+    setCanvasImage(dataURL);
+    setModalScreen(MODAL_SCREENS.SHARE);
+
     const link = document.createElement("a");
     link.download = `${fileName}.${fileType}`;
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const downloadAndShareImage = () => {
+    const dataURL = getCanvasAsBase64();
+    setCanvasImage(dataURL);
+    setModalScreen(MODAL_SCREENS.SHARE);
+    downloadImageFromDataUrl(dataURL);
+  };
+
+  const redownloadImage = () => {
+    if (!canvasImage) return;
+    downloadImageFromDataUrl(canvasImage);
   };
 
   const objectSupportsProperty = (object, property) => {
@@ -848,6 +877,8 @@ export default function MarkupStudioModal({
     }
   };
 
+  const chartReady = loadedChart && modalScreen === MODAL_SCREENS.EDITING;
+
   return (
     <Modal
       className="markupStudioModal"
@@ -877,7 +908,7 @@ export default function MarkupStudioModal({
       destroyOnClose={true}
     >
       <div className="flex items-start gap-4">
-        {loadedChart && (
+        {chartReady && (
           <div className="flex-column card p-2">
             {/* LEFT VERTICAL PANEL */}
             <Tooltip placement="right" title="Select">
@@ -1154,33 +1185,22 @@ export default function MarkupStudioModal({
             style={{ outline: "none" }}
             className="w-full relative mb-4 card flex items-center justify-center"
           >
-            {!loadedChart && (
-              <div className="absolute z-1 text-center w-1/3">
-                <Icon
-                  className="mb-4"
-                  style={{ fontSize: "60px" }}
-                  component={EditOutlined}
-                />
-                <p className="text-2xl font-bold">
-                  Introducing the Markup Studio
-                </p>
-                <p className="text-xl mt-4">
-                  Use the markup studio to markup the current chart view. When
-                  you're done, save the image to share.
-                </p>
-                <Button
-                  className="mx-auto mt-4"
-                  type="primary"
-                  onClick={loadCanvasImageBase}
-                >
-                  Start
-                </Button>
-              </div>
-            )}
+            <MarkupStudioEntry
+              show={modalScreen === MODAL_SCREENS.ENTRY}
+              onStart={loadCanvasImageBase}
+            />
+            <MarkupStudioShare
+              show={modalScreen === MODAL_SCREENS.SHARE}
+              imagePreviewUrl={canvasImage}
+              entityName={entityName}
+              shareLink={shareLink}
+              onBackToEditing={() => setModalScreen(MODAL_SCREENS.EDITING)}
+              onDownload={() => redownloadImage()}
+            />
             <canvas ref={fabricCanvas} width={800} height={448} />
           </div>
 
-          {loadedChart && (
+          {chartReady && (
             <div className="mt-6 w-full flex items-center">
               <div className="col flex items-center gap-3">
                 <Button
@@ -1213,7 +1233,7 @@ export default function MarkupStudioModal({
                 <div className="flex">
                   <Button
                     type="primary"
-                    onClick={downloadImage}
+                    onClick={downloadAndShareImage}
                     style={{
                       borderTopRightRadius: "0px",
                       borderBottomRightRadius: "0px",
@@ -1226,7 +1246,7 @@ export default function MarkupStudioModal({
                     trigger="click"
                     content={
                       <div style={{ width: "28rem" }}>
-                        <Form onFinish={downloadImage}>
+                        <Form onFinish={downloadAndShareImage}>
                           <div className="mb-2">
                             <div>File Name:</div>
                             <Input
