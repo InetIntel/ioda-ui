@@ -406,6 +406,10 @@ export default function MarkupStudioModal({
       // CMD/CTRL + V
       e.preventDefault();
       canvasPasteHandler();
+    } else if (e.keyCode === 68 && (e.ctrlKey || e.metaKey)) {
+      // CMD/CTRL + D
+      e.preventDefault();
+      duplicateActiveSelection();
     } else if (
       // CMD/CTRL + SHIFT + Z or CMD/CTRL + Y
       (e.keyCode === 90 && e.shiftKey && (e.ctrlKey || e.metaKey)) ||
@@ -509,7 +513,7 @@ export default function MarkupStudioModal({
   };
 
   const canvasCopyHandler = () => {
-    const selection = canvas.getActiveObjects();
+    const selection = canvas.getActiveObject();
     setCopySelection(selection);
   };
 
@@ -517,45 +521,36 @@ export default function MarkupStudioModal({
     if (!copySelection) return;
     canvas.discardActiveObject();
 
-    const copiedObjects = [];
-    copySelection.forEach((obj) => {
-      obj.clone((clone) => {
-        clone.set({
-          top: obj.top + 10,
-          left: obj.left + 10,
-        });
-        canvas.add(clone);
-        copiedObjects.push(clone);
-      });
-    });
-
-    const newSelection = new fabric.ActiveSelection(copiedObjects, {
-      canvas: canvas,
-    });
-    canvas.setActiveObject(newSelection);
-    canvas.renderAll();
+    duplicateSelection(copySelection);
   };
 
-  const duplicateSelection = () => {
-    canvas.getActiveObject().clone((clonedObj) => {
-      canvas.discardActiveObject();
-      clonedObj.set({
-        left: clonedObj.left + 10,
-        top: clonedObj.top + 10,
-        evented: true,
-      });
-      if (clonedObj.type === "activeSelection") {
-        clonedObj.canvas = canvas;
-        clonedObj.forEachObject(function (obj) {
-          canvas.add(obj);
+  const duplicateActiveSelection = () => {
+    duplicateSelection(canvas.getActiveObject());
+  };
+
+  const duplicateSelection = (selection) => {
+    selection.clone(
+      (clonedObj) => {
+        canvas.discardActiveObject();
+        clonedObj.set({
+          left: clonedObj.left + 10,
+          top: clonedObj.top + 10,
+          evented: true,
         });
-        clonedObj.setCoords();
-      } else {
-        canvas.add(clonedObj);
-      }
-      canvas.setActiveObject(clonedObj);
-      canvas.requestRenderAll();
-    });
+        if (clonedObj.type === "activeSelection") {
+          clonedObj.canvas = canvas;
+          clonedObj.forEachObject(function (obj) {
+            canvas.add(obj);
+          });
+          clonedObj.setCoords();
+        } else {
+          canvas.add(clonedObj);
+        }
+        canvas.setActiveObject(clonedObj);
+        canvas.requestRenderAll();
+      },
+      [CANVAS_TYPE, CANVAS_ID]
+    );
   };
 
   const handleObjectSelectionChange = (e) => {
@@ -1137,7 +1132,7 @@ export default function MarkupStudioModal({
             <Tooltip placement="right" title="Copy Selection">
               <Button
                 icon={<ContentDuplicateIcon />}
-                onClick={duplicateSelection}
+                onClick={duplicateActiveSelection}
                 type="text"
               />
             </Tooltip>
