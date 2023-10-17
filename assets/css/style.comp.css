@@ -4574,6 +4574,11 @@ body {
   grid-template-rows: repeat(2, min-content);
   grid-auto-flow: column; }
 
+.markupStudioModal .markupPanelButton {
+  border: 0px !important;
+  border-color: none !important;
+  box-shadow: none !important; }
+
 .footer {
   filter: drop-shadow(0.5rem 0.5rem 0.5rem #222);
   background-color: #2c3e50;

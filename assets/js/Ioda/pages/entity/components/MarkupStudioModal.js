@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Button,
   ColorPicker,
+  Divider,
   Form,
   Input,
   Modal,
@@ -35,9 +36,14 @@ import CursorDefaultIcon from "@2fd/ant-design-icons/lib/CursorDefault";
 import RedoIcon from "@2fd/ant-design-icons/lib/Redo";
 import UndoIcon from "@2fd/ant-design-icons/lib/Undo";
 
+import FormatColorFillIcon from "@2fd/ant-design-icons/lib/FormatColorFill";
+import LayersIcon from "@2fd/ant-design-icons/lib/Layers";
+import FormatLineWeightIcon from "@2fd/ant-design-icons/lib/FormatLineWeight";
+import LeadPencilIcon from "@2fd/ant-design-icons/lib/LeadPencil";
+import PaletteIcon from "@2fd/ant-design-icons/lib/Palette";
+
 import { CloseOutlined, DownOutlined, EditOutlined } from "@ant-design/icons";
 import Icon from "@ant-design/icons/lib/components/Icon";
-import clsx from "clsx";
 
 const { Text } = Typography;
 
@@ -153,6 +159,8 @@ export default function MarkupStudioModal({
     stroke: null,
     strokeWidth: null,
   });
+
+  const [layerPopoverOpen, setLayerPopoverOpen] = React.useState(false);
 
   const [copySelection, setCopySelection] = React.useState(null);
   const [zoomLevel, setZoomLevel] = React.useState(1);
@@ -433,6 +441,14 @@ export default function MarkupStudioModal({
       // Down Arrow
       e.preventDefault();
       nudgeSelection("down");
+    } else if (e.keyCode === 187 && (e.ctrlKey || e.metaKey)) {
+      // CMD/CTRL + +
+      e.preventDefault();
+      zoomIn();
+    } else if (e.keyCode === 189 && (e.ctrlKey || e.metaKey)) {
+      // CMD/CTRL + -
+      e.preventDefault();
+      zoomOut();
     }
   };
 
@@ -937,108 +953,302 @@ export default function MarkupStudioModal({
     >
       <div className="flex items-start gap-4">
         {loadedChart && (
-          <div className="flex-column gap-4">
-            <div className="flex-column gap-3 p-2.5 card">
-              <Tooltip placement="right" title="Select">
-                <Button
-                  icon={<CursorDefaultIcon />}
-                  type={!freeDrawingMode ? "primary" : "default"}
-                  onClick={toggleFreeDrawingMode}
-                />
-              </Tooltip>
-              <Tooltip placement="right" title="Free Draw">
-                <Button
-                  icon={<DrawIcon />}
-                  type={freeDrawingMode ? "primary" : "default"}
-                  onClick={toggleFreeDrawingMode}
-                />
-              </Tooltip>
+          <div className="flex-column card p-2">
+            {/* LEFT VERTICAL PANEL */}
+            <Tooltip placement="right" title="Select">
+              <Button
+                icon={<CursorDefaultIcon />}
+                type={!freeDrawingMode ? "primary" : "default"}
+                onClick={toggleFreeDrawingMode}
+                className="markupPanelButton"
+              />
+            </Tooltip>
+            <Tooltip placement="right" title="Free Draw">
+              <Button
+                icon={<DrawIcon />}
+                type={freeDrawingMode ? "primary" : "default"}
+                onClick={toggleFreeDrawingMode}
+                className="markupPanelButton"
+              />
+            </Tooltip>
 
-              <Tooltip placement="right" title="Text">
-                <Button icon={<FormatText />} onClick={addTextbox} />
-              </Tooltip>
+            <Tooltip placement="right" title="Text">
+              <Button
+                icon={<FormatText />}
+                onClick={addTextbox}
+                className="markupPanelButton"
+              />
+            </Tooltip>
 
+            <Popover
+              open={drawShapePopoverOpen}
+              onOpenChange={setDrawShapePopoverOpen}
+              placement="rightTop"
+              trigger="click"
+              content={
+                <div
+                  className="flex-column gap-2"
+                  onClick={() => setDrawShapePopoverOpen(false)}
+                >
+                  <Tooltip placement="right" title="Rectangle">
+                    <Button
+                      icon={<SquareOutlineIcon />}
+                      onClick={addRectangle}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                  <Tooltip placement="right" title="Arrow">
+                    <Button
+                      icon={<ArrowTopRightThinIcon />}
+                      onClick={addArrow}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                  <Tooltip placement="right" title="Circle">
+                    <Button
+                      icon={<CircleOutlineIcon />}
+                      onClick={addCircle}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                </div>
+              }
+            >
+              <Tooltip placement="right" title="Draw Shape">
+                <Button icon={<DrawingIcon />} className="markupPanelButton" />
+              </Tooltip>
+            </Popover>
+
+            {(activeObject || freeDrawingMode) && <Divider className="my-0" />}
+
+            {/*Free Drawing Color Control */}
+            {freeDrawingMode && (
+              <ColorPicker
+                placement="rightTop"
+                format="hex"
+                value={freeDrawStroke}
+                destroyTooltipOnHide={true}
+                onChange={(val) =>
+                  handleFreeDrawStrokeChange(val.toHexString())
+                }
+                allowClear={true}
+                children={
+                  <Tooltip placement="right" title="Stroke">
+                    <Button
+                      icon={<LeadPencilIcon />}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                }
+              />
+            )}
+
+            {/*Free Drawing Stroke Width Control */}
+            {freeDrawingMode && (
               <Popover
-                open={drawShapePopoverOpen}
-                onOpenChange={setDrawShapePopoverOpen}
                 placement="rightTop"
                 trigger="click"
                 content={
-                  <div
-                    className="flex-column gap-2"
-                    onClick={() => setDrawShapePopoverOpen(false)}
-                  >
-                    <Tooltip placement="right" title="Rectangle">
+                  <div className="flex items-center w-72">
+                    <Slider
+                      className="col-1 h-1"
+                      min={1}
+                      max={20}
+                      onChange={(val) => handleFreeDrawStrokeWidthChange(val)}
+                      value={freeDrawStrokeWidth}
+                    />
+                    <div className="w-4">{freeDrawStrokeWidth ?? 1}</div>
+                  </div>
+                }
+              >
+                <Tooltip placement="right" title="Stroke Weight">
+                  <Button
+                    icon={<FormatLineWeightIcon />}
+                    className="markupPanelButton"
+                  />
+                </Tooltip>
+              </Popover>
+            )}
+
+            {/* Fill Color Control */}
+            {objectSupportsProperty(activeObject, "fill") && (
+              <ColorPicker
+                format="hex"
+                value={activeObjectAttributes?.fill}
+                destroyTooltipOnHide={true}
+                placement="rightTop"
+                showText={false}
+                onChange={(val) =>
+                  handlePalettePropertyChange("fill", val.toHexString())
+                }
+                allowClear={true}
+                onClear={() => handlePalettePropertyChange("fill", null)}
+                children={
+                  <Tooltip placement="right" title="Fill">
+                    <Button
+                      icon={<PaletteIcon />}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                }
+              />
+            )}
+
+            {/* Background Color Control (Textbox only) */}
+            {objectSupportsProperty(activeObject, "backgroundColor") && (
+              <ColorPicker
+                placement="rightTop"
+                format="hex"
+                value={activeObjectAttributes?.backgroundColor}
+                destroyTooltipOnHide={true}
+                showText={() => "Background"}
+                onChange={(val) =>
+                  handlePalettePropertyChange(
+                    "backgroundColor",
+                    val.toHexString()
+                  )
+                }
+                allowClear={true}
+                onClear={() =>
+                  handlePalettePropertyChange("backgroundColor", null)
+                }
+                children={
+                  <Tooltip placement="right" title="Background">
+                    <Button
+                      icon={<FormatColorFillIcon />}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                }
+              />
+            )}
+
+            {/* Stroke Color Control */}
+            {objectSupportsProperty(activeObject, "stroke") && (
+              <ColorPicker
+                placement="rightTop"
+                format="hex"
+                value={activeObjectAttributes?.stroke}
+                destroyTooltipOnHide={true}
+                showText={() => "Stroke"}
+                onChange={(val) =>
+                  handlePalettePropertyChange("stroke", val.toHexString())
+                }
+                allowClear={true}
+                onClear={() => handlePalettePropertyChange("stroke", null)}
+                children={
+                  <Tooltip placement="right" title="Stroke">
+                    <Button
+                      icon={<LeadPencilIcon />}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                }
+              />
+            )}
+
+            {/* Stroke Width Control */}
+            {objectSupportsProperty(activeObject, "strokeWidth") &&
+              activeObjectAttributes.stroke && (
+                <Popover
+                  placement="rightTop"
+                  trigger="click"
+                  content={
+                    <div className="flex items-center w-72">
+                      <Slider
+                        className="col-1 h-1"
+                        min={1}
+                        max={20}
+                        onChange={(val) =>
+                          handlePalettePropertyChange("strokeWidth", val)
+                        }
+                        value={activeObjectAttributes?.strokeWidth ?? 1}
+                      />
+                      <div className="w-4">
+                        {activeObjectAttributes?.strokeWidth ?? 1}
+                      </div>
+                    </div>
+                  }
+                >
+                  <Tooltip placement="right" title="Stroke Weight">
+                    <Button
+                      icon={<FormatLineWeightIcon />}
+                      className="markupPanelButton"
+                    />
+                  </Tooltip>
+                </Popover>
+              )}
+
+            {activeObject && (
+              <Popover
+                open={layerPopoverOpen}
+                onOpenChange={setLayerPopoverOpen}
+                placement="rightTop"
+                trigger="click"
+                content={
+                  <div className="flex-column gap-2">
+                    <Tooltip placement="top" title="Bring Forward">
                       <Button
-                        icon={<SquareOutlineIcon />}
-                        onClick={addRectangle}
+                        icon={<ArrangeBringForwardIcon />}
+                        onClick={() => {
+                          bringActiveObjectForward();
+                          focusCanvasContainer();
+                        }}
                       />
                     </Tooltip>
-                    <Tooltip placement="right" title="Arrow">
+                    <Tooltip placement="top" title="Bring to Front">
                       <Button
-                        icon={<ArrowTopRightThinIcon />}
-                        onClick={addArrow}
+                        icon={<ArrangeBringToFrontIcon />}
+                        onClick={() => {
+                          bringActiveObjectToFront();
+                          focusCanvasContainer();
+                        }}
                       />
                     </Tooltip>
-                    <Tooltip placement="right" title="Circle">
+                    <Tooltip placement="top" title="Send Backward">
                       <Button
-                        icon={<CircleOutlineIcon />}
-                        onClick={addCircle}
+                        icon={<ArrangeSendBackwardIcon />}
+                        onClick={() => {
+                          sendActiveObjectBackward();
+                          focusCanvasContainer();
+                        }}
+                      />
+                    </Tooltip>
+                    <Tooltip placement="top" title="Send to Back">
+                      <Button
+                        icon={<ArrangeSendToBackIcon />}
+                        onClick={() => {
+                          sendActiveObjectToBack();
+                          focusCanvasContainer();
+                        }}
                       />
                     </Tooltip>
                   </div>
                 }
               >
-                <Tooltip placement="right" title="Draw Shape">
-                  <Button icon={<DrawingIcon />} />
+                <Tooltip placement="right" title="Arrange">
+                  <Button icon={<LayersIcon />} className="markupPanelButton" />
                 </Tooltip>
               </Popover>
-            </div>
+            )}
 
-            <div className="flex-column gap-3 p-2.5 card">
-              <Tooltip placement="right" title="Zoom In">
-                <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
-              </Tooltip>
-              <Tooltip placement="right" title="Zoom Out">
-                <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
-              </Tooltip>
-              <Tooltip placement="right" title="Reset Zoom">
-                <Button
-                  icon={<MagnifyExpandIcon />}
-                  onClick={resetCanvasZoomAndPosition}
-                />
-              </Tooltip>
-            </div>
+            <Divider className="my-0" />
 
-            <div className="flex-column gap-3 p-2.5 card">
-              <Tooltip placement="right" title="Undo">
-                <Button
-                  icon={<UndoIcon />}
-                  onClick={canvasUndoHandler}
-                  disabled={!canUndo}
-                />
-              </Tooltip>
-              <Tooltip placement="right" title="Redo">
-                <Button
-                  icon={<RedoIcon />}
-                  onClick={canvasRedoHandler}
-                  disabled={!canRedo}
-                />
-              </Tooltip>
-              <Tooltip placement="right" title="Copy Selection">
-                <Button
-                  icon={<ContentDuplicateIcon />}
-                  onClick={duplicateSelection}
-                />
-              </Tooltip>
-              <Tooltip placement="right" title="Delete Selection">
-                <Button
-                  icon={<DeleteIcon />}
-                  danger
-                  onClick={canvasDeleteHandler}
-                />
-              </Tooltip>
-            </div>
+            <Tooltip placement="right" title="Copy Selection">
+              <Button
+                icon={<ContentDuplicateIcon />}
+                onClick={duplicateSelection}
+                className="markupPanelButton"
+              />
+            </Tooltip>
+            <Tooltip placement="right" title="Delete Selection">
+              <Button
+                icon={<DeleteIcon />}
+                danger
+                onClick={canvasDeleteHandler}
+                className="markupPanelButton"
+              />
+            </Tooltip>
           </div>
         )}
         <div className="col">
@@ -1074,193 +1284,36 @@ export default function MarkupStudioModal({
             )}
             <canvas ref={fabricCanvas} width={800} height={448} />
           </div>
-          {/* Show style control if we've selected a shape OR we're currently free drawing */}
-          {showStylePalette && (
-            <div className={clsx(showZoomPanel && "mb-4")}>
-              <div>Style</div>
-              <div className="p-4 card">
-                <div className="flex gap-3 stylePalette">
-                  {/* Controls for free drawing */}
-                  {freeDrawingMode && (
-                    <>
-                      <ColorPicker
-                        format="hex"
-                        value={freeDrawStroke}
-                        destroyTooltipOnHide={true}
-                        showText={() => "Stroke"}
-                        onChange={(val) =>
-                          handleFreeDrawStrokeChange(val.toHexString())
-                        }
-                      />
-                      <div className="card flex items-center gap-3 w-72 px-2">
-                        <div style={{ marginBottom: "-2px" }}>Stroke Width</div>
-                        <Slider
-                          className="col-1 h-1"
-                          min={1}
-                          max={20}
-                          onChange={(val) =>
-                            handleFreeDrawStrokeWidthChange(val)
-                          }
-                          value={freeDrawStrokeWidth}
-                        />
-                      </div>
-                    </>
-                  )}
 
-                  {/* Controls for selected object */}
-                  {activeObject && (
-                    <>
-                      {/* FILL CONTROL */}
-                      {objectSupportsProperty(activeObject, "fill") && (
-                        <ColorPicker
-                          format="hex"
-                          value={activeObjectAttributes?.fill}
-                          destroyTooltipOnHide={true}
-                          showText={() => "Fill"}
-                          onChange={(val) =>
-                            handlePalettePropertyChange(
-                              "fill",
-                              val.toHexString()
-                            )
-                          }
-                          allowClear={true}
-                          onClear={() =>
-                            handlePalettePropertyChange("fill", null)
-                          }
-                        />
-                      )}
-
-                      {/* BACKGROUND COLOR CONTROL */}
-                      {objectSupportsProperty(
-                        activeObject,
-                        "backgroundColor"
-                      ) && (
-                        <ColorPicker
-                          format="hex"
-                          value={activeObjectAttributes?.backgroundColor}
-                          destroyTooltipOnHide={true}
-                          showText={() => "Background"}
-                          onChange={(val) =>
-                            handlePalettePropertyChange(
-                              "backgroundColor",
-                              val.toHexString()
-                            )
-                          }
-                          allowClear={true}
-                          onClear={() =>
-                            handlePalettePropertyChange("backgroundColor", null)
-                          }
-                        />
-                      )}
-
-                      {/* STROKE COLOR CONTROL */}
-                      {objectSupportsProperty(activeObject, "stroke") && (
-                        <ColorPicker
-                          format="hex"
-                          value={activeObjectAttributes?.stroke}
-                          destroyTooltipOnHide={true}
-                          showText={() => "Stroke"}
-                          onChange={(val) =>
-                            handlePalettePropertyChange(
-                              "stroke",
-                              val.toHexString()
-                            )
-                          }
-                          allowClear={true}
-                          onClear={() =>
-                            handlePalettePropertyChange("stroke", null)
-                          }
-                        />
-                      )}
-
-                      {/* STROKE WIDTH CONTROL */}
-                      {objectSupportsProperty(activeObject, "strokeWidth") &&
-                        activeObjectAttributes.stroke && (
-                          <div className="card flex items-center gap-3 w-72 px-2">
-                            <div style={{ marginBottom: "-2px" }}>
-                              Stroke Width
-                            </div>
-                            <Slider
-                              className="col-1 h-1"
-                              min={1}
-                              max={20}
-                              onChange={(val) =>
-                                handlePalettePropertyChange("strokeWidth", val)
-                              }
-                              value={activeObjectAttributes?.strokeWidth ?? 1}
-                            />
-                          </div>
-                        )}
-
-                      {/* LAYER CONTROLS */}
-                      {
-                        <>
-                          <Tooltip placement="top" title="Bring Forward">
-                            <Button
-                              icon={<ArrangeBringForwardIcon />}
-                              onClick={() => {
-                                bringActiveObjectForward();
-                                focusCanvasContainer();
-                              }}
-                            />
-                          </Tooltip>
-                          <Tooltip placement="top" title="Bring to Front">
-                            <Button
-                              icon={<ArrangeBringToFrontIcon />}
-                              onClick={() => {
-                                bringActiveObjectToFront();
-                                focusCanvasContainer();
-                              }}
-                            />
-                          </Tooltip>
-                          <Tooltip placement="top" title="Send Backward">
-                            <Button
-                              icon={<ArrangeSendBackwardIcon />}
-                              onClick={() => {
-                                sendActiveObjectBackward();
-                                focusCanvasContainer();
-                              }}
-                            />
-                          </Tooltip>
-                          <Tooltip placement="top" title="Send to Back">
-                            <Button
-                              icon={<ArrangeSendToBackIcon />}
-                              onClick={() => {
-                                sendActiveObjectToBack();
-                                focusCanvasContainer();
-                              }}
-                            />
-                          </Tooltip>
-                        </>
-                      }
-                    </>
-                  )}
-                </div>
-              </div>
+          <div className="w-full flex items-center">
+            <div className="flex items-center gap-1">
+              <Button
+                icon={<UndoIcon />}
+                onClick={canvasUndoHandler}
+                disabled={!canUndo}
+              >
+                Undo
+              </Button>
+              <Button
+                icon={<RedoIcon />}
+                onClick={canvasRedoHandler}
+                disabled={!canRedo}
+              >
+                Redo
+              </Button>
             </div>
-          )}
 
-          {showZoomPanel && (
-            <div>
-              <div className="flex items-center gap-4">
-                <div className="p-4 card w-36">
-                  <div>Zoom:</div>
-                  <div className="font-bold">
-                    {Math.round(zoomLevel * 100)}%
-                  </div>
-                </div>
-                <div className="p-4 card col">
-                  <div>
-                    To pan, hold <Text code>Alt</Text> and drag
-                  </div>
-                  <div>
-                    To reset zoom, use <Text code>Ctrl + 0</Text> or button on
-                    left panel
-                  </div>
-                </div>
+            <div className="col-1" />
+
+            <div className="flex items-center gap-1">
+              <div className="font-bold mr-2">
+                {Math.round(zoomLevel * 100)}%
               </div>
+              <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
+              <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
+              <Button onClick={resetCanvasZoomAndPosition}>Reset View</Button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </Modal>
