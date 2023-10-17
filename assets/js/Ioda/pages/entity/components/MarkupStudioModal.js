@@ -283,7 +283,7 @@ export default function MarkupStudioModal({
         backgroundColor: "#fff",
         fontFamily: "Inter, sans-serif",
         fontSize: 12,
-        width: canvas.width - 16,
+        width: canvas.width - 8,
         lockMovementY: true,
         lockMovementX: true,
       })
@@ -377,13 +377,13 @@ export default function MarkupStudioModal({
   };
 
   const zoomIn = () => {
-    const zoom = Math.min(canvas.getZoom() * 1.1, MAX_ZOOM);
+    const zoom = Math.min(canvas.getZoom() + 0.1, MAX_ZOOM);
     canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
     setZoomLevel(zoom);
   };
 
   const zoomOut = () => {
-    const zoom = Math.max(canvas.getZoom() * 0.9, MIN_ZOOM);
+    const zoom = Math.max(canvas.getZoom() - 0.1, MIN_ZOOM);
     canvas.zoomToPoint({ x: canvas.width / 2, y: canvas.height / 2 }, zoom);
     setZoomLevel(zoom);
   };
@@ -424,7 +424,7 @@ export default function MarkupStudioModal({
       // Escape
       e.preventDefault();
       canvas.discardActiveObject().renderAll();
-      exitFreeDrawingMode();
+      handleEscape();
     } else if (e.keyCode === 37) {
       // Left Arrow
       e.preventDefault();
@@ -450,6 +450,12 @@ export default function MarkupStudioModal({
       e.preventDefault();
       zoomOut();
     }
+  };
+
+  const handleEscape = () => {
+    exitFreeDrawingMode();
+    setActiveObject(null);
+    setLayerPopoverOpen(false);
   };
 
   const canvasUndoHandler = () => {
@@ -1187,7 +1193,7 @@ export default function MarkupStudioModal({
                 trigger="click"
                 content={
                   <div className="flex-column gap-2">
-                    <Tooltip placement="top" title="Bring Forward">
+                    <Tooltip placement="right" title="Bring Forward">
                       <Button
                         icon={<ArrangeBringForwardIcon />}
                         onClick={() => {
@@ -1196,7 +1202,7 @@ export default function MarkupStudioModal({
                         }}
                       />
                     </Tooltip>
-                    <Tooltip placement="top" title="Bring to Front">
+                    <Tooltip placement="right" title="Bring to Front">
                       <Button
                         icon={<ArrangeBringToFrontIcon />}
                         onClick={() => {
@@ -1205,7 +1211,7 @@ export default function MarkupStudioModal({
                         }}
                       />
                     </Tooltip>
-                    <Tooltip placement="top" title="Send Backward">
+                    <Tooltip placement="right" title="Send Backward">
                       <Button
                         icon={<ArrangeSendBackwardIcon />}
                         onClick={() => {
@@ -1214,7 +1220,7 @@ export default function MarkupStudioModal({
                         }}
                       />
                     </Tooltip>
-                    <Tooltip placement="top" title="Send to Back">
+                    <Tooltip placement="right" title="Send to Back">
                       <Button
                         icon={<ArrangeSendToBackIcon />}
                         onClick={() => {
@@ -1285,7 +1291,7 @@ export default function MarkupStudioModal({
             <canvas ref={fabricCanvas} width={800} height={448} />
           </div>
 
-          <div className="w-full flex items-center">
+          <div className="mt-4 w-full flex items-center">
             <div className="flex items-center gap-1">
               <Button
                 icon={<UndoIcon />}
