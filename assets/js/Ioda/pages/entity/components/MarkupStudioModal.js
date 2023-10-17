@@ -41,8 +41,9 @@ import LayersIcon from "@2fd/ant-design-icons/lib/Layers";
 import FormatLineWeightIcon from "@2fd/ant-design-icons/lib/FormatLineWeight";
 import LeadPencilIcon from "@2fd/ant-design-icons/lib/LeadPencil";
 import PaletteIcon from "@2fd/ant-design-icons/lib/Palette";
+import CogIcon from "@2fd/ant-design-icons/lib/Cog";
 
-import { CloseOutlined, DownOutlined, EditOutlined } from "@ant-design/icons";
+import { CloseOutlined, EditOutlined } from "@ant-design/icons";
 import Icon from "@ant-design/icons/lib/components/Icon";
 
 const { Text } = Typography;
@@ -860,81 +861,7 @@ export default function MarkupStudioModal({
       title={
         <div className="flex items-center">
           <div className="col-1 truncate">Markup Studio</div>
-          {loadedChart && (
-            <div className="flex">
-              <Button
-                type="primary"
-                onClick={downloadImage}
-                style={{
-                  borderTopRightRadius: "0px",
-                  borderBottomRightRadius: "0px",
-                }}
-              >
-                Save
-              </Button>
-              <Popover
-                placement="bottomRight"
-                trigger="click"
-                content={
-                  <div className="w-96">
-                    <Form onFinish={downloadImage}>
-                      <div className="mb-2">
-                        <div>File Name:</div>
-                        <Input
-                          defaultValue={exportFileName}
-                          value={fileName}
-                          onChange={(e) => setFileName(e.target.value)}
-                        />
-                      </div>
-                      <div className="mb-2">
-                        <div>File Type:</div>
-                        <Radio.Group
-                          defaultValue={EXPORT_TYPE.PNG}
-                          onChange={(e) => setFileType(e.target.value)}
-                          buttonStyle="solid"
-                        >
-                          <Radio.Button value={EXPORT_TYPE.PNG}>
-                            PNG
-                          </Radio.Button>
-                          <Radio.Button value={EXPORT_TYPE.JPEG}>
-                            JPEG
-                          </Radio.Button>
-                        </Radio.Group>
-                      </div>
-                      <div>
-                        <div>Image Quality:</div>
-                        <Radio.Group
-                          defaultValue={EXPORT_QUALITY.MED}
-                          onChange={(e) => setExportQuality(e.target.value)}
-                          buttonStyle="solid"
-                        >
-                          <Radio.Button value={EXPORT_QUALITY.LOW}>
-                            Low
-                          </Radio.Button>
-                          <Radio.Button value={EXPORT_QUALITY.MED}>
-                            Med
-                          </Radio.Button>
-                          <Radio.Button value={EXPORT_QUALITY.HIGH}>
-                            High
-                          </Radio.Button>
-                        </Radio.Group>
-                      </div>
-                    </Form>
-                  </div>
-                }
-              >
-                <Button
-                  type="primary"
-                  icon={<DownOutlined />}
-                  style={{
-                    borderTopLeftRadius: "0px",
-                    borderBottomLeftRadius: "0px",
-                    borderLeft: "1px solid #fff",
-                  }}
-                />
-              </Popover>
-            </div>
-          )}
+
           <Button
             className="ml-4"
             icon={<CloseOutlined />}
@@ -1258,35 +1185,112 @@ export default function MarkupStudioModal({
             <canvas ref={fabricCanvas} width={800} height={448} />
           </div>
 
-          <div className="mt-4 w-full flex items-center">
-            <div className="flex items-center gap-1">
-              <Button
-                icon={<UndoIcon />}
-                onClick={canvasUndoHandler}
-                disabled={!canUndo}
-              >
-                Undo
-              </Button>
-              <Button
-                icon={<RedoIcon />}
-                onClick={canvasRedoHandler}
-                disabled={!canRedo}
-              >
-                Redo
-              </Button>
-            </div>
-
-            <div className="col-1" />
-
-            <div className="flex items-center gap-1">
-              <div className="font-bold mr-2">
-                {Math.round(zoomLevel * 100)}%
+          {loadedChart && (
+            <div className="mt-6 w-full flex items-center">
+              <div className="col flex items-center gap-3">
+                <Button
+                  icon={<UndoIcon />}
+                  onClick={canvasUndoHandler}
+                  disabled={!canUndo}
+                >
+                  Undo
+                </Button>
+                <Button
+                  icon={<RedoIcon />}
+                  onClick={canvasRedoHandler}
+                  disabled={!canRedo}
+                >
+                  Redo
+                </Button>
               </div>
-              <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
-              <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
-              <Button onClick={resetCanvasZoomAndPosition}>Reset View</Button>
+
+              <div className="col flex justify-center items-center gap-2">
+                <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
+                <div className="font-bold w-28 text-center">
+                  {Math.round(zoomLevel * 100)}%
+                </div>
+                <Button icon={<MagnifyPlusOutlineIcon />} onClick={zoomIn} />
+              </div>
+
+              <div className="col flex justify-end items-center gap-3">
+                <Button onClick={resetCanvasZoomAndPosition}>Reset View</Button>
+
+                <div className="flex">
+                  <Button
+                    type="primary"
+                    onClick={downloadImage}
+                    style={{
+                      borderTopRightRadius: "0px",
+                      borderBottomRightRadius: "0px",
+                    }}
+                  >
+                    Save
+                  </Button>
+                  <Popover
+                    placement="topRight"
+                    trigger="click"
+                    content={
+                      <div style={{ width: "28rem" }}>
+                        <Form onFinish={downloadImage}>
+                          <div className="mb-2">
+                            <div>File Name:</div>
+                            <Input
+                              defaultValue={exportFileName}
+                              value={fileName}
+                              onChange={(e) => setFileName(e.target.value)}
+                            />
+                          </div>
+                          <div className="mb-2">
+                            <div>File Type:</div>
+                            <Radio.Group
+                              defaultValue={EXPORT_TYPE.PNG}
+                              onChange={(e) => setFileType(e.target.value)}
+                              buttonStyle="solid"
+                            >
+                              <Radio.Button value={EXPORT_TYPE.PNG}>
+                                PNG
+                              </Radio.Button>
+                              <Radio.Button value={EXPORT_TYPE.JPEG}>
+                                JPEG
+                              </Radio.Button>
+                            </Radio.Group>
+                          </div>
+                          <div>
+                            <div>Image Quality:</div>
+                            <Radio.Group
+                              defaultValue={EXPORT_QUALITY.MED}
+                              onChange={(e) => setExportQuality(e.target.value)}
+                              buttonStyle="solid"
+                            >
+                              <Radio.Button value={EXPORT_QUALITY.LOW}>
+                                Low
+                              </Radio.Button>
+                              <Radio.Button value={EXPORT_QUALITY.MED}>
+                                Med
+                              </Radio.Button>
+                              <Radio.Button value={EXPORT_QUALITY.HIGH}>
+                                High
+                              </Radio.Button>
+                            </Radio.Group>
+                          </div>
+                        </Form>
+                      </div>
+                    }
+                  >
+                    <Button
+                      type="primary"
+                      icon={<CogIcon />}
+                      style={{
+                        borderTopLeftRadius: "0px",
+                        borderBottomLeftRadius: "0px",
+                        borderLeft: "1px solid #fff",
+                      }}
+                    />
+                  </Popover>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </Modal>
