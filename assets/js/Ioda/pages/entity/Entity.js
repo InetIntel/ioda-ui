@@ -91,7 +91,7 @@ import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
 import ChartTabCard from "../../components/cards/ChartTabCard";
 import ShareLinkModal from "../../components/modal/ShareLinkModal";
-import AnnotationStudioModal from "./components/AnnotationStudioModal";
+import MarkupStudioModal from "./components/MarkupStudioModal";
 
 // Chart libraries
 import Highcharts from "highcharts/highstock";
@@ -211,8 +211,8 @@ class Entity extends Component {
       // display link sharing modal
       showShareLinkModal: false,
       // display annotation studio modal
-      showAnnotationStudioModal: false,
-      annotationStudioSvgBaseString: "",
+      showMarkupStudioModal: false,
+      markupStudioSvgBaseString: "",
       // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
       tsDataSeriesVisibleMap: dataSource.reduce((result, item) => {
         result[item] = true;
@@ -1519,16 +1519,16 @@ class Entity extends Component {
     return null;
   };
 
-  showAnnotationStudioModal = () => {
+  showMarkupStudioModal = () => {
     this.setState({
-      showAnnotationStudioModal: true,
-      annotationStudioSvgBaseString: this.getChartSvg(),
+      showMarkupStudioModal: true,
+      markupStudioSvgBaseString: this.getChartSvg(),
     });
   };
 
-  hideAnnotationStudioModal = () => {
+  hideMarkupStudioModal = () => {
     this.setState({
-      showAnnotationStudioModal: false,
+      showMarkupStudioModal: false,
     });
   };
 
@@ -2777,10 +2777,10 @@ class Entity extends Component {
               entityName={this.state.entityName}
               handleDownload={() => this.manuallyDownloadChart("image/jpeg")}
             />
-            <AnnotationStudioModal
-              open={this.state.showAnnotationStudioModal}
-              svgString={this.state.annotationStudioSvgBaseString}
-              hideModal={this.hideAnnotationStudioModal}
+            <MarkupStudioModal
+              open={this.state.showMarkupStudioModal}
+              svgString={this.state.markupStudioSvgBaseString}
+              hideModal={this.hideMarkupStudioModal}
               chartTitle={this.getChartExportTitle()}
               chartSubtitle={this.getChartExportSubtitle()}
               exportFileName={this.getChartExportFileName()}
@@ -2845,7 +2845,7 @@ class Entity extends Component {
                   <Button
                     className="mr-3"
                     icon={<EditOutlined />}
-                    onClick={this.showAnnotationStudioModal}
+                    onClick={this.showMarkupStudioModal}
                   />
                   <Button
                     className="mr-3"

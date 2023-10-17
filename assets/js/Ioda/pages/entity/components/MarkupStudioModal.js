@@ -132,7 +132,7 @@ const getBase64PNGFromSVGString = (svgString) => {
   });
 };
 
-export default function AnnotationStudioModal({
+export default function MarkupStudioModal({
   open,
   svgString,
   hideModal,
@@ -835,12 +835,12 @@ export default function AnnotationStudioModal({
 
   return (
     <Modal
-      className="annotationStudioModal"
+      className="markupStudioModal"
       open={open}
       closeIcon={null}
       title={
         <div className="flex items-center">
-          <div className="col-1 truncate">Annotation Studio</div>
+          <div className="col-1 truncate">Markup Studio</div>
           {loadedChart && (
             <div className="flex">
               <Button
@@ -1057,11 +1057,11 @@ export default function AnnotationStudioModal({
                   component={EditOutlined}
                 />
                 <p className="text-2xl font-bold">
-                  Introducing the Annotation Studio
+                  Introducing the Markup Studio
                 </p>
                 <p className="text-xl mt-4">
-                  Use the annotation studio to markup the current chart view.
-                  When you're done, save the image to share.
+                  Use the markup studio to markup the current chart view. When
+                  you're done, save the image to share.
                 </p>
                 <Button
                   className="mx-auto mt-4"
