@@ -852,9 +852,6 @@ export default function MarkupStudioModal({
     }
   };
 
-  const showStylePalette = loadedChart && (freeDrawingMode || activeObject);
-  const showZoomPanel = loadedChart && (zoomLevel !== 1 || !canvasCentered);
-
   return (
     <Modal
       className="markupStudioModal"
@@ -964,26 +961,20 @@ export default function MarkupStudioModal({
             <Tooltip placement="right" title="Select">
               <Button
                 icon={<CursorDefaultIcon />}
-                type={!freeDrawingMode ? "primary" : "default"}
+                type={!freeDrawingMode ? "primary" : "text"}
                 onClick={toggleFreeDrawingMode}
-                className="markupPanelButton"
               />
             </Tooltip>
             <Tooltip placement="right" title="Free Draw">
               <Button
                 icon={<DrawIcon />}
-                type={freeDrawingMode ? "primary" : "default"}
+                type={freeDrawingMode ? "primary" : "text"}
                 onClick={toggleFreeDrawingMode}
-                className="markupPanelButton"
               />
             </Tooltip>
 
             <Tooltip placement="right" title="Text">
-              <Button
-                icon={<FormatText />}
-                onClick={addTextbox}
-                className="markupPanelButton"
-              />
+              <Button icon={<FormatText />} onClick={addTextbox} type="text" />
             </Tooltip>
 
             <Popover
@@ -1000,32 +991,26 @@ export default function MarkupStudioModal({
                     <Button
                       icon={<SquareOutlineIcon />}
                       onClick={addRectangle}
-                      className="markupPanelButton"
                     />
                   </Tooltip>
                   <Tooltip placement="right" title="Arrow">
                     <Button
                       icon={<ArrowTopRightThinIcon />}
                       onClick={addArrow}
-                      className="markupPanelButton"
                     />
                   </Tooltip>
                   <Tooltip placement="right" title="Circle">
-                    <Button
-                      icon={<CircleOutlineIcon />}
-                      onClick={addCircle}
-                      className="markupPanelButton"
-                    />
+                    <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
                   </Tooltip>
                 </div>
               }
             >
               <Tooltip placement="right" title="Draw Shape">
-                <Button icon={<DrawingIcon />} className="markupPanelButton" />
+                <Button icon={<DrawingIcon />} type="text" />
               </Tooltip>
             </Popover>
 
-            {(activeObject || freeDrawingMode) && <Divider className="my-0" />}
+            {(activeObject || freeDrawingMode) && <Divider className="my-1" />}
 
             {/*Free Drawing Color Control */}
             {freeDrawingMode && (
@@ -1040,10 +1025,7 @@ export default function MarkupStudioModal({
                 allowClear={true}
                 children={
                   <Tooltip placement="right" title="Stroke">
-                    <Button
-                      icon={<LeadPencilIcon />}
-                      className="markupPanelButton"
-                    />
+                    <Button icon={<LeadPencilIcon />} type="text" />
                   </Tooltip>
                 }
               />
@@ -1068,10 +1050,7 @@ export default function MarkupStudioModal({
                 }
               >
                 <Tooltip placement="right" title="Stroke Weight">
-                  <Button
-                    icon={<FormatLineWeightIcon />}
-                    className="markupPanelButton"
-                  />
+                  <Button icon={<FormatLineWeightIcon />} type="text" />
                 </Tooltip>
               </Popover>
             )}
@@ -1091,10 +1070,7 @@ export default function MarkupStudioModal({
                 onClear={() => handlePalettePropertyChange("fill", null)}
                 children={
                   <Tooltip placement="right" title="Fill">
-                    <Button
-                      icon={<PaletteIcon />}
-                      className="markupPanelButton"
-                    />
+                    <Button icon={<PaletteIcon />} type="text" />
                   </Tooltip>
                 }
               />
@@ -1120,10 +1096,7 @@ export default function MarkupStudioModal({
                 }
                 children={
                   <Tooltip placement="right" title="Background">
-                    <Button
-                      icon={<FormatColorFillIcon />}
-                      className="markupPanelButton"
-                    />
+                    <Button icon={<FormatColorFillIcon />} type="text" />
                   </Tooltip>
                 }
               />
@@ -1144,10 +1117,7 @@ export default function MarkupStudioModal({
                 onClear={() => handlePalettePropertyChange("stroke", null)}
                 children={
                   <Tooltip placement="right" title="Stroke">
-                    <Button
-                      icon={<LeadPencilIcon />}
-                      className="markupPanelButton"
-                    />
+                    <Button icon={<LeadPencilIcon />} type="text" />
                   </Tooltip>
                 }
               />
@@ -1177,10 +1147,7 @@ export default function MarkupStudioModal({
                   }
                 >
                   <Tooltip placement="right" title="Stroke Weight">
-                    <Button
-                      icon={<FormatLineWeightIcon />}
-                      className="markupPanelButton"
-                    />
+                    <Button icon={<FormatLineWeightIcon />} type="text" />
                   </Tooltip>
                 </Popover>
               )}
@@ -1233,18 +1200,18 @@ export default function MarkupStudioModal({
                 }
               >
                 <Tooltip placement="right" title="Arrange">
-                  <Button icon={<LayersIcon />} className="markupPanelButton" />
+                  <Button icon={<LayersIcon />} type="text" />
                 </Tooltip>
               </Popover>
             )}
 
-            <Divider className="my-0" />
+            <Divider className="my-1" />
 
             <Tooltip placement="right" title="Copy Selection">
               <Button
                 icon={<ContentDuplicateIcon />}
                 onClick={duplicateSelection}
-                className="markupPanelButton"
+                type="text"
               />
             </Tooltip>
             <Tooltip placement="right" title="Delete Selection">
@@ -1252,7 +1219,7 @@ export default function MarkupStudioModal({
                 icon={<DeleteIcon />}
                 danger
                 onClick={canvasDeleteHandler}
-                className="markupPanelButton"
+                type="text"
               />
             </Tooltip>
           </div>
