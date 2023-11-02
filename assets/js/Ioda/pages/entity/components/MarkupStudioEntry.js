@@ -1,7 +1,8 @@
 import * as React from "react";
-import { EditOutlined } from "@ant-design/icons";
-import Icon from "@ant-design/icons/lib/components/Icon";
 import { Button } from "antd";
+
+import PreloadImage from "react-preload-image";
+import EntryGraphic from "images/markup-entry-graphic.jpg";
 
 export default function MarkupStudioEntry({ show, onStart }) {
   return (
@@ -11,20 +12,59 @@ export default function MarkupStudioEntry({ show, onStart }) {
         display: show ? "block" : "none",
       }}
     >
-      <div className="flex justify-center items-center w-full h-full">
-        <div className="w-1/2">
-          <Icon
-            className="mb-4"
-            style={{ fontSize: "60px" }}
-            component={EditOutlined}
-          />
-          <p className="text-3xl font-bold">Introducing the Markup Studio</p>
-          <p className="text-2xl mt-4">
-            Use the markup studio to markup the current chart view. When you're
-            done, save the image to share.
-          </p>
-          <Button className="mx-auto mt-4" type="primary" onClick={onStart}>
-            Start
+      <div
+        style={{ position: "relative", maxHeight: "320px" }}
+        className="w-full h-full"
+      >
+        <PreloadImage
+          className="w-full"
+          src={EntryGraphic}
+          lazy
+          innerStyle={{
+            backgroundSize: "contain",
+            backgroundPosition: "top",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+      </div>
+      <div className="w-full p-6">
+        <div className="flex items-start gap-6">
+          <div className="col-1 flex items-start gap-5">
+            <div className="markupIntroStepBadge">1</div>
+            <div className="col text-left">
+              <div className="f-16 font-bold">Markup</div>
+              <div className="f-14 text-gray-500">
+                Use the markup tools to add comments, highlight outages, or make
+                other edits.
+              </div>
+            </div>
+          </div>
+
+          <div className="col-1 flex items-start gap-5">
+            <div className="markupIntroStepBadge">2</div>
+            <div className="col text-left">
+              <div className="f-16 font-bold">Download</div>
+              <div className="f-14 text-gray-500">
+                When you're done marking up the IODA chart, download your
+                creation.
+              </div>
+            </div>
+          </div>
+
+          <div className="col-1 flex items-start gap-5">
+            <div className="markupIntroStepBadge">3</div>
+            <div className="col text-left">
+              <div className="f-16 font-bold">Share</div>
+              <div className="f-14 text-gray-500">
+                Share your chart with your team or share on social media.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 w-full flex justify-end">
+          <Button type="primary" onClick={onStart}>
+            Get Started
           </Button>
         </div>
       </div>

@@ -3372,6 +3372,9 @@ body {
 .justify-between {
   justify-content: space-between; }
 
+.text-left {
+  text-align: left; }
+
 .text-center {
   text-align: center; }
 
@@ -3441,6 +3444,18 @@ body {
 
 .z-1 {
   z-index: 1; }
+
+.f-12 {
+  font-size: 12px; }
+
+.f-14 {
+  font-size: 14px; }
+
+.f-16 {
+  font-size: 16px; }
+
+.f-18 {
+  font-size: 18px; }
 
 .ioda-checkbox .ant-checkbox-checked .ant-checkbox-inner,
 .ioda-checkbox .ant-checkbox-checked .ant-checkbox-inner:hover {
@@ -4569,6 +4584,16 @@ body {
   border: 0px !important;
   border-color: none !important;
   box-shadow: none !important; }
+
+.markupStudioModal .markupIntroStepBadge {
+  background-color: #8c8c8c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  border-radius: 16px;
+  color: #fff; }
 
 .footer {
   filter: drop-shadow(0.5rem 0.5rem 0.5rem #222);

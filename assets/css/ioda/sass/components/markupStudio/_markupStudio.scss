@@ -4,4 +4,15 @@
     border-color: none !important;
     box-shadow: none !important;
   }
+
+  .markupIntroStepBadge {
+    background-color: #8c8c8c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    border-radius: 16px;
+    color: #fff;
+  }
 }
