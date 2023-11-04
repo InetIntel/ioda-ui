@@ -10,7 +10,6 @@ import {
   Radio,
   Slider,
   Tooltip,
-  Typography,
 } from "antd";
 import { fabric } from "fabric";
 import "fabric-history";
@@ -26,7 +25,7 @@ import ArrangeBringToFrontIcon from "@2fd/ant-design-icons/lib/ArrangeBringToFro
 import ArrangeSendToBackIcon from "@2fd/ant-design-icons/lib/ArrangeSendToBack";
 import MagnifyPlusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyPlusOutline";
 import MagnifyMinusOutlineIcon from "@2fd/ant-design-icons/lib/MagnifyMinusOutline";
-import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
+import CursorMoveIcon from "@2fd/ant-design-icons/lib/CursorMove";
 import ArrowTopRightThinIcon from "@2fd/ant-design-icons/lib/ArrowTopRightThin";
 import DeleteIcon from "@2fd/ant-design-icons/lib/Delete";
 import ContentDuplicateIcon from "@2fd/ant-design-icons/lib/ContentDuplicate";
@@ -51,6 +50,12 @@ const MODAL_SCREENS = {
   ENTRY: "entry",
   EDITING: "editing",
   SHARE: "share",
+};
+
+const CANVAS_MODES = {
+  SELECT: "select",
+  DRAW: "draw",
+  PAN: "pan",
 };
 
 const ARROW_TYPE = "arrow";
@@ -183,6 +188,8 @@ export default function MarkupStudioModal({
 
   const [canUndo, setCanUndo] = React.useState(false);
   const [canRedo, setCanRedo] = React.useState(false);
+
+  const panningMode = React.useRef(false);
 
   React.useEffect(() => {
     if (exportFileName !== fileName) {
@@ -341,7 +348,11 @@ export default function MarkupStudioModal({
     // delegated to separate methods because we need direct namespace access
     // to the canvas object
     canvas.on("mouse:down", function (opt) {
-      if (!opt.e?.altKey) return false;
+      // Don't pan if alt key isn't pressed, pan mode isn't enabled, or if we're
+      // currently drawing
+      if (!(opt.e?.altKey || panningMode.current) || canvas.isDrawingMode) {
+        return false;
+      }
 
       this.isDragging = true;
       this.selection = false;
@@ -644,20 +655,45 @@ export default function MarkupStudioModal({
 
   const [drawShapePopoverOpen, setDrawShapePopoverOpen] = React.useState(false);
 
-  const [freeDrawingMode, setFreeDrawingMode] = React.useState(false);
+  const [canvasMode, setCanvasMode] = React.useState(CANVAS_MODES.SELECT);
+
   const [freeDrawStroke, setFreeDrawStroke] = React.useState("#000000");
   const [freeDrawStrokeWidth, setFreeDrawStrokeWidth] = React.useState(5);
 
+  const enterPanningMode = () => {
+    resetCanvasModeStates();
+
+    canvas.defaultCursor = "grab";
+    setCanvasMode(CANVAS_MODES.PAN);
+    panningMode.current = true;
+  };
+
+  const exitPanningMode = () => {
+    resetCanvasModeStates();
+    enterSelectMode();
+  };
+
+  const togglePanningMode = () => {
+    if (canvasMode === CANVAS_MODES.PAN) {
+      exitPanningMode();
+    } else {
+      enterPanningMode();
+    }
+  };
+
   const enterFreeDrawingMode = () => {
+    canvas.defaultCursor = "crosshair";
+    resetCanvasModeStates();
+
     canvas.discardActiveObject().renderAll();
-    setFreeDrawingMode(true);
+    setCanvasMode(CANVAS_MODES.DRAW);
+
     canvas.isDrawingMode = true;
     canvas.freeDrawingBrush.width = freeDrawStrokeWidth;
     canvas.freeDrawingBrush.color = freeDrawStroke;
   };
 
   const exitFreeDrawingMode = () => {
-    setFreeDrawingMode(false);
     canvas.isDrawingMode = false;
 
     // Register all paths with our custom type
@@ -665,14 +701,28 @@ export default function MarkupStudioModal({
     paths.forEach((path) => path.set(CANVAS_TYPE, "path"));
 
     bringWatermarkToFront();
+
+    enterSelectMode();
   };
 
   const toggleFreeDrawingMode = () => {
-    if (freeDrawingMode) {
+    if (canvasMode === CANVAS_MODES.DRAW) {
       exitFreeDrawingMode();
     } else {
       enterFreeDrawingMode();
     }
+  };
+
+  const enterSelectMode = () => {
+    resetCanvasModeStates();
+
+    setCanvasMode(CANVAS_MODES.SELECT);
+  };
+
+  const resetCanvasModeStates = () => {
+    canvas.isDrawingMode = false;
+    panningMode.current = false;
+    canvas.defaultCursor = "default";
   };
 
   const handleFreeDrawStrokeChange = (val) => {
@@ -943,14 +993,21 @@ export default function MarkupStudioModal({
             <Tooltip placement="left" title="Select">
               <Button
                 icon={<CursorDefaultIcon />}
-                type={!freeDrawingMode ? "primary" : "text"}
-                onClick={toggleFreeDrawingMode}
+                type={canvasMode === CANVAS_MODES.SELECT ? "primary" : "text"}
+                onClick={enterSelectMode}
+              />
+            </Tooltip>
+            <Tooltip placement="left" title="Pan">
+              <Button
+                icon={<CursorMoveIcon />}
+                type={canvasMode === CANVAS_MODES.PAN ? "primary" : "text"}
+                onClick={togglePanningMode}
               />
             </Tooltip>
             <Tooltip placement="left" title="Free Draw">
               <Button
                 icon={<DrawIcon />}
-                type={freeDrawingMode ? "primary" : "text"}
+                type={canvasMode === CANVAS_MODES.DRAW ? "primary" : "text"}
                 onClick={toggleFreeDrawingMode}
               />
             </Tooltip>
@@ -992,10 +1049,12 @@ export default function MarkupStudioModal({
               </Tooltip>
             </Popover>
 
-            {(activeObject || freeDrawingMode) && <Divider className="my-1" />}
+            {(activeObject || canvasMode === CANVAS_MODES.DRAW) && (
+              <Divider className="my-1" />
+            )}
 
             {/*Free Drawing Color Control */}
-            {freeDrawingMode && (
+            {canvasMode === CANVAS_MODES.DRAW && (
               <ColorPicker
                 placement="rightTop"
                 format="hex"
@@ -1014,7 +1073,7 @@ export default function MarkupStudioModal({
             )}
 
             {/*Free Drawing Stroke Width Control */}
-            {freeDrawingMode && (
+            {canvasMode === CANVAS_MODES.DRAW && (
               <Popover
                 placement="rightTop"
                 trigger="click"
