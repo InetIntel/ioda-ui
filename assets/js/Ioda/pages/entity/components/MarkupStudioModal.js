@@ -911,14 +911,14 @@ export default function MarkupStudioModal({
         {chartReady && (
           <div className="flex-column card p-2">
             {/* LEFT VERTICAL PANEL */}
-            <Tooltip placement="right" title="Select">
+            <Tooltip placement="left" title="Select">
               <Button
                 icon={<CursorDefaultIcon />}
                 type={!freeDrawingMode ? "primary" : "text"}
                 onClick={toggleFreeDrawingMode}
               />
             </Tooltip>
-            <Tooltip placement="right" title="Free Draw">
+            <Tooltip placement="left" title="Free Draw">
               <Button
                 icon={<DrawIcon />}
                 type={freeDrawingMode ? "primary" : "text"}
@@ -926,7 +926,7 @@ export default function MarkupStudioModal({
               />
             </Tooltip>
 
-            <Tooltip placement="right" title="Text">
+            <Tooltip placement="left" title="Text">
               <Button icon={<FormatText />} onClick={addTextbox} type="text" />
             </Tooltip>
 
@@ -940,25 +940,25 @@ export default function MarkupStudioModal({
                   className="flex-column gap-2"
                   onClick={() => setDrawShapePopoverOpen(false)}
                 >
-                  <Tooltip placement="right" title="Rectangle">
+                  <Tooltip placement="left" title="Rectangle">
                     <Button
                       icon={<SquareOutlineIcon />}
                       onClick={addRectangle}
                     />
                   </Tooltip>
-                  <Tooltip placement="right" title="Arrow">
+                  <Tooltip placement="left" title="Arrow">
                     <Button
                       icon={<ArrowTopRightThinIcon />}
                       onClick={addArrow}
                     />
                   </Tooltip>
-                  <Tooltip placement="right" title="Circle">
+                  <Tooltip placement="left" title="Circle">
                     <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
                   </Tooltip>
                 </div>
               }
             >
-              <Tooltip placement="right" title="Draw Shape">
+              <Tooltip placement="left" title="Draw Shape">
                 <Button icon={<DrawingIcon />} type="text" />
               </Tooltip>
             </Popover>
@@ -977,7 +977,7 @@ export default function MarkupStudioModal({
                 }
                 allowClear={true}
                 children={
-                  <Tooltip placement="right" title="Stroke">
+                  <Tooltip placement="left" title="Stroke">
                     <Button icon={<LeadPencilIcon />} type="text" />
                   </Tooltip>
                 }
@@ -1002,7 +1002,7 @@ export default function MarkupStudioModal({
                   </div>
                 }
               >
-                <Tooltip placement="right" title="Stroke Weight">
+                <Tooltip placement="left" title="Stroke Weight">
                   <Button icon={<FormatLineWeightIcon />} type="text" />
                 </Tooltip>
               </Popover>
@@ -1022,7 +1022,7 @@ export default function MarkupStudioModal({
                 allowClear={true}
                 onClear={() => handlePalettePropertyChange("fill", null)}
                 children={
-                  <Tooltip placement="right" title="Fill">
+                  <Tooltip placement="left" title="Fill">
                     <Button icon={<PaletteIcon />} type="text" />
                   </Tooltip>
                 }
@@ -1048,7 +1048,7 @@ export default function MarkupStudioModal({
                   handlePalettePropertyChange("backgroundColor", null)
                 }
                 children={
-                  <Tooltip placement="right" title="Background">
+                  <Tooltip placement="left" title="Background">
                     <Button icon={<FormatColorFillIcon />} type="text" />
                   </Tooltip>
                 }
@@ -1069,7 +1069,7 @@ export default function MarkupStudioModal({
                 allowClear={true}
                 onClear={() => handlePalettePropertyChange("stroke", null)}
                 children={
-                  <Tooltip placement="right" title="Stroke">
+                  <Tooltip placement="left" title="Stroke">
                     <Button icon={<LeadPencilIcon />} type="text" />
                   </Tooltip>
                 }
@@ -1099,7 +1099,7 @@ export default function MarkupStudioModal({
                     </div>
                   }
                 >
-                  <Tooltip placement="right" title="Stroke Weight">
+                  <Tooltip placement="left" title="Stroke Weight">
                     <Button icon={<FormatLineWeightIcon />} type="text" />
                   </Tooltip>
                 </Popover>
@@ -1113,7 +1113,7 @@ export default function MarkupStudioModal({
                 trigger="click"
                 content={
                   <div className="flex-column gap-2">
-                    <Tooltip placement="right" title="Bring Forward">
+                    <Tooltip placement="left" title="Bring Forward">
                       <Button
                         icon={<ArrangeBringForwardIcon />}
                         onClick={() => {
@@ -1122,7 +1122,7 @@ export default function MarkupStudioModal({
                         }}
                       />
                     </Tooltip>
-                    <Tooltip placement="right" title="Bring to Front">
+                    <Tooltip placement="left" title="Bring to Front">
                       <Button
                         icon={<ArrangeBringToFrontIcon />}
                         onClick={() => {
@@ -1131,7 +1131,7 @@ export default function MarkupStudioModal({
                         }}
                       />
                     </Tooltip>
-                    <Tooltip placement="right" title="Send Backward">
+                    <Tooltip placement="left" title="Send Backward">
                       <Button
                         icon={<ArrangeSendBackwardIcon />}
                         onClick={() => {
@@ -1140,7 +1140,7 @@ export default function MarkupStudioModal({
                         }}
                       />
                     </Tooltip>
-                    <Tooltip placement="right" title="Send to Back">
+                    <Tooltip placement="left" title="Send to Back">
                       <Button
                         icon={<ArrangeSendToBackIcon />}
                         onClick={() => {
@@ -1152,7 +1152,7 @@ export default function MarkupStudioModal({
                   </div>
                 }
               >
-                <Tooltip placement="right" title="Arrange">
+                <Tooltip placement="left" title="Arrange">
                   <Button icon={<LayersIcon />} type="text" />
                 </Tooltip>
               </Popover>
@@ -1160,14 +1160,14 @@ export default function MarkupStudioModal({
 
             <Divider className="my-1" />
 
-            <Tooltip placement="right" title="Copy Selection">
+            <Tooltip placement="left" title="Copy Selection">
               <Button
                 icon={<ContentDuplicateIcon />}
                 onClick={duplicateActiveSelection}
                 type="text"
               />
             </Tooltip>
-            <Tooltip placement="right" title="Delete Selection">
+            <Tooltip placement="left" title="Delete Selection">
               <Button
                 icon={<DeleteIcon />}
                 danger
