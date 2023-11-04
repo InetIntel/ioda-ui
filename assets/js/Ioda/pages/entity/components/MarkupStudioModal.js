@@ -262,6 +262,18 @@ export default function MarkupStudioModal({
     return canvas.getObjects().find((obj) => obj.get(CANVAS_ID) === id) ?? null;
   };
 
+  const getCanvasViewportCenter = () => {
+    const zoom = canvas.getZoom();
+    return {
+      x:
+        fabric.util.invertTransform(canvas.viewportTransform)[4] +
+        canvas.width / zoom / 2,
+      y:
+        fabric.util.invertTransform(canvas.viewportTransform)[5] +
+        canvas.height / zoom / 2,
+    };
+  };
+
   const loadCanvasImageBase = async () => {
     if (!canvas) return;
     const chartImage = await getBase64PNGFromSVGString(svgString);
@@ -679,44 +691,58 @@ export default function MarkupStudioModal({
 
   const addCircle = () => {
     beforeDrawShape();
+
+    const { x, y } = getCanvasViewportCenter();
+    const circleRadius = 50 / canvas.getZoom();
+
     const circle = new fabric.Circle({
-      radius: 50,
+      radius: circleRadius,
       fill: DEFAULT_SHAPE_FILL,
       stroke: null,
       strokeWidth: 1,
       strokeUniform: true,
-      left: canvas.width / 2 - 50 / 2,
-      top: canvas.height / 2 - 50 / 2,
+      left: x - circleRadius,
+      top: y - circleRadius,
     }).set(CANVAS_TYPE, "circle");
     addObjectToCanvas(circle);
   };
 
   const addRectangle = () => {
     beforeDrawShape();
+
+    const { x, y } = getCanvasViewportCenter();
+    const rectWidth = 100 / canvas.getZoom();
+    const rectHeight = 100 / canvas.getZoom();
+
     const rect = new fabric.Rect({
-      width: 100,
-      height: 100,
+      width: rectWidth,
+      height: rectHeight,
       fill: DEFAULT_SHAPE_FILL,
       stroke: null,
       strokeWidth: 1,
       strokeUniform: true,
-      left: canvas.width / 2 - 100 / 2,
-      top: canvas.height / 2 - 100 / 2,
+      left: x - rectWidth / 2,
+      top: y - rectHeight / 2,
     }).set(CANVAS_TYPE, "rect");
     addObjectToCanvas(rect);
   };
 
   const addTextbox = () => {
     beforeDrawShape();
+
+    const { x, y } = getCanvasViewportCenter();
+    const textWidth = 175 / canvas.getZoom();
+    const textSize = 16 / canvas.getZoom();
+
     const textbox = new fabric.Textbox("Double click to type", {
-      width: 175,
-      fontSize: 16,
+      width: textWidth,
+      fontSize: textSize,
       fill: "#000",
       backgroundColor: null,
       textAlign: "center",
       fontFamily: "Inter, sans-serif",
-      left: canvas.width / 2,
-      top: canvas.height / 2,
+      left: x - textWidth / 2,
+      top: y,
     }).set(CANVAS_TYPE, "textbox");
     addObjectToCanvas(textbox);
   };
@@ -758,10 +784,13 @@ export default function MarkupStudioModal({
   const addArrow = () => {
     beforeDrawShape();
 
+    const { x, y } = getCanvasViewportCenter();
+
     const arrowLength = 150;
     const arrowStroke = 4;
     const arrowHeadWidth = 20;
     const arrowHeadHeight = 20;
+
     const line = new fabric.Line([0, 0, 0, arrowLength - arrowHeadHeight], {
       strokeUniform: true,
       lockScalingX: true,
@@ -787,8 +816,8 @@ export default function MarkupStudioModal({
     const groupItems = [line, arrowHead];
     const group = new fabric.Group(groupItems, {
       hasControls: true,
-      left: canvas.width / 2,
-      top: canvas.height / 2,
+      left: x,
+      top: y,
       strokeUniform: true,
       lockScalingX: true,
       angle: 45,
