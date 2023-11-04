@@ -75,7 +75,7 @@ import Loading from "../../components/loading/Loading";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
 import * as topojson from "topojson";
 
-import Tooltip from "../../components/tooltip/Tooltip";
+import CustomToolip from "../../components/tooltip/Tooltip";
 
 // Helper Functions
 import {
@@ -112,13 +112,14 @@ import {
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
-import { Button, Checkbox, Popover } from "antd";
+import { Button, Checkbox, Popover, Tooltip } from "antd";
 import {
   DownloadOutlined,
   EditOutlined,
   SettingOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
+import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -203,6 +204,7 @@ class Entity extends Component {
       tsDataDisplayOutageBands: isAdvancedMode,
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
+      showResetZoomButton: false,
       // Used for responsively styling the xy chart
       tsDataScreenBelow970: window.innerWidth <= 970,
       tsDataScreenBelow678: window.innerWidth <= 678,
@@ -1427,9 +1429,13 @@ class Entity extends Component {
     const axisMin = millisecondsToSeconds(event.min);
     const axisMax = millisecondsToSeconds(event.max);
 
+    const isDefaultRange =
+      axisMin === this.state.from && axisMax === this.state.until;
+
     this.setState({
       tsDataLegendRangeFrom: axisMin,
       tsDataLegendRangeUntil: axisMax,
+      showResetZoomButton: !isDefaultRange,
     });
   };
 
@@ -2794,27 +2800,37 @@ class Entity extends Component {
                     {xyChartTitle}
                     {this.state.entityName}
                   </h3>
-                  <Tooltip
+                  <CustomToolip
                     className="mr-auto"
                     title={tooltipXyPlotTimeSeriesTitle}
                     text={tooltipXyPlotTimeSeriesText}
                   />
 
-                  <Popover
-                    open={this.state.displayChartSettingsPopover}
-                    onOpenChange={this.handleDisplayChartSettingsPopover}
-                    trigger="click"
-                    placement="bottomRight"
-                    overlayStyle={{
-                      width: 180,
-                    }}
-                    content={
-                      <div
-                        onClick={() =>
-                          this.handleDisplayChartSettingsPopover(false)
-                        }
-                      >
-                        {!this.state.simplifiedView && (
+                  {this.state.showResetZoomButton && (
+                    <Tooltip title="Reset View">
+                      <Button
+                        className="mr-3"
+                        icon={<MagnifyExpandIcon />}
+                        onClick={this.setDefaultNavigatorTimeRange}
+                      />
+                    </Tooltip>
+                  )}
+
+                  {!this.state.simplifiedView && (
+                    <Popover
+                      open={this.state.displayChartSettingsPopover}
+                      onOpenChange={this.handleDisplayChartSettingsPopover}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayStyle={{
+                        width: 180,
+                      }}
+                      content={
+                        <div
+                          onClick={() =>
+                            this.handleDisplayChartSettingsPopover(false)
+                          }
+                        >
                           <>
                             <Checkbox
                               checked={!!this.state.tsDataDisplayOutageBands}
@@ -2831,29 +2847,31 @@ class Entity extends Component {
                               {xyChartNormalizedToggleLabel}
                             </Checkbox>
                           </>
-                        )}
-                        <Button
-                          className="w-full mt-2"
-                          size="small"
-                          onClick={this.setDefaultNavigatorTimeRange}
-                        >
-                          Reset Zoom
-                        </Button>
-                      </div>
-                    }
-                  >
-                    <Button className="mr-3" icon={<SettingOutlined />} />
-                  </Popover>
-                  <Button
-                    className="mr-3"
-                    icon={<EditOutlined />}
-                    onClick={this.showMarkupStudioModal}
-                  />
-                  <Button
-                    className="mr-3"
-                    icon={<ShareAltOutlined />}
-                    onClick={this.displayShareLinkModal}
-                  />
+                        </div>
+                      }
+                    >
+                      <Tooltip title="Chart Settings">
+                        <Button className="mr-3" icon={<SettingOutlined />} />
+                      </Tooltip>
+                    </Popover>
+                  )}
+
+                  <Tooltip title="Markup">
+                    <Button
+                      className="mr-3"
+                      icon={<EditOutlined />}
+                      onClick={this.showMarkupStudioModal}
+                    />
+                  </Tooltip>
+
+                  <Tooltip title="Share Link">
+                    <Button
+                      className="mr-3"
+                      icon={<ShareAltOutlined />}
+                      onClick={this.displayShareLinkModal}
+                    />
+                  </Tooltip>
+
                   <Popover
                     open={this.state.displayChartSharePopover}
                     onOpenChange={this.handleDisplayChartSharePopover}
@@ -2905,7 +2923,13 @@ class Entity extends Component {
                       </div>
                     }
                   >
-                    <Button icon={<DownloadOutlined />} />
+                    <Tooltip
+                      title="Download"
+                      mouseEnterDelay={0}
+                      mouseLeaveDelay={0}
+                    >
+                      <Button icon={<DownloadOutlined />} />
+                    </Tooltip>
                   </Popover>
                 </div>
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
