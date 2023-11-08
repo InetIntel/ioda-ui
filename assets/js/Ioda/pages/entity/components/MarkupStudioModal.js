@@ -34,6 +34,7 @@ import DrawingIcon from "@2fd/ant-design-icons/lib/Drawing";
 import CursorDefaultIcon from "@2fd/ant-design-icons/lib/CursorDefault";
 import RedoIcon from "@2fd/ant-design-icons/lib/Redo";
 import UndoIcon from "@2fd/ant-design-icons/lib/Undo";
+import VectorLineIcon from "@2fd/ant-design-icons/lib/VectorLine";
 
 import FormatColorFillIcon from "@2fd/ant-design-icons/lib/FormatColorFill";
 import LayersIcon from "@2fd/ant-design-icons/lib/Layers";
@@ -65,11 +66,35 @@ const DEFAULT_SHAPE_FILL = "#F93D4E30";
 const CANVAS_TYPE = "canvasObject";
 const CANVAS_ID = "canvasId";
 
+const CANVAS_TYPES = {
+  CIRCLE: "circle",
+  RECTANGLE: "rect",
+  TEXTBOX: "textbox",
+  PATH: "path",
+  LINE: "line",
+  ARROW: "arrow",
+};
+
 // Property support by object type
-const SUPPORTS_FILL = ["circle", "rect", "textbox"];
-const SUPPORTS_BACKGROUND_COLOR = ["textbox"];
-const SUPPORTS_STROKE = ["circle", "rect", ARROW_TYPE, "path"];
-const SUPPORTS_STROKE_WIDTH = ["circle", "rect", "path"];
+const SUPPORTS_FILL = [
+  CANVAS_TYPES.CIRCLE,
+  CANVAS_TYPES.RECTANGLE,
+  CANVAS_TYPES.TEXTBOX,
+];
+const SUPPORTS_BACKGROUND_COLOR = [CANVAS_TYPES.TEXTBOX];
+const SUPPORTS_STROKE = [
+  CANVAS_TYPES.CIRCLE,
+  CANVAS_TYPES.RECTANGLE,
+  ARROW_TYPE,
+  CANVAS_TYPES.PATH,
+  CANVAS_TYPES.LINE,
+];
+const SUPPORTS_STROKE_WIDTH = [
+  CANVAS_TYPES.CIRCLE,
+  CANVAS_TYPES.RECTANGLE,
+  CANVAS_TYPES.PATH,
+  CANVAS_TYPES.LINE,
+];
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 20;
@@ -179,7 +204,6 @@ export default function MarkupStudioModal({
 
   const [copySelection, setCopySelection] = React.useState(null);
   const [zoomLevel, setZoomLevel] = React.useState(1);
-  const [canvasCentered, setCanvasCentered] = React.useState(true);
 
   const [canvasImage, setCanvasImage] = React.useState(null);
   const [exportQuality, setExportQuality] = React.useState(EXPORT_QUALITY.MED);
@@ -214,7 +238,6 @@ export default function MarkupStudioModal({
     canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
     canvas.renderAll();
     setZoomLevel(1);
-    setCanvasCentered(true);
   };
 
   const wipeCanvas = () => {
@@ -375,10 +398,6 @@ export default function MarkupStudioModal({
       this.setViewportTransform(this.viewportTransform);
       this.isDragging = false;
       this.selection = true;
-      // Set canvas centered based on position after panning
-      setCanvasCentered(
-        this.viewportTransform[4] === 0 && this.viewportTransform[5] === 0
-      );
     });
 
     canvas.on("history:append", captureHistoryCapabilities);
@@ -407,9 +426,6 @@ export default function MarkupStudioModal({
     opt.e.stopPropagation();
 
     setZoomLevel(zoom);
-    setCanvasCentered(
-      canvas.viewportTransform[4] === 0 && canvas.viewportTransform[5] === 0
-    );
   };
 
   const zoomIn = () => {
@@ -698,7 +714,7 @@ export default function MarkupStudioModal({
 
     // Register all paths with our custom type
     const paths = canvas.getObjects().filter((obj) => obj.type === "path");
-    paths.forEach((path) => path.set(CANVAS_TYPE, "path"));
+    paths.forEach((path) => path.set(CANVAS_TYPE, CANVAS_TYPES.PATH));
 
     bringWatermarkToFront();
 
@@ -753,7 +769,7 @@ export default function MarkupStudioModal({
       strokeUniform: true,
       left: x - circleRadius,
       top: y - circleRadius,
-    }).set(CANVAS_TYPE, "circle");
+    }).set(CANVAS_TYPE, CANVAS_TYPES.CIRCLE);
     addObjectToCanvas(circle);
   };
 
@@ -773,7 +789,7 @@ export default function MarkupStudioModal({
       strokeUniform: true,
       left: x - rectWidth / 2,
       top: y - rectHeight / 2,
-    }).set(CANVAS_TYPE, "rect");
+    }).set(CANVAS_TYPE, CANVAS_TYPES.RECTANGLE);
     addObjectToCanvas(rect);
   };
 
@@ -793,8 +809,35 @@ export default function MarkupStudioModal({
       fontFamily: "Inter, sans-serif",
       left: x - textWidth / 2,
       top: y,
-    }).set(CANVAS_TYPE, "textbox");
+    }).set(CANVAS_TYPE, CANVAS_TYPES.TEXTBOX);
     addObjectToCanvas(textbox);
+  };
+
+  const addLine = () => {
+    beforeDrawShape();
+
+    const { x, y } = getCanvasViewportCenter();
+
+    const lineLength = 100 / canvas.getZoom();
+    const lineStroke = Math.max(Math.floor(4 / canvas.getZoom()), 1);
+
+    var line = new fabric.Line(
+      [
+        x - lineLength / 2,
+        y - lineLength / 2,
+        x + lineLength / 2,
+        y + lineLength / 2,
+      ],
+      {
+        stroke: "#000",
+        strokeWidth: lineStroke,
+        lockScalingX: false,
+        strokeUniform: true,
+        objectCaching: false,
+      }
+    ).set(CANVAS_TYPE, CANVAS_TYPES.LINE);
+
+    addObjectToCanvas(line);
   };
 
   function adjustArrowsSize(arrowObjects, objectScaleY) {
@@ -866,8 +909,8 @@ export default function MarkupStudioModal({
     const groupItems = [line, arrowHead];
     const group = new fabric.Group(groupItems, {
       hasControls: true,
-      left: x,
-      top: y,
+      left: x + 75,
+      top: y - 75,
       strokeUniform: true,
       lockScalingX: true,
       angle: 45,
@@ -878,7 +921,7 @@ export default function MarkupStudioModal({
         mb: true,
         mtr: true,
       })
-      .set(CANVAS_TYPE, ARROW_TYPE);
+      .set(CANVAS_TYPE, CANVAS_TYPES.ARROW);
 
     addObjectToCanvas(group);
   };
@@ -1037,6 +1080,9 @@ export default function MarkupStudioModal({
                       icon={<ArrowTopRightThinIcon />}
                       onClick={addArrow}
                     />
+                  </Tooltip>
+                  <Tooltip placement="left" title="Line">
+                    <Button icon={<VectorLineIcon />} onClick={addLine} />
                   </Tooltip>
                   <Tooltip placement="left" title="Circle">
                     <Button icon={<CircleOutlineIcon />} onClick={addCircle} />
