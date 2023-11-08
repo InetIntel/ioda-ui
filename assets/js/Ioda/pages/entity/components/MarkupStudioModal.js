@@ -1358,7 +1358,7 @@ export default function MarkupStudioModal({
                 </Button>
               </div>
 
-              <div className="col flex justify-center items-center gap-2">
+              <div className="col flex justify-center items-center">
                 <Button icon={<MagnifyMinusOutlineIcon />} onClick={zoomOut} />
                 <div className="font-bold w-28 text-center">
                   {Math.round(zoomLevel * 100)}%
