@@ -14,6 +14,8 @@ import {
 import { fabric } from "fabric";
 import "fabric-history";
 
+import ReactGA from "react-ga4";
+
 import iodaWatermark from "images/ioda-canvas-watermark.svg";
 
 import FormatText from "@2fd/ant-design-icons/lib/FormatText";
@@ -955,6 +957,9 @@ export default function MarkupStudioModal({
     setCanvasImage(dataURL);
     setModalScreen(MODAL_SCREENS.SHARE);
     downloadImageFromDataUrl(dataURL);
+
+    // Register metric on Google Analytics
+    ReactGA.event({ category: "markup-modal", action: "user-save-image" });
   };
 
   const redownloadImage = () => {
