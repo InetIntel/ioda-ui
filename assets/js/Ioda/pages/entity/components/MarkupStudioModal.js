@@ -1327,7 +1327,7 @@ export default function MarkupStudioModal({
                       borderBottomRightRadius: "0px",
                     }}
                   >
-                    Save
+                    Save & Share
                   </Button>
                   <Popover
                     placement="topRight"
