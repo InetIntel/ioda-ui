@@ -99,6 +99,7 @@ import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/export-data")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
+import iodaWatermark from "images/ioda-canvas-watermark.svg";
 
 import { getSavedAdvancedModePreference } from "../../utils/storage";
 import {
@@ -1045,6 +1046,7 @@ class Entity extends Component {
         style: {
           fontFamily: CUSTOM_FONT_FAMILY,
         },
+        events: {},
       },
       accessibility: {
         enabled: false,
@@ -1076,23 +1078,6 @@ class Entity extends Component {
             itemDistance: 40,
           },
           spacing: [10, 10, 15, 10],
-          credits: {
-            enabled: true,
-            text: "ioda.live",
-            href: "https://ioda.inetintel.cc.gatech.edu/",
-            position: {
-              align: "right",
-              verticalAlign: "top",
-              x: -15,
-              y: 25,
-            },
-            style: {
-              color: "#000",
-              fontSize: "16px",
-              fontWeight: "bold",
-              fontFamily: CUSTOM_FONT_FAMILY,
-            },
-          },
         },
         // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
         sourceWidth: 1000,
@@ -1471,11 +1456,43 @@ class Entity extends Component {
    * ShareLinkModal to trigger a direct download
    */
   manuallyDownloadChart = (imageType) => {
-    if (this.timeSeriesChartRef.current) {
-      this.timeSeriesChartRef.current.chart.exportChartLocal({
-        type: imageType,
-      });
+    if (!this.timeSeriesChartRef.current?.chart) {
+      return;
     }
+
+    // Append watermark to image on download:
+    // https://www.highcharts.com/forum/viewtopic.php?t=47368
+    this.timeSeriesChartRef.current.chart.exportChartLocal(
+      {
+        type: imageType,
+      },
+      {
+        chart: {
+          events: {
+            load: function () {
+              const chart = this;
+              const watermarkAspectRatio = 0.184615;
+              const watermarkWidth = Math.floor(chart.chartWidth / 6);
+              const watermarkHeight = Math.floor(
+                watermarkWidth * watermarkAspectRatio
+              );
+              const padding = 12;
+
+              chart.watermarkImage = chart.renderer
+                .image(
+                  iodaWatermark,
+                  chart.chartWidth - watermarkWidth - padding,
+                  padding,
+                  watermarkWidth,
+                  watermarkHeight
+                )
+                .add()
+                .toFront();
+            },
+          },
+        },
+      }
+    );
   };
 
   handleCSVDownload = () => {
