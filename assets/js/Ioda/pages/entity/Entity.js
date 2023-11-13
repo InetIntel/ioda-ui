@@ -75,7 +75,7 @@ import Loading from "../../components/loading/Loading";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
 import * as topojson from "topojson";
 
-import Tooltip from "../../components/tooltip/Tooltip";
+import CustomToolip from "../../components/tooltip/Tooltip";
 
 // Helper Functions
 import {
@@ -91,12 +91,15 @@ import Error from "../../components/error/Error";
 import { Helmet } from "react-helmet";
 import ChartTabCard from "../../components/cards/ChartTabCard";
 import ShareLinkModal from "../../components/modal/ShareLinkModal";
+import MarkupStudioModal from "./components/MarkupStudioModal";
 
 // Chart libraries
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
+require("highcharts/modules/export-data")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
+import iodaWatermark from "images/ioda-canvas-watermark.svg";
 
 import { getSavedAdvancedModePreference } from "../../utils/storage";
 import {
@@ -110,8 +113,14 @@ import {
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
-import { Button, Checkbox, Popover } from "antd";
-import { SettingOutlined, ShareAltOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Popover, Tooltip } from "antd";
+import {
+  DownloadOutlined,
+  EditOutlined,
+  SettingOutlined,
+  ShareAltOutlined,
+} from "@ant-design/icons";
+import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -196,6 +205,7 @@ class Entity extends Component {
       tsDataDisplayOutageBands: isAdvancedMode,
       tsDataLegendRangeFrom: fromDate,
       tsDataLegendRangeUntil: untilDate,
+      showResetZoomButton: false,
       // Used for responsively styling the xy chart
       tsDataScreenBelow970: window.innerWidth <= 970,
       tsDataScreenBelow678: window.innerWidth <= 678,
@@ -203,6 +213,9 @@ class Entity extends Component {
       showXyChartModal: false,
       // display link sharing modal
       showShareLinkModal: false,
+      // display annotation studio modal
+      showMarkupStudioModal: false,
+      markupStudioSvgBaseString: "",
       // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
       tsDataSeriesVisibleMap: dataSource.reduce((result, item) => {
         result[item] = true;
@@ -815,6 +828,35 @@ class Entity extends Component {
     );
   };
 
+  getChartExportTitle = () => {
+    return `${T.translate(
+      "entity.xyChartTitle"
+    )} ${this.state.entityName?.trim()}`;
+  };
+
+  getChartExportSubtitle = () => {
+    const fromDayjs = secondsToUTC(this.state.from);
+    const untilDayjs = secondsToUTC(this.state.until);
+
+    const formatExpanded = "MMMM D, YYYY h:mma";
+
+    return `${fromDayjs.format(formatExpanded)} - ${untilDayjs.format(
+      formatExpanded
+    )} UTC`;
+  };
+
+  getChartExportFileName = () => {
+    const fromDayjs = secondsToUTC(this.state.from);
+
+    const formatCompact = "YY-MM-DD-HH-mm";
+
+    const exportFileNameBase = `ioda-${
+      this.state.entityName
+    }-${fromDayjs.format(formatCompact)}`;
+
+    return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
+  };
+
   // 1st Row
   // XY Chart Functions
   // format data from api to be compatible with chart visual
@@ -980,26 +1022,11 @@ class Entity extends Component {
     );
 
     // Set necessary fields for chart exporting
-    const exportChartTitle = `${T.translate("entity.xyChartTitle")} ${
-      this.state.entityName
-    }`;
-    const fromDayjs = secondsToUTC(this.state.from);
-    const untilDayjs = secondsToUTC(this.state.until);
+    const exportChartTitle = this.getChartExportTitle();
 
-    const formatExpanded = "MMMM D, YYYY h:mma";
-    const formatCompact = "YY-MM-DD-HH-mm";
+    const exportChartSubtitle = this.getChartExportSubtitle();
 
-    const exportChartSubtitle = `${fromDayjs.format(
-      formatExpanded
-    )} - ${untilDayjs.format(formatExpanded)} UTC`;
-
-    const exportFileNameBase = `ioda-${
-      this.state.entityName
-    }-${fromDayjs.format(formatCompact)}`;
-
-    const exportFileName = exportFileNameBase
-      .replace(/\s+/g, "-")
-      .toLowerCase();
+    const exportFileName = this.getChartExportFileName();
 
     const chartOptions = {
       chart: {
@@ -1019,6 +1046,7 @@ class Entity extends Component {
         style: {
           fontFamily: CUSTOM_FONT_FAMILY,
         },
+        events: {},
       },
       accessibility: {
         enabled: false,
@@ -1050,23 +1078,6 @@ class Entity extends Component {
             itemDistance: 40,
           },
           spacing: [10, 10, 15, 10],
-          credits: {
-            enabled: true,
-            text: "ioda.live",
-            href: "https://ioda.inetintel.cc.gatech.edu/",
-            position: {
-              align: "right",
-              verticalAlign: "top",
-              x: -15,
-              y: 25,
-            },
-            style: {
-              color: "#000",
-              fontSize: "16px",
-              fontWeight: "bold",
-              fontFamily: CUSTOM_FONT_FAMILY,
-            },
-          },
         },
         // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
         sourceWidth: 1000,
@@ -1403,9 +1414,13 @@ class Entity extends Component {
     const axisMin = millisecondsToSeconds(event.min);
     const axisMax = millisecondsToSeconds(event.max);
 
+    const isDefaultRange =
+      axisMin === this.state.from && axisMax === this.state.until;
+
     this.setState({
       tsDataLegendRangeFrom: axisMin,
       tsDataLegendRangeUntil: axisMax,
+      showResetZoomButton: !isDefaultRange,
     });
   };
 
@@ -1441,11 +1456,103 @@ class Entity extends Component {
    * ShareLinkModal to trigger a direct download
    */
   manuallyDownloadChart = (imageType) => {
-    if (this.timeSeriesChartRef.current) {
-      this.timeSeriesChartRef.current.chart.exportChartLocal({
-        type: imageType,
-      });
+    if (!this.timeSeriesChartRef.current?.chart) {
+      return;
     }
+
+    // Append watermark to image on download:
+    // https://www.highcharts.com/forum/viewtopic.php?t=47368
+    this.timeSeriesChartRef.current.chart.exportChartLocal(
+      {
+        type: imageType,
+      },
+      {
+        chart: {
+          events: {
+            load: function () {
+              const chart = this;
+              const watermarkAspectRatio = 0.184615;
+              const watermarkWidth = Math.floor(chart.chartWidth / 6);
+              const watermarkHeight = Math.floor(
+                watermarkWidth * watermarkAspectRatio
+              );
+              const padding = 12;
+
+              chart.watermarkImage = chart.renderer
+                .image(
+                  iodaWatermark,
+                  chart.chartWidth - watermarkWidth - padding,
+                  padding,
+                  watermarkWidth,
+                  watermarkHeight
+                )
+                .add()
+                .toFront();
+            },
+          },
+        },
+      }
+    );
+  };
+
+  handleCSVDownload = () => {
+    if (!this.timeSeriesChartRef.current) {
+      return;
+    }
+
+    const csvString = this.timeSeriesChartRef.current.chart.getCSV();
+
+    // The first column is the timestamp, and each following column is
+    // duplicated because we duplicate each series for the navigator to always
+    // show the normalized data. As such, we need to remove the duplicates.
+    const parsedCSV = csvString
+      .split("\n")
+      .map((line) => {
+        return line.split(",").filter((val, index) => {
+          // Always keep the timestamp column
+          if (index === 0) return true;
+          // Duplicates are located at the even indices
+          if (index % 2 === 1) return true;
+          return false;
+        });
+      })
+      .join("\n");
+
+    const isNormalized = !!this.state.tsDataNormalized;
+    const fileName =
+      this.getChartExportFileName() + (isNormalized ? "-normalized" : "-raw");
+
+    const blob = new Blob([parsedCSV], { type: "text/csv;charset=utf-8," });
+    const objUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", objUrl);
+    link.setAttribute("download", `${fileName}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  /**
+   * Get an SVG node of the chart
+   */
+  getChartSvg = () => {
+    if (this.timeSeriesChartRef.current) {
+      return this.timeSeriesChartRef.current.chart.getSVG();
+    }
+    return null;
+  };
+
+  showMarkupStudioModal = () => {
+    this.setState({
+      showMarkupStudioModal: true,
+      markupStudioSvgBaseString: this.getChartSvg(),
+    });
+  };
+
+  hideMarkupStudioModal = () => {
+    this.setState({
+      showMarkupStudioModal: false,
+    });
   };
 
   // toggle normalized values and absolute values
@@ -2693,6 +2800,16 @@ class Entity extends Component {
               entityName={this.state.entityName}
               handleDownload={() => this.manuallyDownloadChart("image/jpeg")}
             />
+            <MarkupStudioModal
+              open={this.state.showMarkupStudioModal}
+              svgString={this.state.markupStudioSvgBaseString}
+              hideModal={this.hideMarkupStudioModal}
+              chartTitle={this.getChartExportTitle()}
+              chartSubtitle={this.getChartExportSubtitle()}
+              exportFileName={this.getChartExportFileName()}
+              shareLink={window.location.href}
+              entityName={this.state.entityName}
+            />
             <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
               <div className="col-2 p-4 card entity__chart">
                 <div className="flex items-center mb-3">
@@ -2700,27 +2817,37 @@ class Entity extends Component {
                     {xyChartTitle}
                     {this.state.entityName}
                   </h3>
-                  <Tooltip
+                  <CustomToolip
                     className="mr-auto"
                     title={tooltipXyPlotTimeSeriesTitle}
                     text={tooltipXyPlotTimeSeriesText}
                   />
 
-                  <Popover
-                    open={this.state.displayChartSettingsPopover}
-                    onOpenChange={this.handleDisplayChartSettingsPopover}
-                    trigger="click"
-                    placement="bottomRight"
-                    overlayStyle={{
-                      width: 180,
-                    }}
-                    content={
-                      <div
-                        onClick={() =>
-                          this.handleDisplayChartSettingsPopover(false)
-                        }
-                      >
-                        {!this.state.simplifiedView && (
+                  {this.state.showResetZoomButton && (
+                    <Tooltip title="Reset View">
+                      <Button
+                        className="mr-3"
+                        icon={<MagnifyExpandIcon />}
+                        onClick={this.setDefaultNavigatorTimeRange}
+                      />
+                    </Tooltip>
+                  )}
+
+                  {!this.state.simplifiedView && (
+                    <Popover
+                      open={this.state.displayChartSettingsPopover}
+                      onOpenChange={this.handleDisplayChartSettingsPopover}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayStyle={{
+                        width: 180,
+                      }}
+                      content={
+                        <div
+                          onClick={() =>
+                            this.handleDisplayChartSettingsPopover(false)
+                          }
+                        >
                           <>
                             <Checkbox
                               checked={!!this.state.tsDataDisplayOutageBands}
@@ -2737,19 +2864,31 @@ class Entity extends Component {
                               {xyChartNormalizedToggleLabel}
                             </Checkbox>
                           </>
-                        )}
-                        <Button
-                          className="w-full mt-2"
-                          size="small"
-                          onClick={this.setDefaultNavigatorTimeRange}
-                        >
-                          Reset Zoom
-                        </Button>
-                      </div>
-                    }
-                  >
-                    <Button className="mr-3" icon={<SettingOutlined />} />
-                  </Popover>
+                        </div>
+                      }
+                    >
+                      <Tooltip title="Chart Settings">
+                        <Button className="mr-3" icon={<SettingOutlined />} />
+                      </Tooltip>
+                    </Popover>
+                  )}
+
+                  <Tooltip title="Markup">
+                    <Button
+                      className="mr-3"
+                      icon={<EditOutlined />}
+                      onClick={this.showMarkupStudioModal}
+                    />
+                  </Tooltip>
+
+                  <Tooltip title="Share Link">
+                    <Button
+                      className="mr-3"
+                      icon={<ShareAltOutlined />}
+                      onClick={this.displayShareLinkModal}
+                    />
+                  </Tooltip>
+
                   <Popover
                     open={this.state.displayChartSharePopover}
                     onOpenChange={this.handleDisplayChartSharePopover}
@@ -2767,9 +2906,9 @@ class Entity extends Component {
                         <Button
                           className="w-full mb-2"
                           size="small"
-                          onClick={this.displayShareLinkModal}
+                          onClick={this.handleCSVDownload}
                         >
-                          Share Link
+                          Data CSV
                         </Button>
                         <Button
                           className="w-full mb-2"
@@ -2778,7 +2917,7 @@ class Entity extends Component {
                             this.manuallyDownloadChart("image/jpeg")
                           }
                         >
-                          Download JPEG
+                          Chart JPEG
                         </Button>
                         <Button
                           className="w-full mb-2"
@@ -2787,7 +2926,7 @@ class Entity extends Component {
                             this.manuallyDownloadChart("image/png")
                           }
                         >
-                          Download PNG
+                          Chart PNG
                         </Button>
                         <Button
                           className="w-full"
@@ -2796,12 +2935,18 @@ class Entity extends Component {
                             this.manuallyDownloadChart("image/svg+xml")
                           }
                         >
-                          Download SVG
+                          Chart SVG
                         </Button>
                       </div>
                     }
                   >
-                    <Button icon={<ShareAltOutlined />} />
+                    <Tooltip
+                      title="Download"
+                      mouseEnterDelay={0}
+                      mouseLeaveDelay={0}
+                    >
+                      <Button icon={<DownloadOutlined />} />
+                    </Tooltip>
                   </Popover>
                 </div>
                 {this.state.xyChartOptions ? this.renderXyChart() : <Loading />}
