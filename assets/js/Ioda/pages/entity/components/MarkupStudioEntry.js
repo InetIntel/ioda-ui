@@ -2,7 +2,7 @@ import * as React from "react";
 import { Button } from "antd";
 
 import PreloadImage from "react-preload-image";
-import EntryGraphic from "images/markup-entry-graphic.jpg";
+import EntryGraphic from "images/markup-entry-graphic.png";
 
 export default function MarkupStudioEntry({ show, onStart }) {
   return (
