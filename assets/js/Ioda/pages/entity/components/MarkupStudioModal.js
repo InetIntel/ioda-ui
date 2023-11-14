@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { fabric } from "fabric";
 import "fabric-history";
+import { registerAnalyticsEvent } from "../../../utils/analytics";
 
 import ReactGA from "react-ga4";
 
@@ -957,7 +958,7 @@ export default function MarkupStudioModal({
     downloadImageFromDataUrl(dataURL);
 
     // Register metric on Google Analytics
-    ReactGA.event({ category: "markup-modal", action: "user-save-image" });
+    registerAnalyticsEvent("MarkupModal", "UserSaveImage");
   };
 
   const redownloadImage = () => {

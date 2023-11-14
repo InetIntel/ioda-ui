@@ -121,6 +121,7 @@ import {
   ShareAltOutlined,
 } from "@ant-design/icons";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
+import { registerAnalyticsEvent } from "../../utils/analytics";
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -1530,6 +1531,8 @@ class Entity extends Component {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    registerAnalyticsEvent("Entity", "DownloadDataCSV");
   };
 
   /**
