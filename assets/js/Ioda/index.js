@@ -59,29 +59,9 @@ import ProjectInfo from "./pages/projectinfo/ProjectInfo";
 import Help from "./pages/help/Help";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
+import { initializeAnalytics } from "./utils/analytics";
 
-import ReactGA from "react-ga4";
-
-/*
-const ga4react = new GA4React("G-XD5MWMBCF9");
-ga4react.initialize().then(
-  (ga4) => {
-    ga4.pageview("path");
-    ga4.gtag("event", "pageview", "path");
-  },
-  (err) => {
-    console.error(err);
-  }
-);
-ga4react.initialize();
-*/
-
-ReactGA.initialize([
-  // new property
-  { trackingId: "G-3J1FMTEGCV" },
-  // previous property, owned by CAIDA
-  { trackingId: "G-XD5MWMBCF9" },
-]);
+initializeAnalytics();
 
 class App extends Component {
   constructor(props) {
