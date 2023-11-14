@@ -511,9 +511,9 @@ export default function MarkupStudioModal({
   };
 
   const handleEscape = () => {
-    exitFreeDrawingMode();
     setActiveObject(null);
     setLayerPopoverOpen(false);
+    enterSelectMode();
   };
 
   const canvasUndoHandler = () => {
@@ -688,12 +688,11 @@ export default function MarkupStudioModal({
 
   const exitPanningMode = () => {
     resetCanvasModeStates();
-    enterSelectMode();
   };
 
   const togglePanningMode = () => {
     if (canvasMode === CANVAS_MODES.PAN) {
-      exitPanningMode();
+      enterSelectMode();
     } else {
       enterPanningMode();
     }
@@ -719,13 +718,11 @@ export default function MarkupStudioModal({
     paths.forEach((path) => path.set(CANVAS_TYPE, CANVAS_TYPES.PATH));
 
     bringWatermarkToFront();
-
-    enterSelectMode();
   };
 
   const toggleFreeDrawingMode = () => {
     if (canvasMode === CANVAS_MODES.DRAW) {
-      exitFreeDrawingMode();
+      enterSelectMode();
     } else {
       enterFreeDrawingMode();
     }
@@ -733,7 +730,8 @@ export default function MarkupStudioModal({
 
   const enterSelectMode = () => {
     resetCanvasModeStates();
-
+    exitFreeDrawingMode();
+    exitPanningMode();
     setCanvasMode(CANVAS_MODES.SELECT);
   };
 
