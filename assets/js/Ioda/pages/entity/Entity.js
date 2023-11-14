@@ -2881,6 +2881,7 @@ class Entity extends Component {
                       className="mr-3"
                       icon={<EditOutlined />}
                       onClick={this.showMarkupStudioModal}
+                      disabled={this.state.xyChartOptions == null}
                     />
                   </Tooltip>
 
@@ -2910,6 +2911,7 @@ class Entity extends Component {
                           className="w-full mb-2"
                           size="small"
                           onClick={this.handleCSVDownload}
+                          disabled={this.state.xyChartOptions == null}
                         >
                           Data CSV
                         </Button>
@@ -2919,6 +2921,7 @@ class Entity extends Component {
                           onClick={() =>
                             this.manuallyDownloadChart("image/jpeg")
                           }
+                          disabled={this.state.xyChartOptions == null}
                         >
                           Chart JPEG
                         </Button>
@@ -2928,6 +2931,7 @@ class Entity extends Component {
                           onClick={() =>
                             this.manuallyDownloadChart("image/png")
                           }
+                          disabled={this.state.xyChartOptions == null}
                         >
                           Chart PNG
                         </Button>
@@ -2937,6 +2941,7 @@ class Entity extends Component {
                           onClick={() =>
                             this.manuallyDownloadChart("image/svg+xml")
                           }
+                          disabled={this.state.xyChartOptions == null}
                         >
                           Chart SVG
                         </Button>
