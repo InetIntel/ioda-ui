@@ -56,12 +56,16 @@ export default function MarkupStudioShare({
             className="col flex items-center justify-center w-full"
             style={{ backgroundColor: "#FAFAFA" }}
           >
-            <div className="w-3/5">
+            <div>
               <img
                 src={imagePreviewUrl}
                 alt=""
-                className="w-full card"
-                style={{ border: "2px solid #D9D9D9" }}
+                style={{
+                  border: "2px solid #D9D9D9",
+                  objectFit: "contain",
+                  height: "360px",
+                  maxWidth: "600px",
+                }}
               />
               <div
                 className="flex items-center mt-2"

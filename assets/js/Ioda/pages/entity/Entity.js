@@ -94,7 +94,7 @@ import ShareLinkModal from "../../components/modal/ShareLinkModal";
 import MarkupStudioModal from "./components/MarkupStudioModal";
 
 // Chart libraries
-import Highcharts from "highcharts/highstock";
+import Highcharts, { chart } from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/export-data")(Highcharts);
@@ -217,6 +217,8 @@ class Entity extends Component {
       // display annotation studio modal
       showMarkupStudioModal: false,
       markupStudioSvgBaseString: "",
+      markupAspectRatio: 1,
+
       // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
       tsDataSeriesVisibleMap: dataSource.reduce((result, item) => {
         result[item] = true;
@@ -858,6 +860,21 @@ class Entity extends Component {
     return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
   };
 
+  getChartHeightAbsolutePx = (numSeries) => {
+    const pxHeightPerSeries = 175;
+    return Math.max(515, numSeries * pxHeightPerSeries);
+  };
+
+  getChartAspectRatio = () => {
+    if (!this.timeSeriesChartRef.current) {
+      return 1;
+    }
+    return (
+      this.timeSeriesChartRef.current.chart.chartWidth /
+      this.timeSeriesChartRef.current.chart.chartHeight
+    );
+  };
+
   // 1st Row
   // XY Chart Functions
   // format data from api to be compatible with chart visual
@@ -865,28 +882,12 @@ class Entity extends Component {
     const signalValues = [];
     const normalizedValues = [];
 
-    // Holds a map of series-id to the max y-value in that series
-    const seriesMaxes = {};
-
-    // Holds a map of series-id to the min y-value in that series
-    const seriesMins = {};
-
     // Loop through available datasources to collect plot points
     this.state.tsDataRaw[0].forEach((datasource) => {
       let id = datasource.datasource;
       id += datasource.subtype ? `.${datasource.subtype}` : "";
 
-      // Only track the maxes of visible series. If we keep the maxes from
-      // invisible series, they may influence the y-axis maxes even though they
-      // aren't displayed
       const seriesMax = getMaxValue(datasource.values);
-      if (this.state.tsDataSeriesVisibleMap[id]) {
-        seriesMaxes[id] = this.state.tsDataNormalized ? 100 : seriesMax;
-        seriesMins[id] = this.state.tsDataNormalized
-          ? 0
-          : getMinValue(datasource.values);
-      }
-
       if (!datasource.values) {
         return;
       }
@@ -916,69 +917,6 @@ class Entity extends Component {
         values: seriesDataValuesNormalized,
       });
     });
-
-    // Creates an array of [(series-id, series-max)...] sorted by max values
-    const seriesSortedByMaxValues = Object.entries(seriesMaxes).sort(
-      (a, b) => a[1] - b[1]
-    );
-
-    // Set the minimum factor jump to consider for partitioning. For a graph
-    // with only two series, we drop the jump to visualize them separately
-    let minFactorJump = 10;
-    if (seriesSortedByMaxValues.length <= 2) {
-      minFactorJump = 2;
-    }
-
-    // Track the largest factor increase (greater than minFactorJump) in maxes
-    // of the series
-    let maxFactorIncreaseValue = 1;
-    let maxFactorIncreaseIndex = seriesSortedByMaxValues.length;
-    for (let i = 1; i < seriesSortedByMaxValues.length; i++) {
-      const currMax = seriesSortedByMaxValues[i][1];
-      const prevMax = seriesSortedByMaxValues[i - 1][1];
-      const factorIncrease = currMax / prevMax;
-      if (
-        factorIncrease > minFactorJump &&
-        factorIncrease > maxFactorIncreaseValue
-      ) {
-        maxFactorIncreaseValue = factorIncrease;
-        maxFactorIncreaseIndex = i;
-      }
-    }
-
-    // Split the series into 2 arrays based on the partition line
-    const leftPartition = seriesSortedByMaxValues.slice(
-      0,
-      maxFactorIncreaseIndex
-    );
-    const rightPartition = seriesSortedByMaxValues.slice(
-      maxFactorIncreaseIndex,
-      seriesSortedByMaxValues.length
-    );
-
-    // console.log("Sorted Series:", seriesSortedByMaxValues);
-    // console.log("Left Partition:", leftPartition);
-    // console.log("Right Partition:", rightPartition);
-
-    // Get the max and min values for each partition. These will become the
-    // max/mins for our two y-axes. We need to set axis mins because otherwise,
-    // the axis bounds will shift when we drag the navigator
-    let leftPartitionMax = -Infinity;
-    let leftPartitionMin = Infinity;
-    for (const [seriesId, seriesMax] of leftPartition) {
-      leftPartitionMax = Math.max(leftPartitionMax, seriesMax);
-      leftPartitionMin = Math.min(leftPartitionMin, seriesMins[seriesId]);
-    }
-
-    let rightPartitionMax = -Infinity;
-    let rightPartitionMin = Infinity;
-    for (const [seriesId, seriesMax] of rightPartition) {
-      rightPartitionMax = Math.max(rightPartitionMax, seriesMax);
-      rightPartitionMin = Math.min(rightPartitionMin, seriesMins[seriesId]);
-    }
-
-    // Extract the series-ids that are in the left partition
-    const leftPartitionSeries = leftPartition.map((x) => x[0]);
 
     const formatYAxisLabels = (val) => {
       if (this.state.tsDataNormalized) {
@@ -1016,11 +954,70 @@ class Entity extends Component {
 
     const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
 
-    const { chartSignals, alertBands } = this.createChartSeries(
+    const { chartSeries, navigatorSeries, alertBands } = this.createChartSeries(
       signalValues,
-      normalizedValues,
-      leftPartitionSeries
+      normalizedValues
     );
+
+    // PX height to allocate for each series title
+    const axisTitleSpacingPx = 60;
+
+    // Absolute height of chart in pixels
+    const absoluteChartHeightPx = this.getChartHeightAbsolutePx(
+      chartSeries.length
+    );
+    // Percent height of each series (subtracts percent height for axis titles)
+    const seriesHeight =
+      Math.floor(100 / chartSeries.length) -
+      (axisTitleSpacingPx / absoluteChartHeightPx) * 100;
+
+    const yAxes = chartSeries.map((signal, index) => {
+      const seriesTop =
+        index * Math.floor(100 / chartSeries.length) +
+        (axisTitleSpacingPx / absoluteChartHeightPx) * 100;
+
+      return {
+        id: signal.yAxis,
+        height: `${seriesHeight}%`,
+        top: `${seriesTop}%`,
+        floor: 0,
+        min: this.state.tsDataNormalized ? 0 : undefined,
+        max: this.state.tsDataNormalized ? 100 : undefined,
+        alignTicks: true,
+        //startOnTick: true,
+        //endOnTick: true,
+        tickAmount: 5,
+        //tickInterval: 10,
+        gridLineWidth: 1,
+        gridLineColor: "#E6E6E6",
+        gridLineDashStyle: "ShortDash",
+        title: {
+          reserveSpace: false,
+          text: `${signal.name}:`,
+          textAlign: "low",
+          align: "high",
+          rotation: 0,
+          y: -16,
+          offset: 0,
+          style: {
+            whiteSpace: "nowrap",
+            fontWeight: "bold",
+          },
+        },
+        offset: 0,
+        labels: {
+          x: -5,
+          style: {
+            colors: "#111",
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+          formatter: function () {
+            return formatYAxisLabels(this.value);
+          },
+        },
+      };
+    });
 
     // Set necessary fields for chart exporting
     const exportChartTitle = this.getChartExportTitle();
@@ -1040,7 +1037,7 @@ class Entity extends Component {
         panKey: "shift",
         animation: false,
         selectionMarkerFill: "rgba(50, 184, 237, 0.3)",
-        height: this.state.tsDataScreenBelow678 ? 400 : 514,
+        height: absoluteChartHeightPx,
         spacingBottom: 0,
         spacingLeft: 5,
         spacingRight: 5,
@@ -1082,7 +1079,7 @@ class Entity extends Component {
         },
         // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
         sourceWidth: 1000,
-        sourceHeight: 560,
+        sourceHeight: absoluteChartHeightPx,
       },
       title: {
         text: null,
@@ -1197,65 +1194,8 @@ class Entity extends Component {
           },
         },
       },
-      yAxis: [
-        // Primary y-axis
-        {
-          floor: 0,
-          min: this.state.tsDataNormalized ? 0 : leftPartitionMin,
-          max: this.state.tsDataNormalized ? 110 : leftPartitionMax,
-          alignTicks: true,
-          startOnTick: true,
-          endOnTick: true,
-          tickAmount: 12,
-          //tickInterval: 10,
-          gridLineWidth: 1,
-          gridLineColor: "#E6E6E6",
-          gridLineDashStyle: "ShortDash",
-          title: {
-            text: null,
-          },
-          labels: {
-            x: -5,
-            style: {
-              colors: "#111",
-              fontSize: "12px",
-              fontFamily: CUSTOM_FONT_FAMILY,
-            },
-            formatter: function () {
-              return formatYAxisLabels(this.value);
-            },
-          },
-        },
-        // Secondary y-axis (non-normalized mode only)
-        {
-          opposite: true,
-          floor: 0,
-          min: rightPartitionMin,
-          max: rightPartitionMax,
-          alignTicks: true,
-          startOnTick: true,
-          endOnTick: true,
-          tickAmount: 12,
-          gridLineWidth: 1,
-          gridLineColor: "#E6E6E6",
-          gridLineDashStyle: "ShortDash",
-          title: {
-            text: null,
-          },
-          labels: {
-            x: 5,
-            style: {
-              colors: "#111",
-              fontSize: "12px",
-              fontFamily: CUSTOM_FONT_FAMILY,
-            },
-            formatter: function () {
-              return formatYAxisLabels(this.value);
-            },
-          },
-        },
-      ],
-      series: chartSignals,
+      yAxis: yAxes,
+      series: [...chartSeries, ...navigatorSeries],
     };
 
     const navigatorLowerBound = secondsToMilliseconds(
@@ -1269,6 +1209,9 @@ class Entity extends Component {
     this.setState({ xyChartOptions: chartOptions }, () => {
       this.renderXyChart();
       this.setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
+      if (this.timeSeriesChartRef.current) {
+        this.timeSeriesChartRef.current.chart.redraw();
+      }
     });
   };
 
@@ -1299,8 +1242,9 @@ class Entity extends Component {
   };
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
-  createChartSeries = (signalValues, normalValues, primaryPartition) => {
-    const chartSignals = [];
+  createChartSeries = (signalValues, normalValues) => {
+    const chartSeries = [];
+    const navigatorSeries = [];
     const alertBands = [];
 
     // Add alert bands series
@@ -1317,6 +1261,7 @@ class Entity extends Component {
     }
 
     // Create series for main chart and navigator
+    let axisIndex = 0;
     for (let i = 0; i < signalValues.length; i++) {
       const primarySignal = signalValues[i];
       const navigatorSignal = normalValues[i];
@@ -1326,7 +1271,10 @@ class Entity extends Component {
         (elem) => elem.key === primarySignal.dataSource
       );
 
-      if (legendDetails === undefined) {
+      if (
+        legendDetails === undefined ||
+        !this.state.tsDataSeriesVisibleMap[seriesId]
+      ) {
         continue;
       }
 
@@ -1340,14 +1288,6 @@ class Entity extends Component {
 
       const seriesName = this.getSeriesNameFromSource(primarySignal.dataSource);
 
-      // Either place series on primary y-axis (left = 0) or secondary (right =
-      // 1) based on whether the series-id is in the left partition or not. If
-      // normalized mode, all series go on the primary y-axis
-      let seriesYAxis = 0;
-      if (!primaryPartition.includes(primarySignal.dataSource)) {
-        seriesYAxis = 1;
-      }
-
       // This is the series object for the primary chart. Note that we hide
       // these series from the navigator
       const primaryChartSeries = {
@@ -1360,11 +1300,13 @@ class Entity extends Component {
         marker: {
           radius: 1.5,
         },
-        yAxis: seriesYAxis,
         showInNavigator: false,
+        yAxis: axisIndex,
         // Set visibility based on map
         // visible: !!this.state.tsDataSeriesVisibleMap[seriesId],
       };
+
+      axisIndex++;
 
       // This is the series object for the navigator only. Note that these
       // series are hidden from the main chart, but are linked to the visibility
@@ -1385,13 +1327,14 @@ class Entity extends Component {
         showInNavigator: true,
       };
 
-      chartSignals.push(primaryChartSeries);
-      chartSignals.push(navigatorChartSeries);
+      chartSeries.push(primaryChartSeries);
+      navigatorSeries.push(navigatorChartSeries);
     }
 
     return {
       alertBands,
-      chartSignals,
+      chartSeries,
+      navigatorSeries,
     };
   };
 
@@ -1549,6 +1492,7 @@ class Entity extends Component {
     this.setState({
       showMarkupStudioModal: true,
       markupStudioSvgBaseString: this.getChartSvg(),
+      markupAspectRatio: this.getChartAspectRatio(),
     });
   };
 
@@ -2806,6 +2750,7 @@ class Entity extends Component {
             <MarkupStudioModal
               open={this.state.showMarkupStudioModal}
               svgString={this.state.markupStudioSvgBaseString}
+              aspectRatio={this.state.markupAspectRatio}
               hideModal={this.hideMarkupStudioModal}
               chartTitle={this.getChartExportTitle()}
               chartSubtitle={this.getChartExportSubtitle()}

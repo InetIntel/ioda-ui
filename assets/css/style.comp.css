@@ -4878,8 +4878,7 @@ button[class*="searchButton"] {
     .entity__chart-layout {
       flex-direction: column; } }
   .entity__chart {
-    min-width: 0;
-    max-height: 614px; }
+    min-width: 0; }
 
 .entity-related {
   margin-bottom: 1.5rem; }

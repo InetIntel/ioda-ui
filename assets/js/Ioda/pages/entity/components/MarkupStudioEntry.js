@@ -7,9 +7,9 @@ import EntryGraphic from "images/markup-entry-graphic.png";
 export default function MarkupStudioEntry({ show, onStart }) {
   return (
     <div
-      className="absolute z-1 text-center w-full h-full bg-white"
+      className="absolute z-1 text-center w-full h-full bg-white flex-column justify-center items-center"
       style={{
-        display: show ? "block" : "none",
+        display: show ? "flex" : "none",
       }}
     >
       <div

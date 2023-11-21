@@ -15,8 +15,6 @@ import { fabric } from "fabric";
 import "fabric-history";
 import { registerAnalyticsEvent } from "../../../utils/analytics";
 
-import ReactGA from "react-ga4";
-
 import iodaWatermark from "images/ioda-canvas-watermark.svg";
 
 import FormatText from "@2fd/ant-design-icons/lib/FormatText";
@@ -139,47 +137,10 @@ fabric.Object.prototype.set({
   ...controlProperties,
 });
 
-const getBase64PNGFromSVGString = (svgString) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const img = new Image();
-
-      // Set the SVG source as the image source
-      img.src =
-        "data:image/svg+xml;base64," +
-        window.btoa(unescape(encodeURIComponent(svgString)));
-      img.width = 4000;
-      img.height = 2250;
-
-      // Wait for the image to load
-      img.onload = function () {
-        // Create a Canvas element
-        const canvas = document.createElement("canvas");
-        canvas.width = 4000;
-        canvas.height = 2250;
-
-        // Get the Canvas rendering context
-        const ctx = canvas.getContext("2d");
-
-        // Draw the image onto the Canvas
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Convert the Canvas content to a base64 PNG string
-        const pngBase64 = canvas.toDataURL("image/png");
-
-        // Extract the base64 data part
-        const base64String = pngBase64.split(",")[1];
-        resolve("data:image/png;base64," + base64String);
-      };
-    } catch (err) {
-      reject(err);
-    }
-  });
-};
-
 export default function MarkupStudioModal({
   open,
   svgString,
+  aspectRatio,
   hideModal,
   chartTitle,
   chartSubtitle,
@@ -224,10 +185,57 @@ export default function MarkupStudioModal({
     }
   }, [exportFileName]);
 
+  const getBase64PNGFromSVGString = (svgString) => {
+    const WIDTH = 4000;
+    const HEIGHT = Math.floor(WIDTH / aspectRatio);
+
+    return new Promise((resolve, reject) => {
+      try {
+        const img = new Image();
+
+        // Set the SVG source as the image source
+        img.src =
+          "data:image/svg+xml;base64," +
+          window.btoa(unescape(encodeURIComponent(svgString)));
+        img.width = WIDTH;
+        img.height = HEIGHT;
+
+        // Wait for the image to load
+        img.onload = function () {
+          // Create a Canvas element
+          const canvas = document.createElement("canvas");
+          canvas.width = WIDTH;
+          canvas.height = HEIGHT;
+
+          // Get the Canvas rendering context
+          const ctx = canvas.getContext("2d");
+
+          // Draw the image onto the Canvas
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Convert the Canvas content to a base64 PNG string
+          const pngBase64 = canvas.toDataURL("image/png");
+
+          // Extract the base64 data part
+          const base64String = pngBase64.split(",")[1];
+          resolve("data:image/png;base64," + base64String);
+        };
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
   const initCanvas = () => {
+    const CANVAS_WIDTH = 800;
+    const CANVAS_HEIGHT = Math.floor(CANVAS_WIDTH / aspectRatio);
+
+    console.log({ CANVAS_HEIGHT });
+    console.log({ aspectRatio });
+
     const canvas = new fabric.Canvas(fabricCanvas.current, {
-      height: 480,
-      width: 800,
+      height: CANVAS_HEIGHT + 30,
+      width: CANVAS_WIDTH,
       backgroundColor: "#fff",
       uniformScaling: false,
       uniScaleKey: "shiftKey",
@@ -255,10 +263,13 @@ export default function MarkupStudioModal({
   const loadCanvasChartBackground = (chartImage) => {
     return new Promise((resolve, reject) => {
       fabric.Image.fromURL(chartImage, (chartImage) => {
+        chartImage.scaleToWidth(canvas.width);
+        console.log(canvas.height);
+        console.log(chartImage.scaled);
+        console.log(canvas.height - chartImage.getScaledHeight());
         chartImage
-          .scaleToWidth(canvas.width)
           .set({
-            top: 28,
+            top: canvas.height - chartImage.getScaledHeight(),
             left: 0,
             selectable: false,
             evented: false,
@@ -753,7 +764,7 @@ export default function MarkupStudioModal({
   };
 
   const beforeDrawShape = () => {
-    exitFreeDrawingMode();
+    enterSelectMode();
   };
 
   const addCircle = () => {
@@ -1335,7 +1346,9 @@ export default function MarkupStudioModal({
               onBackToEditing={() => setModalScreen(MODAL_SCREENS.EDITING)}
               onDownload={() => redownloadImage()}
             />
-            <canvas ref={fabricCanvas} width={800} height={448} />
+            <div style={{ maxHeight: "600px", overflowY: "auto" }}>
+              <canvas ref={fabricCanvas} width={800} height={448} />
+            </div>
           </div>
 
           {chartReady && (
