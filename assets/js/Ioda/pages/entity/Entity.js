@@ -176,6 +176,10 @@ class Entity extends Component {
 
     this.timeSeriesChartRef = React.createRef();
 
+    // Maintain series data cache for chart re-rendering
+    this.timeSeriesCache = React.createRef();
+    this.timeSeriesCache.current = {};
+
     const entityType = this.props?.match?.params?.entityType;
     const entityCode = this.props?.match?.params?.entityCode;
 
@@ -887,6 +891,17 @@ class Entity extends Component {
       let id = datasource.datasource;
       id += datasource.subtype ? `.${datasource.subtype}` : "";
 
+      const ENABLE_CACHE = true;
+
+      // Attempt to pull from cache first
+      if (this.timeSeriesCache.current[id] != null && ENABLE_CACHE) {
+        signalValues.push(this.timeSeriesCache.current[id].rawValues);
+        normalizedValues.push(
+          this.timeSeriesCache.current[id].normalizedValues
+        );
+        return;
+      }
+
       const seriesMax = getMaxValue(datasource.values);
       if (!datasource.values) {
         return;
@@ -911,11 +926,24 @@ class Entity extends Component {
         seriesDataValues.splice(-1, 2);
       }
 
-      signalValues.push({ dataSource: id, values: seriesDataValues });
-      normalizedValues.push({
+      const signalValueObject = {
+        dataSource: id,
+        values: seriesDataValues,
+      };
+
+      const normalizedValueObject = {
         dataSource: id,
         values: seriesDataValuesNormalized,
-      });
+      };
+
+      signalValues.push(signalValueObject);
+      normalizedValues.push(normalizedValueObject);
+
+      // Cache these values for subsequent re-renders
+      this.timeSeriesCache.current[id] = {
+        rawValues: signalValueObject,
+        normalizedValues: normalizedValueObject,
+      };
     });
 
     const formatYAxisLabels = (val) => {
@@ -1272,7 +1300,7 @@ class Entity extends Component {
       );
 
       if (
-        legendDetails === undefined ||
+        legendDetails == null ||
         !this.state.tsDataSeriesVisibleMap[seriesId]
       ) {
         continue;

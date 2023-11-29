@@ -57,7 +57,7 @@ const ChartLegendCard = ({
 
   const isCountryView = match?.params?.entityType === "country";
 
-  const handleChangeDebounced = debounce(handleChange, 180);
+  const handleChangeDebounced = debounce(handleChange, 50);
 
   const googleSeries = legend.filter((item) => item.key.includes("gtr"));
   const selectedGoogleSeries = googleSeries.filter(
