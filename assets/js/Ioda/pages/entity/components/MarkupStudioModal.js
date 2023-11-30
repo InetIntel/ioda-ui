@@ -10,12 +10,11 @@ import {
   Radio,
   Slider,
   Tooltip,
+  Select,
 } from "antd";
 import { fabric } from "fabric";
 import "fabric-history";
 import { registerAnalyticsEvent } from "../../../utils/analytics";
-
-import ReactGA from "react-ga4";
 
 import iodaWatermark from "images/ioda-canvas-watermark.svg";
 
@@ -38,6 +37,15 @@ import CursorDefaultIcon from "@2fd/ant-design-icons/lib/CursorDefault";
 import RedoIcon from "@2fd/ant-design-icons/lib/Redo";
 import UndoIcon from "@2fd/ant-design-icons/lib/Undo";
 import VectorLineIcon from "@2fd/ant-design-icons/lib/VectorLine";
+import FormatFontIcon from "@2fd/ant-design-icons/lib/FormatFont";
+import FormatAlignLeftIcon from "@2fd/ant-design-icons/lib/FormatAlignLeft";
+import FormatAlignCenterIcon from "@2fd/ant-design-icons/lib/FormatAlignCenter";
+import FormatAlignRightIcon from "@2fd/ant-design-icons/lib/FormatAlignRight";
+import FormatAlignJustifyIcon from "@2fd/ant-design-icons/lib/FormatAlignJustify";
+
+import FormatItalicIcon from "@2fd/ant-design-icons/lib/FormatItalic";
+import FormatBoldIcon from "@2fd/ant-design-icons/lib/FormatBold";
+import FormatUnderlineIcon from "@2fd/ant-design-icons/lib/FormatUnderline";
 
 import FormatColorFillIcon from "@2fd/ant-design-icons/lib/FormatColorFill";
 import LayersIcon from "@2fd/ant-design-icons/lib/Layers";
@@ -201,6 +209,13 @@ export default function MarkupStudioModal({
     backgroundColor: null,
     stroke: null,
     strokeWidth: null,
+
+    // Textbox specific
+    fontFamily: null,
+    fontSize: null,
+    textAlign: null,
+    fontStyle: null,
+    fontWeight: null,
   });
 
   const [layerPopoverOpen, setLayerPopoverOpen] = React.useState(false);
@@ -623,6 +638,13 @@ export default function MarkupStudioModal({
         backgroundColor: item?.backgroundColor ?? null,
         stroke: item?.stroke ?? null,
         strokeWidth: item?.strokeWidth ?? null,
+
+        // Textbox specific
+        fontFamily: item?.fontFamily ?? null,
+        fontSize: item?.fontSize ?? null,
+        textAlign: item?.textAlign ?? null,
+        fontStyle: item?.fontStyle ?? null,
+        fontWeight: item?.fontWeight ?? null,
       });
     }
   };
@@ -794,12 +816,42 @@ export default function MarkupStudioModal({
     addObjectToCanvas(rect);
   };
 
+  const textAlignmentOptions = [
+    { label: "Left", value: "left", icon: <FormatAlignLeftIcon /> },
+    { label: "Center", value: "center", icon: <FormatAlignCenterIcon /> },
+    { label: "Right", value: "right", icon: <FormatAlignRightIcon /> },
+    { label: "Justify", value: "justify", icon: <FormatAlignJustifyIcon /> },
+  ];
+
+  const textFontFamilies = [
+    { label: "Inter", value: "Inter, sans-serif" },
+    { label: "Arial", value: "Arial, sans-serif" },
+    { label: "Helvetica", value: "Helvetica, sans-serif" },
+    { label: "Georgia", value: "Georgia, serif" },
+    { label: "Times New Roman", value: "Times New Roman, serif" },
+    { label: "Courier New", value: "Courier New, monospace" },
+    { label: "Verdana", value: "Verdana, sans-serif" },
+    { label: "Tahoma", value: "Tahoma, sans-serif" },
+    { label: "Trebuchet MS", value: "Trebuchet MS, sans-serif" },
+    { label: "Impact", value: "Impact, sans-serif" },
+  ];
+
+  const textFontFamilyOptions = textFontFamilies.map((font) => (
+    <Select.Option
+      key={font.value}
+      value={font.value}
+      title={<span style={{ fontFamily: font.value }}>{font.label}</span>}
+    >
+      <span style={{ fontFamily: font.value }}>{font.label}</span>
+    </Select.Option>
+  ));
+
   const addTextbox = () => {
     beforeDrawShape();
 
     const { x, y } = getCanvasViewportCenter();
     const textWidth = 175 / canvas.getZoom();
-    const textSize = 16 / canvas.getZoom();
+    const textSize = Math.max(Math.floor(16 / canvas.getZoom()), 4);
 
     const textbox = new fabric.Textbox("Double click to type", {
       width: textWidth,
@@ -1146,6 +1198,139 @@ export default function MarkupStudioModal({
               </Popover>
             )}
 
+            {/* Text Format Controls */}
+            {activeObject &&
+              activeObject[CANVAS_TYPE] === CANVAS_TYPES.TEXTBOX && (
+                <Popover
+                  placement="rightTop"
+                  trigger="click"
+                  content={
+                    <div className="p-2 w-96">
+                      <div>Alignment:</div>
+                      <div className="flex items-center gap-2 mb-3">
+                        {textAlignmentOptions.map((opt) => {
+                          let buttonType = "default";
+                          if (activeObjectAttributes.textAlign === opt.value) {
+                            buttonType = "primary";
+                          } else if (
+                            activeObjectAttributes.textAlign == null &&
+                            opt.value === "center"
+                          ) {
+                            buttonType = "primary";
+                          }
+                          return (
+                            <Tooltip
+                              placement="top"
+                              title={opt.label}
+                              key={opt.value}
+                            >
+                              <Button
+                                icon={opt.icon}
+                                type={buttonType}
+                                onClick={() =>
+                                  handlePalettePropertyChange(
+                                    "textAlign",
+                                    opt.value
+                                  )
+                                }
+                              />
+                            </Tooltip>
+                          );
+                        })}
+                      </div>
+
+                      <div>Style:</div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Tooltip placement="top" title="Bold">
+                          <Button
+                            icon={<FormatBoldIcon />}
+                            type={
+                              activeObjectAttributes.fontWeight === "bold"
+                                ? "primary"
+                                : "default"
+                            }
+                            onClick={() =>
+                              handlePalettePropertyChange(
+                                "fontWeight",
+                                activeObjectAttributes.fontWeight === "bold"
+                                  ? "normal"
+                                  : "bold"
+                              )
+                            }
+                          />
+                        </Tooltip>
+                        <Tooltip placement="top" title="Italic">
+                          <Button
+                            icon={<FormatItalicIcon />}
+                            type={
+                              activeObjectAttributes.fontStyle === "italic"
+                                ? "primary"
+                                : "default"
+                            }
+                            onClick={() =>
+                              handlePalettePropertyChange(
+                                "fontStyle",
+                                activeObjectAttributes.fontStyle === "italic"
+                                  ? "normal"
+                                  : "italic"
+                              )
+                            }
+                          />
+                        </Tooltip>
+                        <Tooltip placement="top" title="Underline">
+                          <Button
+                            icon={<FormatUnderlineIcon />}
+                            type={
+                              activeObjectAttributes.underline
+                                ? "primary"
+                                : "default"
+                            }
+                            onClick={() =>
+                              handlePalettePropertyChange(
+                                "underline",
+                                !activeObjectAttributes.underline
+                              )
+                            }
+                          />
+                        </Tooltip>
+                      </div>
+
+                      <div>Font size:</div>
+                      <div className="w-full pr-2">
+                        <Slider
+                          className="w-full h-1"
+                          min={4}
+                          max={50}
+                          onChange={(val) =>
+                            handlePalettePropertyChange("fontSize", val)
+                          }
+                          value={activeObjectAttributes.fontSize ?? 4}
+                        />
+                      </div>
+
+                      <div>Font family:</div>
+                      <Select
+                        className="w-full"
+                        value={
+                          activeObjectAttributes?.fontFamily ??
+                          "Inter, sans-serif"
+                        }
+                        onChange={(val) =>
+                          handlePalettePropertyChange("fontFamily", val)
+                        }
+                        optionLabelProp="title"
+                      >
+                        {textFontFamilyOptions}
+                      </Select>
+                    </div>
+                  }
+                >
+                  <Tooltip placement="left" title="Format Font">
+                    <Button icon={<FormatFontIcon />} type="text" />
+                  </Tooltip>
+                </Popover>
+              )}
+
             {/* Fill Color Control */}
             {objectSupportsProperty(activeObject, "fill") && (
               <ColorPicker
@@ -1160,7 +1345,14 @@ export default function MarkupStudioModal({
                 allowClear={true}
                 onClear={() => handlePalettePropertyChange("fill", null)}
                 children={
-                  <Tooltip placement="left" title="Fill">
+                  <Tooltip
+                    placement="left"
+                    title={
+                      activeObject?.get(CANVAS_TYPE) === CANVAS_TYPES.TEXTBOX
+                        ? "Text Color"
+                        : "Fill"
+                    }
+                  >
                     <Button icon={<PaletteIcon />} type="text" />
                   </Tooltip>
                 }
