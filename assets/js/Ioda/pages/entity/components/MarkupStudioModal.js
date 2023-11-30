@@ -1345,7 +1345,14 @@ export default function MarkupStudioModal({
                 allowClear={true}
                 onClear={() => handlePalettePropertyChange("fill", null)}
                 children={
-                  <Tooltip placement="left" title="Fill">
+                  <Tooltip
+                    placement="left"
+                    title={
+                      activeObject?.get(CANVAS_TYPE) === CANVAS_TYPES.TEXTBOX
+                        ? "Text Color"
+                        : "Fill"
+                    }
+                  >
                     <Button icon={<PaletteIcon />} type="text" />
                   </Tooltip>
                 }
