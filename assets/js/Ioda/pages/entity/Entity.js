@@ -221,7 +221,6 @@ class Entity extends Component {
       // display annotation studio modal
       showMarkupStudioModal: false,
       markupStudioSvgBaseString: "",
-      markupAspectRatio: 1,
 
       // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
       tsDataSeriesVisibleMap: dataSource.reduce((result, item) => {
@@ -869,14 +868,15 @@ class Entity extends Component {
     return Math.max(515, numSeries * pxHeightPerSeries);
   };
 
-  getChartAspectRatio = () => {
+  getChartDimensions = () => {
     if (!this.timeSeriesChartRef.current) {
-      return 1;
+      return { width: 0, height: 0 };
     }
-    return (
-      this.timeSeriesChartRef.current.chart.chartWidth /
-      this.timeSeriesChartRef.current.chart.chartHeight
-    );
+
+    return {
+      width: this.timeSeriesChartRef.current.chart.chartWidth,
+      height: this.timeSeriesChartRef.current.chart.chartHeight,
+    };
   };
 
   // 1st Row
@@ -1511,7 +1511,16 @@ class Entity extends Component {
    */
   getChartSvg = () => {
     if (this.timeSeriesChartRef.current) {
-      return this.timeSeriesChartRef.current.chart.getSVG();
+      return this.timeSeriesChartRef.current.chart.getSVG({
+        chart: {
+          width: this.timeSeriesChartRef.current?.chart?.chartWidth ?? 1000,
+          height: this.timeSeriesChartRef.current?.chart?.chartHeight ?? 1000,
+        },
+        exporting: {
+          sourceWidth: this.timeSeriesChartRef.current?.chart?.chartWidth,
+          sourceHeight: this.timeSeriesChartRef.current?.chart?.chartHeight,
+        },
+      });
     }
     return null;
   };
@@ -1520,7 +1529,6 @@ class Entity extends Component {
     this.setState({
       showMarkupStudioModal: true,
       markupStudioSvgBaseString: this.getChartSvg(),
-      markupAspectRatio: this.getChartAspectRatio(),
     });
   };
 
@@ -2778,7 +2786,8 @@ class Entity extends Component {
             <MarkupStudioModal
               open={this.state.showMarkupStudioModal}
               svgString={this.state.markupStudioSvgBaseString}
-              aspectRatio={this.state.markupAspectRatio}
+              chartWidth={this.getChartDimensions().width}
+              chartHeight={this.getChartDimensions().height}
               hideModal={this.hideMarkupStudioModal}
               chartTitle={this.getChartExportTitle()}
               chartSubtitle={this.getChartExportSubtitle()}
@@ -2788,7 +2797,7 @@ class Entity extends Component {
             />
             <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
               <div className="col-2 p-4 card entity__chart">
-                <div className="flex items-center mb-3">
+                <div className="flex items-center">
                   <h3 className="text-2xl mr-1">
                     {xyChartTitle}
                     {this.state.entityName}

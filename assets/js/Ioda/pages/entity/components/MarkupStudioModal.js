@@ -74,6 +74,9 @@ const ARROW_TYPE = "arrow";
 
 const DEFAULT_SHAPE_FILL = "#F93D4E30";
 
+// Extra space for chart canvas, to account for the title and subtitle
+const CANVAS_TOP_OFFSET = 30;
+
 const CANVAS_TYPE = "canvasObject";
 const CANVAS_ID = "canvasId";
 
@@ -150,7 +153,8 @@ fabric.Object.prototype.set({
 export default function MarkupStudioModal({
   open,
   svgString,
-  aspectRatio,
+  chartWidth,
+  chartHeight,
   hideModal,
   chartTitle,
   chartSubtitle,
@@ -203,55 +207,18 @@ export default function MarkupStudioModal({
   }, [exportFileName]);
 
   const getBase64PNGFromSVGString = (svgString) => {
-    const WIDTH = 4000;
-    const HEIGHT = Math.floor(WIDTH / aspectRatio);
-
-    return new Promise((resolve, reject) => {
-      try {
-        const img = new Image();
-
-        // Set the SVG source as the image source
-        img.src =
-          "data:image/svg+xml;base64," +
-          window.btoa(unescape(encodeURIComponent(svgString)));
-        img.width = WIDTH;
-        img.height = HEIGHT;
-
-        // Wait for the image to load
-        img.onload = function () {
-          // Create a Canvas element
-          const canvas = document.createElement("canvas");
-          canvas.width = WIDTH;
-          canvas.height = HEIGHT;
-
-          // Get the Canvas rendering context
-          const ctx = canvas.getContext("2d");
-
-          // Draw the image onto the Canvas
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          // Convert the Canvas content to a base64 PNG string
-          const pngBase64 = canvas.toDataURL("image/png");
-
-          // Extract the base64 data part
-          const base64String = pngBase64.split(",")[1];
-          resolve("data:image/png;base64," + base64String);
-        };
-      } catch (err) {
-        reject(err);
-      }
-    });
+    return (
+      "data:image/svg+xml;base64," +
+      window.btoa(unescape(encodeURIComponent(svgString)))
+    );
   };
 
   const initCanvas = () => {
     const CANVAS_WIDTH = 800;
-    const CANVAS_HEIGHT = Math.floor(CANVAS_WIDTH / aspectRatio);
-
-    console.log({ CANVAS_HEIGHT });
-    console.log({ aspectRatio });
+    const CANVAS_HEIGHT = CANVAS_WIDTH * (chartHeight / chartWidth);
 
     const canvas = new fabric.Canvas(fabricCanvas.current, {
-      height: CANVAS_HEIGHT + 30,
+      height: CANVAS_HEIGHT + CANVAS_TOP_OFFSET,
       width: CANVAS_WIDTH,
       backgroundColor: "#fff",
       uniformScaling: false,
@@ -281,12 +248,9 @@ export default function MarkupStudioModal({
     return new Promise((resolve, reject) => {
       fabric.Image.fromURL(chartImage, (chartImage) => {
         chartImage.scaleToWidth(canvas.width);
-        console.log(canvas.height);
-        console.log(chartImage.scaled);
-        console.log(canvas.height - chartImage.getScaledHeight());
         chartImage
           .set({
-            top: canvas.height - chartImage.getScaledHeight(),
+            top: CANVAS_TOP_OFFSET,
             left: 0,
             selectable: false,
             evented: false,
@@ -337,7 +301,7 @@ export default function MarkupStudioModal({
 
   const loadCanvasImageBase = async () => {
     if (!canvas) return;
-    const chartImage = await getBase64PNGFromSVGString(svgString);
+    const chartImage = getBase64PNGFromSVGString(svgString);
     await loadCanvasChartBackground(chartImage);
 
     // Add title and subtitle
@@ -1074,6 +1038,7 @@ export default function MarkupStudioModal({
     <Modal
       className="markupStudioModal"
       open={open}
+      style={{ top: 20 }}
       closeIcon={null}
       title={
         <div className="flex items-center">
