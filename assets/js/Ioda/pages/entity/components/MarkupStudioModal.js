@@ -110,7 +110,7 @@ const SUPPORTS_STROKE_WIDTH = [
   CANVAS_TYPES.LINE,
 ];
 
-const MIN_ZOOM = 1;
+const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 20;
 
 const EXPORT_QUALITY = {
@@ -164,6 +164,7 @@ export default function MarkupStudioModal({
 }) {
   const fabricCanvas = React.useRef(null);
   const canvasContainer = React.useRef(null);
+  const canvasScrollContainer = React.useRef(null);
 
   const [modalScreen, setModalScreen] = React.useState(MODAL_SCREENS.ENTRY);
 
@@ -230,6 +231,13 @@ export default function MarkupStudioModal({
   };
 
   const resetCanvasZoomAndPosition = () => {
+    // Reset scroll position
+    if (canvasScrollContainer.current) {
+      canvasScrollContainer.current.scrollTop = 0;
+      canvasScrollContainer.current.scrollLeft = 0;
+    }
+
+    // Reset position and zoom
     canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
     canvas.renderAll();
     setZoomLevel(1);
@@ -1505,7 +1513,10 @@ export default function MarkupStudioModal({
               onBackToEditing={() => setModalScreen(MODAL_SCREENS.EDITING)}
               onDownload={() => redownloadImage()}
             />
-            <div style={{ maxHeight: "600px", overflowY: "auto" }}>
+            <div
+              ref={canvasScrollContainer}
+              style={{ maxHeight: "600px", overflowY: "auto" }}
+            >
               <canvas ref={fabricCanvas} width={800} height={448} />
             </div>
           </div>
