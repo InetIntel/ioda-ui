@@ -4789,6 +4789,9 @@ button[class*="searchButton"] {
     color: #fff;
     background: #2c3e50;
     text-align: center; }
+    .home__about-cont {
+      max-width: 1024px;
+      margin: 0 auto; }
   .home__methodology {
     background: #fff;
     border-radius: 0.5rem;
