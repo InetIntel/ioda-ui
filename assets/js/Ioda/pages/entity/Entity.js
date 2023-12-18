@@ -913,17 +913,17 @@ class Entity extends Component {
         const x = secondsToMilliseconds(
           datasource.from + datasource.step * index
         );
-        const normalY = normalize(value, seriesMax);
-        const y = this.state.tsDataNormalized ? normalY : value;
-
-        seriesDataValues.push({ x, y });
-        seriesDataValuesNormalized.push({ x, y: normalY });
+        seriesDataValues.push({ x, y: value });
+        seriesDataValuesNormalized.push({ x, y: normalize(value, seriesMax) });
       });
 
       // The last two values populating are the min value, and the max value.
       // Removing these from the coordinates.
       if (seriesDataValues.length > 2) {
         seriesDataValues.splice(-1, 2);
+      }
+      if (seriesDataValuesNormalized.length > 2) {
+        seriesDataValuesNormalized.splice(-1, 2);
       }
 
       const signalValueObject = {
@@ -982,9 +982,14 @@ class Entity extends Component {
 
     const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
 
+    const primarySeries = this.state.tsDataNormalized
+      ? normalizedValues
+      : signalValues;
+    const secondarySeries = normalizedValues;
+
     const { chartSeries, navigatorSeries, alertBands } = this.createChartSeries(
-      signalValues,
-      normalizedValues
+      primarySeries,
+      secondarySeries
     );
 
     // PX height to allocate for each series title
