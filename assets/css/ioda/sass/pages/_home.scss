@@ -55,6 +55,11 @@ button[class*="searchButton"] {
     // background: linear-gradient(to right, #021b79, #06529f);
 
     text-align: center;
+
+    &-cont {
+      max-width: 1024px;
+      margin: 0 auto;
+    }
   }
 
   &__methodology {

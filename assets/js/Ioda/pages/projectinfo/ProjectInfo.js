@@ -54,6 +54,8 @@ import ucsd from "images/acknowledgements/ucsd.svg";
 import usdos from "images/acknowledgements/usdos.png";
 import xsedeBlack from "images/acknowledgements/xsede-black.png";
 import caida from "images/logos/caida.png";
+import gatechTso from "images/acknowledgements/gatech-coc.png";
+import alcock from "images/acknowledgements/alcock.png";
 
 import PartnerCard from "../home/PartnerCard";
 import { Alert } from "antd";
@@ -74,6 +76,18 @@ const data = [
     logoHref:
       "https://www.opentech.fund/results/supported-projects/internet-outage-detection-and-analysis/",
     children: `This platform was also supported by the Open Technology Fund under contract number 1002-2018-027.`,
+    children: (
+      <Fragment>
+        This platform was also supported by the{" "}
+        <a
+          className="a-fake text-color-link"
+          href="https://www.opentech.fund/projects-we-support/supported-projects/internet-outage-detection-and-analysis/"
+        >
+          Open Technology Fund
+        </a>{" "}
+        (2018, 2019, 2020).
+      </Fragment>
+    ),
   },
   {
     logo: isoc,
@@ -121,7 +135,7 @@ const data = [
         >
           U.S. Department of State, Bureau of Democracy, Human Rights, and Labor
         </a>{" "}
-        (2020) and{" "}
+        (2020, 2023-2024) and{" "}
         <a
           className="a-fake text-color-link"
           href="https://www.state.gov/bureaus-offices/under-secretary-for-political-affairs/bureau-of-near-eastern-affairs/"
@@ -144,6 +158,29 @@ const data = [
         , UC San Diego.
       </Fragment>
     ),
+  },
+  {
+    logo: gatechTso,
+    logoHref: "https://support.cc.gatech.edu/",
+    children: (
+      <Fragment>
+        The{" "}
+        <a
+          className="a-fake text-color-link"
+          href="https://support.cc.gatech.edu/"
+        >
+          Technology Services Organization (TSO)
+        </a>{" "}
+        at Georgia Tech's College of Computing provides and manages computing
+        infrastructure for this project.
+      </Fragment>
+    ),
+  },
+  {
+    logo: alcock,
+    logoHref: "https://www.alcock.co.nz/",
+    children:
+      "Alcock Network Intelligence is subcontracted to assist with the development, deployment and maintenance of the software for the IODA project.",
   },
 ];
 
