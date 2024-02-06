@@ -48,7 +48,8 @@
         "lint": "sass-lint -v",
         "test:es-check": "es-check es5 'assets/js/Ioda/*.js'",
         "sitemap": "babel-node assets/js/Ioda/constants/sitemap/Generator.js",
-        "test:unit": "jest"
+        "test:unit": "jest",
+        "puppeteer": "jest"
     },
     "dependencies": {
         "@2fd/ant-design-icons": "^2.6.0",
@@ -76,6 +77,8 @@
         "leaflet": "^0.7.3",
         "lodash": "^4.17.15",
         "prop-types": "^15.6.2",
+        "puppeteer": "19",
+        "puppeteer-core": "19",
         "react": "^16.14.0",
         "react-app-polyfill": "^2.0.0",
         "react-dom": "^16.8.6",

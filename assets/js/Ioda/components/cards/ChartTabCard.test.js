@@ -9,7 +9,7 @@ import { render, act, screen } from '@testing-library/react'
 import ChartTabCard from './ChartTabCard'
 import { HashRouter } from "react-router-dom";
 
-// jest.mock('./ChartLegendCard', () => () => <div>ChartLegendCard</div>)
+jest.mock('./ChartLegendCard', () => () => <div>ChartLegendCard</div>)
 const ChartTabCardWrapper = () => <HashRouter><ChartTabCard /></HashRouter>
 
 describe('ChartTabChart', () => {
