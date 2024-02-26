@@ -48,6 +48,7 @@ Encore
 
     // enables React support
     .enableReactPreset()
+    .enableSingleRuntimeChunk()
 
     // enables Sass/SCSS support
     //.enableSassLoader()
@@ -58,12 +59,7 @@ Encore
     // uncomment if you're having problems with a jQuery plugin
     //.autoProvidejQuery()
 
-    .configureBabel(function (babelConfig) {
-        babelConfig.plugins.push('transform-class-properties');
-        babelConfig.plugins.push('syntax-dynamic-import');
-        babelConfig.plugins.push('transform-object-rest-spread');
-        babelConfig.plugins.push('istanbul');
-    })
+    .configureBabel()
 ;
 
 let webpackConfig = Encore.getWebpackConfig();
