@@ -48,6 +48,11 @@ Encore
 
     // enables React support
     .enableReactPreset()
+
+    /*
+     * Makes webpack consolidate the runtime logic into a single runtime chunk rather
+     * than creating a separate runtime chunk for each entry chunk.
+     */
     .enableSingleRuntimeChunk()
 
     // enables Sass/SCSS support
