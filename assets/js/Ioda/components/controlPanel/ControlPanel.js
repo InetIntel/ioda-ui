@@ -235,10 +235,7 @@ class ControlPanel extends Component {
             <RangePicker
               className="col"
               value={this.state.range}
-              showTime={{ format: "h:mmA" }}
-              format="MMM D YYYY h:mma UTC"
               onChange={this.handleRangeChange}
-              onOk={this.handleRangeChange}
             />
           </div>
         </div>
