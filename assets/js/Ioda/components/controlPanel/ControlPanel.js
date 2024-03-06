@@ -54,21 +54,14 @@ class ControlPanel extends Component {
     this.setState({ customUnit: val });
   };
 
-  handleRangeChange = ([fromDayjs, untilDayjs], fromRangePicker = false) => {
-    if (fromRangePicker) {
-      // Adjust fromDayjs and untilDayjs to start of the day in UTC
-      fromDayjs = fromDayjs.startOf('day').utc();
-      untilDayjs = untilDayjs.startOf('day').utc();
-    }
-
+  handleRangeChange = ([fromDayjs, untilDayjs]) => {
     this.setState({ range: [fromDayjs, untilDayjs] }, () => {
       this.props.onTimeFrameChange({
-        from: getSeconds(fromDayjs.add(fromDayjs.utcOffset(), 'minute')),
-        until: getSeconds(untilDayjs.add(untilDayjs.utcOffset(), 'minute')),
+        from: getSeconds(fromDayjs.add(fromDayjs.utcOffset(), "minute")),
+        until: getSeconds(untilDayjs.add(untilDayjs.utcOffset(), "minute")),
       });
     });
   };
-
 
   handleCustomRange = () => {
     const { customDuration, customUnit } = this.state;
@@ -242,7 +235,10 @@ class ControlPanel extends Component {
             <RangePicker
               className="col"
               value={this.state.range}
-              onChange={(dates) => this.handleRangeChange(dates, true)}
+              showTime={{ format: "h:mmA" }}
+              format="MMM D YYYY h:mma UTC"
+              onChange={this.handleRangeChange}
+              onOk={this.handleRangeChange}
             />
           </div>
         </div>
