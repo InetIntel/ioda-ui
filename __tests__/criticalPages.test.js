@@ -4,11 +4,16 @@
  */
 
 /*
-Yusuf, in general I think some users will go to the dashboard and look at the
-outage maps at the country, region, and AS level for the past 24 hours. If
-there is an country, region, or AS of interest they will click on the link to
-see the signals on that page.
+!! These tests are not written with maintenance in mind. They are written to ease
+the process of creating visual regression tests for the critical pages during the
+upgrade.
 
+The tests are based on comments from Amanda below:
+
+In general I think some users will go to the dashboard and look at the
+outage maps at the country, region, and AS level for the past 24 hours. If
+there is a country, region, or AS of interest they will click on the link to
+see the signals on that page.
 
 Others will go directly to a page of interest. For example, some users are
 only interested in the Internet in Iran and go straight there (or maybe go
@@ -25,108 +30,141 @@ expect.extend({ toMatchImageSnapshot });
 describe("Crawling critical pages", () => {
   let browser, page;
   const homePage = "http://localhost:8000/";
+  // Set an unrealistic max wait time to avoid long running tests from timing out
+  // since the tests are not modular enough
+  const MAX_WAIT_TIME = 30000;
 
   beforeEach(async () => {
     browser = await puppeteer.launch({ headless: false });
     page = await browser.newPage();
     await page.setViewport({ width: 1080, height: 1024 });
     await page.goto(homePage);
-  }, 30000);
+  }, MAX_WAIT_TIME);
 
   afterEach(async () => {
     await browser.close();
   });
 
-  it("ensure home page display properly", async () => {
-    await page.waitForSelector(".leaflet-zoom-animated");
-    await page.waitForTimeout(2000);
-
-    const homeImage = await page.screenshot();
-
-    expect(homeImage).toMatchImageSnapshot({
-      customSnapshotIdentifier: "home-page",
-      failureThreshold: "0.10",
-      failureThresholdType: "percent",
-    });
-  }, 30000);
-
-  it("ensures the dashboard page display properly", async () => {
-    const [dashboardLink] = await page.$x("//a[contains(text(), 'Dashboard')]");
-    await dashboardLink.click();
-
-    await page.waitForSelector(".leaflet-zoom-animated");
-    await page.waitForTimeout(2000);
-
+  const chooseDefinedDateRange = async (currentPage) => {
     // Select the date and time
-    const dateStart = await page.$(".ant-picker-input");
+    const dateStart = await currentPage.$(".ant-picker-input");
     await dateStart.click({ clickCount: 3 });
-    await page.keyboard.type("Mar 10 2024 6:35pm UTC");
+    await currentPage.keyboard.type("Mar 10 2024 6:35pm UTC");
 
     // 4 tabs to get to the date end input field
     for (let i = 0; i < 4; i++) {
-      await page.keyboard.press("Tab");
+      await currentPage.keyboard.press("Tab");
     }
 
     // The next day after the start date
-    await page.keyboard.type("Mar 11 2024 6:34pm UTC");
+    await currentPage.keyboard.type("Mar 11 2024 6:34pm UTC");
 
-    await page.keyboard.press("Enter");
+    await currentPage.keyboard.press("Enter");
 
-    await page.waitForSelector(".leaflet-zoom-animated");
-    await page.waitForTimeout(2000);
+    await currentPage.waitForSelector(".leaflet-zoom-animated");
+    await currentPage.waitForTimeout(2000);
+  };
 
-    const dashboardImage = await page.screenshot();
+  it(
+    "ensure home page display properly",
+    async () => {
+      await page.waitForSelector(".leaflet-zoom-animated");
+      await page.waitForTimeout(2000);
 
-    expect(dashboardImage).toMatchImageSnapshot({
-      customSnapshotIdentifier: "dashboard-main-view",
-      failureThreshold: "0.10",
-      failureThresholdType: "percent",
-    });
+      const homeImage = await page.screenshot();
 
-    const regionView = await page.waitForSelector("text/Region View");
-    await regionView.click();
+      expect(homeImage).toMatchImageSnapshot({
+        customSnapshotIdentifier: "home-page",
+        failureThreshold: "0.10",
+        failureThresholdType: "percent",
+      });
+    },
+    MAX_WAIT_TIME
+  );
 
-    await page.waitForSelector(".leaflet-zoom-animated");
-    await page.waitForTimeout(2000);
+  it(
+    "ensures the dashboard page display properly",
+    async () => {
+      const [dashboardLink] = await page.$x(
+        "//a[contains(text(), 'Dashboard')]"
+      );
+      await dashboardLink.click();
 
-    const regionViewImage = await page.screenshot();
+      await page.waitForSelector(".leaflet-zoom-animated");
+      await page.waitForTimeout(2000);
 
-    expect(regionViewImage).toMatchImageSnapshot({
-      customSnapshotIdentifier: "dashboard-region-view",
-      failureThreshold: "0.10",
-      failureThresholdType: "percent",
-    });
+      await chooseDefinedDateRange(page);
 
-    const asnISPView = await page.waitForSelector("text/ASN/ISP View");
-    await asnISPView.click();
+      const dashboardImage = await page.screenshot();
 
-    await page.waitForSelector("#horizon-chart");
-    await page.waitForTimeout(4000);
+      expect(dashboardImage).toMatchImageSnapshot({
+        customSnapshotIdentifier: "dashboard-main-view",
+        failureThreshold: "0.10",
+        failureThresholdType: "percent",
+      });
 
-    const asnISPViewImage = await page.screenshot();
+      const regionView = await page.waitForSelector("text/Region View");
+      await regionView.click();
 
-    expect(asnISPViewImage).toMatchImageSnapshot({
-      customSnapshotIdentifier: "dashboard-asn-isp-view",
-      failureThreshold: "0.10",
-      failureThresholdType: "percent",
-    });
-  }, 30000);
+      await page.waitForSelector(".leaflet-zoom-animated");
+      await page.waitForTimeout(2000);
 
-  it.only("allows search by country", async () => {
-    const country = "Iran";
-    await page.waitForSelector("input#rc_select_2");
+      const regionViewImage = await page.screenshot();
 
-    page.$eval("input#rc_select_2", (el) => el.click());
-    await page.keyboard.type(country);
+      expect(regionViewImage).toMatchImageSnapshot({
+        customSnapshotIdentifier: "dashboard-region-view",
+        failureThreshold: "0.10",
+        failureThresholdType: "percent",
+      });
 
-    await page.waitForTimeout(4000);
+      const asnISPView = await page.waitForSelector("text/ASN/ISP View");
+      await asnISPView.click();
 
-    const homeImage = await page.screenshot();
+      await page.waitForSelector("#horizon-chart");
+      await page.waitForTimeout(4000);
 
-    expect(homeImage).toMatchImageSnapshot({
-      customSnapshotIdentifier: "iran-page-view",
-      failureThreshold: "0.10",
-      failureThresholdType: "percent",
-    });
-  }, 30000);
+      const asnISPViewImage = await page.screenshot();
+
+      expect(asnISPViewImage).toMatchImageSnapshot({
+        customSnapshotIdentifier: "dashboard-asn-isp-view",
+        failureThreshold: "0.10",
+        failureThresholdType: "percent",
+      });
+    },
+    MAX_WAIT_TIME
+  );
+
+  it(
+    "allows search by country",
+    async () => {
+      const country = "Iran";
+      const countrySearch = await page.waitForSelector(
+        ".ant-select-selection-placeholder"
+      );
+
+      // Hacky way to click on the search input which is not properly accessible
+      countrySearch.click();
+      countrySearch.focus();
+
+      await page.waitForTimeout(1000);
+      await page.keyboard.type(country);
+      await page.waitForTimeout(1000);
+
+      await page.keyboard.press("Enter");
+      await page.waitForTimeout(1000);
+
+      await chooseDefinedDateRange(page);
+      await page.waitForSelector(".leaflet-zoom-animated");
+      await page.waitForTimeout(2000);
+
+      const homeImage = await page.screenshot();
+
+      expect(homeImage).toMatchImageSnapshot({
+        customSnapshotIdentifier: "iran-page-view",
+        failureThreshold: "0.10",
+        failureThresholdType: "percent",
+      });
+    },
+    MAX_WAIT_TIME
+  );
 });
