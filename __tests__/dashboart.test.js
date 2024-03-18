@@ -58,18 +58,23 @@ describe("Crawling critical pages", () => {
     await page.waitForTimeout(2000);
 
     // Select the date and time
-    await page.click(".ant-picker-input");
-    await page.keyboard.down("Control");
-    await page.keyboard.down("Shift");
-    await page.keyboard.press("A");
-    await page.keyboard.up("Control");
-    await page.keyboard.up("Shift");
+    const dateStart = await page.$(".ant-picker-input");
+    await dateStart.click({ clickCount: 3 });
+    await page.keyboard.type("Mar 10 2024 6:35pm UTC");
 
-    // Delete the selected text
-    await page.keyboard.press("Backspace");
 
-    await page.click(".ant-picker-input");
-    // await page.keyboard.type("Mar 10 2024 6:35pm UTC");
+    // 4 tabs to get to the date end input field
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press("Tab");
+    }
+
+    // The next day after the start date
+    await page.keyboard.type("Mar 11 2024 6:34pm UTC");
+
+    await page.keyboard.press('Enter');
+
+    await page.waitForSelector(".leaflet-zoom-animated");
+    await page.waitForTimeout(2000);
 
     const dashboardImage = await page.screenshot();
 
