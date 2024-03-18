@@ -26,14 +26,14 @@ describe("Crawling critical pages", () => {
   let browser, page;
   const homePage = "http://localhost:8000/";
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     browser = await puppeteer.launch({ headless: false });
     page = await browser.newPage();
     await page.setViewport({ width: 1080, height: 1024 });
     await page.goto(homePage);
   }, 30000);
 
-  afterAll(async () => {
+  afterEach(async () => {
     await browser.close();
   });
 
@@ -107,6 +107,24 @@ describe("Crawling critical pages", () => {
 
     expect(asnISPViewImage).toMatchImageSnapshot({
       customSnapshotIdentifier: "dashboard-asn-isp-view",
+      failureThreshold: "0.10",
+      failureThresholdType: "percent",
+    });
+  }, 30000);
+
+  it.only("allows search by country", async () => {
+    const country = "Iran";
+    await page.waitForSelector("input#rc_select_2");
+
+    page.$eval("input#rc_select_2", (el) => el.click());
+    await page.keyboard.type(country);
+
+    await page.waitForTimeout(4000);
+
+    const homeImage = await page.screenshot();
+
+    expect(homeImage).toMatchImageSnapshot({
+      customSnapshotIdentifier: "iran-page-view",
       failureThreshold: "0.10",
       failureThresholdType: "percent",
     });
