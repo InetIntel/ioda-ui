@@ -44,8 +44,8 @@ describe("Crawling critical pages", () => {
     const homeImage = await page.screenshot();
 
     expect(homeImage).toMatchImageSnapshot({
+      customSnapshotIdentifier: "home-page",
       failureThreshold: "0.10",
-
       failureThresholdType: "percent",
     });
   }, 30000);
@@ -62,7 +62,6 @@ describe("Crawling critical pages", () => {
     await dateStart.click({ clickCount: 3 });
     await page.keyboard.type("Mar 10 2024 6:35pm UTC");
 
-
     // 4 tabs to get to the date end input field
     for (let i = 0; i < 4; i++) {
       await page.keyboard.press("Tab");
@@ -71,7 +70,7 @@ describe("Crawling critical pages", () => {
     // The next day after the start date
     await page.keyboard.type("Mar 11 2024 6:34pm UTC");
 
-    await page.keyboard.press('Enter');
+    await page.keyboard.press("Enter");
 
     await page.waitForSelector(".leaflet-zoom-animated");
     await page.waitForTimeout(2000);
@@ -79,8 +78,36 @@ describe("Crawling critical pages", () => {
     const dashboardImage = await page.screenshot();
 
     expect(dashboardImage).toMatchImageSnapshot({
+      customSnapshotIdentifier: "dashboard-main-view",
       failureThreshold: "0.10",
+      failureThresholdType: "percent",
+    });
 
+    const regionView = await page.waitForSelector("text/Region View");
+    await regionView.click();
+
+    await page.waitForSelector(".leaflet-zoom-animated");
+    await page.waitForTimeout(2000);
+
+    const regionViewImage = await page.screenshot();
+
+    expect(regionViewImage).toMatchImageSnapshot({
+      customSnapshotIdentifier: "dashboard-region-view",
+      failureThreshold: "0.10",
+      failureThresholdType: "percent",
+    });
+
+    const asnISPView = await page.waitForSelector("text/ASN/ISP View");
+    await asnISPView.click();
+
+    await page.waitForSelector("#horizon-chart");
+    await page.waitForTimeout(4000);
+
+    const asnISPViewImage = await page.screenshot();
+
+    expect(asnISPViewImage).toMatchImageSnapshot({
+      customSnapshotIdentifier: "dashboard-asn-isp-view",
+      failureThreshold: "0.10",
       failureThresholdType: "percent",
     });
   }, 30000);
