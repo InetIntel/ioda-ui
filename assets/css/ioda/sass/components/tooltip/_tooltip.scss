@@ -2,9 +2,21 @@
   // Nothing should EVER appear above a tooltip
   z-index: 10000000000;
   .ant-popover-title {
-    color: #fff !important;
+    color: #000 !important;
   }
   .ant-popover-inner-content {
     color: #fff !important;
   }
+}
+
+div[role=tooltip] {
+  padding: 24px !important;
+}
+
+.ant-popover-content .ant-popover-inner { //  .ant-popover
+  padding: 24px !important;
+}
+
+.question-tooltip-button {
+  color: $dark-grey-color !important; //$dark-grey-color;
 }

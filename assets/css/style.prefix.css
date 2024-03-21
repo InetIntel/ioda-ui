@@ -3508,7 +3508,7 @@ body {
 .ioda-help-tooltip {
   z-index: 10000000000; }
   .ioda-help-tooltip .ant-popover-title {
-    color: #fff !important; }
+    color: #000 !important; }
   .ioda-help-tooltip .ant-popover-inner-content {
     color: #fff !important; }
 

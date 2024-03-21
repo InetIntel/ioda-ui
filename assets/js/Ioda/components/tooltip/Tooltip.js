@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Button, Popover } from "antd";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import { QuestionCircleFilled } from "@ant-design/icons";
 
 const Tooltip = ({ title, text, customCode, className }) => {
   return (
@@ -8,19 +8,21 @@ const Tooltip = ({ title, text, customCode, className }) => {
       placement="right"
       title={title}
       content={customCode ?? text}
-      trigger="hover"
+      trigger="click"
       overlayStyle={{
         maxWidth: "275px",
+        padding: "24px !important",
       }}
       overlayClassName="ioda-help-tooltip"
       color="rgba(0, 0, 0, 0.9)"
+      padding="24px"
     >
       <Button
-        className={className}
+        className={`${className} question-tooltip-button`}
         type="link"
-        color="primary"
         shape="circle"
-        icon={<QuestionCircleOutlined />}
+        color="rgba(0, 0, 0, 0.9)"
+        icon={<QuestionCircleFilled />}
         size="small"
       />
     </Popover>
