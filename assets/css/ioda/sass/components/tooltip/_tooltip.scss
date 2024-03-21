@@ -3,8 +3,21 @@
   z-index: 10000000000;
   .ant-popover-title {
     color: #fff !important;
+    font-size: 12px;
+    font-weight: 500;
   }
   .ant-popover-inner-content {
     color: #fff !important;
+    font-size: 12px;
+    font-weight: 400;
   }
+}
+
+div[role=tooltip] {
+  padding: 16px !important;
+  border-radius: 2px !important;
+}
+
+.question-tooltip-button {
+  color: $color-dark-grey !important;
 }

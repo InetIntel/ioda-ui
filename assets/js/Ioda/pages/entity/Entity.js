@@ -2769,6 +2769,14 @@ class Entity extends Component {
     const tooltipXyPlotTimeSeriesText = T.translate(
       "tooltip.xyPlotTimeSeriesTitle.text"
     );
+
+    const tooltipXyPlotTimeSeriesTitleCountry = T.translate(
+      "tooltip.xyPlotTimeSeriesTitleCountry.title"
+    );
+    const tooltipXyPlotTimeSeriesTextCountry = T.translate(
+      "tooltip.xyPlotTimeSeriesTitleCountry.text"
+    );
+
     const timeDurationTooHighErrorMessage = T.translate(
       "dashboard.timeDurationTooHighErrorMessage"
     );
@@ -2820,12 +2828,18 @@ class Entity extends Component {
                     {xyChartTitle}
                     {this.state.entityName}
                   </h3>
-                  <CustomToolip
-                    className="mr-auto"
-                    title={tooltipXyPlotTimeSeriesTitle}
-                    text={tooltipXyPlotTimeSeriesText}
-                  />
-
+                  {this.state.entityType === "country" ?
+                    <CustomToolip
+                      className="mr-auto"
+                      title={tooltipXyPlotTimeSeriesTitleCountry}
+                      text={tooltipXyPlotTimeSeriesTextCountry}
+                    /> :
+                    <CustomToolip
+                      className="mr-auto"
+                      title={tooltipXyPlotTimeSeriesTitle}
+                      text={tooltipXyPlotTimeSeriesText}
+                    />
+                  }
                   {this.state.showResetZoomButton && (
                     <Tooltip title="Reset View">
                       <Button

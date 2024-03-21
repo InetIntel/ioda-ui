@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import clsx from "clsx";
+import Tooltip from "../../components/tooltip/Tooltip";
+import T from "i18n-react";
 
 const MapLegend = ({ lowThreshold, highThreshold, className, ...rest }) => {
   const formatLocaleNumber = (value, precision = 0) => {
@@ -21,11 +23,24 @@ const MapLegend = ({ lowThreshold, highThreshold, className, ...rest }) => {
   const intervals = 4;
   const range = getRangeFromBounds(lowThreshold, highThreshold, intervals);
 
+  const outageSeverityScoreTooltipTitle = T.translate(
+    "tooltip.outageSeverityScore.title"
+  );
+  const outageSeverityScoreTooltipText = T.translate(
+    "tooltip.outageSeverityScore.text"
+  );
+
   return (
     <div className={clsx("card p-4 map-legend", className)} {...rest}>
       <div className="flex items-end gap-4">
-        <div className="text-lg font-bold map-legend__title">
-          Outage Severity Score:
+        <div className="row items-center" style={{ margin: 0 }}>
+          <div className="text-lg font-bold map-legend__title">
+            Outage Severity Score:
+          </div>
+          <Tooltip
+            title={outageSeverityScoreTooltipTitle}
+            text={outageSeverityScoreTooltipText}
+          />
         </div>
         <div className="col">
           <div className="flex items-center map-legend__labels">
