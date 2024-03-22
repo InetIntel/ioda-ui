@@ -82,11 +82,10 @@ webpackConfig.resolve.alias = {
 };
 
 webpackConfig.plugins.push(
-    new CopyWebpackPlugin([
-        { from: './assets/images/logos/', to: 'images/'}
-    ])
+    new CopyWebpackPlugin({
+        patterns: [{ from: './assets/images/logos/', to: 'images/'}]
+    })
 );
-
 
 webpackConfig.plugins.push(
     new Dotenv({
