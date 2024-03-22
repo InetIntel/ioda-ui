@@ -21,7 +21,7 @@ Encore
      * (including one that's included on every page - e.g. "app")
      */
     /* TODO: figure out which entries we want here */
-    .addEntry('ioda', ['babel-polyfill', './assets/js/Ioda/index.js'])
+    .addEntry('ioda', ['@babel/polyfill', './assets/js/Ioda/index.js'])
 
     // yaml-loader
     .addLoader({
