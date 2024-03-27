@@ -83,7 +83,6 @@ webpackConfig.resolve.alias = {
 
 webpackConfig.plugins.push(
     new CopyWebpackPlugin({
-        options: { concurrency: 50 },
         patterns: [{ from: './assets/images/logos/', to: 'images/'}],
     })
 );
