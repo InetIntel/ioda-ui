@@ -21,7 +21,7 @@ Encore
      * (including one that's included on every page - e.g. "app")
      */
     /* TODO: figure out which entries we want here */
-    .addEntry('ioda', ['babel-polyfill', './assets/js/Ioda/index.js'])
+    .addEntry('ioda', ['@babel/polyfill', './assets/js/Ioda/index.js'])
 
     // yaml-loader
     .addLoader({
@@ -82,11 +82,10 @@ webpackConfig.resolve.alias = {
 };
 
 webpackConfig.plugins.push(
-    new CopyWebpackPlugin([
-        { from: './assets/images/logos/', to: 'images/'}
-    ])
+    new CopyWebpackPlugin({
+        patterns: [{ from: './assets/images/logos/', to: 'images/'}],
+    })
 );
-
 
 webpackConfig.plugins.push(
     new Dotenv({
