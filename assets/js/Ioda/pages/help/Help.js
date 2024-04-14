@@ -126,14 +126,56 @@ class Help extends PureComponent {
 
             <hr className="my-12" />
 
-            <h2 className="text-3xl font-semibold mb-6">Screencasts</h2>
+            <h2 className="text-3xl font-semibold mb-6">Guided Resources</h2>
+
+            <h3 className="text-2xl font-semibold">User Guide (NEW)</h3>
+            <ul className="mb-6">
+              <li>
+                <a
+                  href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Download_4Pages.pdf"
+                  target="_blank"
+                  className="a-fake text-color-link"
+                >
+                  Digital PDF
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Download_FullImage.png"
+                  target="_blank"
+                  className="a-fake text-color-link"
+                >
+                  Digital Infographic
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Print%20-%20Letter%20-%20Inside.pdf"
+                  target="_blank"
+                  className="a-fake text-color-link"
+                >
+                  Print PDF - Inside
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Print%20-%20Letter%20-%20Outside.pdf"
+                  target="_blank"
+                  className="a-fake text-color-link"
+                >
+                  Print PDF - Outside
+                </a>
+              </li>
+            </ul>
+
+            <h3 className="text-2xl font-semibold">Screencasts</h3>
             <p>
               We have created screencasts that walk you through using IODA's
               Dashboard and Explorer. The screencasts discuss the most important
               user interface elements, IODA's data sources, and show how to use
               both the Dashboard and the Explorer effectively.
             </p>
-            <ul>
+            <ul className="mb-6">
               <li>
                 <a
                   href="https://advocacyassembly.org/en/courses/67"
