@@ -2,7 +2,7 @@
     "type": "project",
     "license": "proprietary",
     "require": {
-        "php": "^7.2",
+        "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "sensio/framework-extra-bundle": "^5.2",
@@ -25,7 +25,7 @@
             "symfony/flex": true
         },
 	"platform": {
-	    "php": "7.2.24"
+	    "php": "7.4"
 	}
     },
     "autoload": {
