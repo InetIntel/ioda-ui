@@ -41,7 +41,8 @@ import "css/style.css";
 import "./constants/strings";
 // React imports
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
+
+import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 // Redux
 import { Provider } from "react-redux";
@@ -109,14 +110,15 @@ const reducers = {
 };
 const rootReducer = combineReducers(reducers);
 const store = createStore(rootReducer, applyMiddleware(thunk));
+const container = document.getElementById("root");
+const root = createRoot(container);
 
 // await google analytics to initialize
 
-ReactDOM.render(
+root.render(
   <Provider store={store}>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </Provider>,
-  document.getElementById("root")
+  </Provider>
 );
