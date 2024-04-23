@@ -67,7 +67,7 @@ async function generateSitemap() {
 
         let entityCodeMap = [];
 
-        getCountries.data.data.topology.objects["ne_10m_admin_0.countries.v3.1.0"].geometries.map(obj => {
+        getCountries.data.data.topology.objects["ne_10m_admin_0.countries"].geometries.map(obj => {
             const formattedObj = obj.properties.usercode.replace(':', '/');
             entityCodeMap.push(formattedObj);
         });

@@ -1610,7 +1610,7 @@ class Entity extends Component {
         .then((data) =>
           topojson.feature(
             data.region.topology,
-            data.region.topology.objects["ne_10m_admin_1.regions.v3.0.0"]
+            data.region.topology.objects["ne_10m_admin_1.regions"]
           )
         )
         .then((data) =>
