@@ -1,7 +1,6 @@
 # ioda-ui
 Web application UI for the IODA project (https://ioda.live)
 
-
 ## Install
 1. Ensure PHP 7.2 or higher is running on your machine.
 2. Clone repo locally 

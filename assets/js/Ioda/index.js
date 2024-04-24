@@ -51,6 +51,7 @@ import { iodaApiReducer } from "./data/DataReducer";
 // Global Components
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
+import GlobalAlert from "./components/alert/GlobalAlert";
 // Routes
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -60,6 +61,7 @@ import Help from "./pages/help/Help";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import { initializeAnalytics } from "./utils/analytics";
+import { AlertStatus } from "./constants/types/status";
 
 initializeAnalytics();
 
@@ -69,6 +71,11 @@ class App extends Component {
 
     this.state = {
       error: null,
+      alert: {
+        // title: "Welcome to Our Application",
+        // description: "This is an optional alert description.",
+        // type: AlertStatus.Success, // AlertStatus.Warning, AlertStatus.Success, AlertStatus.Error
+      },
     };
   }
 
@@ -77,29 +84,46 @@ class App extends Component {
     return { error: errorObject };
   }
 
+  componentDidCatch(error, info) {
+    // Log the error to an error reporting service
+    console.log(error, info);
+  }
+
   render() {
-    if (this.state.error) {
-      return (
-        <div className="app">
-          <Header />
-          <Error error={this.state.error} />
-          <Footer />
-        </div>
-      );
-    }
+    const { error, alert } = this.state;
+
     return (
-      <div className="app">
-        <Header />
-        <Switch>
-          <Route path="/dashboard/:entityType?" component={Dashboard} />
-          <Route exact path="/project" component={ProjectInfo} />
-          <Route exact path="/help" component={Help} />
-          <Route exact path="/_tmp/asn" component={ASNVizV2} />
-          <Route exact path="/:entityType/:entityCode" component={Entity} />
-          <Route path="/" component={Home} />
-        </Switch>
-        <Footer />
-      </div>
+      <Provider store={store}>
+        <BrowserRouter>
+          <div className="app">
+            <Header />
+            {error ? (
+              <Error error={error} />
+            ) : (
+              <>
+                <GlobalAlert
+                  title={alert.title}
+                  description={alert.description}
+                  type={alert.type}
+                />
+                <Switch>
+                  <Route path="/dashboard/:entityType?" component={Dashboard} />
+                  <Route exact path="/project" component={ProjectInfo} />
+                  <Route exact path="/help" component={Help} />
+                  <Route exact path="/_tmp/asn" component={ASNVizV2} />
+                  <Route
+                    exact
+                    path="/:entityType/:entityCode"
+                    component={Entity}
+                  />
+                  <Route path="/" component={Home} />
+                </Switch>
+              </>
+            )}
+            <Footer />
+          </div>
+        </BrowserRouter>
+      </Provider>
     );
   }
 }
@@ -110,13 +134,4 @@ const reducers = {
 const rootReducer = combineReducers(reducers);
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
-// await google analytics to initialize
-
-ReactDOM.render(
-  <Provider store={store}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
-  </Provider>,
-  document.getElementById("root")
-);
+ReactDOM.render(<App />, document.getElementById("root"));

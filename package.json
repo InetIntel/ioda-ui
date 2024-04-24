@@ -69,6 +69,7 @@
         "i18n-react": "^0.7.0",
         "leaflet": "^0.7.3",
         "lodash": "^4.17.15",
+        "prettier": "^3.2.5",
         "prop-types": "^15.6.2",
         "react": "^16.14.0",
         "react-app-polyfill": "^2.0.0",
