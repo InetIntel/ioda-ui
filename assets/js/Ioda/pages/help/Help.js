@@ -77,6 +77,7 @@ import T from "i18n-react";
 import { Helmet } from "react-helmet";
 
 import { Alert } from "antd";
+import { registerAnalyticsEvent } from "../../utils/analytics";
 
 class Help extends PureComponent {
   render() {
@@ -87,6 +88,10 @@ class Help extends PureComponent {
     const link3 = T.translate("reports.link3");
     const link4 = T.translate("reports.link4");
     const link5 = T.translate("reports.link5");
+
+    const trackClickEvent = (itemName) => {
+      registerAnalyticsEvent("help_click", itemName);
+    }
 
     return (
       <div className="max-cont pb-24 help-page">
@@ -135,6 +140,7 @@ class Help extends PureComponent {
                   href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Download_4Pages.pdf"
                   target="_blank"
                   className="a-fake text-color-link"
+                  onClick={() => trackClickEvent('user_guide_digital_pdf')}
                 >
                   Digital PDF
                 </a>
@@ -144,6 +150,7 @@ class Help extends PureComponent {
                   href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Download_FullImage.png"
                   target="_blank"
                   className="a-fake text-color-link"
+                  onClick={() => trackClickEvent('user_guide_digital_infographic')}
                 >
                   Digital Infographic
                 </a>
@@ -153,6 +160,7 @@ class Help extends PureComponent {
                   href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Print%20-%20Letter%20-%20Inside.pdf"
                   target="_blank"
                   className="a-fake text-color-link"
+                  onClick={() => trackClickEvent('user_guide_print_pdf_inside')}
                 >
                   Print PDF - Inside
                 </a>
@@ -162,6 +170,7 @@ class Help extends PureComponent {
                   href="https://inetintel.github.io/IODA-site-files/files/brochure2024/Print%20-%20Letter%20-%20Outside.pdf"
                   target="_blank"
                   className="a-fake text-color-link"
+                  onClick={() => trackClickEvent('user_guide_print_pdf_outside')}
                 >
                   Print PDF - Outside
                 </a>
