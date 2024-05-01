@@ -37,6 +37,7 @@
         "dev-server": "encore dev-server",
         "dev": "encore dev",
         "watch": "encore dev --watch",
+        "watch-all": "npm-run-all --parallel watch watch:sass",
         "prebuild": "npm run sitemap",
         "build": "encore production",
         "watch:sass": "dart-sass assets/css/ioda/sass/main.scss assets/css/style.css --watch",
