@@ -33,6 +33,7 @@ import {
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
 import { Radio } from "antd";
+import { useParams } from "react-router-dom";
 
 const TAB_VIEW_MAP = "map";
 const TAB_VIEW_TIME_SERIES = "timeSeries";
@@ -549,6 +550,13 @@ class Dashboard extends Component {
   }
 }
 
+// TODO: Migrate file fully to functional component
+const DashboardFn = (props) => {
+  const params = useParams();
+
+  return <Dashboard {...props} match={{ params }} />;
+}
+
 const mapStateToProps = (state) => {
   return {
     summary: state.iodaApi.summary,
@@ -626,4 +634,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withRouter(Dashboard));
+)(withRouter(DashboardFn));
