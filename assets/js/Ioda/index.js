@@ -92,12 +92,12 @@ class App extends Component {
       <div className="app">
         <Header />
         <Switch>
-          <Route path="/dashboard/:entityType?" component={Dashboard} />
-          <Route exact path="/project" component={ProjectInfo} />
-          <Route exact path="/help" component={Help} />
-          <Route exact path="/_tmp/asn" component={ASNVizV2} />
-          <Route exact path="/:entityType/:entityCode" component={Entity} />
-          <Route path="/" component={Home} />
+          <Route path="/dashboard/:entityType?" children={<Dashboard />} />
+          <Route exact path="/project" children={<ProjectInfo />} />
+          <Route exact path="/help" children={<Help />} />
+          <Route exact path="/_tmp/asn" children={<ASNVizV2 />} />
+          <Route exact path="/:entityType/:entityCode" children={<Entity />} />
+          <Route path="/" children={<Home />} />
         </Switch>
         <Footer />
       </div>
