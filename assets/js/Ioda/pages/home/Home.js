@@ -34,6 +34,7 @@
 
 // React Imports
 import React, { Component } from "react";
+import { useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 import { Helmet } from "react-helmet";
 // Internationalization
@@ -417,4 +418,11 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+// TODO: Migrate file fully to functional component
+const HomeFn = (props) => {
+  const history = useHistory();
+
+  return <Home {...props} history={history} />;
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeFn);
