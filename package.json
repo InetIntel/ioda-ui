@@ -52,6 +52,7 @@
     "dependencies": {
         "@2fd/ant-design-icons": "^2.6.0",
         "@ant-design/icons": "^5.1.0",
+        "@reduxjs/toolkit": "^2.2.5",
         "antd": "^5.7.0",
         "axios": "^0.21.1",
         "clsx": "^1.2.1",
@@ -83,8 +84,6 @@
         "react-share": "^4.4.1",
         "react-style-tag": "^2.0.3",
         "react-twitter-embed": "^4.0.4",
-        "redux": "^4.0.5",
-        "redux-thunk": "^2.3.0",
         "topojson": "1.6.18",
         "uuid": "^9.0.0"
     },
