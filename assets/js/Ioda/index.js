@@ -46,8 +46,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 // Redux
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware, combineReducers } from "redux";
-import thunk from "redux-thunk";
+import { configureStore } from "@reduxjs/toolkit";
 import { iodaApiReducer } from "./data/DataReducer";
 // Global Components
 import Header from "./components/header/Header";
@@ -133,8 +132,10 @@ class App extends Component {
 const reducers = {
   iodaApi: iodaApiReducer,
 };
-const rootReducer = combineReducers(reducers);
-const store = createStore(rootReducer, applyMiddleware(thunk));
+
+const store = configureStore({
+  reducer: reducers
+})
 const container = document.getElementById("root");
 const root = createRoot(container);
 
