@@ -5972,10 +5972,10 @@ homedir-polyfill@^1.0.0, homedir-polyfill@^1.0.1:
   dependencies:
     parse-passwd "^1.0.0"
 
-horizon-timeseries-chart@^1.6.4:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/horizon-timeseries-chart/-/horizon-timeseries-chart-1.9.2.tgz#e47d2046d7160bd2c494185306099077274b2ad2"
-  integrity sha512-SOrPjyjYZ69C5cv7q8YnJIUD/Y7UFxw8kneKDElbD1WefrBW5DZN/SkbipCbnUU6YvVD8skJ6H5yCDoD16nVbw==
+horizon-timeseries-chart@^1.10.1:
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/horizon-timeseries-chart/-/horizon-timeseries-chart-1.10.1.tgz#4f48dc0c87189df8add2878521779c8381a24e2f"
+  integrity sha512-xkFnbgG/+BvmMxJnYN5UpvaJYZ7r59fU69O7FcA3pzETn+umQ17SNQnrXG1pNfKw9l7aQUHl08BJpgnu+RBgRg==
   dependencies:
     accessor-fn "1"
     d3-array "1 - 3"
