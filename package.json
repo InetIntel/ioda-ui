@@ -55,7 +55,7 @@
         "@ant-design/icons": "^5.3.7",
         "@reduxjs/toolkit": "^2.2.5",
         "antd": "^5.7.0",
-        "axios": "^0.21.1",
+        "axios": "^1.7.2",
         "clsx": "^2.1.1",
         "core-js": "^3.37.1",
         "d3": "3",
