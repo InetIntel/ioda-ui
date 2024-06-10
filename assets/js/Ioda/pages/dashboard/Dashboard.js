@@ -343,8 +343,8 @@ class Dashboard extends Component {
   getDataTopo = (entityType) => {
     let topologyObjectName =
       entityType == "country"
-        ? "ne_10m_admin_0.countries.v3.1.0"
-        : "ne_10m_admin_1.regions.v3.0.0";
+        ? "ne_10m_admin_0.countries"
+        : "ne_10m_admin_1.regions";
     if (this.state.mounted) {
       getTopoAction(entityType)
         .then((data) =>

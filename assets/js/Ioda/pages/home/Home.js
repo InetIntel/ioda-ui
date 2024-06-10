@@ -133,7 +133,7 @@ class Home extends Component {
       .then((data) =>
         topojson.feature(
           data[entityType].topology,
-          data[entityType].topology.objects["ne_10m_admin_0.countries.v3.1.0"]
+          data[entityType].topology.objects["ne_10m_admin_0.countries"]
         )
       )
       .then((data) => this.setState({ topoData: data }, this.getMapScores));
