@@ -295,7 +295,7 @@ class Help extends PureComponent {
               </li>
               <li>
                 For each packet that passes the filters, we perform geolocation
-                (using the Netacuity IP geolocation DB) and ASN lookups on the
+                and ASN lookups on the
                 source IP address, and then compute the{" "}
                 <em>number of unique source IPs per minute</em>, aggregated by
                 country, region, and ASN.
