@@ -56,6 +56,7 @@ import xsedeBlack from "images/acknowledgements/xsede-black.png";
 import caida from "images/logos/caida.png";
 import gatechTso from "images/acknowledgements/gatech-coc.png";
 import alcock from "images/acknowledgements/alcock.png";
+import ipinfo from "images/acknowledgements/ipinfo.svg";
 
 import PartnerCard from "../home/PartnerCard";
 import { Alert } from "antd";
@@ -181,6 +182,12 @@ const data = [
     logoHref: "https://www.alcock.co.nz/",
     children:
       "Alcock Network Intelligence is subcontracted to assist with the development, deployment and maintenance of the software for the IODA project.",
+  },
+  {
+    logo: ipinfo,
+    logoHref: "https://ipinfo.io/",
+    children:
+      "IPInfo provides the IP Geolocation data that is used to associate measurements with their corresponding countries and regions.",
   },
 ];
 
