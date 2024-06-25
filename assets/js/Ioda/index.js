@@ -41,12 +41,12 @@ import "css/style.css";
 import "./constants/strings";
 // React imports
 import React, { Component } from "react";
-import ReactDOM from "react-dom";
+
+import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 // Redux
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware, combineReducers } from "redux";
-import thunk from "redux-thunk";
+import { configureStore } from "@reduxjs/toolkit";
 import { iodaApiReducer } from "./data/DataReducer";
 // Global Components
 import Header from "./components/header/Header";
@@ -91,12 +91,12 @@ class App extends Component {
       <div className="app">
         <Header />
         <Switch>
-          <Route path="/dashboard/:entityType?" component={Dashboard} />
-          <Route exact path="/project" component={ProjectInfo} />
-          <Route exact path="/help" component={Help} />
-          <Route exact path="/_tmp/asn" component={ASNVizV2} />
-          <Route exact path="/:entityType/:entityCode" component={Entity} />
-          <Route path="/" component={Home} />
+          <Route path="/dashboard/:entityType?" children={<Dashboard />} />
+          <Route exact path="/project" children={<ProjectInfo />} />
+          <Route exact path="/help" children={<Help />} />
+          <Route exact path="/_tmp/asn" children={<ASNVizV2 />} />
+          <Route exact path="/:entityType/:entityCode" children={<Entity />} />
+          <Route path="/" children={<Home />} />
         </Switch>
         <Footer />
       </div>
@@ -107,16 +107,19 @@ class App extends Component {
 const reducers = {
   iodaApi: iodaApiReducer,
 };
-const rootReducer = combineReducers(reducers);
-const store = createStore(rootReducer, applyMiddleware(thunk));
+
+const store = configureStore({
+  reducer: reducers
+})
+const container = document.getElementById("root");
+const root = createRoot(container);
 
 // await google analytics to initialize
 
-ReactDOM.render(
+root.render(
   <Provider store={store}>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </Provider>,
-  document.getElementById("root")
+  </Provider>
 );

@@ -51,7 +51,7 @@ import {
   maxHtsLimit,
 } from "../../utils";
 import HorizonTSChart from "horizon-timeseries-chart";
-import Style from "react-style-tag/lib/Style";
+import { Style } from "react-style-tag";
 import { Button, Modal } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
