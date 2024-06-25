@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
+import { Map, TileLayer, GeoJSON } from "react-leaflet";
 import { humanizeNumber } from "../../utils";
 import {
   shadeColor,
@@ -131,7 +131,7 @@ class TopoMap extends Component {
           />
         )}
 
-        <MapContainer
+        <Map
           center={this.props.bounds ? null : position}
           zoom={this.props.bounds ? null : zoom}
           bounds={this.props.bounds ? this.props.bounds : null}
@@ -160,7 +160,7 @@ class TopoMap extends Component {
               dashArray: "2",
             })}
           />
-        </MapContainer>
+        </Map>
       </div>
     );
   }
