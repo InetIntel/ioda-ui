@@ -33,7 +33,7 @@ import {
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { withRouter } from "react-router-dom";
 import { Radio } from "antd";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 
 const TAB_VIEW_MAP = "map";
 const TAB_VIEW_TIME_SERIES = "timeSeries";
@@ -553,8 +553,9 @@ class Dashboard extends Component {
 // TODO: Migrate file fully to functional component
 const DashboardFn = (props) => {
   const params = useParams();
+  const history = useHistory();
 
-  return <Dashboard {...props} match={{ params }} />;
+  return <Dashboard {...props} match={{ params }} history={history} />;
 }
 
 const mapStateToProps = (state) => {
