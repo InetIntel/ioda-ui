@@ -68,7 +68,7 @@ const RawSignalsTable = ({
   data,
   entityType,
   toggleEntityVisibilityInHtsViz,
-  handleEntityClick,
+  // handleEntityClick,
   handleCheckboxEventLoading,
 }) => {
   const columns = getColumnsFromEntityType(entityType);
