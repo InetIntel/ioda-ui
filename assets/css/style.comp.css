@@ -4463,9 +4463,22 @@ body {
 }
 .ioda-help-tooltip .ant-popover-title {
   color: #fff !important;
+  font-size: 12px;
+  font-weight: 500;
 }
 .ioda-help-tooltip .ant-popover-inner-content {
   color: #fff !important;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+div[role=tooltip] {
+  padding: 16px !important;
+  border-radius: 2px !important;
+}
+
+.question-tooltip-button {
+  color: #595959 !important;
 }
 
 .ioda-table .ant-table-column-title {
