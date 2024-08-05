@@ -134,12 +134,12 @@ class SignalTableRow extends Component {
           <Link
             className="table__cell-link"
             to={linkPath}
-            onClick={() =>
-              this.props.handleEntityClick(
-                this.props.data.entityType,
-                this.props.data.entityCode
-              )
-            }
+            // onClick={() =>
+            //   this.props.handleEntityClick(
+            //     this.props.data.entityType,
+            //     this.props.data.entityCode
+            //   )
+            // }
           >
             <span>{this.props.data.name}</span>
           </Link>
