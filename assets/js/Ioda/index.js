@@ -43,7 +43,7 @@ import "./constants/strings";
 import React, { Component } from "react";
 
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 // Redux
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
@@ -90,14 +90,14 @@ class App extends Component {
     return (
       <div className="app">
         <Header />
-        <Switch>
-          <Route path="/dashboard/:entityType?" children={<Dashboard />} />
-          <Route exact path="/project" children={<ProjectInfo />} />
-          <Route exact path="/help" children={<Help />} />
-          <Route exact path="/_tmp/asn" children={<ASNVizV2 />} />
-          <Route exact path="/:entityType/:entityCode" children={<Entity />} />
-          <Route path="/" children={<Home />} />
-        </Switch>
+        <Routes>
+          <Route path="/dashboard/:entityType?" element={<Dashboard />} />
+          <Route exact path="/project" element={<ProjectInfo />} />
+          <Route exact path="/help" element={<Help />} />
+          <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
+          <Route exact path="/:entityType/:entityCode" element={<Entity />} />
+          <Route path="/" element={<Home />} />
+        </Routes>
         <Footer />
       </div>
     );

@@ -31,9 +31,8 @@ import {
   getPreviousMinutesAsUTCSecondRange,
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
-import { withRouter } from "react-router-dom";
 import { Radio } from "antd";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const TAB_VIEW_MAP = "map";
 const TAB_VIEW_TIME_SERIES = "timeSeries";
@@ -55,7 +54,7 @@ class Dashboard extends Component {
 
     const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
 
-    const urlEntityType = props?.match?.params?.entityType;
+    const urlEntityType = props.entityType;
 
     const entityType = this.tabs[urlEntityType] ? urlEntityType : country.type;
 
@@ -119,8 +118,8 @@ class Dashboard extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // A check to prevent repetitive selection of the same tab
-    if (this.props.match.params.tab !== prevProps.match.params.tab) {
-      this.handleSelectTab(this.tabs[prevProps.match.params.tab]);
+    if (this.props.tab !== prevProps.tab) {
+      this.handleSelectTab(this.tabs[prevProps.tab]);
     }
 
     // Update visualizations when tabs are changed
@@ -197,7 +196,7 @@ class Dashboard extends Component {
     if (this.state.from === from && this.state.until === until) {
       return;
     }
-    const { history } = this.props;
+    const { navigate } = this.props;
 
     this.setState(
       {
@@ -218,13 +217,13 @@ class Dashboard extends Component {
         this.getTotalOutages(this.state.activeTabType);
       }
     );
-    history.push(`/dashboard?from=${from}&until=${until}`);
+    navigate(`/dashboard?from=${from}&until=${until}`);
   };
 
   // Tabbing
   // Function to map active tab to state and manage url
   handleSelectTab = (selectedTab) => {
-    const { history } = this.props;
+    const { navigate } = this.props;
     // use tab property to determine active tab by index
     let activeTabType, url;
     if (selectedTab === asn.type) {
@@ -257,9 +256,9 @@ class Dashboard extends Component {
     });
 
     if (hasDateRangeInUrl()) {
-      history.push(`${url}/?from=${this.state.from}&until=${this.state.until}`);
+      navigate(`${url}/?from=${this.state.from}&until=${this.state.until}`);
     } else {
-      history.push(url);
+      navigate(url);
     }
   };
 
@@ -366,7 +365,7 @@ class Dashboard extends Component {
   };
   // function to manage when a user clicks a country in the map
   handleEntityShapeClick = (entity) => {
-    const { history } = this.props;
+    const { navigate } = this.props;
 
     // Use usercode for country, id for other types
     const entityCode =
@@ -379,7 +378,7 @@ class Dashboard extends Component {
       path = `${path}/?from=${this.state.from}&until=${this.state.until}`;
     }
 
-    history.push(path);
+    navigate(path);
   };
 
   // Event Time Series
@@ -423,8 +422,8 @@ class Dashboard extends Component {
   // Define what happens when user clicks suggested search result entry
   handleResultClick = (entity) => {
     if (!entity) return;
-    const { history } = this.props;
-    history.push(`/${entity.type}/${entity.code}`);
+    const { navigate } = this.props;
+    navigate(`/${entity.type}/${entity.code}`);
   };
 
   // Function that returns search bar passed into control panel
@@ -552,11 +551,18 @@ class Dashboard extends Component {
 
 // TODO: Migrate file fully to functional component
 const DashboardFn = (props) => {
-  const params = useParams();
-  const history = useHistory();
+  const { entityType, tab } = useParams();
+  const navigate = useNavigate();
 
-  return <Dashboard {...props} match={{ params }} history={history} />;
-}
+  return (
+    <Dashboard
+      {...props}
+      tab={tab}
+      entityType={entityType}
+      navigate={navigate}
+    />
+  );
+};
 
 const mapStateToProps = (state) => {
   return {
@@ -632,7 +638,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withRouter(DashboardFn));
+export default connect(mapStateToProps, mapDispatchToProps)(DashboardFn);
