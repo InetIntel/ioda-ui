@@ -35,10 +35,10 @@
  * MODIFICATIONS.
  */
 import React from "react";
-import { Checkbox, Collapse, Panel } from "antd";
+import { Checkbox, Collapse } from "antd";
 import { gtrColor, legend } from "../../utils";
 import { debounce } from "lodash";
-// import { NULL } from "node-sass";
+import { useParams } from "react-router-dom";
 
 const ChartLegendCard = ({
   legendHandler,
