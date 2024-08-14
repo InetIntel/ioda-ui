@@ -31,7 +31,8 @@
  * IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE
  * MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-import d3 from 'd3';
+import { geoBounds } from 'd3-geo';
+import { format } from 'd3-format';
 import T from 'i18n-react';
 import { getColorFromLinearScale, getEntityScaleColor } from './mapColors';
 import { secondsToUTC } from './timeUtils';
@@ -110,7 +111,7 @@ export const legend = [
 // Humanize number with rounding, abbreviations, etc.
 export function humanizeNumber(value, precisionDigits) {
     precisionDigits = precisionDigits || 3;
-    return d3.format(
+    return format(
         (isNaN(precisionDigits) ? '' : '.' + precisionDigits)
         + ((Math.abs(value) < 1) ? 'r' : 's')
     )(value);
@@ -277,7 +278,7 @@ export function convertTsDataForHtsViz(tsData) {
 
 // take a list of outages that will populate on a map and create a bounding box the map will use for zoom location
 export function getOutageCoords(features) {
-    return features.map(d3.geo.bounds).reduce(function (prev, cur) {
+    return features.map(geoBounds).reduce(function (prev, cur) {
         return [
             [
                 Math.min(prev[0][0], cur[0][0]),
