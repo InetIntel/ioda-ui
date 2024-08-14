@@ -36,8 +36,9 @@
  */
 
 // React Imports
-import React, { Component } from "react";
+import React, { Component, useEffect } from "react";
 import { connect } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
@@ -112,7 +113,6 @@ import {
   secondsToUTC,
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
-import { withRouter } from "react-router-dom";
 import { Button, Checkbox, Popover, Tooltip } from "antd";
 import {
   DownloadOutlined,
@@ -176,8 +176,8 @@ class Entity extends Component {
 
     this.timeSeriesChartRef = React.createRef();
 
-    const entityType = this.props?.match?.params?.entityType;
-    const entityCode = this.props?.match?.params?.entityCode;
+    const entityType = this.props.entityType;
+    const entityCode = this.props.entityCode;
 
     const isAdvancedMode = getSavedAdvancedModePreference();
 
@@ -300,10 +300,6 @@ class Entity extends Component {
     this.initialTableLimit = 300;
     this.initialHtsLimit = 100;
     this.maxHtsLimit = 150;
-
-    this.props.history.listen((location, action) => {
-      window.location.reload();
-    });
   }
 
   updateEntityMetaData = (entityName, entityCode) => {
@@ -797,15 +793,15 @@ class Entity extends Component {
   // Control Panel
   // manage the date selected in the input
   handleTimeFrame = ({ from, until }) => {
-    const { history } = this.props;
-    history.push(
+    const { navigate } = this.props;
+    navigate(
       `/${this.state.entityType}/${this.state.entityCode}?from=${from}&until=${until}`
     );
   };
 
   handleControlPanelClose = () => {
-    const { history } = this.props;
-    history.push(
+    const { navigate } = this.props;
+    navigate(
       hasDateRangeInUrl()
         ? `/dashboard?from=${this.state.from}&until=${this.state.until}`
         : `/dashboard`
@@ -815,8 +811,8 @@ class Entity extends Component {
   // Define what happens when user clicks suggested search result entry
   handleResultClick = (entity) => {
     if (!entity) return;
-    const { history } = this.props;
-    history.push(`/${entity.type}/${entity.code}`);
+    const { navigate } = this.props;
+    navigate(`/${entity.type}/${entity.code}`);
   };
 
   // Function that returns search bar passed into control panel
@@ -1701,12 +1697,12 @@ class Entity extends Component {
 
   // function to manage when a user clicks a country in the map
   handleEntityShapeClick = (entity) => {
-    const { history } = this.props;
+    const { navigate } = this.props;
     let path = `/region/${entity.properties.id}`;
     if (hasDateRangeInUrl()) {
       path += `?from=${fromDate}&until=${untilDate}`;
     }
-    history.push(path);
+    navigate(path);
   };
 
   // Show/hide modal when button is clicked on either panel
@@ -3498,4 +3494,30 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Entity));
+const EntityFn = (props) => {
+  const navigate = useNavigate();
+  const { entityCode, entityType } = useParams();
+
+  const handleLocationChange = () => {
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    window.addEventListener("popstate", handleLocationChange);
+
+    return () => {
+      window.removeEventListener("popstate", handleLocationChange);
+    };
+  }, []);
+
+  return (
+    <Entity
+      {...props}
+      navigate={navigate}
+      entityType={entityType}
+      entityCode={entityCode}
+    />
+  );
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(EntityFn);

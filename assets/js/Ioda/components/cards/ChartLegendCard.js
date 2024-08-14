@@ -34,20 +34,19 @@
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
  */
-import React, { useEffect, useState } from "react";
-import { Checkbox, Collapse, Panel } from "antd";
+import React from "react";
+import { Checkbox, Collapse } from "antd";
 import { gtrColor, legend } from "../../utils";
 import { debounce } from "lodash";
-import { withRouter } from "react-router-dom";
-// import { NULL } from "node-sass";
+import { useParams } from "react-router-dom";
 
 const ChartLegendCard = ({
   legendHandler,
   checkedMap,
   updateSourceParams,
   simplifiedView,
-  match,
 }) => {
+  const { entityType } = useParams();
   const handleChange = (source) => {
     legendHandler(source);
     if (source.includes("gtr.")) {
@@ -55,7 +54,7 @@ const ChartLegendCard = ({
     }
   };
 
-  const isCountryView = match?.params?.entityType === "country";
+  const isCountryView = entityType === "country";
 
   const handleChangeDebounced = debounce(handleChange, 180);
 
@@ -150,4 +149,4 @@ const ChartLegendCard = ({
   );
 };
 
-export default withRouter(ChartLegendCard);
+export default ChartLegendCard;

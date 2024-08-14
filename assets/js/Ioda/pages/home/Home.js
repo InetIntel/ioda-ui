@@ -34,7 +34,7 @@
 
 // React Imports
 import React, { Component } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { Helmet } from "react-helmet";
 // Internationalization
@@ -108,8 +108,8 @@ class Home extends Component {
   // Define what happens when user clicks suggested search result entry
   handleResultClick = (entity) => {
     if (!entity) return;
-    const { history } = this.props;
-    history.push(`/${entity.type}/${entity.code}`);
+    const { navigate } = this.props;
+    navigate(`/${entity.type}/${entity.code}`);
   };
 
   // Map: Make API call to retrieve summary data to populate on map
@@ -170,9 +170,9 @@ class Home extends Component {
 
   // function to manage when a user clicks a country in the map
   handleEntityShapeClick = (entity) => {
-    const { history } = this.props;
+    const { navigate } = this.props;
     const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
-    history.push(
+    navigate(
       urlFromDate && urlUntilDate
         ? `/country/${entity.properties.usercode}?from=${urlFromDate}&until=${urlUntilDate}`
         : `/country/${entity.properties.usercode}`
@@ -420,9 +420,9 @@ const mapDispatchToProps = (dispatch) => {
 
 // TODO: Migrate file fully to functional component
 const HomeFn = (props) => {
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  return <Home {...props} history={history} />;
+  return <Home {...props} navigate={navigate} />;
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeFn);
