@@ -36,7 +36,7 @@
  */
 
 // React Imports
-import React, { Component, useEffect } from "react";
+import React, { Component, useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 // Internationalization
@@ -3496,19 +3496,18 @@ const mapDispatchToProps = (dispatch) => {
 
 const EntityFn = (props) => {
   const navigate = useNavigate();
+  // using useRef to avoid re-rendering between renders
+  const previousFullPath = useRef(window.location.href);
   const { entityCode, entityType } = useParams();
 
-  const handleLocationChange = () => {
-    window.location.reload();
-  };
-
+  // Reload page if the URL changes.
   useEffect(() => {
-    window.addEventListener("popstate", handleLocationChange);
-
-    return () => {
-      window.removeEventListener("popstate", handleLocationChange);
-    };
-  }, []);
+    if (previousFullPath.current !== window.location.href) {
+      previousFullPath.current = window.location.href;
+      
+      window.location.reload();
+    }
+  }, [window.location.href]);
 
   return (
     <Entity
