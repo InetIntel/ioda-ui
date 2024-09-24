@@ -1,4 +1,4 @@
-import d3 from "d3";
+import { scaleLinear } from "d3-scale";
 
 export const LOW_COLOR = "#FFCC3D";
 export const HIGH_COLOR = "#EE695B";
@@ -61,10 +61,7 @@ export const getColorFromLinearScale = (
   minColor = LOW_COLOR,
   maxColor = HIGH_COLOR
 ) => {
-  const linearScale = d3.scale
-    .linear()
-    .domain([minScore, maxScore])
-    .range([minColor, maxColor]);
+  const linearScale = scaleLinear([minScore, maxScore], [minColor, maxColor]);
 
   return linearScale(score);
 };
