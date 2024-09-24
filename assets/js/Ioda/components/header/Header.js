@@ -69,7 +69,7 @@
  * MODIFICATIONS.
  */
 
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import T from "i18n-react";
 import iodaLogo from "images/logos/ioda-logo.svg";
@@ -88,58 +88,51 @@ const languageOptions = [
   { value: "fa", label: "Farsi" },
 ];
 
-class Header extends Component {
-  constructor(props) {
-    super(props);
+const Header = () => {
 
-    this.state = {
-      language: getSavedLanguagePreference(),
-      advancedMode: getSavedAdvancedModePreference(),
-      showDrawer: false,
-      mounted: false,
-    };
-  }
+  const [language, setLanguage] = useState(getSavedLanguagePreference());
+  const [advancedMode, setAdvancedMode] = useState(getSavedAdvancedModePreference());
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  componentDidMount() {
-    this.setState({ mounted: true });
-  }
 
-  setShowDrawer = (showDrawer) => {
-    this.setState({ showDrawer });
+  // const setShowDrawer = (showDrawer) => {
+  //   this.setState({ showDrawer });
+  // };
+
+  const toggleDrawerMenu = () => {
+    setShowDrawer(!showDrawer);
   };
 
-  toggleDrawerMenu = () => {
-    this.setShowDrawer(!this.state.showDrawer);
-  };
-
-  handleLanguageChange = (language) => {
-    if (!this.state.mounted) {
+  const handleLanguageChange = (language) => {
+    if (!mounted) {
       return;
     }
+    setLanguage(language);
     saveLanguagePreference(language);
-    window.location.reload(false);
+    window.location.reload();
   };
 
-  handleModeChange = (isAdvancedMode) => {
-    if (!this.state.mounted) {
+  const handleModeChange = (isAdvancedMode) => {
+    if (!mounted) {
       return;
     }
+    setAdvancedMode(advancedMode);
     saveAdvancedModePreference(isAdvancedMode);
-    window.location.reload(false);
+    window.location.reload();
   };
 
-  render() {
-    const dashboard = T.translate("header.dashboard");
-    const reports = T.translate("header.reports");
-    const project = T.translate("header.projectInfo");
-    const help = T.translate("header.help");
-    const iodaLogoAltText = T.translate("header.iodaLogoAltText");
-    const api = T.translate("header.api");
-    const viewToggleHelp = T.translate("header.viewToggleHelp");
+  const dashboard = T.translate("header.dashboard");
+  const reports = T.translate("header.reports");
+  const project = T.translate("header.projectInfo");
+  const help = T.translate("header.help");
+  const iodaLogoAltText = T.translate("header.iodaLogoAltText");
+  const api = T.translate("header.api");
+  const viewToggleHelp = T.translate("header.viewToggleHelp");
 
-    const modeStatus = this.state.advancedMode ? "Advanced" : "Simple";
+  const modeStatus = advancedMode ? "Advanced" : "Simple";
 
-    return (
+  return (
       <div className="header">
         <div className="header__container p-6 max-cont row items-center">
           <div className="header__logo mr-auto">
@@ -154,8 +147,8 @@ class Header extends Component {
           </div>
           <div className="header__item">
             <a
-              href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
-              className="a-fake"
+                href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+                className="a-fake"
             >
               {api}
             </a>
@@ -181,12 +174,12 @@ class Header extends Component {
 
           <div className="header__item">
             <Select
-              value={this.state.language}
-              style={{ width: 100 }}
-              className="ml-md"
-              onChange={this.handleLanguageChange}
-              options={languageOptions}
-              popupClassName="header__language-select"
+                value={language}
+                style={{ width: 100 }}
+                className="ml-md"
+                onChange={handleLanguageChange}
+                options={languageOptions}
+                popupClassName="header__language-select"
             />
           </div>
 
@@ -194,9 +187,9 @@ class Header extends Component {
             <Tooltip title={viewToggleHelp}>
               <div className="row items-center">
                 <Switch
-                  className="mr-3"
-                  checked={this.state.advancedMode}
-                  onChange={this.handleModeChange}
+                    className="mr-3"
+                    checked={advancedMode}
+                    onChange={handleModeChange}
                 />
                 <span className="text-lg">{modeStatus}</span>
               </div>
@@ -204,44 +197,44 @@ class Header extends Component {
           </div>
 
           <div className="header__drawer-icon">
-            <Button icon={<MenuOutlined />} onClick={this.toggleDrawerMenu} />
+            <Button icon={<MenuOutlined />} onClick={toggleDrawerMenu} />
           </div>
         </div>
 
         {/* DRAWER MENU */}
         <Drawer
-          placement="right"
-          onClose={() => this.setShowDrawer(false)}
-          open={this.state.showDrawer}
-          className="header__drawer-body"
-          closeIcon={
-            <CloseOutlined style={{ fontSize: "16px", color: "#fff" }} />
-          }
-          extra={
-            <Link to="/" onClick={() => this.setShowDrawer(false)}>
-              <img
-                src={iodaLogo}
-                alt={iodaLogoAltText}
-                width="97"
-                height="35"
-              />
-            </Link>
-          }
-          width={320}
+            placement="right"
+            onClose={() => setShowDrawer(false)}
+            open={showDrawer}
+            className="header__drawer-body"
+            closeIcon={
+              <CloseOutlined style={{ fontSize: "16px", color: "#fff" }} />
+            }
+            extra={
+              <Link to="/" onClick={() => setShowDrawer(false)}>
+                <img
+                    src={iodaLogo}
+                    alt={iodaLogoAltText}
+                    width="97"
+                    height="35"
+                />
+              </Link>
+            }
+            width={320}
         >
           <div className="header__drawer-item">
             <Link
-              to="/dashboard"
-              className="a-fake"
-              onClick={() => this.setShowDrawer(false)}
+                to="/dashboard"
+                className="a-fake"
+                onClick={() => setShowDrawer(false)}
             >
               {dashboard}
             </Link>
           </div>
           <div className="header__drawer-item">
             <a
-              href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
-              className="a-fake"
+                href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+                className="a-fake"
             >
               {api}
             </a>
@@ -249,9 +242,9 @@ class Header extends Component {
 
           <div className="header__drawer-item">
             <Link
-              to="/project"
-              className="a-fake"
-              onClick={() => this.setShowDrawer(false)}
+                to="/project"
+                className="a-fake"
+                onClick={() => setShowDrawer(false)}
             >
               {project}
             </Link>
@@ -265,24 +258,24 @@ class Header extends Component {
 
           <div className="header__drawer-item">
             <Link
-              to="/help"
-              className="a-fake"
-              onClick={() => this.setShowDrawer(false)}
+                to="/help"
+                className="a-fake"
+                onClick={() => setShowDrawer(false)}
             >
               {help}
             </Link>
           </div>
 
           <div
-            className="header__drawer-item mt-6 pt-6"
-            style={{ borderTop: "1px solid gray" }}
+              className="header__drawer-item mt-6 pt-6"
+              style={{ borderTop: "1px solid gray" }}
           >
             <Select
-              value={this.state.language}
-              style={{ width: 100 }}
-              className="ml-md"
-              onChange={this.handleLanguageChange}
-              options={languageOptions}
+                value={language}
+                style={{ width: 100 }}
+                className="ml-md"
+                onChange={handleLanguageChange}
+                options={languageOptions}
             />
           </div>
 
@@ -290,9 +283,9 @@ class Header extends Component {
             <Tooltip title={viewToggleHelp}>
               <div className="ml-6 row items-center">
                 <Switch
-                  className="mr-3"
-                  checked={this.state.advancedMode}
-                  onChange={this.handleModeChange}
+                    className="mr-3"
+                    checked={advancedMode}
+                    onChange={handleModeChange}
                 />
                 <span>{modeStatus}</span>
               </div>
@@ -300,8 +293,7 @@ class Header extends Component {
           </div>
         </Drawer>
       </div>
-    );
-  }
+  );
 }
 
 export default Header;
