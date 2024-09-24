@@ -35,8 +35,7 @@
  * MODIFICATIONS.
  */
 
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
+import React, {useEffect, useState, useRef} from "react";
 import { humanizeNumber } from "../../utils";
 import { Link } from "react-router-dom";
 import T from "i18n-react";
@@ -45,231 +44,247 @@ import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 // Each row of the summary table needs it's own component to manage the
 // hover state, which controls the table that displays score breakdowns.
 
-class SummaryTableRow extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      x: 0,
-      y: 0,
-      displayScores: false,
-      pingSlash24ScoreAvailable: false,
-      bgpScoreAvailable: false,
-      ucsdNtScoreAvailable: false,
-      meritNtScoreAvailable: false,
-      hoverTime: 600,
-      t: null,
-    };
-    this.handleRowScoreHide = this.handleRowScoreHide.bind(this);
-  }
+const SummaryTableRow = (props) => {
 
-  componentDidMount = () => {
-    document.addEventListener("click", this.handleRowScoreHide, {
+
+  const{
+    data,
+    signal,
+    entityType
+  } = props;
+
+  const [x, setX] = useState(0);
+  const [y, setY] = useState(0);
+  const [displayScores, setDisplayScores] = useState(false);
+  const [pingSlash24ScoreAvailable, setPingSlash24ScoreAvailable] = useState(false);
+  const [bgpScoreAvailable, setBgpScoreAvailable] = useState(false);
+  const [ucsdNtScoreAvailable, setucsdNtScoreAvailable] = useState(false);
+  const [meritNtScoreAvailable, setMeritNtScoreAvailable] = useState(false);
+  const [hoverTime, setHoverTime] = useState(600);
+  const [t, setT] = useState(null);
+
+  const timeoutRef = useRef(null);
+  const componentRef = useRef(null);
+
+// Combine them
+  useEffect(() => {
+    document.addEventListener("click", handleRowScoreHide, {
       passive: true,
     });
-    // set states for outage source indicator in score cell
+    return () => {
+      document.removeEventListener("click", handleRowScoreHide, true);
+    }
+  }, [displayScores]);
 
-    this.props.data.scores.map((score) => {
+  useEffect(() => {
+
+    // set states for outage source indicator in score cell
+    data.scores.map((score) => {
       let source = score.source.split('.')[0];
       switch (source) {
         case "ping-slash24":
-          this.setState({pingSlash24ScoreAvailable: true});
+          setPingSlash24ScoreAvailable(true);
           break;
         case "bgp":
-          this.setState({bgpScoreAvailable: true});
+          setBgpScoreAvailable(true);
           break;
         case "ucsd-nt":
-          this.setState({ucsdNtScoreAvailable: true});
+          setUcsdNtScoreAvailable(true);
           break;
         case "merit-nt":
-          this.setState({meritNtScoreAvailable: true});
+          setMeritNtScoreAvailable(true);
+          break;
+        default:
           break;
       }
-    });
+    })
+
+  }, [data.scores])
+
+
+  const handleRowScoreDisplay = () => {
+    setDisplayScores(!displayScores);
   }
 
-  componentWillUnmount = () => {
-    document.removeEventListener("click", this.handleRowScoreHide, true);
-  };
-
-  handlePopulateScores(scores) {
+  const handlePopulateScores = (scores) => {
     if (scores !== null) {
       return (
-        scores &&
-        scores.map((score, index) => {
-          let scoreValue = humanizeNumber(score.score, 2);
-          return (
-            <tr className="table__scores-row" key={index}>
-              <td className="table__scores-cell">{score.source}</td>
-              <td className="table__scores-cell">{scoreValue}</td>
-            </tr>
-          );
-        })
+          scores &&
+          scores.map((score, index) => {
+            let scoreValue = humanizeNumber(score.score, 2);
+            return (
+                <tr className="table__scores-row" key={index}>
+                  <td className="table__scores-cell">{score.source}</td>
+                  <td className="table__scores-cell">{scoreValue}</td>
+                </tr>
+            );
+          })
       );
     } else {
       return null;
     }
   }
 
-  handleRowScoreHide() {
-    if (this.state.displayScores) {
-      const domNode = ReactDOM.findDOMNode(this);
+  const handleRowScoreHide = () => {
+    if (displayScores) {
+      // const domNode = ReactDOM.findDOMNode(this);
+      const domNode = componentRef.current;
       if (!domNode || !domNode.contains(event.target)) {
-        this.setState({
-          displayScores: false,
-        });
+        setDisplayScores(false);
       }
     }
   }
 
-  showScoreTooltipHover() {
-    this.setState({
-      t: setTimeout(() => {
-        this.setState({ displayScores: true });
-      }, this.state.hoverTime),
-    });
-  }
+  const showScoreTooltipHover = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setDisplayScores(true);
+    }, hoverTime);
+  };
 
-  hideScoreTooltipHover() {
-    clearTimeout(this.state.t);
-    this.setState({ displayScores: false });
-  }
+  const hideScoreTooltipHover = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setDisplayScores(false);
+  };
 
-  handleRowHover(event) {
+
+  const handleRowHover = (event) => {
     event.persist();
-    this.setState({
-      y:
+    setY(
         event.nativeEvent.offsetY < 8
-          ? -2
-          : event.nativeEvent.offsetY > 20
-          ? 14
-          : event.nativeEvent.offsetY - 9,
-    });
+            ? -2
+            : event.nativeEvent.offsetY > 20
+                ? 14
+                : event.nativeEvent.offsetY - 9
+    );
   }
 
-  render() {
-    let overallScore = humanizeNumber(this.props.data.score, 2);
-    const dataSourceHeading = T.translate(
+  let overallScore = humanizeNumber(data.score, 2);
+  const dataSourceHeading = T.translate(
       "table.scoresTable.dataSourceHeading"
-    );
-    const scoreHeading = T.translate("table.scoresTable.scoreHeading");
-    const entityCode = this.props.data.entityCode;
-    const entityType = this.props.data.entityType;
+  );
+  const scoreHeading = T.translate("table.scoresTable.scoreHeading");
+  const dataEntityCode = data.entityCode;
+  const dataEntityType = data.entityType;
 
-    const dateRangeInUrl = hasDateRangeInUrl();
-    const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
-    const linkPath = dateRangeInUrl
-      ? `/${entityType}/${entityCode}?from=${urlFromDate}&until=${urlUntilDate}`
-      : `/${entityType}/${entityCode}`;
+  const dateRangeInUrl = hasDateRangeInUrl();
+  const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
+  const linkPath = dateRangeInUrl
+      ? `/${dataEntityType}/${dataEntityCode}?from=${urlFromDate}&until=${urlUntilDate}`
+      : `/${dataEntityType}/${dataEntityCode}`;
 
-    return (
+  return (
       <tr
-        className="table--summary-row"
-        // onMouseMove={(event) => this.handleRowHover(event)}
-        // onMouseLeave={(event) => this.handleRowHover(event)}
-        onTouchStart={(event) => this.handleRowHover(event)}
+          className="table--summary-row"
+          // onMouseMove={(event) => this.handleRowHover(event)}
+          // onMouseLeave={(event) => this.handleRowHover(event)}
+          onTouchStart={(event) => handleRowHover(event)}
       >
-        {this.props.signal ? (
-          <td>
-            <input
-              className="table__cell-checkbox"
-              type="checkbox"
-              checked={true}
-            />
-          </td>
+        {signal ? (
+            <td>
+              <input
+                  className="table__cell-checkbox"
+                  type="checkbox"
+                  checked={true}
+              />
+            </td>
         ) : null}
         <td>
           <Link
-            className="table__cell-link"
-            to={linkPath}
-            // onClick={() =>
-            //   this.props.handleEntityClick(
-            //     this.props.data.entityType,
-            //     this.props.data.entityCode
-            //   )
-            // }
+              className="table__cell-link"
+              to={linkPath}
+              // onClick={() =>
+              //   this.props.handleEntityClick(
+              //     this.props.data.entityType,
+              //     this.props.data.entityCode
+              //   )
+              // }
           >
-            <span>{this.props.data.name}</span>
+            <span>{data.name}</span>
           </Link>
         </td>
-        {this.props.entityType === "asn" ? (
-          <td className="table__cell--ipCount td--center">
-            {this.props.data.ipCount}
-          </td>
+        {entityType === "asn" ? (
+            <td className="table__cell--ipCount td--center">
+              {data.ipCount}
+            </td>
         ) : null}
         <td
-          className="table__cell--overallScore td--center"
-          onTouchStart={() => this.handleRowScoreDisplay(event)}
-          onMouseEnter={() => this.showScoreTooltipHover()}
-          onMouseLeave={() => this.hideScoreTooltipHover()}
-          style={{ backgroundColor: this.props.data.color }}
+            className="table__cell--overallScore td--center"
+            onTouchStart={() => handleRowScoreDisplay(event)}
+            onMouseEnter={() => showScoreTooltipHover()}
+            onMouseLeave={() => hideScoreTooltipHover()}
+            style={{ backgroundColor: data.color }}
         >
           <div className="table__scores-sourceCount">
-            {this.state.pingSlash24ScoreAvailable ? (
-              <div
-                className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--ping-slash24`}
-              >
-                &nbsp;
-              </div>
+            {pingSlash24ScoreAvailable ? (
+                <div
+                    className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--ping-slash24`}
+                >
+                  &nbsp;
+                </div>
             ) : (
-              <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">
-                &nbsp;
-              </div>
+                <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">
+                  &nbsp;
+                </div>
             )}
-            {this.state.bgpScoreAvailable ? (
-              <div
-                className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--bgp`}
-              >
-                &nbsp;
-              </div>
+            {bgpScoreAvailable ? (
+                <div
+                    className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--bgp`}
+                >
+                  &nbsp;
+                </div>
             ) : (
-              <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">
-                &nbsp;
-              </div>
+                <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">
+                  &nbsp;
+                </div>
             )}
-            {this.state.meritNtScoreAvailable ? (
-              <div
-                className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--merit-nt`}
-              >
-                &nbsp;
-              </div>
+            {meritNtScoreAvailable ? (
+                <div
+                    className={`table__scores-sourceCount-unit table__scores-sourceCount-unit--merit-nt`}
+                >
+                  &nbsp;
+                </div>
             ) : (
-              <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">
-                &nbsp;
-              </div>
+                <div className="table__scores-sourceCount-unit table__scores-sourceCount-unit--empty">
+                  &nbsp;
+                </div>
             )}
           </div>
           {overallScore}
           <span className="table__ellipses">⋮</span>
           <table
-            className={
-              this.state.displayScores
-                ? "table__scores table__scores--active"
-                : "table__scores"
-            }
-            style={{ top: `${this.state.y}px` }}
+              className={
+                displayScores
+                    ? "table__scores table__scores--active"
+                    : "table__scores"
+              }
+              style={{ top: `${y}px` }}
           >
             <thead>
-              <tr className="table__scores-headers">
-                <th className="table__scores-cell">{dataSourceHeading}</th>
-                <th className="table__scores-cell">{scoreHeading}</th>
-              </tr>
+            <tr className="table__scores-headers">
+              <th className="table__scores-cell">{dataSourceHeading}</th>
+              <th className="table__scores-cell">{scoreHeading}</th>
+            </tr>
             </thead>
             <tbody>
-              <tr className="table__scores-row">
-                <td className="table__scores-cell">
-                  <strong>Overall</strong>
-                </td>
-                <td className="table__scores-cell">
-                  <strong>{overallScore}</strong>
-                </td>
-              </tr>
-              {this.handlePopulateScores(this.props.data.scores)}
+            <tr className="table__scores-row">
+              <td className="table__scores-cell">
+                <strong>Overall</strong>
+              </td>
+              <td className="table__scores-cell">
+                <strong>{overallScore}</strong>
+              </td>
+            </tr>
+            {handlePopulateScores(data.scores)}
             </tbody>
           </table>
         </td>
       </tr>
-    );
-  }
+  );
 }
 
 export default SummaryTableRow;
