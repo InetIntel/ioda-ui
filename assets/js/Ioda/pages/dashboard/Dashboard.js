@@ -1,229 +1,227 @@
 // React Imports
-import React, { Component } from "react";
+import React, {useEffect, useState} from "react";
+import { useDispatch, useSelector } from 'react-redux';
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
-import { getTopoAction } from "../../data/ActionTopo";
-import { searchSummary, totalOutages } from "../../data/ActionOutages";
-import {
-  getSignalsAction,
-  getEventSignalsAction,
-} from "../../data/ActionSignals";
+import {getTopoAction} from "../../data/ActionTopo";
+import {searchSummary, totalOutages} from "../../data/ActionOutages";
+import {getEventSignalsAction, getSignalsAction,} from "../../data/ActionSignals";
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
 import EntitySearchTypeahead from "../../components/entitySearchTypeahead/EntitySearchTypeahead";
 import DashboardTab from "./DashboardTab";
 import * as topojson from "topojson";
 // Constants
-import { country, region, asn } from "./DashboardConstants";
-import { connect } from "react-redux";
+import {asn, country, region} from "./DashboardConstants";
+import {connect} from "react-redux";
 // Helper Functions
-import {
-  convertValuesForSummaryTable,
-  convertTsDataForHtsViz,
-  dashboardTimeRangeLimit,
-} from "../../utils";
+import {convertTsDataForHtsViz, convertValuesForSummaryTable, dashboardTimeRangeLimit } from "../../utils";
 import Loading from "../../components/loading/Loading";
 import Error from "../../components/error/Error";
-import { Helmet } from "react-helmet";
-import {
-  getNowAsUTCSeconds,
-  getPreviousMinutesAsUTCSecondRange,
-} from "../../utils/timeUtils";
-import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
-import { Radio } from "antd";
-import { useParams, useNavigate } from "react-router-dom";
+import {Helmet} from "react-helmet";
+import {getNowAsUTCSeconds, getPreviousMinutesAsUTCSecondRange,} from "../../utils/timeUtils";
+import {getDateRangeFromUrl, hasDateRangeInUrl} from "../../utils/urlUtils";
+import {Radio} from "antd";
+import {useNavigate, useParams} from "react-router-dom";
 
 const TAB_VIEW_MAP = "map";
 const TAB_VIEW_TIME_SERIES = "timeSeries";
 
-class Dashboard extends Component {
-  constructor(props) {
-    super(props);
+const Dashboard = (props) => {
 
-    this.tabs = {
-      country: country.type,
-      region: region.type,
-      asn: asn.type,
-    };
+  console.log(props)
+  const {
+    tab,
+    summary,
+    eventSignals,
+    navigate,
+    searchSummaryAction,
+    totalOutagesAction
+  } = props;
 
-    this.countryTab = T.translate("dashboard.countryTabTitle");
-    this.regionTab = T.translate("dashboard.regionTabTitle");
-    this.asnTab = T.translate("dashboard.asnTabTitle");
-    this.apiQueryLimit = 170;
+  const tabs = {
+    country: country.type,
+    region: region.type,
+    asn: asn.type,
+  };
 
-    const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
+  const countryTab = T.translate("dashboard.countryTabTitle");
+  const regionTab = T.translate("dashboard.regionTabTitle");
+  const asnTab = T.translate("dashboard.asnTabTitle");
+  const apiQueryLimit = 170;
 
-    const urlEntityType = props.entityType;
+  const {urlFromDate, urlUntilDate} = getDateRangeFromUrl();
 
-    const entityType = this.tabs[urlEntityType] ? urlEntityType : country.type;
+  const urlEntityType = props.entityType;
 
-    this.state = {
-      mounted: false,
-      // Control Panel
-      from: urlFromDate ?? getPreviousMinutesAsUTCSecondRange(24 * 60).start,
-      until: urlUntilDate ?? getNowAsUTCSeconds(),
-      // Tabs
-      activeTabType: entityType,
-      //Tab View Changer Button
-      tabCurrentView:
-        entityType === asn.type ? TAB_VIEW_TIME_SERIES : TAB_VIEW_MAP,
-      // Map Data
-      topoData: null,
-      topoScores: null,
-      // Summary Table
-      summaryDataRaw: null,
-      summaryDataProcessed: [],
-      // Determine when data is available for table so multiple calls to populate the table aren't made
-      genSummaryTableDataProcessed: false,
-      totalOutages: 0,
-      // Summary Table Pagination
-      apiPageNumber: 0,
-      // Event Data for Time Series
-      eventDataRaw: [],
-      eventDataProcessed: [],
-      eventOrderByAttr: "score",
-      eventOrderByOrder: "desc",
-      eventEndpointCalled: false,
-      totalEventCount: 0,
-    };
-  }
+  const entityType = tabs[urlEntityType] ? urlEntityType : country.type;
 
-  componentDidMount() {
-    // trigger api calls with valid date ranges
-    const timeDiff = this.state.until - this.state.from;
+  const [mounted, setMounted] = useState(false);
+  // Control Panel
+  const [from, setFrom] = useState(urlFromDate ?? getPreviousMinutesAsUTCSecondRange(24 * 60).start);
+  const [until, setUntil] = useState(urlUntilDate ?? getNowAsUTCSeconds());
+  // Tabs
+  const [activeTabType, setActiveTabType] = useState(entityType);
+  //Tab View Changer Button
+  const [tabCurrentView, setTabCurrentView] =
+      useState(entityType === asn.type ? TAB_VIEW_TIME_SERIES : TAB_VIEW_MAP);
+
+  // Map Data
+  const [topoData, setTopoData] = useState(null);
+  const [topoScores, setTopoScores] = useState(null);
+  // Summary Table
+  const [summaryDataRaw, setSummaryDataRaw] = useState(null);
+  const [summaryDataProcessed, setSummaryDataProcessed] = useState([]);
+  // Determine when data is available for table so multiple calls to populate the table aren't made
+  const [genSummaryTableDataProcessed, setGenSummaryTableDataProcessed] = useState(false);
+  const [totalOutagesState, setTotalOutagesState] = useState(0);
+
+  // Summary Table Pagination
+  const [apiPageNumber, setApiPageNumber] = useState(0);
+  // Event Data for Time Series
+  const [eventDataRaw, setEventDataRaw] = useState([]);
+  const [eventDataProcessed, setEventDataProcessed] = useState([]);
+  const [eventOrderByAttr, setEventOrderByAttr] = useState("score");
+  const [eventOrderByOrder, setEventOrderByOrder] = useState("desc");
+  const [eventEndpointCalled, setEventEndpointCalled] = useState(false);
+  const [totalEventCount, setTotalEventCount] = useState(0);
+
+  const [displayDashboardTimeRangeError, setDisplayDashboardTimeRangeError] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+
+
+  useEffect(() => {
+    const timeDiff = until - from;
     if (timeDiff <= 0) {
-      this.setState({
-        displayDashboardTimeRangeError: true,
-      });
+      setDisplayDashboardTimeRangeError(true);
     } else if (timeDiff < dashboardTimeRangeLimit) {
-      this.setState({ mounted: true }, () => {
-        // Set initial tab to load
-        this.handleSelectTab(this.tabs[this.state.activeTabType]);
-        // Get topo and outage data to populate map and table
-        if (this.state.activeTabType !== asn.type) {
-          this.getDataTopo(this.state.activeTabType);
-        }
-        this.getDataOutageSummary(this.state.activeTabType);
-        this.getTotalOutages(this.state.activeTabType);
-      });
+      setMounted(true);
     }
-  }
+  }, [until, from]);
 
-  componentWillUnmount() {
-    this.setState({
-      mounted: false,
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // A check to prevent repetitive selection of the same tab
-    if (this.props.tab !== prevProps.tab) {
-      this.handleSelectTab(this.tabs[prevProps.tab]);
+  useEffect(() => {
+    if(!mounted) return;
+    if(activeTabType){
+      handleSelectTab(tabs[activeTabType]);
+      if (activeTabType !== asn.type) {
+        getDataTopo(activeTabType);
+      }
+      getDataOutageSummary(activeTabType);
+      getTotalOutages(activeTabType);
     }
 
-    // Update visualizations when tabs are changed
-    if (
-      this.state.activeTabType &&
-      this.state.activeTabType !== prevState.activeTabType
-    ) {
-      // Get updated topo and outage data to populate map, no topo for asns
-      this.state.activeTabType !== asn.type
-        ? this.getDataTopo(this.state.activeTabType)
-        : null;
-      this.getDataOutageSummary(this.state.activeTabType);
-      this.getTotalOutages(this.state.activeTabType);
-    }
+  }, [mounted, activeTabType, asn.type]);
 
-    // After API call for suggested search results completes, update suggestedSearchResults state with fresh data
-    if (
-      this.props.suggestedSearchResults !== prevProps.suggestedSearchResults
-    ) {
-      this.setState({
-        suggestedSearchResults: this.props.suggestedSearchResults,
-      });
+  useEffect(() => {
+    if (tab) {
+      handleSelectTab(tabs[tab]);
     }
+  }, [tab]);
 
-    // After API call for outage summary data completes, pass summary data to map function for data merging
-    if (this.props.summary !== prevProps.summary) {
-      this.setState({ summaryDataRaw: this.props.summary }, () => {
-        this.getMapScores();
-        this.convertValuesForSummaryTable();
-        if (this.state.activeTabType === asn.type) {
-          this.getDataEvents(this.state.activeTabType);
-        }
-
-        if (!this.state.eventEndpointCalled) {
-          this.setState(
-            { eventEndpointCalled: !this.state.eventEndpointCalled },
-            () => {
-              const totalEventCount = this.state.summaryDataRaw.reduce(
-                (acc, item) => acc + item.event_cnt,
-                0
-              );
-              //Get total event count to reference with event data
-              this.setState({ totalEventCount });
-            }
-          );
-        }
-      });
+  useEffect(() => {
+    if (activeTabType) {
+      console.log('112')
+      if (activeTabType !== asn.type) {
+        getDataTopo(activeTabType);
+      }
+      getDataOutageSummary(activeTabType);
+      getTotalOutages(activeTabType);
     }
+  }, [activeTabType]);
 
-    // After API call for total outages summary data completes, pass total count to table to populate in UI
-    if (this.props.totalOutages !== prevProps.totalOutages) {
-      this.setState({
-        totalOutages: this.props.totalOutages.length,
-      });
+  useEffect(() => {
+    if (props.suggestedSearchResults) {
+      setSearchResults(props.suggestedSearchResults);
     }
+  }, [props.suggestedSearchResults]);
 
-    // Make API call for data to populate time series stacked horizon view
-    if (this.props.eventSignals !== prevProps.eventSignals) {
-      let newEventData = this.props.eventSignals;
-      this.setState(
-        (prevState) => ({
-          eventDataRaw: [...prevState.eventDataRaw, newEventData],
-        }),
-        () => {
-          this.convertValuesForHtsViz();
-        }
-      );
+  useEffect(() => {
+    if(!summary) return;
+    setSummaryDataRaw(summary);
+  }, [summary]);
+
+  useEffect(() => {
+    if(!summaryDataRaw) return;
+    getMapScores();
+    _convertValuesForSummaryTable();
+    if (activeTabType === asn.type) {
+      getDataEvents(activeTabType);
     }
-  }
+    if (!eventEndpointCalled) {
+      setEventEndpointCalled(true);
+    }
+  }, [summaryDataRaw, activeTabType, eventEndpointCalled]);
+
+  useEffect(() => {
+    if(!summary) return;
+    if(!eventEndpointCalled) return;
+    if(!summaryDataRaw) return;
+    const totalEventCount = summaryDataRaw.reduce(
+        (acc, item) => acc + item.event_cnt,
+        0
+    );
+    setTotalEventCount(totalEventCount);
+  }, [eventEndpointCalled]);
+
+  useEffect(() => {
+    if (props.totalOutages) {
+      setTotalOutagesState(props.totalOutages);
+    }
+  }, [props.totalOutages]);
+
+  useEffect(() => {
+    if (eventSignals) {
+      setEventDataRaw((prevEventDataRaw) => [...prevEventDataRaw, eventSignals]);
+      convertValuesForHtsViz();
+    }
+  }, [eventSignals]);
+
+  // useEffect(() => {
+  //   if (topoData !== null) {
+  //     getMapScores();
+  //   }
+  // }, [topoData]);
+
+  // useEffect(() => {
+  //   getDataTopo(activeTabType);
+  //   getDataOutageSummary(activeTabType);
+  //   getTotalOutages(activeTabType);
+  // }, [from, until, summaryDataRaw, topoData, summaryDataProcessed, tabCurrentView, eventDataRaw, eventDataProcessed, displayDashboardTimeRangeError]);
 
   // Control Panel
   // manage the date selected in the input
-  handleTimeFrame = ({ from, until }) => {
-    if (this.state.from === from && this.state.until === until) {
+  function handleTimeFrame({_from, _until}) {
+    if (from === _from && until === _until) {
       return;
     }
-    const { navigate } = this.props;
 
-    this.setState(
-      {
-        from,
-        until,
-        summaryDataRaw: null,
-        topoData: null,
-        summaryDataProcessed: [],
-        tabCurrentView: "map",
-        eventDataRaw: [],
-        eventDataProcessed: [],
-        displayDashboardTimeRangeError: false,
-      },
-      () => {
-        // Get topo and outage data to repopulate map and table
-        this.getDataTopo(this.state.activeTabType);
-        this.getDataOutageSummary(this.state.activeTabType);
-        this.getTotalOutages(this.state.activeTabType);
-      }
-    );
+    setFrom(_from);
+    setUntil(_until);
+    setSummaryDataRaw(null);
+    setTopoData(null);
+    setSummaryDataProcessed([]);
+    setTabCurrentView("map");
+    setEventDataRaw([]);
+    setEventDataProcessed([]);
+    setDisplayDashboardTimeRangeError(false);
+    // Get topo and outage data to repopulate map and table
+    getDataTopo(activeTabType);
+    getDataOutageSummary(activeTabType);
+    getTotalOutages(activeTabType);
     navigate(`/dashboard?from=${from}&until=${until}`);
-  };
+  }
+
+  // useEffect(() => {
+  //   if(!activeTabType || !summaryDataRaw) return;
+  //   if(tabCurrentView) {
+  //     getDataEvents(activeTabType);
+  //   }
+  // }, [tabCurrentView]);
 
   // Tabbing
   // Function to map active tab to state and manage url
-  handleSelectTab = (selectedTab) => {
-    const { navigate } = this.props;
+  function handleSelectTab(selectedTab) {
     // use tab property to determine active tab by index
     let activeTabType, url;
     if (selectedTab === asn.type) {
@@ -240,313 +238,293 @@ class Dashboard extends Component {
     }
 
     // set new tab
-    this.setState({
-      activeTabType: activeTabType,
-      // Trigger Data Update for new tab
-      tabCurrentView:
-        activeTabType === asn.type ? TAB_VIEW_TIME_SERIES : TAB_VIEW_MAP,
-      topoData: null,
-      topoScores: null,
-      summaryDataRaw: null,
-      genSummaryTableDataProcessed: false,
-      eventDataRaw: [],
-      eventDataProcessed: null,
-      eventEndpointCalled: false,
-      totalEventCount: 0,
-    });
+    setActiveTabType(activeTabType);
+
+    // Trigger Data Update for new tab
+    setTabCurrentView(activeTabType === asn.type ? TAB_VIEW_TIME_SERIES : TAB_VIEW_MAP);
+
+    setTopoData(null);
+    setTopoScores(null);
+    setSummaryDataRaw(null);
+    setGenSummaryTableDataProcessed(false);
+    setEventDataRaw([]);
+    setEventDataProcessed(null);
+    setEventEndpointCalled(false);
+    setTotalEventCount(0);
 
     if (hasDateRangeInUrl()) {
-      navigate(`${url}/?from=${this.state.from}&until=${this.state.until}`);
+      navigate(`${url}/?from=${from}&until=${until}`);
     } else {
       navigate(url);
     }
-  };
+  }
 
-  handleTabChangeViewButton = () => {
-    if (this.state.tabCurrentView === "map") {
-      this.setState({ tabCurrentView: "timeSeries" }, () => {
-        this.getDataEvents(this.state.activeTabType);
-      });
-    } else if (this.state.tabCurrentView === "timeSeries") {
-      this.setState({ tabCurrentView: "map" });
+  function handleTabChangeViewButton() {
+    if (tabCurrentView === "map") {
+      setTabCurrentView("timeSeries");
+      getDataEvents(activeTabType);
+    } else if (tabCurrentView === "timeSeries") {
+      setTtabCurrentView("map");
     }
-  };
+  }
 
   // Outage Data
   // Make API call to retrieve summary data to populate on map
-  getDataOutageSummary = (entityType) => {
-    if (!this.state.mounted) {
+  function getDataOutageSummary(entityType) {
+    if (!mounted) {
       return;
-    } else if (this.state.until - this.state.from >= dashboardTimeRangeLimit) {
+    } else if (until - from >= dashboardTimeRangeLimit) {
       return;
     }
-
+    console.log('243')
     const includeMetadata = true;
     const entityCode = null;
 
-    this.props.searchSummaryAction(
-      this.state.from,
-      this.state.until,
-      entityType,
-      entityCode,
-      this.apiQueryLimit,
-      this.state.apiPageNumber,
-      includeMetadata
+    searchSummaryAction(
+        from,
+        until,
+        entityType,
+        entityCode,
+        apiQueryLimit,
+        apiPageNumber,
+        includeMetadata
     );
-  };
+  }
 
-  getTotalOutages = (entityType) => {
-    if (!this.state.mounted) {
+  function getTotalOutages(entityType) {
+    if (!mounted) {
       return;
     }
-
-    this.props.totalOutagesAction(
-      this.state.from,
-      this.state.until,
-      entityType
+    console.log('262')
+    totalOutagesAction(
+        from,
+        until,
+        entityType
     );
-  };
+  }
 
   // Map
-  getMapScores = () => {
-    if (this.state.topoData && this.state.summaryDataRaw) {
-      let topoData = this.state.topoData;
+  function getMapScores() {
+    if (topoData && summaryDataRaw) {
+      let _topoData = topoData;
       let scores = [];
 
       // get Topographic info for a country if it has outages
-      this.state.summaryDataRaw.map((outage) => {
+      summaryDataRaw.map((outage) => {
         let topoItemIndex;
-        this.state.activeTabType === country.type
-          ? (topoItemIndex = this.state.topoData.features.findIndex(
-              (topoItem) => topoItem.properties.usercode === outage.entity.code
+        activeTabType === country.type
+            ? (topoItemIndex = topoData.features.findIndex(
+                (topoItem) => topoItem.properties.usercode === outage.entity.code
             ))
-          : this.state.activeTabType === region.type
-          ? (topoItemIndex = this.state.topoData.features.findIndex(
-              (topoItem) => topoItem.properties.name === outage.entity.name
-            ))
-          : null;
+            : activeTabType === region.type
+                ? (topoItemIndex = topoData.features.findIndex(
+                    (topoItem) => topoItem.properties.name === outage.entity.name
+                ))
+                : null;
 
         if (topoItemIndex > 0) {
-          let item = topoData.features[topoItemIndex];
+          let item = _topoData.features[topoItemIndex];
           item.properties.score = outage.scores.overall;
-          topoData.features[topoItemIndex] = item;
+          _topoData.features[topoItemIndex] = item;
 
           // Used to determine coloring on map objects
           scores.push(outage.scores.overall);
           scores.sort((a, b) => a - b);
         }
       });
-      this.setState({ topoScores: scores });
+      setTopoScores(scores);
     }
-  };
-  // Make API call to retrieve topographic data
-  getDataTopo = (entityType) => {
-    let topologyObjectName =
-      entityType == "country"
-        ? "ne_10m_admin_0.countries"
-        : "ne_10m_admin_1.regions";
-    if (this.state.mounted) {
-      getTopoAction(entityType)
-        .then((data) =>
-          topojson.feature(
-            data[entityType].topology,
-            data[entityType].topology.objects[topologyObjectName]
-          )
-        )
-        .then((data) =>
-          this.setState(
-            {
-              topoData: data,
-            },
-            this.getMapScores
-          )
-        );
-    }
-  };
-  // function to manage when a user clicks a country in the map
-  handleEntityShapeClick = (entity) => {
-    const { navigate } = this.props;
+  }
 
+  // Make API call to retrieve topographic data
+  function getDataTopo(entityType) {
+    console.log('305')
+    let topologyObjectName =
+        entityType === "country"
+            ? "ne_10m_admin_0.countries"
+            : "ne_10m_admin_1.regions";
+    if (mounted) {
+      console.log('mounted')
+      getTopoAction(entityType)
+          .then((data) =>
+              topojson.feature(
+                  data[entityType].topology,
+                  data[entityType].topology.objects[topologyObjectName]
+              )
+          )
+          .then((data) => {
+            console.log(data)
+            setTopoData(data)
+          })
+    }
+    console.log('328')
+  }
+
+  // function to manage when a user clicks a country in the map
+  function handleEntityShapeClick(entity) {
     // Use usercode for country, id for other types
     const entityCode =
-      this.state.activeTabType === country.type
-        ? entity.properties.usercode
-        : entity.properties.id;
-    let path = `/${this.state.activeTabType}/${entityCode}`;
+        activeTabType === country.type
+            ? entity.properties.usercode
+            : entity.properties.id;
+    let path = `/${activeTabType}/${entityCode}`;
 
     if (hasDateRangeInUrl()) {
-      path = `${path}/?from=${this.state.from}&until=${this.state.until}`;
+      path = `${path}/?from=${from}&until=${until}`;
     }
 
     navigate(path);
-  };
+  }
 
   // Event Time Series
-  getDataEvents(entityType) {
-    let until = this.state.until;
-    let from = this.state.from;
-    let attr = this.state.eventOrderByAttr;
-    let order = this.state.eventOrderByOrder;
-    let entities = this.state.summaryDataRaw
-      .map((entity) => {
-        // some entities don't return a code to be used in an api call, seem to default to '??' in that event
-        if (entity.entity.code !== "??") {
-          return entity.entity.code;
-        }
-      })
-      .toString();
-    this.props.getEventSignalsAction(
-      entityType,
-      entities,
-      from,
-      until,
-      attr,
-      order
+  function getDataEvents(entityType) {
+    let attr = eventOrderByAttr;
+    let order = eventOrderByOrder;
+    let entities = summaryDataRaw
+        .map((entity) => {
+          // some entities don't return a code to be used in an api call, seem to default to '??' in that event
+          if (entity.entity.code !== "??") {
+            return entity.entity.code;
+          }
+        })
+        .toString();
+    getEventSignalsAction(
+        entityType,
+        entities,
+        from,
+        until,
+        attr,
+        order
     );
   }
 
-  convertValuesForHtsViz() {
+  function convertValuesForHtsViz() {
     let eventDataProcessed = [];
     // Create visualization-friendly data objects
-    this.state.eventDataRaw.map((entity) => {
+    eventDataRaw.map((entity) => {
       let series;
       series = convertTsDataForHtsViz(entity);
       eventDataProcessed = eventDataProcessed.concat(series);
     });
     // Add data objects to state for each data source
-    this.setState({
-      eventDataProcessed: eventDataProcessed,
-    });
+    setEventDataProcessed(eventDataProcessed);
   }
+
 
   // Define what happens when user clicks suggested search result entry
-  handleResultClick = (entity) => {
+  function handleResultClick  (entity) {
     if (!entity) return;
-    const { navigate } = this.props;
+    const { navigate } = props;
     navigate(`/${entity.type}/${entity.code}`);
-  };
-
-  // Function that returns search bar passed into control panel
-  populateSearchBar = () => {
-    return (
-      <EntitySearchTypeahead
-        placeholder={T.translate("controlPanel.searchBarPlaceholder")}
-        onSelect={(entity) => this.handleResultClick(entity)}
-      />
-    );
-  };
-
-  // Summary Table
-  convertValuesForSummaryTable() {
-    let summaryData = convertValuesForSummaryTable(this.state.summaryDataRaw);
-    if (this.state.apiPageNumber === 0) {
-      this.setState({
-        summaryDataProcessed: summaryData,
-        genSummaryTableDataProcessed: true,
-      });
-    }
-    if (this.state.apiPageNumber > 0) {
-      this.setState({
-        summaryDataProcessed:
-          this.state.summaryDataProcessed.concat(summaryData),
-      });
-    }
   }
 
-  render() {
-    const { activeTabType } = this.state;
-    const title = T.translate("entity.pageTitle");
+  // Function that returns search bar passed into control panel
+  function populateSearchBar () {
     return (
+        <EntitySearchTypeahead
+            placeholder={T.translate("controlPanel.searchBarPlaceholder")}
+            onSelect={(entity) => handleResultClick(entity)}
+        />
+    );
+  }
+
+  // Summary Table
+  function _convertValuesForSummaryTable() {
+    let summaryData = convertValuesForSummaryTable(summaryDataRaw);
+    if (apiPageNumber === 0) {
+      setSummaryDataProcessed(summaryData);
+      setGenSummaryTableDataProcessed(true);
+    }
+
+    if (apiPageNumber > 0) {
+      setSummaryDataProcessed(summaryDataProcessed.concat(summaryData));
+    }
+  }
+  const title = T.translate("entity.pageTitle");
+  return (
       <div className="w-full max-cont dashboard">
         <Helmet>
           <title>IODA | Dashboard for Monitoring Internet Outages</title>
           <meta
-            name="description"
-            content="Visualizations and Alerts Showing Country-, Region-, and ASN/ISP-level Internet Outages Detected by IODA"
+              name="description"
+              content="Visualizations and Alerts Showing Country-, Region-, and ASN/ISP-level Internet Outages Detected by IODA"
           />
         </Helmet>
         <ControlPanel
-          onTimeFrameChange={this.handleTimeFrame}
-          searchbar={() => this.populateSearchBar()}
-          from={this.state.from}
-          until={this.state.until}
-          title={title}
+            onTimeFrameChange={handleTimeFrame}
+            searchbar={populateSearchBar}
+            from={from}
+            until={until}
+            title={title}
         />
         <div className="w-full mb-6">
           <Radio.Group
-            onChange={(e) => this.handleSelectTab(e?.target?.value)}
-            value={activeTabType}
-            className="mb-8"
+              onChange={(e) => handleSelectTab(e?.target?.value)}
+              value={activeTabType}
+              className="mb-8"
           >
-            <Radio.Button value={country.type}>{this.countryTab}</Radio.Button>
-            <Radio.Button value={region.type}>{this.regionTab}</Radio.Button>
-            <Radio.Button value={asn.type}>{this.asnTab}</Radio.Button>
+            <Radio.Button value={country.type}>{countryTab}</Radio.Button>
+            <Radio.Button value={region.type}>{regionTab}</Radio.Button>
+            <Radio.Button value={asn.type}>{asnTab}</Radio.Button>
           </Radio.Group>
 
           {activeTabType !== asn.type ? (
-            (this.state.topoData && this.state.topoScores) ||
-            this.state.until - this.state.from > dashboardTimeRangeLimit ? (
+              (topoData && topoScores) ||
+              until - from > dashboardTimeRangeLimit ? (
+                  <DashboardTab
+                      type={activeTabType}
+                      handleTabChangeViewButton={handleTabChangeViewButton}
+                      tabCurrentView={tabCurrentView}
+                      from={from}
+                      until={until}
+                      // display error text if from value is higher than until value
+                      displayTimeRangeError={displayDashboardTimeRangeError}
+                      // to populate summary table
+                      summaryDataProcessed={summaryDataProcessed}
+                      totalOutages={totalOutagesState}
+                      activeTabType={activeTabType}
+                      genSummaryTableDataProcessed={genSummaryTableDataProcessed}
+                      // to populate horizon time series table
+                      eventDataProcessed={eventDataProcessed}
+                      // to populate map
+                      topoData={topoData}
+                      topoScores={topoScores}
+                      handleEntityShapeClick={handleEntityShapeClick}
+                      summaryDataRaw={summaryDataRaw}
+                  />
+              ) : displayDashboardTimeRangeError ? (
+                  <Error />
+              ) : (
+                  <Loading />
+              )
+          ) : eventDataProcessed ||
+          until - from > dashboardTimeRangeLimit ? (
               <DashboardTab
-                type={this.state.activeTabType}
-                handleTabChangeViewButton={() =>
-                  this.handleTabChangeViewButton()
-                }
-                tabCurrentView={this.state.tabCurrentView}
-                from={this.state.from}
-                until={this.state.until}
-                // display error text if from value is higher than until value
-                displayTimeRangeError={
-                  this.state.displayDashboardTimeRangeError
-                }
-                // to populate summary table
-                summaryDataProcessed={this.state.summaryDataProcessed}
-                totalOutages={this.state.totalOutages}
-                activeTabType={this.state.activeTabType}
-                genSummaryTableDataProcessed={
-                  this.state.genSummaryTableDataProcessed
-                }
-                // to populate horizon time series table
-                eventDataProcessed={this.state.eventDataProcessed}
-                // to populate map
-                topoData={this.state.topoData}
-                topoScores={this.state.topoScores}
-                handleEntityShapeClick={this.handleEntityShapeClick}
-                summaryDataRaw={this.state.summaryDataRaw}
+                  type={activeTabType}
+                  handleTabChangeViewButton={handleTabChangeViewButton}
+                  tabCurrentView={tabCurrentView}
+                  from={from}
+                  until={until}
+                  // display error text if from value is higher than until value
+                  displayTimeRangeError={displayDashboardTimeRangeError}
+                  // to populate summary table
+                  summaryDataProcessed={summaryDataProcessed}
+                  totalOutages={totalOutagesState}
+                  activeTabType={activeTabType}
+                  genSummaryTableDataProcessed={
+                    genSummaryTableDataProcessed
+                  }
+                  // to populate horizon time series table
+                  eventDataProcessed={eventDataProcessed}
               />
-            ) : this.state.displayTimeRangeError ? (
+          ) : displayDashboardTimeRangeError ? (
               <Error />
-            ) : (
-              <Loading />
-            )
-          ) : this.state.eventDataProcessed ||
-            this.state.until - this.state.from > dashboardTimeRangeLimit ? (
-            <DashboardTab
-              type={this.state.activeTabType}
-              handleTabChangeViewButton={this.handleTabChangeViewButton}
-              tabCurrentView={this.state.tabCurrentView}
-              from={this.state.from}
-              until={this.state.until}
-              // display error text if from value is higher than until value
-              displayTimeRangeError={this.state.displayDashboardTimeRangeError}
-              // to populate summary table
-              summaryDataProcessed={this.state.summaryDataProcessed}
-              totalOutages={this.state.totalOutages}
-              activeTabType={this.state.activeTabType}
-              genSummaryTableDataProcessed={
-                this.state.genSummaryTableDataProcessed
-              }
-              // to populate horizon time series table
-              eventDataProcessed={this.state.eventDataProcessed}
-            />
-          ) : this.state.displayDashboardTimeRangeError ? (
-            <Error />
           ) : (
-            <Loading />
+              <Loading />
           )}
         </div>
       </div>
-    );
-  }
+  );
 }
 
 // TODO: Migrate file fully to functional component
@@ -577,62 +555,62 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     searchSummaryAction: (
-      from,
-      until,
-      entityType,
-      entityCode = null,
-      limit,
-      page,
-      includeMetaData
-    ) => {
-      searchSummary(
-        dispatch,
         from,
         until,
         entityType,
-        entityCode,
+        entityCode = null,
         limit,
         page,
         includeMetaData
+    ) => {
+      searchSummary(
+          dispatch,
+          from,
+          until,
+          entityType,
+          entityCode,
+          limit,
+          page,
+          includeMetaData
       );
     },
     totalOutagesAction: (from, until, entityType) => {
       totalOutages(dispatch, from, until, entityType);
     },
     getSignalsAction: (
-      entityType,
-      entityCode,
-      from,
-      until,
-      datasource = null,
-      maxPoints = null
-    ) => {
-      getSignalsAction(
-        dispatch,
         entityType,
         entityCode,
         from,
         until,
-        datasource,
-        maxPoints
+        datasource = null,
+        maxPoints = null
+    ) => {
+      getSignalsAction(
+          dispatch,
+          entityType,
+          entityCode,
+          from,
+          until,
+          datasource,
+          maxPoints
       );
     },
     getEventSignalsAction: (
-      entityType,
-      entityCode,
-      from,
-      until,
-      datasource = null,
-      maxPoints = null
-    ) => {
-      getEventSignalsAction(
-        dispatch,
         entityType,
         entityCode,
         from,
         until,
-        datasource,
-        maxPoints
+        datasource = null,
+        maxPoints = null
+    ) => {
+      getEventSignalsAction(
+          dispatch,
+          entityType,
+          entityCode,
+          from,
+          until,
+          datasource,
+          maxPoints
       );
     },
   };
