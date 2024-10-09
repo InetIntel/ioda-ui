@@ -5982,11 +5982,15 @@ button[class*=searchButton] {
 .home__recent-outages__twitter-outer {
   flex: 1;
   max-width: 320px;
+  font-size: 14px;
 }
 .home__recent-outages__twitter-outer .twitter-embed {
   border: 1px solid #e2e2ea;
   height: 590px;
   overflow: auto;
+}
+.home__recent-outages .mt-post-header-date {
+  font-size: 9px;
 }
 .home__recent-outages .map__content {
   border-radius: 0.5rem;
