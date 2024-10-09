@@ -95,6 +95,7 @@ class Home extends Component {
             timelineType: "profile",
             userId: "110576638411461442",
             profileName: "@IODA",
+            maxNbPostShow: "10",
           }
       );
     });
