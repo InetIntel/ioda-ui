@@ -17,8 +17,6 @@ import { AreaChartOutlined, GlobalOutlined } from "@ant-design/icons";
 import { getSecondsAsErrorDurationString } from "../../utils/timeUtils";
 
 const DashboardTab = (props) => {
-  console.log(props);
-
   const {
     eventDataProcessed,
     topoData,
@@ -37,12 +35,7 @@ const DashboardTab = (props) => {
   } = props;
 
 
-    const config = React.createRef();
-    const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const config = React.createRef();
 
   useEffect(() => {
     if(eventDataProcessed != null && config.current) {
@@ -50,20 +43,8 @@ const DashboardTab = (props) => {
     }
   }, [eventDataProcessed]);
 
-  function genMap () {
-    return (
-      <TopoMap
-        topoData={topoData}
-        scores={topoScores}
-        handleEntityShapeClick={(entity) => handleEntityShapeClick(entity)}
-        entityType={activeTabType?.toLowerCase()}
-      />
-    );
-  }
-
   function genChart() {
     const chart = HorizonTSChart()(document.getElementById(`horizon-chart`));
-
     if (eventDataProcessed) {
       chart
         .data(eventDataProcessed)
@@ -172,7 +153,12 @@ const DashboardTab = (props) => {
                       summaryDataRaw &&
                       totalOutages &&
                       topoScores
-                        ? genMap()
+                        ? <TopoMap
+                            topoData={topoData}
+                            scores={topoScores}
+                            handleEntityShapeClick={(entity) => handleEntityShapeClick(entity)}
+                            entityType={activeTabType?.toLowerCase()}
+                          />
                         : null}
                     </div>
                   ) : null}

@@ -57,8 +57,8 @@ class ControlPanel extends Component {
   handleRangeChange = ([fromDayjs, untilDayjs]) => {
     this.setState({ range: [fromDayjs, untilDayjs] }, () => {
       this.props.onTimeFrameChange({
-        from: getSeconds(fromDayjs.add(fromDayjs.utcOffset(), "minute")),
-        until: getSeconds(untilDayjs.add(untilDayjs.utcOffset(), "minute")),
+        _from: getSeconds(fromDayjs.add(fromDayjs.utcOffset(), "minute")),
+        _until: getSeconds(untilDayjs.add(untilDayjs.utcOffset(), "minute")),
       });
     });
   };
