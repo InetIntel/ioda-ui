@@ -44,8 +44,7 @@ import { getTopoAction } from "../../data/ActionTopo";
 import { searchSummary } from "../../data/ActionOutages";
 
 // Components
-import '@idotj/mastodon-embed-timeline/dist/mastodon-timeline.min.css';
-import * as MastodonTimeline from "@idotj/mastodon-embed-timeline";
+import { TwitterTimelineEmbed } from "react-twitter-embed";
 import TopoMap from "../../components/map/Map";
 import * as topojson from "topojson";
 
@@ -88,18 +87,6 @@ class Home extends Component {
       this.getDataTopo();
       this.getDataOutageSummary();
     });
-    window.addEventListener("load", () => {
-      const myTimeline = new MastodonTimeline.Init(
-          {
-            instanceUrl: "https://mastodon.social",
-            timelineType: "profile",
-            userId: "110576638411461442",
-            profileName: "@IODA",
-            maxNbPostShow: "10",
-          }
-      );
-    });
-
   }
 
   componentWillUnmount() {
@@ -263,18 +250,13 @@ class Home extends Component {
               {twitterWidgetTitle}
             </div>
             <div className="card twitter-embed">
-              {/*<TwitterTimelineEmbed*/}
-              {/*  sourceType="profile"*/}
-              {/*  screenName="IODA_live"*/}
-              {/*  options={{ id: "profile:IODA_live", height: "500" }}*/}
-              {/*  lang={getSavedLanguagePreference()}*/}
-              {/*  noBorders={true}*/}
-              {/*/>*/}
-              <div id="mt-container" className="mt-container mt-container-seamless">
-                <div className="mt-body" role="feed">
-                  <div className="mt-loading-spinner"></div>
-                </div>
-              </div>
+              <TwitterTimelineEmbed
+                sourceType="profile"
+                screenName="IODA_live"
+                options={{ id: "profile:IODA_live", height: "500" }}
+                lang={getSavedLanguagePreference()}
+                noBorders={true}
+              />
             </div>
           </div>
         </div>
