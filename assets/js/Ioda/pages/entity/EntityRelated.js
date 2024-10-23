@@ -35,7 +35,7 @@
  * MODIFICATIONS.
  */
 
-import React, { Component } from "react";
+import React, {Component, useRef} from "react";
 import RawSignalsModal from "../../components/modal/RawSignalsModal";
 import T from "i18n-react";
 import Loading from "../../components/loading/Loading";
@@ -44,13 +44,65 @@ import TopoMap from "../../components/map/Map";
 import Table from "../../components/table/Table";
 import { Button } from "antd";
 
-class EntityRelated extends Component {
-  constructor(props) {
-    super(props);
-    this.relatedTableConfig = React.createRef();
-  }
+const EntityRelated = (props) => {
 
-  render() {
+  const {
+    bounds,
+    entityName,
+    entityType,
+    parentEntityName,
+    showMapModal,
+    toggleModal,
+    topoData,
+    topoScores,
+    handleEntityShapeClick,
+    regionalSignalsTableSummaryDataProcessed,
+    asnSignalsTableSummaryDataProcessed,
+    summaryDataMapRaw,
+    toggleEntityVisibilityInHtsViz,
+    handleCheckboxEventLoading,
+    handleSelectAndDeselectAllButtons,
+    regionalSignalsTableEntitiesChecked,
+    rawRegionalSignalsProcessedPingSlash24,
+    rawRegionalSignalsProcessedBgp,
+    rawRegionalSignalsProcessedUcsdNt,
+    rawRegionalSignalsProcessedMeritNt,
+    rawSignalsMaxEntitiesHtsError,
+    initialTableLimit,
+    regionalSignalsTableTotalCount,
+    handleLoadAllEntitiesButton,
+    regionalRawSignalsLoadAllButtonClicked,
+    loadAllButtonEntitiesLoading,
+    handleAdditionalEntitiesLoading,
+    additionalRawSignalRequestedPingSlash24,
+    additionalRawSignalRequestedBgp,
+    additionalRawSignalRequestedUcsdNt,
+    additionalRawSignalRequestedMeritNt,
+    checkMaxButtonLoading,
+    uncheckAllButtonLoading,
+    rawRegionalSignalsRawBgpLength,
+    rawRegionalSignalsRawPingSlash24Length,
+    rawRegionalSignalsRawUcsdNtLength,
+    rawRegionalSignalsRawMeritNtLength,
+    showTableModal,
+    rawAsnSignalsProcessedPingSlash24,
+    rawAsnSignalsProcessedBgp,
+    rawAsnSignalsProcessedUcsdNt,
+    rawAsnSignalsProcessedMeritNt,
+    asnSignalsTableEntitiesChecked,
+    asnSignalsTableTotalCount,
+    asnRawSignalsLoadAllButtonClicked,
+    rawAsnSignalsRawBgpLength,
+    rawAsnSignalsRawPingSlash24Length,
+    rawAsnSignalsRawUcsdNtLength,
+    rawAsnSignalsRawMeritNtLength,
+    relatedToTableSummaryProcessed
+  } = props;
+
+  console.log(props)
+
+  const relatedTableConfig = useRef();
+
     const regionalModalButtonText = T.translate(
       "entity.regionalModalButtonText"
     );
@@ -86,13 +138,13 @@ class EntityRelated extends Component {
             <div className="flex items-center">
               <div className="col-1 mw-0 flex items-center">
                 <h3 className="text-2xl">
-                  {this.props.entityType === "country"
-                    ? `${regionalSectionTitleCountryType} ${this.props.entityName}`
-                    : this.props.entityType === "region"
-                    ? `${regionalSectionTitleRegionType} ${this.props.parentEntityName}`
-                    : this.props.entityType === "asn"
+                  {entityType === "country"
+                    ? `${regionalSectionTitleCountryType} ${entityName}`
+                    : entityType === "region"
+                    ? `${regionalSectionTitleRegionType} ${parentEntityName}`
+                    : entityType === "asn"
                     ? T.translate("entity.regionalSectionTitleAsnType", {
-                        asn: this.props.entityName,
+                        asn: entityName,
                       })
                     : null}
                 </h3>
@@ -104,7 +156,7 @@ class EntityRelated extends Component {
               <Button
                 type="primary"
                 size="small"
-                onClick={() => this.props.toggleModal("map")}
+                onClick={() => toggleModal("map")}
               >
                 {regionalModalButtonText}
               </Button>
@@ -112,136 +164,136 @@ class EntityRelated extends Component {
             <RawSignalsModal
               modalLocation={"map"}
               // entity name needed to populate text in headings
-              entityName={this.props.entityName}
+              entityName={entityName}
               // entity type needed to determine which time series count text to use
-              entityType={this.props.entityType}
+              entityType={entityType}
               // tracking when the modal should be visible
-              showModal={this.props.showMapModal}
+              showModal={showMapModal}
               // tracking when the close button is clicked
-              toggleModal={this.props.toggleModal}
+              toggleModal={toggleModal}
               // to populate outage map
-              topoData={this.props.topoData}
-              bounds={this.props.bounds}
-              topoScores={this.props.topoScores}
+              topoData={topoData}
+              bounds={bounds}
+              topoScores={topoScores}
               handleEntityShapeClick={(entity) =>
-                this.props.handleEntityShapeClick(entity)
+                handleEntityShapeClick(entity)
               }
               // render function that populates the ui
               totalCount={
-                this.props.regionalSignalsTableSummaryDataProcessed.length
+                regionalSignalsTableSummaryDataProcessed.length
               }
               toggleEntityVisibilityInHtsViz={(event) =>
-                this.props.toggleEntityVisibilityInHtsViz(event, "region")
+                toggleEntityVisibilityInHtsViz(event, "region")
               }
               handleCheckboxEventLoading={(item) =>
-                this.props.handleCheckboxEventLoading(item)
+                handleCheckboxEventLoading(item)
               }
               regionalSignalsTableSummaryDataProcessed={
-                this.props.regionalSignalsTableSummaryDataProcessed
+                regionalSignalsTableSummaryDataProcessed
               }
               // data that draws polygons on map
-              summaryDataMapRaw={this.props.summaryDataMapRaw}
+              summaryDataMapRaw={summaryDataMapRaw}
               // check max and uncheck all button functionality
               handleSelectAndDeselectAllButtons={(event) =>
-                this.props.handleSelectAndDeselectAllButtons(event)
+                handleSelectAndDeselectAllButtons(event)
               }
               // Current number of entities checked in table
               regionalSignalsTableEntitiesChecked={
-                this.props.regionalSignalsTableEntitiesChecked
+               regionalSignalsTableEntitiesChecked
               }
               // to detect when loading bar should appear in modal
               // and to populate data in modal for chart
               rawRegionalSignalsProcessedPingSlash24={
-                this.props.rawRegionalSignalsProcessedPingSlash24
+               rawRegionalSignalsProcessedPingSlash24
               }
               rawRegionalSignalsProcessedBgp={
-                this.props.rawRegionalSignalsProcessedBgp
+                rawRegionalSignalsProcessedBgp
               }
               rawRegionalSignalsProcessedUcsdNt={
-                this.props.rawRegionalSignalsProcessedUcsdNt
+                rawRegionalSignalsProcessedUcsdNt
               }
               rawRegionalSignalsProcessedMeritNt={
-                this.props.rawRegionalSignalsProcessedMeritNt
+                rawRegionalSignalsProcessedMeritNt
               }
               // Error message when max entities are checked
               rawSignalsMaxEntitiesHtsError={
-                this.props.rawSignalsMaxEntitiesHtsError
+                rawSignalsMaxEntitiesHtsError
               }
               // For use in the string that populates when there are more than 300 entities that could load
-              initialTableLimit={this.props.initialTableLimit}
+              initialTableLimit={initialTableLimit}
               // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
               regionalSignalsTableTotalCount={
-                this.props.regionalSignalsTableTotalCount
+                regionalSignalsTableTotalCount
               }
               // function used to call api to load remaining entities
               handleLoadAllEntitiesButton={(event) =>
-                this.props.handleLoadAllEntitiesButton(event)
+                handleLoadAllEntitiesButton(event)
               }
               // Used to determine if load all message should display or not
               regionalRawSignalsLoadAllButtonClicked={
-                this.props.regionalRawSignalsLoadAllButtonClicked
+                regionalRawSignalsLoadAllButtonClicked
               }
               // Used for triggering the load all button loading icon once clicked
               loadAllButtonEntitiesLoading={
-                this.props.loadAllButtonEntitiesLoading
+                loadAllButtonEntitiesLoading
               }
               handleAdditionalEntitiesLoading={() =>
-                this.props.handleAdditionalEntitiesLoading()
+                handleAdditionalEntitiesLoading()
               }
               // manage loading bar for when loadAll button is clicked and
               // additional raw signals are requested beyond what was initially loaded
               additionalRawSignalRequestedPingSlash24={
-                this.props.additionalRawSignalRequestedPingSlash24
+                additionalRawSignalRequestedPingSlash24
               }
               additionalRawSignalRequestedBgp={
-                this.props.additionalRawSignalRequestedBgp
+                additionalRawSignalRequestedBgp
               }
               additionalRawSignalRequestedUcsdNt={
-                this.props.additionalRawSignalRequestedUcsdNt
+                additionalRawSignalRequestedUcsdNt
               }
               additionalRawSignalRequestedMeritNt={
-                this.props.additionalRawSignalRequestedMeritNt
+                additionalRawSignalRequestedMeritNt
               }
               // used for tracking when check max/uncheck all loading icon should appear and not
-              checkMaxButtonLoading={this.props.checkMaxButtonLoading}
-              uncheckAllButtonLoading={this.props.uncheckAllButtonLoading}
+              checkMaxButtonLoading={checkMaxButtonLoading}
+              uncheckAllButtonLoading={uncheckAllButtonLoading}
               // used to check if there are no entities available to load (to control when loading bar disappears)
               rawRegionalSignalsRawBgpLength={
-                this.props.rawRegionalSignalsRawBgpLength
+                rawRegionalSignalsRawBgpLength
               }
               rawRegionalSignalsRawPingSlash24Length={
-                this.props.rawRegionalSignalsRawPingSlash24Length
+                rawRegionalSignalsRawPingSlash24Length
               }
               rawRegionalSignalsRawUcsdNtLength={
-                this.props.rawRegionalSignalsRawUcsdNtLength
+                rawRegionalSignalsRawUcsdNtLength
               }
               rawRegionalSignalsRawMeritNtLength={
-                this.props.rawRegionalSignalsRawMeritNtLength
+                rawRegionalSignalsRawMeritNtLength
               }
             />
           </div>
           <div className="map" style={{ display: "block", height: "40.5rem" }}>
-            {this.props.topoData &&
-            this.props.bounds &&
-            this.props.topoScores ? (
+            {topoData &&
+            bounds &&
+            topoScores ? (
               <TopoMap
-                topoData={this.props.topoData}
-                bounds={this.props.bounds}
-                scores={this.props.topoScores}
+                topoData={topoData}
+                bounds={bounds}
+                scores={topoScores}
                 handleEntityShapeClick={(entity) =>
-                  this.props.handleEntityShapeClick(entity)
+                  handleEntityShapeClick(entity)
                 }
                 entityType="region"
               />
-            ) : this.props.summaryDataMapRaw &&
-              this.props.topoScores &&
-              this.props.topoScores.length === 0 ? (
+            ) : summaryDataMapRaw &&
+              topoScores &&
+              topoScores.length === 0 ? (
               <div className="h-full flex-column items-center justify-center">
                 <h2 className="text-2xl">{noOutagesOnMapMessage}</h2>
                 <Button
                   className="mt-4"
                   type="primary"
-                  onClick={() => this.props.toggleModal("map")}
+                  onClick={() => toggleModal("map")}
                 >
                   {regionalModalButtonText}
                 </Button>
@@ -258,12 +310,12 @@ class EntityRelated extends Component {
             <div className="flex items-center gap-3 mb-6">
               <div className="col-1 mw-0 flex items-center">
                 <h3 className="text-2xl">
-                  {this.props.entityType === "country"
-                    ? `Outages of ASNs/ISPs operating in ${this.props.entityName}`
-                    : this.props.entityType === "region"
-                    ? `Outages of ASNs/ISPs operating in ${this.props.parentEntityName}`
-                    : this.props.entityType === "asn"
-                    ? `Countries where ${this.props.entityName} operates that experienced outages`
+                  {entityType === "country"
+                    ? `Outages of ASNs/ISPs operating in ${entityName}`
+                    : entityType === "region"
+                    ? `Outages of ASNs/ISPs operating in ${parentEntityName}`
+                    : entityType === "asn"
+                    ? `Countries where ${entityName} operates that experienced outages`
                     : null}
                 </h3>
                 <Tooltip
@@ -274,7 +326,7 @@ class EntityRelated extends Component {
               <Button
                 type="primary"
                 size="small"
-                onClick={() => this.props.toggleModal("table")}
+                onClick={() => toggleModal("table")}
               >
                 {asnModalButtonText}
               </Button>
@@ -282,105 +334,105 @@ class EntityRelated extends Component {
             <RawSignalsModal
               modalLocation={"table"}
               // tracking when the modal should be visible
-              showModal={this.props.showTableModal}
+              showModal={showTableModal}
               // entity name needed to populate text in headings
-              entityName={this.props.entityName}
+              entityName={entityName}
               // entity type needed to determine which time series count text to use
-              entityType={this.props.entityType}
+              entityType={entityType}
               // tracking when the close button is clicked
-              toggleModal={this.props.toggleModal}
+              toggleModal={toggleModal}
               // render function that populates the ui
 
               // data that populates in table
               asnSignalsTableSummaryDataProcessed={
-                this.props.asnSignalsTableSummaryDataProcessed
+                asnSignalsTableSummaryDataProcessed
               }
               // render function that populates the ui
               toggleEntityVisibilityInHtsViz={(event) =>
-                this.props.toggleEntityVisibilityInHtsViz(event, "asn")
+                toggleEntityVisibilityInHtsViz(event, "asn")
               }
               handleCheckboxEventLoading={(item) =>
-                this.props.handleCheckboxEventLoading(item)
+                handleCheckboxEventLoading(item)
               }
               // data for each horizon time series
               rawAsnSignalsProcessedPingSlash24={
-                this.props.rawAsnSignalsProcessedPingSlash24
+                rawAsnSignalsProcessedPingSlash24
               }
-              rawAsnSignalsProcessedBgp={this.props.rawAsnSignalsProcessedBgp}
+              rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
               rawAsnSignalsProcessedUcsdNt={
-                this.props.rawAsnSignalsProcessedUcsdNt
+                rawAsnSignalsProcessedUcsdNt
               }
               rawAsnSignalsProcessedMeritNt={
-                this.props.rawAsnSignalsProcessedMeritNt
+                rawAsnSignalsProcessedMeritNt
               }
               // Current number of entities checked in table
               asnSignalsTableEntitiesChecked={
-                this.props.asnSignalsTableEntitiesChecked
+                asnSignalsTableEntitiesChecked
               }
               // check max and uncheck all button functionality
               handleSelectAndDeselectAllButtons={(event) =>
-                this.props.handleSelectAndDeselectAllButtons(event)
+                handleSelectAndDeselectAllButtons(event)
               }
               // Error message when max entities are checked
               rawSignalsMaxEntitiesHtsError={
-                this.props.rawSignalsMaxEntitiesHtsError
+                rawSignalsMaxEntitiesHtsError
               }
               // For use in the string that populates when there are more than 300 entities that could load
-              initialTableLimit={this.props.initialTableLimit}
+              initialTableLimit={initialTableLimit}
               // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
-              asnSignalsTableTotalCount={this.props.asnSignalsTableTotalCount}
+              asnSignalsTableTotalCount={asnSignalsTableTotalCount}
               // function used to call api to load remaining entities
               handleLoadAllEntitiesButton={(event) =>
-                this.props.handleLoadAllEntitiesButton(event)
+                handleLoadAllEntitiesButton(event)
               }
               // Used to determine if load all message should display or not
               asnRawSignalsLoadAllButtonClicked={
-                this.props.asnRawSignalsLoadAllButtonClicked
+                asnRawSignalsLoadAllButtonClicked
               }
               // Used for triggering the load all button loading icon once clicked
               loadAllButtonEntitiesLoading={
-                this.props.loadAllButtonEntitiesLoading
+                loadAllButtonEntitiesLoading
               }
               handleAdditionalEntitiesLoading={() =>
-                this.props.handleAdditionalEntitiesLoading()
+                handleAdditionalEntitiesLoading()
               }
               // manage loading bar for when loadAll button is clicked and
               // additional raw signals are requested beyond what was initially loaded
               additionalRawSignalRequestedPingSlash24={
-                this.props.additionalRawSignalRequestedPingSlash24
+                additionalRawSignalRequestedPingSlash24
               }
               additionalRawSignalRequestedBgp={
-                this.props.additionalRawSignalRequestedBgp
+                additionalRawSignalRequestedBgp
               }
               additionalRawSignalRequestedUcsdNt={
-                this.props.additionalRawSignalRequestedUcsdNt
+                additionalRawSignalRequestedUcsdNt
               }
               additionalRawSignalRequestedMeritNt={
-                this.props.additionalRawSignalRequestedMeritNt
+                additionalRawSignalRequestedMeritNt
               }
               // used for tracking when check max/uncheck all loading icon should appear and not
-              checkMaxButtonLoading={this.props.checkMaxButtonLoading}
-              uncheckAllButtonLoading={this.props.uncheckAllButtonLoading}
+              checkMaxButtonLoading={checkMaxButtonLoading}
+              uncheckAllButtonLoading={uncheckAllButtonLoading}
               // used to check if there are no entities available to load (to control when loading bar disappears)
-              rawAsnSignalsRawBgpLength={this.props.rawAsnSignalsRawBgpLength}
+              rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgpLength}
               rawAsnSignalsRawPingSlash24Length={
-                this.props.rawAsnSignalsRawPingSlash24Length
+                rawAsnSignalsRawPingSlash24Length
               }
               rawAsnSignalsRawUcsdNtLength={
-                this.props.rawAsnSignalsRawUcsdNtLength
+                rawAsnSignalsRawUcsdNtLength
               }
               rawAsnSignalsRawMeritNtLength={
-                this.props.rawAsnSignalsRawMeritNtLength
+                rawAsnSignalsRawMeritNtLength
               }
             />
           </div>
-          <div className="tab__table" ref={this.relatedTableConfig}>
-            {this.props.relatedToTableSummaryProcessed ? (
+          <div className="tab__table" ref={relatedTableConfig}>
+            {relatedToTableSummaryProcessed ? (
               <Table
                 type="summary"
-                data={this.props.relatedToTableSummaryProcessed}
-                totalCount={this.props.relatedToTableSummaryProcessed.length}
-                entityType={this.props.entityType === "asn" ? "country" : "asn"}
+                data={relatedToTableSummaryProcessed}
+                totalCount={relatedToTableSummaryProcessed.length}
+                entityType={entityType === "asn" ? "country" : "asn"}
               />
             ) : (
               <Loading />
@@ -389,7 +441,6 @@ class EntityRelated extends Component {
         </div>
       </div>
     );
-  }
 }
 
 export default EntityRelated;
