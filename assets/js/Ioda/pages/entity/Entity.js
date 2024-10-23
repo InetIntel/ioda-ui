@@ -325,6 +325,16 @@ const Entity = (props) => {
     });
   }
 
+  useEffect(() => {
+    // Get Topo Data for relatedTo Map
+    // ToDo: update parameter to base value off of url entity type
+    if(entityMetadata && Object.keys(entityMetadata).length > 0) {
+      getDataTopo("region");
+      getDataRelatedToMapSummary("region");
+      getDataRelatedToTableSummary("asn");
+    }
+  }, [entityMetadata]);
+
   // Monitor screen width
   useEffect(() => {
     window.addEventListener("resize", resize);
@@ -341,8 +351,6 @@ const Entity = (props) => {
       setDisplayTimeRangeError(true);
       return;
     }
-    console.log(untilDate)
-    console.log(fromDate)
     setFrom(fromDate);
     setUntil(untilDate);
     setTsDataLegendRangeFrom(fromDate);
@@ -405,16 +413,6 @@ const Entity = (props) => {
         sourceParams
     );
   }, [sourceParams]);
-
-  useEffect(() => {
-    // Get Topo Data for relatedTo Map
-    // ToDo: update parameter to base value off of url entity type
-    if(entityMetadata && Object.keys(entityMetadata).length > 0) {
-      getDataTopo("region");
-      getDataRelatedToMapSummary("region");
-      getDataRelatedToTableSummary("asn");
-    }
-  }, [entityMetadata]);
 
   // Make API call for data to populate XY Chart
   useEffect(() => {
@@ -505,6 +503,7 @@ const Entity = (props) => {
 
   useEffect(() => {
     if(asnSignalsTableSummaryData) {
+      console.log(asnSignalsTableSummaryData)
       setAsnSignalsTableSummaryDataState(asnSignalsTableSummaryData);
       _combineValuesForSignalsTable("asn", asnSignalsTableSummaryData);
     }
@@ -752,7 +751,7 @@ const Entity = (props) => {
   }, [showTableModal]);
 
   useEffect(() => {
-    if(regionalSignalsTableSummaryDataProcessed) {
+    if(regionalSignalsTableSummaryDataProcessed && Object.keys(regionalSignalsTableSummaryDataProcessed).length > 0) {
       // Get data for Stacked horizon series raw signals with all regions if data is not yet available
       getSignalsHtsDataEvents("region", "ping-slash24");
       getSignalsHtsDataEvents("region", "bgp");
@@ -767,7 +766,7 @@ const Entity = (props) => {
   }, [regionalSignalsTableSummaryDataProcessed]);
 
   useEffect(() => {
-    if(asnSignalsTableSummaryDataProcessed) {
+    if(asnSignalsTableSummaryDataProcessed && Object.keys(asnSignalsTableSummaryDataProcessed).length > 0) {
       // Populate Stacked horizon graph with all regions
       convertValuesForHtsViz("ping-slash24", "asn");
       convertValuesForHtsViz("bgp", "asn");
@@ -1630,7 +1629,7 @@ const Entity = (props) => {
   function getDataRelatedToMapSummary(entityType) {
     const limit = 170;
     const includeMetadata = true;
-    let page = 1;
+    let page = 0;
     const entityCode = null;
     let relatedToEntityType, relatedToEntityCode;
     switch (entityType) {
@@ -1861,11 +1860,10 @@ const Entity = (props) => {
   }
   // Combine summary outage data with other raw signal data for populating Raw Signal Table
   function _combineValuesForSignalsTable(entityType, signalsTableSummaryData) {
+    console.log(signalsTableSummaryData)
     switch (entityType) {
       case "region":
-        if (
-          summaryDataMapRaw && signalsTableSummaryData
-        ) {
+        if (summaryDataMapRaw && signalsTableSummaryData) {
           let signalsTableData = combineValuesForSignalsTable(
             summaryDataMapRaw,
             signalsTableSummaryData,
@@ -1876,12 +1874,13 @@ const Entity = (props) => {
         }
         break;
       case "asn":
-        if (relatedToTableSummary && signalsTableSummaryData) {
+        if (relatedToTableSummaryState && signalsTableSummaryData) {
           let signalsTableData = combineValuesForSignalsTable(
-            relatedToTableSummary,
+            relatedToTableSummaryState,
             signalsTableSummaryData,
             initialHtsLimit
           );
+          console.log(signalsTableData)
           setAsnSignalsTableSummaryDataProcessed(signalsTableData.slice(0, initialTableLimit));
           setAsnSignalsTableTotalCount(signalsTableData.length);
         }
@@ -2018,11 +2017,11 @@ const Entity = (props) => {
     switch (entityType) {
       case "region":
         signalsTableSummaryDataProcessed =
-            regionalSignalsTableSummaryDataProcessed;
+          regionalSignalsTableSummaryDataProcessed;
         break;
       case "asn":
         signalsTableSummaryDataProcessed =
-            asnSignalsTableSummaryDataProcessed;
+          asnSignalsTableSummaryDataProcessed;
         break;
     }
 
@@ -2246,7 +2245,7 @@ const Entity = (props) => {
       setLoadAllButtonEntitiesLoading(true)
       let signalsTableData = combineValuesForSignalsTable(
         summaryDataMapRaw,
-        regionalSignalsTableSummaryData,
+        regionalSignalsTableSummaryDataState,
         0
       );
       setRegionalSignalsTableSummaryDataProcessed(
@@ -2260,8 +2259,8 @@ const Entity = (props) => {
     if (name === "asnLoadAllEntities") {
       setAsnRawSignalsLoadAllButtonClicked(true);
       let signalsTableData = combineValuesForSignalsTable(
-        relatedToTableSummary,
-        asnSignalsTableSummaryData,
+        relatedToTableSummaryState,
+        asnSignalsTableSummaryDataState,
             0
           );
       setAsnSignalsTableSummaryDataProcessed(
@@ -2653,7 +2652,7 @@ const Entity = (props) => {
             relatedToTableSummaryProcessed={
               relatedToTableSummaryProcessed
             }
-            relatedToTableSummary={relatedToTableSummary}
+            relatedToTableSummary={relatedToTableSummaryState}
             // handleEntityClick={(entity) => this.handleEntityClick(entity)}
             // raw signals tables for region modal
             handleSelectAndDeselectAllButtons={(event) =>
