@@ -194,12 +194,12 @@ const Entity = (props) => {
     navigate
   } = props;
 
-  console.log(props)
-
   const timeSeriesChartRef = useRef();
 
   const isAdvancedMode = getSavedAdvancedModePreference();
   // Global
+  const [entityTypeState, setEntityTypeState] = useState(entityType);
+  const [entityCodeState, setEntityCodeState] = useState(entityCode);
   const [entityName, setEntityName] = useState("");
   const [parentEntityName, setParentEntityName] = useState("");
   const [parentEntityCode, setParentEntityCode] = useState("");
@@ -317,7 +317,6 @@ const Entity = (props) => {
 
   function updateEntityMetaData (entityName, entityCode) {
     getEntityMetadata(entityName, entityCode).then((data) => {
-      console.log(data)
       setEntityMetadata(data);
       setEntityName(data[0]["name"]);
       setParentEntityName(data[0]["attrs"]["country_name"] || parentEntityName);
@@ -369,21 +368,21 @@ const Entity = (props) => {
     props.searchEventsAction(
         timeSignalFrom,
         timeSignalUntil,
-        entityType,
-        entityCode
+        entityTypeState,
+        entityCodeState
     );
     props.searchAlertsAction(
         fromDate,
         untilDate,
-        entityType,
-        entityCode,
+        entityTypeState,
+        entityCodeState,
         null,
         null,
         null
     );
     props.getSignalsAction(
-        entityType,
-        entityCode,
+        entityTypeState,
+        entityCodeState,
         timeSignalFrom,
         timeSignalUntil,
         null,
@@ -391,7 +390,7 @@ const Entity = (props) => {
         sourceParams
     );
     // Get entity name from code provided in url
-    updateEntityMetaData(entityType, entityCode);
+    updateEntityMetaData(entityTypeState, entityCodeState);
   }, [untilDate, fromDate, entityType, entityCode]);
 
   useEffect(() => {
@@ -404,15 +403,15 @@ const Entity = (props) => {
     const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(from, until);
     if(!sourceParams) return;
     props.getSignalsAction(
-        entityType,
-        entityCode,
+        entityTypeState,
+        entityCodeState,
         timeSignalFrom,
         timeSignalUntil,
         null,
         3000,
         sourceParams
     );
-  }, [sourceParams, from, until, entityType, entityCode]);
+  }, [sourceParams, from, until, entityTypeState, entityCodeState]);
 
   // Make API call for data to populate XY Chart
   useEffect(() => {
@@ -483,7 +482,6 @@ const Entity = (props) => {
 
   useEffect(() => {
     if(asnSignalsTableSummaryData) {
-      console.log(asnSignalsTableSummaryData)
       setAsnSignalsTableSummaryDataState(asnSignalsTableSummaryData);
     }
   }, [asnSignalsTableSummaryData]);
@@ -744,7 +742,7 @@ const Entity = (props) => {
   useEffect(() => {
     if (showMapModal) {
       if (!rawRegionalSignalsLoaded) {
-        props.regionalSignalsTableSummaryDataAction("region", entityType, entityCode)
+        props.regionalSignalsTableSummaryDataAction("region", entityTypeState, entityCodeState)
         setRawRegionalSignalsLoaded(true);
       }
     } else {
@@ -756,7 +754,7 @@ const Entity = (props) => {
   useEffect(() => {
     if (showTableModal) {
       if (!rawAsnSignalsLoaded) {
-        props.asnSignalsTableSummaryDataAction("asn", entityType, entityCode)
+        props.asnSignalsTableSummaryDataAction("asn", entityTypeState, entityCodeState)
         setRawAsnSignalsLoaded(true);
       }
     } else {
@@ -786,7 +784,7 @@ const Entity = (props) => {
       convertValuesForHtsViz("bgp", "asn");
       convertValuesForHtsViz("ucsd-nt", "asn");
       convertValuesForHtsViz("merit-nt", "asn");
-      if(entityType !== "asn") {
+      if(entityTypeState !== "asn") {
         getSignalsHtsDataEvents("asn", "ping-slash24");
         getSignalsHtsDataEvents("asn", "ucsd-nt");
         getSignalsHtsDataEvents("asn", "bgp");
@@ -801,19 +799,11 @@ const Entity = (props) => {
     }
   }, [asnSignalsTableSummaryDataProcessed]);
 
-  // useEffect(() => {
-  //   console.log(tsDataSeriesVisibleMap)
-  //   console.log(simplifiedView)
-  //   console.log(tsDataDisplayOutageBands)
-  //   console.log(prevDataSeriesVisibleMap)
-  //   convertValuesForXyViz();
-  // }, [tsDataSeriesVisibleMap, simplifiedView, tsDataDisplayOutageBands, prevDataSeriesVisibleMap]);
-
   // Control Panel
   // manage the date selected in the input
   function handleTimeFrame ({ from, until }) {
     navigate(
-      `/${entityType}/${entityCode}?from=${from}&until=${until}`
+      `/${entityTypeState}/${entityCodeState}?from=${from}&until=${until}`
     );
   }
 
@@ -1642,10 +1632,10 @@ const Entity = (props) => {
     let page = 0;
     const entityCode = null;
     let relatedToEntityType, relatedToEntityCode;
-    switch (entityType) {
+    switch (entityTypeState) {
       case "country":
-        relatedToEntityType = entityType;
-        relatedToEntityCode = entityCode;
+        relatedToEntityType = entityTypeState;
+        relatedToEntityCode = entityCodeState;
         break;
       case "region":
         relatedToEntityType = "country";
@@ -1700,10 +1690,10 @@ const Entity = (props) => {
     const includeMetadata = true;
     const entityCode = null;
     let relatedToEntityType, relatedToEntityCode;
-    switch (entityType) {
+    switch (entityTypeState) {
       case "country":
-        relatedToEntityType = entityType;
-        relatedToEntityCode = entityCode;
+        relatedToEntityType = entityTypeState;
+        relatedToEntityCode = entityCodeState;
         break;
       case "region":
         relatedToEntityType = "country";
@@ -2641,7 +2631,7 @@ const Entity = (props) => {
           </div>
           <EntityRelated
             entityName={entityName}
-            entityType={entityType}
+            entityType={entityTypeState}
             parentEntityName={parentEntityName}
             toggleModal={toggleModal}
             showMapModal={showMapModal}
