@@ -250,7 +250,7 @@ const Entity = (props) => {
   const [topoData, setTopoData] = useState(null);
   const [topoScores, setTopoScores] = useState(null);
   const [bounds, setBounds] = useState(null);
-  // const [relatedToMapSummaryState, setRelatedToMapSummaryState] = useState(null);
+  //const [relatedToMapSummaryState, setRelatedToMapSummaryState] = useState(null);
   const [summaryDataMapRaw, setSummaryDataMapRaw] = useState(null);
   // relatedTo entity Table
   const [relatedToTableApiPageNumber, setRelatedToTableApiPageNumber] = useState(0);
@@ -401,8 +401,8 @@ const Entity = (props) => {
   }, [props.datasources]);
 
   useEffect(() => {
-    if(!sourceParams) return;
     const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(from, until);
+    if(!sourceParams) return;
     props.getSignalsAction(
         entityType,
         entityCode,
@@ -412,7 +412,7 @@ const Entity = (props) => {
         3000,
         sourceParams
     );
-  }, [sourceParams]);
+  }, [sourceParams, from, until, entityType, entityCode]);
 
   // Make API call for data to populate XY Chart
   useEffect(() => {
@@ -428,6 +428,71 @@ const Entity = (props) => {
       convertValuesForXyViz();
     }
   }, [tsDataRaw]);
+
+  useEffect(() => {
+    // Make API call for data to populate event table
+    if(props.events) {
+      setEventDataRaw(props.events);
+    }
+  }, [props.events]);
+
+  // After API call for Alert Table data completes, check for lengths to set display counts and then process to populate
+  useEffect(() => {
+    if(alerts) {
+      setAlertDataRaw(alerts);
+    }
+  }, [alerts]);
+
+  // After API call for outage summary data completes, pass summary data to map function for data merging
+  useEffect(() => {
+    if(relatedToMapSummary) {
+      setSummaryDataMapRaw(relatedToMapSummary);
+    }
+  }, [relatedToMapSummary]);
+
+  useEffect(() => {
+    if(summaryDataMapRaw || topoData) {
+      getMapScores();
+    }
+  }, [summaryDataMapRaw, topoData]);
+
+  // After API call for outage summary data completes, pass summary data to table component for data merging
+  useEffect(() => {
+    if(relatedToTableSummary) {
+      setRelatedToTableSummaryState(relatedToTableSummary);
+    }
+  }, [relatedToTableSummary]);
+
+  useEffect(() => {
+    if(relatedToTableSummaryState) {
+      _convertValuesForSummaryTable();
+    }
+  }, [relatedToTableSummaryState]);
+
+  useEffect(() => {
+    if (regionalSignalsTableSummaryData) {
+      setRegionalSignalsTableSummaryDataState(regionalSignalsTableSummaryData);
+    }
+  }, [regionalSignalsTableSummaryData]);
+
+  useEffect(() => {
+    if(regionalSignalsTableSummaryDataState) {
+      _combineValuesForSignalsTable("region");
+    }
+  }, [regionalSignalsTableSummaryDataState]);
+
+  useEffect(() => {
+    if(asnSignalsTableSummaryData) {
+      console.log(asnSignalsTableSummaryData)
+      setAsnSignalsTableSummaryDataState(asnSignalsTableSummaryData);
+    }
+  }, [asnSignalsTableSummaryData]);
+
+  useEffect(() => {
+    if(asnSignalsTableSummaryDataState) {
+      _combineValuesForSignalsTable("asn");
+    }
+  }, [asnSignalsTableSummaryDataState]);
 
   useEffect(() => {
     if(tsDataNormalized && Object.keys(tsDataNormalized).length > 0) {
@@ -457,57 +522,6 @@ const Entity = (props) => {
     }
   }, [tsDataSeriesVisibleMap]);
 
-  useEffect(() => {
-    // Make API call for data to populate event table
-    if(props.events) {
-      setEventDataRaw(props.events);
-    }
-  }, [props.events]);
-
-  // After API call for Alert Table data completes, check for lengths to set display counts and then process to populate
-  useEffect(() => {
-    if(alerts) {
-      setAlertDataRaw(alerts);
-    }
-  }, [alerts]);
-
-  // After API call for outage summary data completes, pass summary data to map function for data merging
-  useEffect(() => {
-    if(relatedToMapSummary) {
-      console.log(relatedToMapSummary)
-      setSummaryDataMapRaw(relatedToMapSummary);
-    }
-  }, [relatedToMapSummary]);
-
-
-  useEffect(() => {
-    if(summaryDataMapRaw || topoData) {
-      getMapScores();
-    }
-  }, [summaryDataMapRaw, topoData]);
-
-  // After API call for outage summary data completes, pass summary data to table component for data merging
-  useEffect(() => {
-    if(relatedToTableSummary) {
-      setRelatedToTableSummaryState(relatedToTableSummary);
-      _convertValuesForSummaryTable(relatedToTableSummary);
-    }
-  }, [relatedToTableSummary]);
-
-  useEffect(() => {
-    if (regionalSignalsTableSummaryData) {
-      setRegionalSignalsTableSummaryDataState(regionalSignalsTableSummaryData);
-      _combineValuesForSignalsTable("region", regionalSignalsTableSummaryData);
-    }
-  }, [regionalSignalsTableSummaryData]);
-
-  useEffect(() => {
-    if(asnSignalsTableSummaryData) {
-      console.log(asnSignalsTableSummaryData)
-      setAsnSignalsTableSummaryDataState(asnSignalsTableSummaryData);
-      _combineValuesForSignalsTable("asn", asnSignalsTableSummaryData);
-    }
-  }, [asnSignalsTableSummaryData]);
 
   // data for regional signals table Ping-Slash24 Source
   useEffect(() => {
@@ -1256,7 +1270,6 @@ const Entity = (props) => {
       ],
       series: chartSignals,
     };
-
     // Rerender chart and set navigator bounds
     setXyChartOptions(chartOptions);
   }
@@ -1539,7 +1552,7 @@ const Entity = (props) => {
 
   // toggle normalized values and absolute values
   function changeXyChartNormalization() {
-    setTsDataNormalized(!tsDataNormalized);
+    setTsDataNormalized((prevState) => (!prevState));
   }
 
   // toggle any populated alert bands to be displayed in chart
@@ -1589,8 +1602,6 @@ const Entity = (props) => {
   // Process Geo data from api, attribute outage scores to a new topoData property where possible, then render Map
   function getMapScores() {
     if (topoData && summaryDataMapRaw) {
-      console.log(topoData)
-      console.log(summaryDataMapRaw);
       let _topoData = topoData;
       let features = [];
       let scores = [];
@@ -1621,7 +1632,6 @@ const Entity = (props) => {
       }
 
       setTopoScores(scores);
-      console.log(outageCoords);
       setBounds(outageCoords);
     }
   }
@@ -1721,18 +1731,15 @@ const Entity = (props) => {
     );
   }
   // Make raw values from api compatible with table component
-  function _convertValuesForSummaryTable(summaryState){
-    let summaryData = convertValuesForSummaryTable(summaryState);
-    console.log(summaryData);
+  function _convertValuesForSummaryTable(){
+    let summaryData = convertValuesForSummaryTable(relatedToTableSummaryState);
     if (relatedToTableApiPageNumber === 0) {
-      // console.log(summaryData);
       setRelatedToTableSummaryProcessed(summaryData);
     }
     // If the end of the data list is hit but more data exists, fetch it and tack it on
     if (relatedToTableApiPageNumber > 0) {
       setRelatedToTableSummaryProcessed((prevState) => prevState.concat(summaryData));
     }
-
   }
 
   // RawSignalsModal Windows
@@ -1859,14 +1866,13 @@ const Entity = (props) => {
     }
   }
   // Combine summary outage data with other raw signal data for populating Raw Signal Table
-  function _combineValuesForSignalsTable(entityType, signalsTableSummaryData) {
-    console.log(signalsTableSummaryData)
+  function _combineValuesForSignalsTable(entityType) {
     switch (entityType) {
       case "region":
-        if (summaryDataMapRaw && signalsTableSummaryData) {
+        if (summaryDataMapRaw && regionalSignalsTableSummaryDataState) {
           let signalsTableData = combineValuesForSignalsTable(
             summaryDataMapRaw,
-            signalsTableSummaryData,
+            regionalSignalsTableSummaryDataState,
             initialHtsLimit
           );
           setRegionalSignalsTableSummaryDataProcessed(signalsTableData);
@@ -1874,13 +1880,12 @@ const Entity = (props) => {
         }
         break;
       case "asn":
-        if (relatedToTableSummaryState && signalsTableSummaryData) {
+        if (relatedToTableSummaryState && asnSignalsTableSummaryDataState) {
           let signalsTableData = combineValuesForSignalsTable(
             relatedToTableSummaryState,
-            signalsTableSummaryData,
+            asnSignalsTableSummaryDataState,
             initialHtsLimit
           );
-          console.log(signalsTableData)
           setAsnSignalsTableSummaryDataProcessed(signalsTableData.slice(0, initialTableLimit));
           setAsnSignalsTableTotalCount(signalsTableData.length);
         }
@@ -2036,7 +2041,7 @@ const Entity = (props) => {
       case true:
         // If checkbox is now set to true, determine if adding it will breach the limit
         if (maxHtsLimit > currentEntitiesChecked) {
-          setCurrentEntitiesChecked(currentEntitiesChecked + 1);
+          setCurrentEntitiesChecked((prev) => (prev + 1));
 
           // check if entity data is already available
           switch (signalsTableSummaryDataProcessed[indexValue]["initiallyLoaded"]) {
@@ -2134,7 +2139,7 @@ const Entity = (props) => {
         break;
       case false:
         // // Update currently checked item count and set new data to populate
-        setCurrentEntitiesChecked(currentEntitiesChecked - 1);
+        setCurrentEntitiesChecked((prev) => (prev - 1));
         switch (entityType) {
           case "region":
             setRegionalSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
