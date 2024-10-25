@@ -54,6 +54,7 @@
     "dependencies": {
         "@2fd/ant-design-icons": "^2.6.0",
         "@ant-design/icons": "^5.3.7",
+        "@idotj/mastodon-embed-timeline": "^4.4.2",
         "@reduxjs/toolkit": "^2.2.5",
         "antd": "^5.7.0",
         "axios": "^1.7.2",

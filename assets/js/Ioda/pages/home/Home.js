@@ -44,7 +44,8 @@ import { getTopoAction } from "../../data/ActionTopo";
 import { searchSummary } from "../../data/ActionOutages";
 
 // Components
-import { TwitterTimelineEmbed } from "react-twitter-embed";
+import '@idotj/mastodon-embed-timeline/dist/mastodon-timeline.min.css';
+import * as MastodonTimeline from "@idotj/mastodon-embed-timeline";
 import TopoMap from "../../components/map/Map";
 import * as topojson from "topojson";
 
@@ -86,6 +87,17 @@ class Home extends Component {
       // Get topo and outage data to populate map
       this.getDataTopo();
       this.getDataOutageSummary();
+    });
+    window.addEventListener("load", () => {
+      const myTimeline = new MastodonTimeline.Init(
+          {
+            instanceUrl: "https://mastodon.social",
+            timelineType: "profile",
+            userId: "110576638411461442",
+            profileName: "@IODA",
+            maxNbPostShow: "10"
+          }
+      );
     });
   }
 
@@ -250,13 +262,18 @@ class Home extends Component {
               {twitterWidgetTitle}
             </div>
             <div className="card twitter-embed">
-              <TwitterTimelineEmbed
-                sourceType="profile"
-                screenName="IODA_live"
-                options={{ id: "profile:IODA_live", height: "500" }}
-                lang={getSavedLanguagePreference()}
-                noBorders={true}
-              />
+              {/*<TwitterTimelineEmbed*/}
+              {/*  sourceType="profile"*/}
+              {/*  screenName="IODA_live"*/}
+              {/*  options={{ id: "profile:IODA_live", height: "500" }}*/}
+              {/*  lang={getSavedLanguagePreference()}*/}
+              {/*  noBorders={true}*/}
+              {/*/>*/}
+              <div id="mt-container" className="mt-container mt-container-seamless">
+                <div className="mt-body" role="feed">
+                  <div className="mt-loading-spinner"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
