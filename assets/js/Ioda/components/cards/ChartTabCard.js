@@ -35,6 +35,7 @@
  * MODIFICATIONS.
  */
 import React from "react";
+import {useState} from "react";
 import Loading from "../loading/Loading";
 import { Radio } from "antd";
 import T from "i18n-react";
@@ -42,72 +43,66 @@ import ChartLegendCard from "./ChartLegendCard";
 import AlertsTable from "../table/AlertsTable";
 import EventsTable from "../table/EventsTable";
 
-class ChartTabCard extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { currentTab: 1 };
-  }
+const ChartTabCard = ({ simplifiedView, legendHandler,tsDataSeriesVisibleMap,  updateSourceParams, alertsData,eventData  }) => {
 
-  handleSelectTab = (selectedKey) => {
-    this.setState({ currentTab: selectedKey });
+  const [currentTab, setCurrentTab] = useState(1);
+
+  const handleSelectTab = (selectedKey) => {
+    setCurrentTab(selectedKey);
   };
 
-  render() {
-    const { simplifiedView } = this.props;
+  const selectedSignal = T.translate("entity.selectedSignal");
+  const alertTab = T.translate("entity.alertTab");
+  const eventTab = T.translate("entity.eventTab");
 
-    const selectedSignal = T.translate("entity.selectedSignal");
-    const alertTab = T.translate("entity.alertTab");
-    const eventTab = T.translate("entity.eventTab");
-
-    return (
+  return (
       <div className="overview__table-config flex-column">
         <div className="tabs">
           <Radio.Group
-            onChange={(e) => this.handleSelectTab(e?.target?.value)}
-            value={this.state.currentTab}
-            style={{ marginBottom: 8 }}
+              onChange={(e) => handleSelectTab(e?.target?.value)}
+              value={currentTab}
+              style={{ marginBottom: 8 }}
           >
             <Radio.Button value={1}>{selectedSignal}</Radio.Button>
             {!simplifiedView && (
-              <Radio.Button value={2}>{alertTab}</Radio.Button>
+                <Radio.Button value={2}>{alertTab}</Radio.Button>
             )}
             {!simplifiedView && (
-              <Radio.Button value={3}>{eventTab}</Radio.Button>
+                <Radio.Button value={3}>{eventTab}</Radio.Button>
             )}
           </Radio.Group>
         </div>
 
-        {this.state.currentTab === 1 && (
-          <ChartLegendCard
-            legendHandler={this.props.legendHandler}
-            checkedMap={this.props.tsDataSeriesVisibleMap}
-            updateSourceParams={this.props.updateSourceParams}
-            simplifiedView={this.props.simplifiedView}
-          />
+        {currentTab === 1 && (
+            <ChartLegendCard
+                legendHandler={legendHandler}
+                checkedMap={tsDataSeriesVisibleMap}
+                updateSourceParams={updateSourceParams}
+                simplifiedView={simplifiedView}
+            />
         )}
 
-        {this.state.currentTab === 2 && (
-          <>
-            {this.props.alertsData ? (
-              <AlertsTable data={this.props.alertsData} />
-            ) : (
-              <Loading />
-            )}
-          </>
+        {currentTab === 2 && (
+            <>
+              {alertsData ? (
+                  <AlertsTable data={alertsData} />
+              ) : (
+                  <Loading />
+              )}
+            </>
         )}
 
-        {this.state.currentTab === 3 && (
-          <>
-            {this.props.eventData ? (
-              <EventsTable data={this.props.eventData} />
-            ) : (
-              <Loading />
-            )}
-          </>
+        {currentTab === 3 && (
+            <>
+              {eventData ? (
+                  <EventsTable data={eventData} />
+              ) : (
+                  <Loading />
+              )}
+            </>
         )}
       </div>
-    );
-  }
+  );
 }
 
 export default ChartTabCard;
