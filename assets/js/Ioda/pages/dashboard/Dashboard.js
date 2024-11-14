@@ -347,7 +347,10 @@ const Dashboard = (props) => {
   // Define what happens when user clicks suggested search result entry
   function handleResultClick (entity) {
     if (!entity) return;
-    navigate(`/${entity.type}/${entity.code}`);
+    if (!entity.url) return;
+    console.log(entity)
+    // navigate(`/${entity.type}/${entity.code}`);
+    navigate(`/${entity.url}`)
   }
 
   // Function that returns search bar passed into control panel
@@ -388,6 +391,8 @@ const Dashboard = (props) => {
           from={from}
           until={until}
           title={title}
+          entityType="country"
+          onSelect={(entity) => handleResultClick(entity)}
         />
         <div className="w-full mb-6">
           <Radio.Group

@@ -170,52 +170,42 @@ const fromDate =
   urlRange.urlFromDate ?? getSeconds(getNowAsUTC().subtract(24, "hour"));
 const untilDate = urlRange.urlUntilDate ?? getNowAsUTCSeconds();
 
-const Entity = (props) => {
+const RegionEntity = (props) => {
 
   const {
     type,
-    entityType,
-    entityCode,
     regionCode,
-    asnCode,
     signals,
     alerts,
     relatedToMapSummary,
     relatedToTableSummary,
     regionalSignalsTableSummaryData,
-    asnSignalsTableSummaryData,
     rawRegionalSignalsPingSlash24,
     rawRegionalSignalsBgp,
     rawRegionalSignalsUcsdNt,
     rawRegionalSignalsMeritNt,
-    rawAsnSignalsPingSlash24,
-    rawAsnSignalsBgp,
-    rawAsnSignalsUcsdNt,
-    rawAsnSignalsMeritNt,
     additionalRawSignal,
     navigate
   } = props;
+
 
   const timeSeriesChartRef = useRef();
 
   const isAdvancedMode = getSavedAdvancedModePreference();
   // Global
-  const [entityTypeState, setEntityTypeState] = useState("country");
-  const [entityCodeState, setEntityCodeState] = useState(entityCode);
-  const [entityName, setEntityName] = useState("");
-  const [parentEntityName, setParentEntityName] = useState("");
-  const [parentEntityCode, setParentEntityCode] = useState("");
+
+  const [entityCodeState, setEntityCodeState] = useState(regionCode); // regionCode
+  const [entityName, setEntityName] = useState(""); // regionName
+  const [parentEntityName, setParentEntityName] = useState(""); //countryName
+  const [parentEntityCode, setParentEntityCode] = useState(""); //countryCode
   const [displayTimeRangeError, setDisplayTimeRangeError] = useState(false);
   const [entityMetadata, setEntityMetadata] = useState({});
-  // Data Sources Available
-  const [dataSources, setDataSources] = useState(null);
   // Control Panel
   const [from, setFrom] = useState(fromDate);
   const [until, setUntil] = useState(untilDate);
   // Search Bar
   const [sourceParams, setSourceParams] = useState(["WEB_SEARCH"]);
   // XY Plot Time Series
-  const [xyDataOptions, setXyDataOptions] = useState(null);
   const [xyChartOptions, setXyChartOptions] = useState(null);
   const [tsDataRaw, setTsDataRaw] = useState(null);
   const [tsDataNormalized, setTsDataNormalized] = useState(true);
@@ -326,16 +316,6 @@ const Entity = (props) => {
     });
   }
 
-  useEffect(() => {
-    // Get Topo Data for relatedTo Map
-    // ToDo: update parameter to base value off of url entity type
-    if(entityMetadata && Object.keys(entityMetadata).length > 0) {
-      getDataTopo("region");
-      getDataRelatedToMapSummary("region");
-      getDataRelatedToTableSummary("asn");
-    }
-  }, [entityMetadata]);
-
   // Monitor screen width
   useEffect(() => {
     window.addEventListener("resize", resize);
@@ -370,20 +350,20 @@ const Entity = (props) => {
     props.searchEventsAction(
         timeSignalFrom,
         timeSignalUntil,
-        entityTypeState,
+        "region",
         entityCodeState
     );
     props.searchAlertsAction(
         fromDate,
         untilDate,
-        entityTypeState,
+        "region",
         entityCodeState,
         null,
         null,
         null
     );
     props.getSignalsAction(
-        entityTypeState,
+        "region",
         entityCodeState,
         timeSignalFrom,
         timeSignalUntil,
@@ -392,8 +372,8 @@ const Entity = (props) => {
         sourceParams
     );
     // Get entity name from code provided in url
-    updateEntityMetaData(entityTypeState, entityCodeState);
-  }, [untilDate, fromDate, entityType, entityCode]);
+    updateEntityMetaData("region", regionCode);
+  }, [untilDate, fromDate, "region", regionCode]);
 
   useEffect(() => {
     if(props.datasources) {
@@ -405,7 +385,7 @@ const Entity = (props) => {
     const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(from, until);
     if(!sourceParams) return;
     props.getSignalsAction(
-        entityTypeState,
+        "region",
         entityCodeState,
         timeSignalFrom,
         timeSignalUntil,
@@ -413,7 +393,7 @@ const Entity = (props) => {
         3000,
         sourceParams
     );
-  }, [sourceParams, from, until, entityTypeState, entityCodeState]);
+  }, [sourceParams, from, until, "region", entityCodeState]);
 
   // Make API call for data to populate XY Chart
   useEffect(() => {
@@ -482,20 +462,11 @@ const Entity = (props) => {
     }
   }, [regionalSignalsTableSummaryDataState]);
 
-  useEffect(() => {
-    if(asnSignalsTableSummaryData) {
-      setAsnSignalsTableSummaryDataState(asnSignalsTableSummaryData);
-    }
-  }, [asnSignalsTableSummaryData]);
+
 
   useEffect(() => {
-    if(asnSignalsTableSummaryDataState) {
-      _combineValuesForSignalsTable("asn");
-    }
-  }, [asnSignalsTableSummaryDataState]);
-
-  useEffect(() => {
-    if(tsDataNormalized && Object.keys(tsDataNormalized).length > 0) {
+    console.log(tsDataNormalized)
+    if(tsDataNormalized) {
       // For XY Plotted Graph
       convertValuesForXyViz();
     }
@@ -598,81 +569,6 @@ const Entity = (props) => {
     }
   }, [rawRegionalSignalsRawMeritNt]);
 
-  // data for asn signals table Ping-Slash24 Source
-  useEffect(() => {
-    if(rawAsnSignalsPingSlash24 && showTableModal) {
-      let rawAsnSignals = [];
-      rawAsnSignalsPingSlash24.map((signal) => {
-        //Remove empty items and assign to proper state. Then call next function
-        signal.length ? rawAsnSignals.push(signal[0]) : null;
-      });
-      setRawAsnSignalsRawPingSlash24(rawAsnSignals);
-    }
-  }, [rawAsnSignalsPingSlash24, showTableModal]);
-
-  useEffect(() => {
-    if(rawAsnSignalsRawPingSlash24) {
-      convertValuesForHtsViz("ping-slash24", "asn");
-    }
-  }, [rawAsnSignalsRawPingSlash24]);
-
-  // data for asn signals table BGP Source
-  useEffect(() => {
-    if(rawAsnSignalsBgp && showTableModal) {
-      // assign to respective state
-      let rawAsnSignals = [];
-      rawAsnSignalsBgp.map((signal) => {
-        //Remove empty items and assign to proper state. Then call next function
-        signal.length ? rawAsnSignals.push(signal[0]) : null;
-      });
-      setRawAsnSignalsRawBgp(rawAsnSignals);
-    }
-  }, [rawAsnSignalsBgp, showTableModal]);
-
-  useEffect(() => {
-    if(rawAsnSignalsRawBgp) {
-      convertValuesForHtsViz("bgp", "asn");
-    }
-  }, [rawAsnSignalsRawBgp]);
-
-  // data for asn signals table UCSD-NT Source
-  useEffect(() => {
-    if(rawAsnSignalsUcsdNt && showTableModal) {
-      // assign to respective state
-      let rawAsnSignals = [];
-      rawAsnSignalsUcsdNt.map((signal) => {
-        //Remove empty items and assign to proper state. Then call next function
-        signal.length ? rawAsnSignals.push(signal[0]) : null;
-      });
-      setRawAsnSignalsRawUcsdNt(rawAsnSignals);
-    }
-  }, [rawAsnSignalsUcsdNt, showTableModal]);
-
-  useEffect(() => {
-    if(rawAsnSignalsRawUcsdNt) {
-      convertValuesForHtsViz("ucsd-nt", "asn");
-    }
-  }, [rawAsnSignalsRawUcsdNt]);
-
-  // data for asn signals table Merit-NT Source
-  useEffect(() => {
-    if(rawAsnSignalsMeritNt && showTableModal) {
-      // assign to respective state
-      let rawAsnSignals = [];
-      rawAsnSignalsMeritNt.map((signal) => {
-        //Remove empty items and assign to proper state. Then call next function
-        signal.length ? rawAsnSignals.push(signal[0]) : null;
-      });
-      setRawAsnSignalsRawMeritNt(rawAsnSignals);
-    }
-  }, [rawAsnSignalsMeritNt, showTableModal]);
-
-  useEffect(() => {
-    if(rawAsnSignalsRawMeritNt) {
-      convertValuesForHtsViz("merit-nt", "asn");
-    }
-  }, [rawAsnSignalsRawMeritNt]);
-
   // data for additional raw feed signals to use after load all button is clicked
   useEffect(() => {
     if(!additionalRawSignal) return;
@@ -744,7 +640,7 @@ const Entity = (props) => {
   useEffect(() => {
     if (showMapModal) {
       if (!rawRegionalSignalsLoaded) {
-        props.regionalSignalsTableSummaryDataAction("region", entityTypeState, entityCodeState)
+        props.regionalSignalsTableSummaryDataAction("region", "region", entityCodeState)
         setRawRegionalSignalsLoaded(true);
       }
     } else {
@@ -756,7 +652,7 @@ const Entity = (props) => {
   useEffect(() => {
     if (showTableModal) {
       if (!rawAsnSignalsLoaded) {
-        props.asnSignalsTableSummaryDataAction("asn", entityTypeState, entityCodeState)
+        props.asnSignalsTableSummaryDataAction("asn", "region", entityCodeState)
         setRawAsnSignalsLoaded(true);
       }
     } else {
@@ -779,43 +675,18 @@ const Entity = (props) => {
 
   }, [regionalSignalsTableSummaryDataProcessed]);
 
-  useEffect(() => {
-    if(asnSignalsTableSummaryDataProcessed && Object.keys(asnSignalsTableSummaryDataProcessed).length > 0) {
-      // Populate Stacked horizon graph with all regions
-      convertValuesForHtsViz("ping-slash24", "asn");
-      convertValuesForHtsViz("bgp", "asn");
-      convertValuesForHtsViz("ucsd-nt", "asn");
-      convertValuesForHtsViz("merit-nt", "asn");
-      if(entityTypeState !== "asn") {
-        getSignalsHtsDataEvents("asn", "ping-slash24");
-        getSignalsHtsDataEvents("asn", "ucsd-nt");
-        getSignalsHtsDataEvents("asn", "bgp");
-        getSignalsHtsDataEvents("asn", "merit-nt");
-      }
-      else {
-        getSignalsHtsDataEvents("country", "ping-slash24");
-        getSignalsHtsDataEvents("country", "ucsd-nt");
-        getSignalsHtsDataEvents("country", "bgp");
-        getSignalsHtsDataEvents("country", "merit-nt");
-      }
-    }
-  }, [asnSignalsTableSummaryDataProcessed]);
+
 
   // Control Panel
   // manage the date selected in the input
   function handleTimeFrame ({ from, until }) {
     if(regionCode != null && regionCode.length > 0) {
       navigate(
-          `/${entityTypeState}/${entityCodeState}/region/${regionCode}?from=${from}&until=${until}`
-      );
-    }
-    if(asnCode != null && asnCode.length > 0) {
-      navigate(
-          `/${entityTypeState}/${entityCodeState}/asn/${asnCode}?from=${from}&until=${until}`
+          `/country/${parentEntityCode}/region/${regionCode}?from=${from}&until=${until}`
       );
     }
     navigate(
-      `/${entityTypeState}/${entityCodeState}?from=${from}&until=${until}`
+      `/${country}/${parentEntityCode}?from=${from}&until=${until}`
     );
   }
 
@@ -1239,8 +1110,8 @@ const Entity = (props) => {
               fontSize: "12px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-            formatter: function (value) {
-              return formatYAxisLabels(value);
+            formatter: function () {
+              return formatYAxisLabels(this.value);
             },
           },
         },
@@ -1267,8 +1138,8 @@ const Entity = (props) => {
               fontSize: "12px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-            formatter: function (value) {
-              return formatYAxisLabels(value);
+            formatter: function () {
+              return formatYAxisLabels(this.value);
             },
           },
         },
@@ -1640,46 +1511,10 @@ const Entity = (props) => {
       setBounds(outageCoords);
     }
   }
-  // Make API call to retrieve summary data to populate on map
-  function getDataRelatedToMapSummary(entityType) {
-    const limit = 170;
-    const includeMetadata = true;
-    let page = 0;
-    const entityCode = null;
-    let relatedToEntityType, relatedToEntityCode;
-    switch (entityTypeState) {
-      case "country":
-        relatedToEntityType = entityTypeState;
-        relatedToEntityCode = entityCodeState;
-        break;
-      case "region":
-        relatedToEntityType = "country";
-        relatedToEntityCode =
-          entityMetadata[0]["attrs"]["fqid"].split(".")[3];
-        break;
-      case "asn":
-        relatedToEntityType = "asn";
-        relatedToEntityCode =
-          entityMetadata[0]["attrs"]["fqid"].split(".")[1];
-        break;
-    }
-    // console.log(entityType, relatedToEntityType, relatedToEntityCode);
-    props.searchRelatedToMapSummary(
-      from,
-      until,
-      entityType,
-      relatedToEntityType,
-      relatedToEntityCode,
-      entityCode,
-      limit,
-      page,
-      includeMetadata
-    );
-  }
 
   // function to manage when a user clicks a country in the map
   function handleEntityShapeClick(entity) {
-    let path = `/region/${entity.properties.id}`;
+    let path = `/country/${entityName}/region/${entity.properties.id}`;
     if (hasDateRangeInUrl()) {
       path += `?from=${fromDate}&until=${untilDate}`;
     }
@@ -1699,42 +1534,7 @@ const Entity = (props) => {
 
   // Summary Table for related ASNs
   // Make API call to retrieve summary data to populate on map
-  function getDataRelatedToTableSummary(entityType) {
-    const limit = initialTableLimit;
-    let page = relatedToTableApiPageNumber;
-    const includeMetadata = true;
-    const entityCode = null;
-    let relatedToEntityType, relatedToEntityCode;
-    switch (entityTypeState) {
-      case "country":
-        relatedToEntityType = entityTypeState;
-        relatedToEntityCode = entityCodeState;
-        break;
-      case "region":
-        relatedToEntityType = "country";
-        relatedToEntityCode =
-          entityMetadata[0]["attrs"]["fqid"].split(".")[3];
-        break;
-      case "asn":
-        relatedToEntityType = "asn";
-        relatedToEntityCode =
-          entityMetadata[0]["attrs"]["fqid"].split(".")[1];
-        entityType = "country";
-        break;
-    }
-    // console.log(entityType, relatedToEntityType, relatedToEntityCode);
-    props.searchRelatedToTableSummary(
-      from,
-      until,
-      entityType,
-      relatedToEntityType,
-      relatedToEntityCode,
-      entityCode,
-      limit,
-      page,
-      includeMetadata
-    );
-  }
+
   // Make raw values from api compatible with table component
   function _convertValuesForSummaryTable(){
     let summaryData = convertValuesForSummaryTable(relatedToTableSummaryState);
@@ -2456,11 +2256,9 @@ const Entity = (props) => {
         searchbar={populateSearchBar}
         onTimeFrameChange={handleTimeFrame}
         onClose={handleControlPanelClose}
-        entityType="country"
-        entityCode={entityCodeState}
         title={entityName}
-        regionCode={regionCode}
-        asnCode={asnCode}
+        entityCode={entityCodeState}
+        entityType="region"
         onSelect={(entity) => handleResultClick(entity)}
       />
       {displayTimeRangeError ? (
@@ -2649,137 +2447,7 @@ const Entity = (props) => {
               />
             </div>
           </div>
-          <EntityRelated
-            entityName={entityName}
-            entityType={entityTypeState}
-            parentEntityName={parentEntityName}
-            toggleModal={toggleModal}
-            showMapModal={showMapModal}
-            showTableModal={showTableModal}
-            // to populate map
-            topoData={topoData}
-            topoScores={topoScores}
-            bounds={bounds}
-            handleEntityShapeClick={(entity) =>
-              handleEntityShapeClick(entity)
-            }
-            // to populate asn summary table
-            relatedToTableSummaryProcessed={
-              relatedToTableSummaryProcessed
-            }
-            // handleEntityClick={(entity) => this.handleEntityClick(entity)}
-            // raw signals tables for region modal
-            handleSelectAndDeselectAllButtons={(event) =>
-              handleSelectAndDeselectAllButtons(event)
-            }
-            regionalSignalsTableSummaryDataProcessed={
-              regionalSignalsTableSummaryDataProcessed
-            }
-            toggleEntityVisibilityInHtsViz={(event) =>
-              toggleEntityVisibilityInHtsViz(event, "region")
-            }
-            handleCheckboxEventLoading={(item) =>
-              handleCheckboxEventLoading(item)
-            }
-            asnSignalsTableSummaryDataProcessed={
-              asnSignalsTableSummaryDataProcessed
-            }
-            // Regional HTS methods
-            regionalSignalsTableEntitiesChecked={
-              regionalSignalsTableEntitiesChecked
-            }
-            asnSignalsTableEntitiesChecked={
-              asnSignalsTableEntitiesChecked
-            }
-            initialTableLimit={initialTableLimit}
-            rawRegionalSignalsProcessedPingSlash24={
-              rawRegionalSignalsProcessedPingSlash24
-            }
-            rawRegionalSignalsProcessedBgp={
-              rawRegionalSignalsProcessedBgp
-            }
-            rawRegionalSignalsProcessedUcsdNt={
-              rawRegionalSignalsProcessedUcsdNt
-            }
-            rawRegionalSignalsProcessedMeritNt={
-              rawRegionalSignalsProcessedMeritNt
-            }
-            rawAsnSignalsProcessedPingSlash24={
-              rawAsnSignalsProcessedPingSlash24
-            }
-            rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
-            rawAsnSignalsProcessedUcsdNt={
-              rawAsnSignalsProcessedUcsdNt
-            }
-            rawAsnSignalsProcessedMeritNt={
-              rawAsnSignalsProcessedMeritNt
-            }
-            summaryDataMapRaw={summaryDataMapRaw}
-            rawSignalsMaxEntitiesHtsError={
-              rawSignalsMaxEntitiesHtsError
-            }
-            // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
-            asnSignalsTableTotalCount={asnSignalsTableTotalCount}
-            regionalSignalsTableTotalCount={
-              regionalSignalsTableTotalCount
-            }
-            // function used to call api to load remaining entities
-            handleLoadAllEntitiesButton={(event) =>
-              handleLoadAllEntitiesButton(event)
-            }
-            // Used to determine if load all message should display or not
-            regionalRawSignalsLoadAllButtonClicked={
-              regionalRawSignalsLoadAllButtonClicked
-            }
-            asnRawSignalsLoadAllButtonClicked={
-              asnRawSignalsLoadAllButtonClicked
-            }
-            // modal loading icon for load all button
-            loadAllButtonEntitiesLoading={
-              loadAllButtonEntitiesLoading
-            }
-            handleAdditionalEntitiesLoading={() =>
-              handleAdditionalEntitiesLoading()
-            }
-            additionalRawSignalRequestedPingSlash24={
-              additionalRawSignalRequestedPingSlash24
-            }
-            additionalRawSignalRequestedBgp={
-              additionalRawSignalRequestedBgp
-            }
-            additionalRawSignalRequestedUcsdNt={
-              additionalRawSignalRequestedUcsdNt
-            }
-            additionalRawSignalRequestedMeritNt={
-              additionalRawSignalRequestedMeritNt
-            }
-            // used for tracking when check max/uncheck all loading icon should appear and not
-            checkMaxButtonLoading={checkMaxButtonLoading}
-            uncheckAllButtonLoading={uncheckAllButtonLoading}
-            // used to check if there are no entities available to load (to control when loading bar disappears)
-            rawRegionalSignalsRawBgpLength={
-              rawRegionalSignalsRawBgp.length
-            }
-            rawRegionalSignalsRawPingSlash24Length={
-              rawRegionalSignalsRawPingSlash24.length
-            }
-            rawRegionalSignalsRawUcsdNtLength={
-              rawRegionalSignalsRawUcsdNt.length
-            }
-            rawRegionalSignalsRawMeritNtLength={
-              rawRegionalSignalsRawMeritNt.length
-            }
-            rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp.length}
-            rawAsnSignalsRawPingSlash24Length={
-              rawAsnSignalsRawPingSlash24.length
-            }
-            rawAsnSignalsRawUcsdNtLength={
-              rawAsnSignalsRawUcsdNt.length
-            }
-            rawAsnSignalsRawMeritNtLength={
-              rawAsnSignalsRawMeritNt.length
-            }
-          />
+
         </React.Fragment>
       ) : (
         <div className="p-6 text-lg card">
@@ -2809,15 +2477,10 @@ const mapStateToProps = (state) => {
     mapModalTopoData: state.iodaApi.mapModalTopoData,
     regionalSignalsTableSummaryData:
       state.iodaApi.regionalSignalsTableSummaryData,
-    asnSignalsTableSummaryData: state.iodaApi.asnSignalsTableSummaryData,
     rawRegionalSignalsPingSlash24: state.iodaApi.rawRegionalSignalsPingSlash24,
     rawRegionalSignalsBgp: state.iodaApi.rawRegionalSignalsBgp,
     rawRegionalSignalsUcsdNt: state.iodaApi.rawRegionalSignalsUcsdNt,
     rawRegionalSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
-    rawAsnSignalsPingSlash24: state.iodaApi.rawRegionalSignalsPingSlash24,
-    rawAsnSignalsBgp: state.iodaApi.rawRegionalSignalsBgp,
-    rawAsnSignalsUcsdNt: state.iodaApi.rawRegionalSignalsUcsdNt,
-    rawAsnSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
     additionalRawSignal: state.iodaApi.additionalRawSignal,
   };
 };
@@ -2955,18 +2618,6 @@ const mapDispatchToProps = (dispatch) => {
         relatedToEntityCode
       );
     },
-    asnSignalsTableSummaryDataAction: (
-      entityType,
-      relatedToEntityType,
-      relatedToEntityCode
-    ) => {
-      asnSignalsTableSummaryDataAction(
-        dispatch,
-        entityType,
-        relatedToEntityType,
-        relatedToEntityCode
-      );
-    },
     getRawRegionalSignalsPingSlash24Action: (
       entityType,
       entities,
@@ -3055,94 +2706,6 @@ const mapDispatchToProps = (dispatch) => {
         maxPoints
       );
     },
-    getRawAsnSignalsPingSlash24Action: (
-      entityType,
-      entities,
-      from,
-      until,
-      attr = null,
-      order = null,
-      dataSource,
-      maxPoints = null
-    ) => {
-      getRawAsnSignalsPingSlash24Action(
-        dispatch,
-        entityType,
-        entities,
-        from,
-        until,
-        attr,
-        order,
-        dataSource,
-        maxPoints
-      );
-    },
-    getRawAsnSignalsBgpAction: (
-      entityType,
-      entities,
-      from,
-      until,
-      attr = null,
-      order = null,
-      dataSource,
-      maxPoints = null
-    ) => {
-      getRawAsnSignalsBgpAction(
-        dispatch,
-        entityType,
-        entities,
-        from,
-        until,
-        attr,
-        order,
-        dataSource,
-        maxPoints
-      );
-    },
-    getRawAsnSignalsUcsdNtAction: (
-      entityType,
-      entities,
-      from,
-      until,
-      attr = null,
-      order = null,
-      dataSource,
-      maxPoints = null
-    ) => {
-      getRawAsnSignalsUcsdNtAction(
-        dispatch,
-        entityType,
-        entities,
-        from,
-        until,
-        attr,
-        order,
-        dataSource,
-        maxPoints
-      );
-    },
-    getRawAsnSignalsMeritNtAction: (
-      entityType,
-      entities,
-      from,
-      until,
-      attr = null,
-      order = null,
-      dataSource,
-      maxPoints = null
-    ) => {
-      getRawAsnSignalsMeritNtAction(
-        dispatch,
-        entityType,
-        entities,
-        from,
-        until,
-        attr,
-        order,
-        dataSource,
-        maxPoints
-      );
-    },
     getAdditionalRawSignalAction: (
       entityType,
       entity,
@@ -3168,11 +2731,11 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-const EntityFn = (props) => {
+const RegionEntityFn = (props) => {
   const navigate = useNavigate();
   // using useRef to avoid re-rendering between renders
   const previousFullPath = useRef(window.location.href);
-  const { countryCode, entityType, regionCode, asnCode } = useParams();
+  const { entityCode, entityType, regionCode, asnCode } = useParams();
 
   // Reload page if the URL changes.
   useEffect(() => {
@@ -3184,15 +2747,15 @@ const EntityFn = (props) => {
   }, [window.location.href]);
 
   return (
-    <Entity
+    <RegionEntity
       {...props}
       navigate={navigate}
-      entityType="country"
-      entityCode={countryCode}
+      entityType={entityType}
+      entityCode={entityCode}
       regionCode={regionCode}
       asnCode={asnCode}
     />
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EntityFn);
+export default connect(mapStateToProps, mapDispatchToProps)(RegionEntityFn);

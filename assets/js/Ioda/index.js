@@ -55,11 +55,15 @@ import Footer from "./components/footer/Footer";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Entity from "./pages/entity/Entity";
+import RegionEntity from "./pages/entity/RegionEntity";
 import ProjectInfo from "./pages/projectinfo/ProjectInfo";
 import Help from "./pages/help/Help";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import { initializeAnalytics } from "./utils/analytics";
+import RegionDashboard from "./pages/dashboard/RegionDashboard";
+import AsnDashboard from "./pages/dashboard/AsnDashboard";
+import AsnEntity from "./pages/entity/AsnEntity";
 
 initializeAnalytics();
 
@@ -91,11 +95,16 @@ class App extends Component {
       <div className="app">
         <Header />
         <Routes>
-          <Route path="/dashboard/:entityType?" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/country" element={<Dashboard />} />
+          <Route path="/region" element={<RegionDashboard />} />
+          <Route path="/asn" element={<AsnDashboard />} />
           <Route exact path="/project" element={<ProjectInfo />} />
           <Route exact path="/help" element={<Help />} />
           <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
-          <Route exact path="/:entityType/:entityCode" element={<Entity />} />
+          <Route exact path="/country/:countryCode" element={<Entity />} />
+          <Route exact path="/region/:regionCode" element={<RegionEntity />} />
+          <Route exact path="/asn/:asnCode" element={<AsnEntity />} />
           <Route path="/" element={<Home />} />
         </Routes>
         <Footer />
@@ -109,7 +118,10 @@ const reducers = {
 };
 
 const store = configureStore({
-  reducer: reducers
+  reducer: reducers,
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        immutableStateInvariant: false,
+    })
 })
 const container = document.getElementById("root");
 const root = createRoot(container);

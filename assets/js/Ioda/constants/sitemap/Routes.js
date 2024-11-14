@@ -10,6 +10,8 @@ export default (
         <Route exact path='/acknowledgements'/>
         <Route path='/reports/2020-iran-report'/>
         <Route exact path='/country/:entityCode'/>
+        <Route exact path='/country/:entityCode/region/:regionCode'/>
+        <Route exact path='/country/:entityCode/asn/:asnCode'/>
         <Route path='/'/>
     </Route>
 );

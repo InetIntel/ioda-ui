@@ -99,8 +99,6 @@ const EntityRelated = (props) => {
     relatedToTableSummaryProcessed
   } = props;
 
-  console.log(props)
-
   const relatedTableConfig = useRef();
 
     const regionalModalButtonText = T.translate(
