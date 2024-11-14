@@ -35,11 +35,11 @@
  * MODIFICATIONS.
  */
 
-import React, { PureComponent } from "react";
+import React from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import T from "i18n-react";
 import Loading from "../../components/loading/Loading";
-import LoadingIcon from "images/icons/icon-loading.png";
 import Tooltip from "../tooltip/Tooltip";
 import TopoMap from "../map/Map";
 import Table from "../table/Table";
@@ -54,120 +54,111 @@ import HorizonTSChart from "horizon-timeseries-chart";
 import { Style } from "react-style-tag";
 import { Button, Modal } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
+import {connect} from "react-redux";
 
-class RawSignalsModal extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      mounted: false,
+const RawSignalsModal = (props) => {
 
-      additionalEntitiesLoading: false,
-      renderingDataPingSlash24: false,
-      renderingDataBgp: false,
-      renderingDataUcsdNt: false,
-      renderingDataMeritNt: false,
-      chartWidth: null,
-    };
-    this.configPingSlash24 = React.createRef();
-    this.configBgp = React.createRef();
-    this.configUcsdNt = React.createRef();
-    this.configMeritNt = React.createRef();
-    this.additionalEntitiesLoading = false;
+  const {
+    showModal,
+    rawRegionalSignalsProcessedBgp,
+    rawAsnSignalsProcessedBgp,
+    rawRegionalSignalsProcessedPingSlash24,
+    rawRegionalSignalsProcessedUcsdNt,
+    rawRegionalSignalsProcessedMeritNt,
+    rawAsnSignalsProcessedPingSlash24,
+    rawAsnSignalsProcessedUcsdNt,
+    rawAsnSignalsProcessedMeritNt,
+    handleLoadAllEntitiesButton,
+    modalLocation,
+    toggleModal,
+    regionalSignalsTableEntitiesChecked,
+    asnSignalsTableEntitiesChecked,
+    regionalSignalsTableTotalCount,
+    regionalRawSignalsLoadAllButtonClicked,
+    initialTableLimit,
+    handleSelectAndDeselectAllButtons,
+    checkMaxButtonLoading,
+    regionalSignalsTableSummaryDataProcessed,
+    asnSignalsTableSummaryDataProcessed,
+    asnSignalsTableTotalCount,
+    asnRawSignalsLoadAllButtonClicked,
+    rawSignalsMaxEntitiesHtsError,
+    toggleEntityVisibilityInHtsViz,
+    handleCheckboxEventLoading,
+    entityType,
+    topoData, bounds, topoScores,
+    handleEntityShapeClick,
+    summaryDataMapRaw,
+    rawRegionalSignalsRawPingSlash24Length,
+    rawAsnSignalsRawPingSlash24Length,
+    additionalRawSignalRequestedPingSlash24,
+    rawRegionalSignalsRawBgpLength,
+    rawRegionalSignalsRawMeritNtLength,
+    rawAsnSignalsRawMeritNtLength,
+    additionalRawSignalRequestedMeritNt,
+    additionalRawSignalRequestedBgp
+  } = props;
 
-    this.titlePingSlash24 = React.createRef();
-    this.titleBgp = React.createRef();
-    this.titleUcsdNt = React.createRef();
-    this.titleMeritNt = React.createRef();
-  }
+  const [mounted, setMounted] = useState(false);
+  const [additionalEntitiesLoading, setAdditionalEntitiesLoading] = useState(false);
+  const [renderingDataPingSlash24, setRenderingDataPingSlash24] = useState(false);
+  const [renderingDataBgp, setRenderingDataBgp] = useState(false);
+  const [renderingDataUcsdNt, setRenderingDataUcsdNt] = useState(false);
+  const [renderingDataMeritNt, setRenderingDataMeritNt] = useState(false);
+  const [chartWidth, setChartWidth] = useState(null);
 
-  componentDidUpdate(prevProps) {
-    if (this.props.showModal && !prevProps.showModal) {
-      this.setState({ mounted: true });
-    } else if (!this.props.showModal && prevProps.showModal) {
-      this.setState({ mounted: false });
+  let configPingSlash24 = useRef(null);
+  let configBgp = useRef(null);
+  let configUcsdNt = useRef(null);
+  let configMeritNt =useRef(null);
+
+
+  let titlePingSlash24 = useRef(null);
+  let titleBgp = useRef(null);
+  let titleUcsdNt = useRef(null);
+  let titleMeritNt = useRef(null);
+
+  useEffect(() => {
+    setMounted(showModal);
+  }, [showModal]);
+
+  useEffect(() => {
+    if(configBgp.current) {
+      genChart("bgp", "region");
     }
+  }, [rawRegionalSignalsProcessedBgp]);
 
-    if (
-      this.props.rawRegionalSignalsProcessedBgp !==
-        prevProps.rawRegionalSignalsProcessedBgp &&
-      this.configBgp.current
-    ) {
-      this.genChart("bgp", "region");
+  useEffect(() => {
+    if(configBgp.current) {
+      genChart("bgp", "asn");
     }
-    if (
-      this.props.rawAsnSignalsProcessedBgp !==
-        prevProps.rawAsnSignalsProcessedBgp &&
-      this.configBgp.current
-    ) {
-      this.genChart("bgp", "asn");
-    }
+  }, [rawAsnSignalsProcessedBgp]);
 
-    if (
-      this.configPingSlash24 &&
-      this.configPingSlash24.current &&
-      this.configPingSlash24.current.clientHeight === 0
-    ) {
-      this.setState({ renderingDataPingSlash24: true });
+  useEffect(() => {
+    if(configPingSlash24.current){
+      setRenderingDataPingSlash24(configPingSlash24.current.clientHeight === 0);
     }
+  }, [configPingSlash24]);
 
-    if (
-      this.configPingSlash24 &&
-      this.configPingSlash24.current &&
-      this.configPingSlash24.current.clientHeight !== 0
-    ) {
-      this.setState({ renderingDataPingSlash24: false });
+  useEffect(() => {
+    if(configBgp.current){
+      setRenderingDataBgp(configBgp.current.clientHeight === 0);
     }
+  }, [configBgp]);
 
-    if (
-      this.configBgp &&
-      this.configBgp.current &&
-      this.configBgp.current.clientHeight === 0
-    ) {
-      this.setState({ renderingDataBgp: true });
+  useEffect(() => {
+    if(configUcsdNt.current){
+      setRenderingDataUcsdNt(configUcsdNt.current.clientHeight === 0);
     }
+  }, [configUcsdNt]);
 
-    if (
-      this.configBgp &&
-      this.configBgp.current &&
-      this.configBgp.current.clientHeight !== 0
-    ) {
-      this.setState({ renderingDataBgp: false });
+  useEffect(() => {
+    if(configMeritNt.current){
+      setRenderingDataMeritNt(configMeritNt.current.clientHeight === 0);
     }
+  }, [configMeritNt]);
 
-    if (
-      this.configUcsdNt &&
-      this.configUcsdNt.current &&
-      this.configUcsdNt.current.clientHeight === 0
-    ) {
-      this.setState({ renderingDataUcsdNt: true });
-    }
-
-    if (
-      this.configUcsdNt &&
-      this.configUcsdNt.current &&
-      this.configUcsdNt.current.clientHeight !== 0
-    ) {
-      this.setState({ renderingDataUcsdNt: false });
-    }
-
-    if (
-      this.configMeritNt &&
-      this.configMeritNt.current &&
-      this.configMeritNt.current.clientHeight === 0
-    ) {
-      this.setState({ renderingDataMeritNt: true });
-    }
-
-    if (
-      this.configMeritNt &&
-      this.configMeritNt.current &&
-      this.configMeritNt.current.clientHeight !== 0
-    ) {
-      this.setState({ renderingDataMeritNt: false });
-    }
-  }
-
-  genChart(dataSource, entityType) {
+  const genChart = (dataSource, entityType) => {
     // set variables
     let dataSourceForCSS, rawSignalsLoadedBoolean, rawSignalsProcessedArray;
     switch (entityType) {
@@ -175,42 +166,41 @@ class RawSignalsModal extends PureComponent {
         switch (dataSource) {
           case "ping-slash24":
             if (
-              this.props.rawRegionalSignalsProcessedPingSlash24 &&
-              this.props.rawRegionalSignalsProcessedPingSlash24.length > 0
+                rawRegionalSignalsProcessedPingSlash24 &&
+                rawRegionalSignalsProcessedPingSlash24.length > 0
             ) {
               dataSourceForCSS = "pingSlash24";
-              rawSignalsProcessedArray =
-                this.props.rawRegionalSignalsProcessedPingSlash24;
+              rawSignalsProcessedArray = rawRegionalSignalsProcessedPingSlash24;
             }
             break;
           case "bgp":
             if (
-              this.props.rawRegionalSignalsProcessedBgp &&
-              this.props.rawRegionalSignalsProcessedBgp.length > 0
+                rawRegionalSignalsProcessedBgp &&
+                rawRegionalSignalsProcessedBgp.length > 0
             ) {
               dataSourceForCSS = "bgp";
               rawSignalsProcessedArray =
-                this.props.rawRegionalSignalsProcessedBgp;
+                  rawRegionalSignalsProcessedBgp;
             }
             break;
           case "ucsd-nt":
             if (
-              this.props.rawRegionalSignalsProcessedUcsdNt &&
-              this.props.rawRegionalSignalsProcessedUcsdNt.length > 0
+                rawRegionalSignalsProcessedUcsdNt &&
+                rawRegionalSignalsProcessedUcsdNt.length > 0
             ) {
               dataSourceForCSS = "ucsdNt";
               rawSignalsProcessedArray =
-                this.props.rawRegionalSignalsProcessedUcsdNt;
+                  rawRegionalSignalsProcessedUcsdNt;
             }
             break;
           case "merit-nt":
             if (
-              this.props.rawRegionalSignalsProcessedMeritNt &&
-              this.props.rawRegionalSignalsProcessedMeritNt.length > 0
+                rawRegionalSignalsProcessedMeritNt &&
+                rawRegionalSignalsProcessedMeritNt.length > 0
             ) {
               dataSourceForCSS = "meritNt";
               rawSignalsProcessedArray =
-                this.props.rawRegionalSignalsProcessedMeritNt;
+                  rawRegionalSignalsProcessedMeritNt;
             }
             break;
         }
@@ -219,41 +209,41 @@ class RawSignalsModal extends PureComponent {
         switch (dataSource) {
           case "ping-slash24":
             if (
-              this.props.rawAsnSignalsProcessedPingSlash24 &&
-              this.props.rawAsnSignalsProcessedPingSlash24.length > 0
+                rawAsnSignalsProcessedPingSlash24 &&
+                rawAsnSignalsProcessedPingSlash24.length > 0
             ) {
               dataSourceForCSS = "pingSlash24";
               rawSignalsProcessedArray =
-                this.props.rawAsnSignalsProcessedPingSlash24;
+                  rawAsnSignalsProcessedPingSlash24;
             }
             break;
           case "bgp":
             if (
-              this.props.rawAsnSignalsProcessedBgp &&
-              this.props.rawAsnSignalsProcessedBgp.length > 0
+                rawAsnSignalsProcessedBgp &&
+                rawAsnSignalsProcessedBgp.length > 0
             ) {
               dataSourceForCSS = "bgp";
-              rawSignalsProcessedArray = this.props.rawAsnSignalsProcessedBgp;
+              rawSignalsProcessedArray = rawAsnSignalsProcessedBgp;
             }
             break;
           case "ucsd-nt":
             if (
-              this.props.rawAsnSignalsProcessedUcsdNt &&
-              this.props.rawAsnSignalsProcessedUcsdNt.length > 0
+                rawAsnSignalsProcessedUcsdNt &&
+                rawAsnSignalsProcessedUcsdNt.length > 0
             ) {
               dataSourceForCSS = "ucsdNt";
               rawSignalsProcessedArray =
-                this.props.rawAsnSignalsProcessedUcsdNt;
+                  rawAsnSignalsProcessedUcsdNt;
             }
             break;
           case "merit-nt":
             if (
-              this.props.rawAsnSignalsProcessedMeritNt &&
-              this.props.rawAsnSignalsProcessedMeritNt.length > 0
+                rawAsnSignalsProcessedMeritNt &&
+                rawAsnSignalsProcessedMeritNt.length > 0
             ) {
               dataSourceForCSS = "meritNt";
               rawSignalsProcessedArray =
-                this.props.rawAsnSignalsProcessedMeritNt;
+                  rawAsnSignalsProcessedMeritNt;
             }
             break;
         }
@@ -261,78 +251,78 @@ class RawSignalsModal extends PureComponent {
     }
 
     if (rawSignalsProcessedArray && rawSignalsProcessedArray.length > 0) {
-      function chart(width) {
+      const chart = (width) => {
         // draw viz
         const chart = HorizonTSChart()(
-          document.getElementById(
-            `${entityType}-horizon-chart--${dataSourceForCSS}`
-          )
+            document.getElementById(
+                `${entityType}-horizon-chart--${dataSourceForCSS}`
+            )
         );
 
         const color =
-          legend.find((item) => item.key === dataSource).color ??
-          horizonChartSeriesColor;
+            legend.find((item) => item.key === dataSource).color ??
+            horizonChartSeriesColor;
 
         chart
-          .data(rawSignalsProcessedArray)
-          .series("entityName")
-          .yNormalize(false)
-          .useUtc(true)
-          .use24h(false)
-          // Will need to detect column width to populate height
-          .width(width)
-          .height(360)
-          .enableZoom(false)
-          .showRuler(true)
-          .interpolationCurve(d3.curveStepAfter)
-          .positiveColors(["white", color]).toolTipContent = ({
-          series,
-          ts,
-          val,
-        }) => `${series}<br>${ts}:&nbsp;${humanizeNumber(val)}`;
+            .data(rawSignalsProcessedArray)
+            .series("entityName")
+            .yNormalize(false)
+            .useUtc(true)
+            .use24h(false)
+            // Will need to detect column width to populate height
+            .width(width)
+            .height(360)
+            .enableZoom(false)
+            .showRuler(true)
+            .interpolationCurve(d3.curveStepAfter)
+            .positiveColors(["white", color]).toolTipContent = ({
+                                                                  series,
+                                                                  ts,
+                                                                  val,
+                                                                }) => `${series}<br>${ts}:&nbsp;${humanizeNumber(val)}`;
       }
 
       if (
-        dataSource === "ping-slash24" &&
-        (this.configPingSlash24.current || this.state.chartWidth)
+          dataSource === "ping-slash24" &&
+          (configPingSlash24.current || chartWidth)
       ) {
         chart(
-          this.configPingSlash24.current
-            ? this.configPingSlash24.current.offsetWidth
-            : this.state.chartWidth
+            configPingSlash24.current
+                ? configPingSlash24.current.offsetWidth
+                : chartWidth
         );
       }
 
       if (
-        dataSource === "bgp" &&
-        (this.configBgp.current || this.state.chartWidth)
+          dataSource === "bgp" &&
+          (configBgp.current || chartWidth)
       ) {
         chart(
-          this.configBgp.current
-            ? this.configBgp.current.offsetWidth
-            : this.state.chartWidth
+            configBgp.current
+                ? configBgp.current.offsetWidth
+                : chartWidth
         );
       }
 
       if (
-        dataSource === "ucsd-nt" &&
-        (this.configUcsdNt.current || this.state.chartWidth)
+          dataSource === "ucsd-nt" &&
+          (configUcsdNt.current || chartWidth)
       ) {
         chart(
-          this.configUcsdNt.current
-            ? this.configUcsdNt.current.offsetWidth
-            : this.state.chartWidth
+            configUcsdNt.current
+                ? configUcsdNt.current.offsetWidth
+                : chartWidth
         );
       }
 
       if (
-        dataSource === "merit-nt" &&
-        (this.configMeritNt.current || this.state.chartWidth)
+          dataSource === "merit-nt" &&
+          (configMeritNt.current || chartWidth)
       ) {
         chart(
-          this.configMeritNt.current
-            ? this.configMeritNt.current.offsetWidth
-            : this.state.chartWidth
+            configMeritNt.current
+                ? configMeritNt.current.offsetWidth
+                : chartWidth
         );
       }
     } else {
@@ -340,158 +330,160 @@ class RawSignalsModal extends PureComponent {
     }
   }
 
-  handleAdditionalEntitiesLoading(target) {
-    this.setState({ additionalEntitiesLoading: true }, () => {
-      setTimeout(() => {
-        this.props.handleLoadAllEntitiesButton(target);
-      }, 600);
-    });
+  const handleAdditionalEntitiesLoading = (target) => {
+    setAdditionalEntitiesLoading(true);
+    setTimeout(() => {
+      handleLoadAllEntitiesButton(target);
+    }, 600);
   }
 
-  render() {
-    if (this.props.modalLocation === "map" && !this.props.showModal) {
-      return null;
-    }
-    if (this.props.modalLocation === "table" && !this.props.showModal) {
-      return null;
-    }
 
-    const regionTitle = T.translate("entityModal.regionTitle");
-    const asnTitle = T.translate("entityModal.asnTitle");
-    const regionalTableTitle = T.translate("entityModal.regionalTableTitle");
-    const asnTableTitle = T.translate("entityModal.asnTableTitle");
-    const regionalMapTitle = T.translate("entityModal.regionalMapTitle");
-    const noOutagesOnMapMessage = T.translate(
+
+  const regionTitle = T.translate("entityModal.regionTitle");
+  const asnTitle = T.translate("entityModal.asnTitle");
+  const regionalTableTitle = T.translate("entityModal.regionalTableTitle");
+  const asnTableTitle = T.translate("entityModal.asnTableTitle");
+  const regionalMapTitle = T.translate("entityModal.regionalMapTitle");
+  const noOutagesOnMapMessage = T.translate(
       "entityModal.noOutagesOnMapMessage"
-    );
-    const pingSlash24HtsLabel = T.translate("entityModal.pingSlash24HtsLabel");
-    const bgpHtsLabel = T.translate("entityModal.bgpHtsLabel");
-    const ucsdNtHtsLabel = T.translate("entityModal.ucsdNtHtsLabel");
-    const meritNtHtsLabel = T.translate("entityModal.meritNtHtsLabel");
-    const checkMaxButton = T.translate("entityModal.checkMaxButton");
-    const checkMaxButtonBelow150_1 = T.translate(
+  );
+  const pingSlash24HtsLabel = T.translate("entityModal.pingSlash24HtsLabel");
+  const bgpHtsLabel = T.translate("entityModal.bgpHtsLabel");
+  const ucsdNtHtsLabel = T.translate("entityModal.ucsdNtHtsLabel");
+  const meritNtHtsLabel = T.translate("entityModal.meritNtHtsLabel");
+  const checkMaxButton = T.translate("entityModal.checkMaxButton");
+  const checkMaxButtonBelow150_1 = T.translate(
       "entityModal.checkMaxButtonBelow150_1"
-    );
-    const checkMaxButtonBelow150_2 = T.translate(
+  );
+  const checkMaxButtonBelow150_2 = T.translate(
       "entityModal.checkMaxButtonBelow150_2"
-    );
-    const uncheckAllButton = T.translate("entityModal.uncheckAllButton");
-    const currentCountInHts1 = T.translate("entityModal.currentCountInHts1");
-    const regionSingular = T.translate("entityModal.regionSingular");
-    const regionPlural = T.translate("entityModal.regionPlural");
-    const asnSingular = T.translate("entityModal.asnSingular");
-    const asnPlural = T.translate("entityModal.asnPlural");
-    const currentCountInHts2 = T.translate("entityModal.currentCountInHts2");
-    const currentCountInHts3 = T.translate("entityModal.currentCountInHts3");
-    const loadRemainingEntities1 = T.translate(
+  );
+  const uncheckAllButton = T.translate("entityModal.uncheckAllButton");
+  const currentCountInHts1 = T.translate("entityModal.currentCountInHts1");
+  const regionSingular = T.translate("entityModal.regionSingular");
+  const regionPlural = T.translate("entityModal.regionPlural");
+  const asnSingular = T.translate("entityModal.asnSingular");
+  const asnPlural = T.translate("entityModal.asnPlural");
+  const currentCountInHts2 = T.translate("entityModal.currentCountInHts2");
+  const currentCountInHts3 = T.translate("entityModal.currentCountInHts3");
+  const loadRemainingEntities1 = T.translate(
       "entityModal.loadRemainingEntities1"
-    );
-    const loadRemainingEntities2 = T.translate(
+  );
+  const loadRemainingEntities2 = T.translate(
       "entityModal.loadRemainingEntities2"
-    );
-    const loadRemainingEntities3 = T.translate(
+  );
+  const loadRemainingEntities3 = T.translate(
       "entityModal.loadRemainingEntities3"
-    );
-    const loadRemainingEntities4 = T.translate(
+  );
+  const loadRemainingEntities4 = T.translate(
       "entityModal.loadRemainingEntities4"
-    );
-    const loadRemainingEntities5 = T.translate(
+  );
+  const loadRemainingEntities5 = T.translate(
       "entityModal.loadRemainingEntities5"
-    );
-    const tooltipEntityRawSignalsHeadingTitle = T.translate(
+  );
+  const tooltipEntityRawSignalsHeadingTitle = T.translate(
       "tooltip.entityRawSignalsHeading.title"
-    );
-    const tooltipEntityRawSignalsHeadingText = T.translate(
+  );
+  const tooltipEntityRawSignalsHeadingText = T.translate(
       "tooltip.entityRawSignalsHeading.text"
-    );
+  );
 
-    const activeCSS = `display: block;`;
-    const inactiveCSS = `display: none;`;
+  const activeCSS = `display: block;`;
+  const inactiveCSS = `display: none;`;
 
-    return (
+  if (modalLocation === "map" && !showModal) {
+    return null;
+  }
+
+  if (modalLocation === "table" && !showModal) {
+    return null;
+  }
+
+  return (
       <Modal
-        open={this.props.showModal}
-        onOk={() => this.props.toggleModal(this.props.modalLocation)}
-        onCancel={() => this.props.toggleModal(this.props.modalLocation)}
-        width={"90vw"}
-        bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }}
-        className="modal"
-        footer={null}
-        centered={true}
-        closeIcon={<></>}
+          open={showModal}
+          onOk={() => toggleModal(modalLocation)}
+          onCancel={() => toggleModal(modalLocation)}
+          width={"90vw"}
+          bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }}
+          className="modal"
+          footer={null}
+          centered={true}
+          closeIcon={<></>}
       >
         <Style>{`
                     .renderingDataPingSlash24 {
                         ${
-                          this.state.renderingDataPingSlash24
-                            ? activeCSS
-                            : inactiveCSS
-                        }
+            renderingDataPingSlash24
+                ? activeCSS
+                : inactiveCSS
+        }
                     }
                     .renderingDataBgp {
-                        ${this.state.renderingDataBgp ? activeCSS : inactiveCSS}
+                        ${renderingDataBgp ? activeCSS : inactiveCSS}
                     }
                     .renderingDataUcsdNt {
                         ${
-                          this.state.renderingDataUcsdNt
-                            ? activeCSS
-                            : inactiveCSS
-                        }
+            renderingDataUcsdNt
+                ? activeCSS
+                : inactiveCSS
+        }
                     }
                     .renderingDataMeritNt {
                         ${
-                          this.state.renderingDataMeritNt
-                            ? activeCSS
-                            : inactiveCSS
-                        }
+            renderingDataMeritNt
+                ? activeCSS
+                : inactiveCSS
+        }
                     }
-                `}</Style>
+                `}
+        </Style>
         <div className="modal__window m-4">
           <div className="p-4 card mb-6">
             <div className="flex items-center">
-              {this.props.modalLocation === "map" ? (
-                <h2 className="text-2xl">
-                  {regionTitle} {this.props.entityName}
-                </h2>
-              ) : this.props.modalLocation === "table" ? (
-                <h2 className="text-2xl">
-                  {asnTitle} {this.props.entityName}
-                </h2>
+              {modalLocation === "map" ? (
+                  <h2 className="text-2xl">
+                    {regionTitle} {entityName}
+                  </h2>
+              ) : modalLocation === "table" ? (
+                  <h2 className="text-2xl">
+                    {asnTitle} {entityName}
+                  </h2>
               ) : null}
               <Tooltip
-                title={tooltipEntityRawSignalsHeadingTitle}
-                text={tooltipEntityRawSignalsHeadingText}
+                  title={tooltipEntityRawSignalsHeadingTitle}
+                  text={tooltipEntityRawSignalsHeadingText}
               />
               <div className="col"></div>
               <Button
-                type="primary"
-                className="ml-auto"
-                icon={<CloseOutlined />}
-                onClick={() => this.props.toggleModal(this.props.modalLocation)}
+                  type="primary"
+                  className="ml-auto"
+                  icon={<CloseOutlined />}
+                  onClick={() => toggleModal(modalLocation)}
               />
             </div>
-            {this.props.modalLocation === "map" ? (
-              <p className="modal__hts-count">
-                {currentCountInHts1}
-                {this.props.regionalSignalsTableEntitiesChecked}
-                {this.props.regionalSignalsTableEntitiesChecked === 1
-                  ? regionSingular
-                  : regionPlural}
-                {currentCountInHts2}
-                {regionSingular}
-                {currentCountInHts3}
-              </p>
+            {modalLocation === "map" ? (
+                <p className="modal__hts-count">
+                  {currentCountInHts1}
+                  {regionalSignalsTableEntitiesChecked}
+                  {regionalSignalsTableEntitiesChecked === 1
+                      ? regionSingular
+                      : regionPlural}
+                  {currentCountInHts2}
+                  {regionSingular}
+                  {currentCountInHts3}
+                </p>
             ) : (
-              <p className="modal__hts-count">
-                {currentCountInHts1}
-                {this.props.asnSignalsTableEntitiesChecked}
-                {this.props.asnSignalsTableEntitiesChecked === 1
-                  ? asnSingular
-                  : asnPlural}
-                {currentCountInHts2}
-                {asnSingular}
-                {currentCountInHts3}
-              </p>
+                <p className="modal__hts-count">
+                  {currentCountInHts1}
+                  {asnSignalsTableEntitiesChecked}
+                  {asnSignalsTableEntitiesChecked === 1
+                      ? asnSingular
+                      : asnPlural}
+                  {currentCountInHts2}
+                  {asnSingular}
+                  {currentCountInHts3}
+                </p>
             )}
           </div>
           <div className="flex gap-6 modal__content">
@@ -499,404 +491,403 @@ class RawSignalsModal extends PureComponent {
               <div className="modal__table-container rounded card p-3 mb-6">
                 <div className="flex items-center mb-3">
                   <h3 className="col text-2xl">
-                    {this.props.modalLocation === "map"
-                      ? regionalTableTitle
-                      : asnTableTitle}
+                    {modalLocation === "map"
+                        ? regionalTableTitle
+                        : asnTableTitle}
                   </h3>
-                  {this.props.modalLocation === "map" &&
-                  this.props.regionalSignalsTableTotalCount >
-                    this.props.initialTableLimit &&
-                  this.props.regionalRawSignalsLoadAllButtonClicked ===
-                    false ? (
-                    <div className="modal__loadAll">
-                      {loadRemainingEntities1}
-                      {asnPlural}
-                      {loadRemainingEntities2}
-                      <strong>{this.props.initialTableLimit}</strong>
-                      {loadRemainingEntities3}
-                      <Button
-                        onClick={() =>
-                          this.handleAdditionalEntitiesLoading(
-                            "asnLoadAllEntities"
-                          )
-                        }
-                        size="small"
-                        loading={this.state.additionalEntitiesLoading}
-                      >
-                        {loadRemainingEntities4}
-                      </Button>
-                      {loadRemainingEntities5}
-                    </div>
+                  {modalLocation === "map" &&
+                  regionalSignalsTableTotalCount >
+                  initialTableLimit &&
+                  regionalRawSignalsLoadAllButtonClicked ===
+                  false ? (
+                      <div className="modal__loadAll">
+                        {loadRemainingEntities1}
+                        {asnPlural}
+                        {loadRemainingEntities2}
+                        <strong>{initialTableLimit}</strong>
+                        {loadRemainingEntities3}
+                        <Button
+                            onClick={() =>
+                                handleAdditionalEntitiesLoading(
+                                    "asnLoadAllEntities"
+                                )
+                            }
+                            size="small"
+                            loading={additionalEntitiesLoading}
+                        >
+                          {loadRemainingEntities4}
+                        </Button>
+                        {loadRemainingEntities5}
+                      </div>
                   ) : null}
                   <div className="flex items-center gap-3">
                     <Button
-                      onClick={() =>
-                        this.props.handleSelectAndDeselectAllButtons(
-                          this.props.modalLocation === "map"
-                            ? "checkMaxRegional"
-                            : "checkMaxAsn"
-                        )
-                      }
-                      size="small"
-                      loading={this.props.checkMaxButtonLoading}
+                        onClick={() =>
+                            handleSelectAndDeselectAllButtons(
+                                modalLocation === "map"
+                                    ? "checkMaxRegional"
+                                    : "checkMaxAsn"
+                            )
+                        }
+                        size="small"
+                        loading={checkMaxButtonLoading}
                     >
-                      {this.props.modalLocation === "map"
-                        ? this.props.regionalSignalsTableSummaryDataProcessed
-                            .length < maxHtsLimit
-                          ? `${checkMaxButtonBelow150_1}${this.props.regionalSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
-                          : checkMaxButton
-                        : this.props.asnSignalsTableSummaryDataProcessed
-                            .length < maxHtsLimit
-                        ? `${checkMaxButtonBelow150_1}${this.props.asnSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
-                        : checkMaxButton}
+                      {modalLocation === "map"
+                          ? regionalSignalsTableSummaryDataProcessed
+                              .length < maxHtsLimit
+                              ? `${checkMaxButtonBelow150_1}${regionalSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
+                              : checkMaxButton
+                          : asnSignalsTableSummaryDataProcessed
+                              .length < maxHtsLimit
+                              ? `${checkMaxButtonBelow150_1}${asnSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
+                              : checkMaxButton}
                     </Button>
                     <Button
-                      onClick={() =>
-                        this.props.handleSelectAndDeselectAllButtons(
-                          this.props.modalLocation === "map"
-                            ? "uncheckAllRegional"
-                            : "uncheckAllAsn"
-                        )
-                      }
-                      size="small"
-                      loading={this.props.uncheckAllButtonLoading}
+                        onClick={() =>
+                            handleSelectAndDeselectAllButtons(
+                                modalLocation === "map"
+                                    ? "uncheckAllRegional"
+                                    : "uncheckAllAsn"
+                            )
+                        }
+                        size="small"
+                        loading={uncheckAllButtonLoading}
                     >
                       {uncheckAllButton}
                     </Button>
                   </div>
                 </div>
-                {this.props.modalLocation === "table" &&
-                this.props.asnSignalsTableTotalCount >
-                  this.props.initialTableLimit &&
-                this.props.asnRawSignalsLoadAllButtonClicked === false ? (
-                  <div className="modal__loadAll">
-                    {loadRemainingEntities1}
-                    {asnPlural}
-                    {loadRemainingEntities2}
-                    <strong>{this.props.initialTableLimit}</strong>
-                    {loadRemainingEntities3}
-                    <Button
-                      size="small"
-                      onClick={() =>
-                        this.handleAdditionalEntitiesLoading(
-                          "asnLoadAllEntities"
-                        )
-                      }
-                      loading={this.state.additionalEntitiesLoading}
-                    >
-                      {loadRemainingEntities4}
-                    </Button>
-                    {loadRemainingEntities5}
-                  </div>
+                {modalLocation === "table" &&
+                asnSignalsTableTotalCount >
+                initialTableLimit &&
+                asnRawSignalsLoadAllButtonClicked === false ? (
+                    <div className="modal__loadAll">
+                      {loadRemainingEntities1}
+                      {asnPlural}
+                      {loadRemainingEntities2}
+                      <strong>{initialTableLimit}</strong>
+                      {loadRemainingEntities3}
+                      <Button
+                          size="small"
+                          onClick={() =>
+                              handleAdditionalEntitiesLoading(
+                                  "asnLoadAllEntities"
+                              )
+                          }
+                          loading={additionalEntitiesLoading}
+                      >
+                        {loadRemainingEntities4}
+                      </Button>
+                      {loadRemainingEntities5}
+                    </div>
                 ) : null}
-                {this.props.rawSignalsMaxEntitiesHtsError ? (
-                  <p className="modal__table-error">
-                    {this.props.rawSignalsMaxEntitiesHtsError}
-                  </p>
+                {rawSignalsMaxEntitiesHtsError ? (
+                    <p className="modal__table-error">
+                      {rawSignalsMaxEntitiesHtsError}
+                    </p>
                 ) : null}
                 <div
-                  className={
-                    this.props.modalLocation === "map"
-                      ? "modal__table"
-                      : "modal__table modal__table--asn"
-                  }
+                    className={
+                      modalLocation === "map"
+                          ? "modal__table"
+                          : "modal__table modal__table--asn"
+                    }
                 >
-                  {this.props.modalLocation === "map" ? (
-                    this.props.regionalSignalsTableSummaryDataProcessed ? (
+                  {modalLocation === "map" ? (
+                      regionalSignalsTableSummaryDataProcessed ? (
+                          <Table
+                              type="signal"
+                              data={
+                                regionalSignalsTableSummaryDataProcessed
+                              }
+                              totalCount={
+                                regionalSignalsTableSummaryDataProcessed
+                                    .length
+                              }
+                              toggleEntityVisibilityInHtsViz={(event) =>
+                                  toggleEntityVisibilityInHtsViz(
+                                      event,
+                                      "region"
+                                  )
+                              }
+                              handleCheckboxEventLoading={(item) =>
+                                  handleCheckboxEventLoading(item)
+                              }
+                          />
+                      ) : (
+                          <Loading />
+                      )
+                  ) : asnSignalsTableSummaryDataProcessed &&
+                  asnSignalsTableTotalCount ? (
                       <Table
-                        type="signal"
-                        data={
-                          this.props.regionalSignalsTableSummaryDataProcessed
-                        }
-                        totalCount={
-                          this.props.regionalSignalsTableSummaryDataProcessed
-                            .length
-                        }
-                        toggleEntityVisibilityInHtsViz={(event) =>
-                          this.props.toggleEntityVisibilityInHtsViz(
-                            event,
-                            "region"
-                          )
-                        }
-                        handleCheckboxEventLoading={(item) =>
-                          this.props.handleCheckboxEventLoading(item)
-                        }
+                          type="signal"
+                          data={asnSignalsTableSummaryDataProcessed}
+                          totalCount={asnSignalsTableTotalCount}
+                          entityType={
+                            entityType === "asn" ? "country" : "asn"
+                          }
+                          toggleEntityVisibilityInHtsViz={(event) =>
+                              toggleEntityVisibilityInHtsViz(event, "asn")
+                          }
+                          handleCheckboxEventLoading={(item) =>
+                              handleCheckboxEventLoading(item)
+                          }
                       />
-                    ) : (
-                      <Loading />
-                    )
-                  ) : this.props.asnSignalsTableSummaryDataProcessed &&
-                    this.props.asnSignalsTableTotalCount ? (
-                    <Table
-                      type="signal"
-                      data={this.props.asnSignalsTableSummaryDataProcessed}
-                      totalCount={this.props.asnSignalsTableTotalCount}
-                      entityType={
-                        this.props.entityType === "asn" ? "country" : "asn"
-                      }
-                      toggleEntityVisibilityInHtsViz={(event) =>
-                        this.props.toggleEntityVisibilityInHtsViz(event, "asn")
-                      }
-                      handleCheckboxEventLoading={(item) =>
-                        this.props.handleCheckboxEventLoading(item)
-                      }
-                    />
                   ) : (
-                    <Loading />
+                      <Loading />
                   )}
                 </div>
               </div>
-              {this.props.modalLocation === "map" && this.state.mounted ? (
-                <div className="modal__map-container rounded card p-3 mb-6">
-                  <h3 className="heading-h3">{regionalMapTitle}</h3>
-                  <div
-                    className="modal__map"
-                    style={{ display: "block", height: "40.5rem" }}
-                  >
-                    {this.props.topoData &&
-                    this.props.bounds &&
-                    this.props.topoScores ? (
-                      <TopoMap
-                        topoData={this.props.topoData}
-                        bounds={this.props.bounds}
-                        scores={this.props.topoScores}
-                        handleEntityShapeClick={(entity) =>
-                          this.props.handleEntityShapeClick(entity)
-                        }
-                        entityType="region"
-                        hideLegend
-                      />
-                    ) : this.props.summaryDataMapRaw &&
-                      this.props.topoScores &&
-                      this.props.topoScores.length === 0 ? (
-                      <div className="related__no-outages">
-                        <h2 className="related__no-outages-title">
-                          {noOutagesOnMapMessage}
-                        </h2>
-                      </div>
-                    ) : (
-                      <Loading />
-                    )}
+              {modalLocation === "map" && mounted ? (
+                  <div className="modal__map-container rounded card p-3 mb-6">
+                    <h3 className="heading-h3">{regionalMapTitle}</h3>
+                    <div
+                        className="modal__map"
+                        style={{ display: "block", height: "40.5rem" }}
+                    >
+                      {topoData &&
+                      bounds &&
+                      topoScores ? (
+                          <TopoMap
+                              topoData={topoData}
+                              bounds={bounds}
+                              scores={topoScores}
+                              handleEntityShapeClick={(entity) =>
+                                  handleEntityShapeClick(entity)
+                              }
+                              entityType="region"
+                              hideLegend
+                          />
+                      ) : summaryDataMapRaw &&
+                      topoScores &&
+                      topoScores.length === 0 ? (
+                          <div className="related__no-outages">
+                            <h2 className="related__no-outages-title">
+                              {noOutagesOnMapMessage}
+                            </h2>
+                          </div>
+                      ) : (
+                          <Loading />
+                      )}
+                    </div>
                   </div>
-                </div>
               ) : null}
             </div>
             <div className="col-2 mw-0 rounded card p-3">
-              <h3 className="heading-h3" ref={this.titlePingSlash24}>
+              <h3 className="heading-h3" ref={titlePingSlash24}>
                 {pingSlash24HtsLabel}
               </h3>
-              {this.props.modalLocation === "map" ? (
-                <React.Fragment>
-                  {this.props.rawRegionalSignalsRawPingSlash24Length !== 0 &&
-                  this.props.rawRegionalSignalsProcessedPingSlash24 &&
-                  this.props.rawRegionalSignalsProcessedPingSlash24.length ===
-                    0 ? null : this.props
-                      .rawRegionalSignalsRawPingSlash24Length === 0 &&
-                    !this.props.rawRegionalSignalsProcessedPingSlash24 ? (
-                    <Loading text="Retrieving Data..." />
-                  ) : this.props.rawRegionalSignalsRawPingSlash24Length !== 0 &&
-                    this.titlePingSlash24 &&
-                    this.titlePingSlash24.current &&
-                    this.titlePingSlash24.current.nextElementSibling !==
-                      "div#region-horizon-chart--pingSlash24.modal__chart" ? (
-                    <div className="renderingDataPingSlash24">
-                      <Loading text="Rendering Data..." />
-                    </div>
-                  ) : null}
-                </React.Fragment>
+              {modalLocation === "map" ? (
+                  <>
+                    {rawRegionalSignalsRawPingSlash24Length !== 0 &&
+                    rawRegionalSignalsProcessedPingSlash24 &&
+                    rawRegionalSi/gnalsProcessedPingSlash24.length ===
+                    0 ? null :
+                        rawRegionalSignalsRawPingSlash24Length === 0 &&
+                        !rawRegionalSignalsProcessedPingSlash24 ? (
+                            <Loading text="Retrieving Data..." />
+                        ) : rawRegionalSignalsRawPingSlash24Length !== 0 &&
+                        titlePingSlash24 &&
+                        titlePingSlash24.current &&
+                        titlePingSlash24.current.nextElementSibling !==
+                        "div#region-horizon-chart--pingSlash24.modal__chart" ? (
+                            <div className="renderingDataPingSlash24">
+                              <Loading text="Rendering Data..." />
+                            </div>
+                        ) : null}
+                  </>
               ) : (
-                <React.Fragment>
-                  {this.props.rawAsnSignalsRawPingSlash24Length !== 0 &&
-                  this.props.rawAsnSignalsProcessedPingSlash24 &&
-                  this.props.rawAsnSignalsProcessedPingSlash24.length ===
-                    0 ? null : this.props.rawAsnSignalsRawPingSlash24Length ===
-                      0 && !this.props.rawAsnSignalsProcessedPingSlash24 ? (
-                    <Loading text="Retrieving Data..." />
-                  ) : this.props.rawAsnSignalsRawPingSlash24Length !== 0 &&
-                    this.titlePingSlash24 &&
-                    this.titlePingSlash24.current &&
-                    this.titlePingSlash24.current.nextElementSibling !==
-                      "div#asn-horizon-chart--pingSlash24.modal__chart" ? (
-                    <div className="renderingDataPingSlash24">
-                      <Loading text="Rendering Data..." />
-                    </div>
-                  ) : null}
-                </React.Fragment>
+                  <>
+                    {rawAsnSignalsRawPingSlash24Length !== 0 &&
+                    rawAsnSignalsProcessedPingSlash24 &&
+                    rawAsnSignalsProcessedPingSlash24.length ===
+                    0 ? null : rawAsnSignalsRawPingSlash24Length ===
+                    0 && !rawAsnSignalsProcessedPingSlash24 ? (
+                        <Loading text="Retrieving Data..." />
+                    ) : rawAsnSignalsRawPingSlash24Length !== 0 &&
+                    titlePingSlash24 &&
+                    titlePingSlash24.current &&
+                    titlePingSlash24.current.nextElementSibling !==
+                    "div#asn-horizon-chart--pingSlash24.modal__chart" ? (
+                        <div className="renderingDataPingSlash24">
+                          <Loading text="Rendering Data..." />
+                        </div>
+                    ) : null}
+                  </>
               )}
-              {this.props.additionalRawSignalRequestedPingSlash24 === true ? (
-                <Loading />
-              ) : this.props.modalLocation === "map" ? (
-                <React.Fragment>
-                  {this.props.rawRegionalSignalsProcessedPingSlash24 &&
-                  this.props.rawRegionalSignalsProcessedPingSlash24.length >
+              {additionalRawSignalRequestedPingSlash24 === true ? (
+                  <Loading />
+              ) : modalLocation === "map" ? (
+                  <>
+                    {rawRegionalSignalsProcessedPingSlash24 &&
+                    rawRegionalSignalsProcessedPingSlash24.length >
                     0 ? (
-                    <div
-                      id="region-horizon-chart--pingSlash24"
-                      ref={this.configPingSlash24}
-                      className="modal__chart"
-                    >
-                      {this.genChart("ping-slash24", "region")}
-                    </div>
-                  ) : null}
-                </React.Fragment>
+                        <div
+                            id="region-horizon-chart--pingSlash24"
+                            ref={configPingSlash24}
+                            className="modal__chart"
+                        >
+                          {genChart("ping-slash24", "region")}
+                        </div>
+                    ) : null}
+                  </>
               ) : (
-                <React.Fragment>
-                  {this.props.rawAsnSignalsProcessedPingSlash24 &&
-                  this.props.rawAsnSignalsProcessedPingSlash24.length > 0 ? (
-                    <div
-                      id="asn-horizon-chart--pingSlash24"
-                      ref={this.configPingSlash24}
-                      className="modal__chart"
-                    >
-                      {this.genChart("ping-slash24", "asn")}
-                    </div>
-                  ) : null}
-                </React.Fragment>
+                  <>
+                    {rawAsnSignalsProcessedPingSlash24 &&
+                    rawAsnSignalsProcessedPingSlash24.length > 0 ? (
+                        <div
+                            id="asn-horizon-chart--pingSlash24"
+                            ref={configPingSlash24}
+                            className="modal__chart"
+                        >
+                          {genChart("ping-slash24", "asn")}
+                        </div>
+                    ) : null}
+                  </>
               )}
-              <h3 className="heading-h3" ref={this.titleBgp}>
+              <h3 className="heading-h3" ref={titleBgp}>
                 {bgpHtsLabel}
               </h3>
-              {this.props.modalLocation === "map" ? (
-                <React.Fragment>
-                  {this.props.rawRegionalSignalsRawBgpLength !== 0 &&
-                  this.props.rawRegionalSignalsProcessedBgp &&
-                  this.props.rawRegionalSignalsProcessedBgp.length ===
-                    0 ? null : this.props.rawRegionalSignalsRawBgpLength ===
-                      0 && !this.props.rawRegionalSignalsProcessedBgp ? (
-                    <Loading text="Retrieving Data..." />
-                  ) : this.props.rawRegionalSignalsRawBgpLength !== 0 &&
-                    this.titleBgp &&
-                    this.titleBgp.current &&
-                    this.titleBgp.current.nextElementSibling !==
-                      "div#region-horizon-chart--bgp.modal__chart" ? (
-                    <div className="renderingDataBgp">
-                      <Loading text="Rendering Data..." />
-                    </div>
-                  ) : null}
-                </React.Fragment>
+              {modalLocation === "map" ? (
+                  <>
+                    {rawRegionalSignalsRawBgpLength !== 0 &&
+                    rawRegionalSignalsProcessedBgp &&
+                    rawRegionalSignalsProcessedBgp.length ===
+                    0 ? null : rawRegionalSignalsRawBgpLength ===
+                    0 && !rawRegionalSignalsProcessedBgp ? (
+                        <Loading text="Retrieving Data..." />
+                    ) : rawRegionalSignalsRawBgpLength !== 0 &&
+                    titleBgp &&
+                    titleBgp.current &&
+                    titleBgp.current.nextElementSibling !==
+                    "div#region-horizon-chart--bgp.modal__chart" ? (
+                        <div className="renderingDataBgp">
+                          <Loading text="Rendering Data..." />
+                        </div>
+                    ) : null}
+                  </>
               ) : (
-                <React.Fragment>
-                  {this.props.rawAsnSignalsRawBgpLength !== 0 &&
-                  this.props.rawAsnSignalsProcessedBgp &&
-                  this.props.rawAsnSignalsProcessedBgp.length ===
-                    0 ? null : this.props.rawAsnSignalsRawBgpLength === 0 &&
-                    !this.props.rawAsnSignalsProcessedBgp ? (
-                    <Loading text="Retrieving Data..." />
-                  ) : this.props.rawAsnSignalsRawBgpLength !== 0 &&
-                    this.titleBgp &&
-                    this.titleBgp.current &&
-                    this.titleBgp.current.nextElementSibling !==
-                      "div#asn-horizon-chart--bgp.modal__chart" ? (
-                    <div className="renderingDataBgp">
-                      <Loading text="Rendering Data..." />
-                    </div>
-                  ) : null}
-                </React.Fragment>
+                  <>
+                    {rawAsnSignalsRawBgpLength !== 0 &&
+                    rawAsnSignalsProcessedBgp &&
+                    rawAsnSignalsProcessedBgp.length ===
+                    0 ? null : rawAsnSignalsRawBgpLength === 0 &&
+                    !rawAsnSignalsProcessedBgp ? (
+                        <Loading text="Retrieving Data..." />
+                    ) :rawAsnSignalsRawBgpLength !== 0 &&
+                    titleBgp &&
+                    titleBgp.current &&
+                    titleBgp.current.nextElementSibling !==
+                    "div#asn-horizon-chart--bgp.modal__chart" ? (
+                        <div className="renderingDataBgp">
+                          <Loading text="Rendering Data..." />
+                        </div>
+                    ) : null}
+                  </>
               )}
-              {this.props.additionalRawSignalRequestedBgp === true ? (
-                <Loading />
-              ) : this.props.modalLocation === "map" ? (
-                <React.Fragment>
-                  {this.props.rawRegionalSignalsProcessedBgp &&
-                  this.props.rawRegionalSignalsProcessedBgp.length > 0 ? (
-                    <div
-                      id="region-horizon-chart--bgp"
-                      ref={this.configBgp}
-                      className="modal__chart"
-                    >
-                      {this.genChart("bgp", "region")}
-                    </div>
-                  ) : null}
-                </React.Fragment>
+              {additionalRawSignalRequestedBgp === true ? (
+                  <Loading />
+              ) : modalLocation === "map" ? (
+                  <>
+                    {rawRegionalSignalsProcessedBgp &&
+                    rawRegionalSignalsProcessedBgp.length > 0 ? (
+                        <div
+                            id="region-horizon-chart--bgp"
+                            ref={configBgp}
+                            className="modal__chart"
+                        >
+                          {genChart("bgp", "region")}
+                        </div>
+                    ) : null}
+                  </>
               ) : (
-                <React.Fragment>
-                  {this.props.rawAsnSignalsProcessedBgp &&
-                  this.props.rawAsnSignalsProcessedBgp.length > 0 ? (
-                    <div
-                      id="asn-horizon-chart--bgp"
-                      ref={this.configBgp}
-                      className="modal__chart"
-                    >
-                      {this.genChart("bgp", "asn")}
-                    </div>
-                  ) : null}
-                </React.Fragment>
+                  <>
+                    {rawAsnSignalsProcessedBgp &&
+                    rawAsnSignalsProcessedBgp.length > 0 ? (
+                        <div
+                            id="asn-horizon-chart--bgp"
+                            ref={configBgp}
+                            className="modal__chart"
+                        >
+                          {genChart("bgp", "asn")}
+                        </div>
+                    ) : null}
+                  </>
               )}
-              <h3 className="heading-h3" ref={this.titleMeritNt}>
+              <h3 className="heading-h3" ref={titleMeritNt}>
                 {meritNtHtsLabel}
               </h3>
-              {this.props.modalLocation === "map" ? (
-                <React.Fragment>
-                  {this.props.rawRegionalSignalsRawMeritNtLength !== 0 &&
-                  this.props.rawRegionalSignalsProcessedMeritNt &&
-                  this.props.rawRegionalSignalsProcessedMeritNt.length ===
-                    0 ? null : this.props.rawRegionalSignalsRawMeritNtLength ===
-                      0 && !this.props.rawRegionalSignalsProcessedMeritNt ? (
-                    <Loading text="Retrieving Data..." />
-                  ) : this.props.rawRegionalSignalsRawMeritNtLength !== 0 &&
-                    this.configMeritNt &&
-                    this.configMeritNt.current &&
-                    this.configMeritNt.current.nextElementSibling !==
-                      "div#region-horizon-chart--meritNt.modal__chart" ? (
-                    <div className="renderingDataMeritNt">
-                      <Loading text="Rendering Data..." />
-                    </div>
-                  ) : null}
-                </React.Fragment>
+              {modalLocation === "map" ? (
+                  <>
+                    {rawRegionalSignalsRawMeritNtLength !== 0 &&
+                    rawRegionalSignalsProcessedMeritNt &&
+                    rawRegionalSignalsProcessedMeritNt.length ===
+                    0 ? null : rawRegionalSignalsRawMeritNtLength ===
+                    0 && !rawRegionalSignalsProcessedMeritNt ? (
+                        <Loading text="Retrieving Data..." />
+                    ) : rawRegionalSignalsRawMeritNtLength !== 0 &&
+                    configMeritNt &&
+                    configMeritNt.current &&
+                    configMeritNt.current.nextElementSibling !==
+                    "div#region-horizon-chart--meritNt.modal__chart" ? (
+                        <div className="renderingDataMeritNt">
+                          <Loading text="Rendering Data..." />
+                        </div>
+                    ) : null}
+                  </>
               ) : (
-                <React.Fragment>
-                  {this.props.rawAsnSignalsRawMeritNtLength !== 0 &&
-                  this.props.rawAsnSignalsProcessedMeritNt &&
-                  this.props.rawAsnSignalsProcessedMeritNt.length ===
-                    0 ? null : this.props.rawAsnSignalsRawMeritNtLength === 0 &&
-                    !this.props.rawAsnSignalsProcessedMeritNt ? (
-                    <Loading text="Retrieving Data..." />
-                  ) : this.props.rawAsnSignalsRawMeritNtLength !== 0 &&
-                    this.configMeritNt &&
-                    this.configMeritNt.current &&
-                    this.configMeritNt.current.nextElementSibling !==
-                      "div#asn-horizon-chart--meritNt.modal__chart" ? (
-                    <div className="renderingDataMeritNt">
-                      <Loading text="Rendering Data..." />
-                    </div>
-                  ) : null}
-                </React.Fragment>
+                  <>
+                    {rawAsnSignalsRawMeritNtLength !== 0 &&
+                    rawAsnSignalsProcessedMeritNt &&
+                    rawAsnSignalsProcessedMeritNt.length ===
+                    0 ? null : rawAsnSignalsRawMeritNtLength === 0 &&
+                    ! rawAsnSignalsProcessedMeritNt ? (
+                        <Loading text="Retrieving Data..." />
+                    ) : rawAsnSignalsRawMeritNtLength !== 0 &&
+                    configMeritNt &&
+                    configMeritNt.current &&
+                    configMeritNt.current.nextElementSibling !==
+                    "div#asn-horizon-chart--meritNt.modal__chart" ? (
+                        <div className="renderingDataMeritNt">
+                          <Loading text="Rendering Data..." />
+                        </div>
+                    ) : null}
+                  </>
               )}
-              {this.props.additionalRawSignalRequestedMeritNt === true ? (
-                <Loading />
-              ) : this.props.modalLocation === "map" ? (
-                <React.Fragment>
-                  {this.props.rawRegionalSignalsProcessedMeritNt &&
-                  this.props.rawRegionalSignalsProcessedMeritNt.length > 0 ? (
-                    <div
-                      id="region-horizon-chart--meritNt"
-                      ref={this.configMeritNt}
-                      className="modal__chart"
-                    >
-                      {this.genChart("merit-nt", "region")}
-                    </div>
-                  ) : null}
-                </React.Fragment>
+              {additionalRawSignalRequestedMeritNt === true ? (
+                  <Loading />
+              ) : modalLocation === "map" ? (
+                  <>
+                    {rawRegionalSignalsProcessedMeritNt &&
+                    rawRegionalSignalsProcessedMeritNt.length > 0 ? (
+                        <div
+                            id="region-horizon-chart--meritNt"
+                            ref={configMeritNt}
+                            className="modal__chart"
+                        >
+                          {genChart("merit-nt", "region")}
+                        </div>
+                    ) : null}
+                  </>
               ) : (
-                <React.Fragment>
-                  {this.props.rawAsnSignalsProcessedMeritNt &&
-                  this.props.rawAsnSignalsProcessedMeritNt.length > 0 ? (
-                    <div
-                      id="asn-horizon-chart--meritNt"
-                      ref={this.configMeritNt}
-                      className="modal__chart"
-                    >
-                      {this.genChart("merit-nt", "asn")}
-                    </div>
-                  ) : null}
-                </React.Fragment>
+                  <>
+                    {rawAsnSignalsProcessedMeritNt &&
+                    rawAsnSignalsProcessedMeritNt.length > 0 ? (
+                        <div
+                            id="asn-horizon-chart--meritNt"
+                            ref={configMeritNt}
+                            className="modal__chart"
+                        >
+                          {genChart("merit-nt", "asn")}
+                        </div>
+                    ) : null}
+                  </>
               )}
             </div>
           </div>
         </div>
       </Modal>
-    );
-  }
+  );
 }
 
 RawSignalsModal.propTypes = {
@@ -905,4 +896,5 @@ RawSignalsModal.propTypes = {
   showModal: PropTypes.bool.isRequired,
 };
 
-export default RawSignalsModal;
+export default React.memo(RawSignalsModal);
+
