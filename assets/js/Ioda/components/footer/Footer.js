@@ -70,7 +70,7 @@
 */
 
 
-import React, { PureComponent } from 'react';
+import React, { memo } from 'react';
 import PreloadImage from "react-preload-image";
 // images
 //import caidaLogo from 'images/logos/caida.png';
@@ -79,25 +79,22 @@ import PreloadImage from "react-preload-image";
 import gatechLogo from 'images/logos/gatech_white.svg';
 
 
-
-class Footer extends PureComponent {
-    render() {
-        return (
-            <div className="footer">
-                <div className="footer__content">
-                    <div className="row">
-                        <div className="col-1-of-1">
-                            <div className="footer__logos">
-                                <div className="footer__logos-item footer__logos-item--gatech">
-                                    <PreloadImage className="footer__logos-item-container" src={gatechLogo} lazy/>
-                                </div>
+const Footer = () => {
+    return (
+        <div className="footer">
+            <div className="footer__content">
+                <div className="row">
+                    <div className="col-1-of-1">
+                        <div className="footer__logos">
+                            <div className="footer__logos-item footer__logos-item--gatech">
+                                <PreloadImage className="footer__logos-item-container" src={gatechLogo} lazy/>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
 }
 
-export default Footer;
+export default memo(Footer);

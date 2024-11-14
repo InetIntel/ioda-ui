@@ -1,24 +1,21 @@
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
-import { Link } from "react-router-dom";
+import React from "react";
 import T from "i18n-react";
 
-class Loading extends Component {
-  render() {
+const Loading = ({text}) => {
     return (
-      <div className="progress-bar-striped">
-        <div style={{ width: "100%" }}>
-          <strong>
-            {this.props.text ? (
-              <p>{this.props.text}</p>
-            ) : (
-              <T.p text="loadingBar.loading" />
-            )}
-          </strong>
+        <div className="progress-bar-striped">
+            <div style={{ width: "100%" }}>
+                <strong>
+                    {text ? (
+                        <p>{text}</p>
+                    ) : (
+                        <T.p text="loadingBar.loading" />
+                    )}
+                </strong>
+            </div>
         </div>
-      </div>
     );
-  }
+
 }
 
 export default Loading;
