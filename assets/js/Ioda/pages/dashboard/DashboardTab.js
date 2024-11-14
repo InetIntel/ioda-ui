@@ -9,7 +9,7 @@ import TimeStamp from "../../components/timeStamp/TimeStamp";
 import Tooltip from "../../components/tooltip/Tooltip";
 import Table from "../../components/table/Table";
 import HorizonTSChart from "horizon-timeseries-chart";
-import * as d3 from "d3-shape";
+import { curveStepAfter } from "d3-shape";
 import TopoMap from "../../components/map/Map";
 import { Button } from "antd";
 import { asn } from "./DashboardConstants";
@@ -75,7 +75,7 @@ class DashboardTab extends Component {
         .height(570)
         .enableZoom(false)
         .showRuler(true)
-        .interpolationCurve(d3.curveStepAfter)
+        .interpolationCurve(curveStepAfter)
         .positiveColors(["white", horizonChartSeriesColor]).toolTipContent = ({
         series,
         ts,
