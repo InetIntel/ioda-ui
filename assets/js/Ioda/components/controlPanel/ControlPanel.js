@@ -12,11 +12,14 @@ import {
   InputNumber,
   Select,
   Divider,
+  message,
+    notification
 } from "antd";
 import { getNowAsUTC, secondsToUTC, getSeconds } from "../../utils/timeUtils";
 
 import {fetchData} from "../../data/ActionCommons";
 import {v4 as uuidv4} from "uuid";
+import DynamicBreadCrumb from "./BreadCrumb";
 const { RangePicker } = DatePicker;
 
 const RANGES = {
@@ -34,12 +37,16 @@ const UNITS = {
   WEEK: "week",
 };
 
-const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title, onSelect, entityCode, entityType}) => {
+const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title, onSelect, entityCode, entityType, countryCode, searchParams}) => {
   const [popoutOpen, setPopoutOpen] = useState(false);
+  const regionSearchParam = useState(searchParams?.get("region") || null);
+  const countrySearchParam = useState(searchParams?.get("country") || null);
+  const asnSearchParam = useState(searchParams?.get("asn") || null);
   const [customDuration, setCustomDuration] = useState(1);
   const [customUnit, setCustomUnit] = useState(UNITS.DAY);
   const [range, setRange] = useState([secondsToUTC(from), secondsToUTC(until)]);
   const [countrySearchText, setCountrySearchText] = useState("All Countries");
+  const [countrySelectedCode, setCountrySelectedCode] = useState("all");
   const [regionSearchText, setRegionSearchText] = useState("N/A");
   const [asnSearchText, setAsnSearchText] = useState("N/A");
 
@@ -49,9 +56,14 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   const [loading, setLoading] = useState(false);
 
+  const [popUpNotification, setPopUpNotification] = useState(false);
+  const [popUpCondition, setPopUpCondition] = useState(true);
+
+  const timezones = Intl.supportedValuesOf('timeZone');
+  const [selectedTimezone, setSelectedTimezone] = useState(dayjs.tz.guess());
+
   const MAX_LIMITS = 11;
 
-  console.log(entityCode, entityType)
 
   // const {  countryCode, regionCode, asnCode } = useParams();
   const regionCountryCacheRef = useRef({});
@@ -63,37 +75,45 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   //        -> Currently, it will be only based on country even if some region is selected.
   // TODO - if countryCode and asnCode is selected, then what will be the options in regions.
   //        -> Currently, it will be only based on country even if asnCode is selected.
-
   const getCountryCodeFromRegion = useCallback(async (regionCode) => {
     if (regionCountryCacheRef.current[regionCode]) {
       return regionCountryCacheRef.current[regionCode];
     }
-      try {
-        const url = `/entities/query?entityType=country&relatedTo=region/${regionCode}`
-        const fetched = await fetchData({url});
-        const countries = (fetched?.data?.data ?? []);
-        if (countries.length > 0) {
-
-          const countryCode = countries[0].code;
-          console.log(countryCode);
-          regionCountryCacheRef.current[regionCode] = countryCode;
-          return countryCode;
-        }
-      } catch(error) {
-        console.log("Error getting country code");
-        return "all_country";
-      }
-      return "all_country";
-  }, [fetchData])
-
-  async function getCountryCodesFromAsn(asnCode) {
     try {
-      const url = `/entities/query?entityType=country&relatedTo=asn/${asnCode}`
+      const url = `/entities/query?entityType=country&relatedTo=region/${regionCode}`
       const fetched = await fetchData({url});
       const countries = (fetched?.data?.data ?? []);
       if (countries.length > 0) {
-        return countries.map(country => country.code);
+
+        const countryCode = countries[0].code;
+
+        regionCountryCacheRef.current[regionCode] = countryCode;
+        return countryCode;
       }
+    } catch(error) {
+      console.log("Error getting country code");
+      return "all_country";
+    }
+    return "all_country";
+  }, [fetchData])
+
+
+  async function getCountryNamesFromAsn(asnCode) {
+    try {
+      console.log(asnCode)
+      const url = `/entities/query?entityType=geoasn&relatedTo=asn/${asnCode}`
+      const fetched = await fetchData({url});
+      // console.log(fetched?.data);
+      const geoasns = (fetched?.data?.data ?? []);
+      console.log(geoasns);
+      const matchingCountryNames = geoasns
+          .filter(item => item.subnames && item.subnames.country)
+          .map(item => item.subnames.country);
+      console.log(matchingCountryNames);
+      // if (matchingCountryNames.length > 0) {
+      //   return matchingCountryNames.map(country => country.code);
+      // }
+      return matchingCountryNames;
     } catch(error) {
       console.log("Error getting country code");
       return null;
@@ -128,7 +148,9 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     return {};
   }
 
+  //fetch countries names to populate the dropdown
   useEffect(()=> {
+    console.log("Effect triggered");
     const fetchCountries = async () => {
       try {
         let url = `/entities/query?entityType=country`
@@ -161,6 +183,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
           map[country.code] = country.emoji;
           return map;
         }, {});
+        console.log(updatedResults);
         const countrySearchResultOptions = (updatedResults || []).map((d) => ({
           value: d.id,
           name: d.label,
@@ -179,13 +202,16 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     fetchCountries();
   }, []);
 
+  //fetch region names to populate the dropdown
   useEffect(()=> {
+    console.log("Effect triggered");
     const fetchRegions = async () => {
       try {
         let url = '/entities/query?entityType=region';
         if(entityType){
+          console.log("entityType:", entityType);
           let countryCode = "";
-          if(entityType === "country"){
+          if(entityType === "country" && entityCode){
             countryCode = entityCode;
           }
           else if(entityType === "region"){
@@ -236,32 +262,47 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     fetchRegions();
   }, [entityCode, entityType]);
 
+  // fetch asn names to populate the dropdown
   useEffect(()=> {
+    console.log("Effect triggered");
     // put selected option in
     const fetchAsnNetworks = async () => {
       try {
         let url = `/entities/query?entityType=asn`;
         if(entityType){
-          if(entityCode && (entityType === "country" || entityType === "region")){
-            url += `&relatedTo=${entityType}/${entityCode}`
+          if(entityCode){
+            if( (entityType === "country")) {
+              url += `&relatedTo=country/${entityCode}`;
+            }
+            else if (entityType === "region") {
+               const countryCode = await getCountryCodeFromRegion(entityCode);
+               url += `&relatedTo=country/${countryCode}`;
+            }
           }
           if(entityType === "asn") {
             url =  '/entities/query?entityType=asn';
           }
         }
         const fetched = await fetchData({url});
-        const results = (fetched?.data?.data ?? []).map((entity) => {
-          return {
-            label: entity.name,
-            id: uuidv4(),
-            entity: {
-              name: entity.name,
-              code: entity.code,
-              type: entity.type,
-              url: `asn/${entity.code}`,
-            }
-          }
-        });
+        const results = await Promise.all(
+            (fetched?.data?.data ?? []).map(async (entity) => {
+              let asnUrl = `asn/${entity.code}`;
+              if (countrySelectedCode !== "all" && countrySelectedCode !== "N/A") {
+                asnUrl = `asn=${entityCode}?country=${countrySelectedCode}?`;
+              }
+              return {
+                label: entity.name,
+                id: uuidv4(),
+                entity: {
+                  name: entity.name,
+                  code: entity.code,
+                  type: entity.type,
+                  url: asnUrl,
+                },
+              };
+            })
+        );
+
         const allNetworkOption = {
           label: "All Networks",
           id: uuidv4(),
@@ -295,20 +336,25 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     fetchAsnNetworks();
   }, [entityCode, entityType]);
 
+  // Fill the dropdowns with the selected values whenever "Country" is chosen as the entity.
   useEffect(() => {
+    console.log("Effect triggered");
     if(entityCode && entityType === "country"){
       const _countryNameMap = countries.reduce((map, country) => {
         map[country.code] = country.name;
         return map;
       }, {});
       setCountrySearchText(_countryNameMap[entityCode]);
+      setCountrySelectedCode(entityCode);
       setRegionSearchText("All Regions");
       setAsnSearchText("All Networks");
     }
   }, [entityType, entityCode]);
 
+  // Fill the dropdowns with the selected values whenever "Regions" is chosen as the entity.
   useEffect(() => {
-    if (entityType === "region" && entityCode) {
+    console.log("Effect triggered");
+    if (entityType === "region" && entityCode && regionOptions.length > 0) {
       const fetchRegionData = async () => {
         const _countryNameMap = countries.reduce((map, country) => {
           map[country.code] = country.name;
@@ -318,10 +364,11 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
         try {
           const countryCode = await getCountryCodeFromRegion(entityCode);
           setCountrySearchText(_countryNameMap[countryCode]);
+          setCountrySelectedCode(countryCode);
           console.log(regionOptions)
           const region = await regionOptions.find((region) => region.entity.code === entityCode);
           console.log(region);
-          setRegionSearchText(region ? region : "");
+          setRegionSearchText(region ? region.entity.name : "");
 
           setAsnSearchText("All Networks");
         } catch (error) {
@@ -333,33 +380,48 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     }
   }, [entityType, entityCode, regionOptions]);
 
-
+  // Fill the dropdowns with the selected values whenever "Asn/Networks" is chosen as the entity.
   useEffect(() => {
+    console.log("Effect triggered");
     if (entityType === "asn" && entityCode
         && asnOptions.length > 0
     ) {
 
       const fetchAsnData = async () => {
-        const _countryNameMap = countries.reduce((map, country) => {
-          map[country.code] = country.name;
-          return map;
-        }, {});
         try {
-          const countryCodes = await getCountryCodesFromAsn(entityCode); // Assuming async
-          const countryCodesSet = new Set(countryCodes);
-
-          const matchingCountries = countryOptions.filter((country) =>
-              countryCodesSet.has(country.entity.code)
-          );
-          const allCountriesItem = countryOptions.find((country) => country.entity.name === 'All Countries');
-          matchingCountries.unshift(allCountriesItem);
-
-          setCountryOptions(matchingCountries);
-          console.log(matchingCountries);
-          if(matchingCountries.length === 1) {
-            setCountrySearchText(_countryNameMap[countryCodes[0]]);
+          const countryNames = await getCountryNamesFromAsn(entityCode);
+          console.log(countryNames);
+          if(countryNames.length === 1) {
+            setCountrySearchText(countryNames[0]);
           }
-          console.log(asnOptions);
+          else {
+            // message.info({
+            //   content: `There are ${countryCodes.length} matching countries.`,
+            //   duration: 5,
+            // });
+            notification.info({
+              message: 'Multiple Countries Found',
+              description: (
+                  // <p>
+                  //   The selected ASN with code {entityCode} operates in{' '} {countryNames.length} countries namely {' '}
+                  //   {countryNames.length > 1
+                  //       ? countryNames.slice(0, -1).join(', ') + ' and ' + countryNames.slice(-1)
+                  //       : countryNames[0]}
+                  //   .
+                  // </p>
+                  <p>
+                    The selected ASN operates in{' '} {countryNames.length} countries - {' '}
+                    {countryNames.slice(0, -1).map((country, index) => (
+                        <span key={index} style={{color: 'blue'}}>{country}</span>
+                    )).reduce((prev, curr) => [prev, ', ', curr])}
+                    {' and '}
+                    <span style={{color: 'blue'}}>{countryNames.slice(-1)}</span>.
+                  </p>
+              ),
+              // duration: 5,
+            });
+          }
+          // console.log(asnOptions);
           const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
           console.log(asn)
           setAsnSearchText(asn ? asn : "");
@@ -374,20 +436,24 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   }, [entityType, entityCode, asnOptions]);
 
   useEffect(() => {
+    console.log("Effect triggered");
     if(entityCode === undefined && entityType) {
       switch (entityType) {
         case "country":
           setCountrySearchText("All Countries");
+          setCountrySelectedCode("all")
           setRegionSearchText("N/A")
           setAsnSearchText("N/A")
           break;
         case "region":
           setCountrySearchText("N/A")
+          setCountrySelectedCode("N/A")
           setRegionSearchText("All Regions");
           setAsnSearchText("N/A")
           break;
         case "asn":
           setCountrySearchText("N/A")
+          setCountrySelectedCode("N/A")
           setRegionSearchText("N/A")
           setAsnSearchText("All Networks");
           break;
@@ -401,6 +467,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     const entity = countryOptions.find((d) => d.value === id)?.entity ?? null;
     if (!entity) return;
     setCountrySearchText(entity.name);
+    setCountrySelectedCode(entity.code);
     onSelect(entity);
   }
 
@@ -418,42 +485,21 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     onSelect(entity);
   }
 
-
-  // const debouncedHandleSearch = debounce(handleCountrySearch, 200);
-
-
   function handlePopoutOpen(val) {
     setPopoutOpen(val);
   }
 
-  function handleCustomDurationChange(val) {
-    setCustomDuration(val)
-  }
+  function handleRangeChange([fromDayjs, untilDayjs]) {
 
-  function handleCustomUnitChange(val){
-    setCustomUnit(val);
-  }
-
-  // function handleRangeChange([fromDayjs, untilDayjs]) {
-  //   setRange([fromDayjs, untilDayjs]);
-  //   console.log(fromDayjs, untilDayjs);
-  //
-  //   onTimeFrameChange({
-  //     _from: getSeconds(fromDayjs.add(fromDayjs.utcOffset(), 'minute')),
-  //     _until: getSeconds(untilDayjs.add(untilDayjs.utcOffset(), 'minute')),
-  //   });
-  // }
-
-  function handleRangeChange([fromDayjs, untilDayjs], timezone) {
-    const fromInTimezone = fromDayjs.tz(timezone);
-    const untilInTimezone = untilDayjs.tz(timezone);
+    const fromInTimezone = fromDayjs.tz(selectedTimezone);
+    const untilInTimezone = untilDayjs.tz(selectedTimezone);
 
     setRange([fromInTimezone, untilInTimezone]);
-    console.log(fromInTimezone, untilInTimezone);
-
+    console.log(fromDayjs)
+    console.log(untilDayjs)
     onTimeFrameChange({
-      _from: getSeconds(fromInTimezone, timezone),
-      _until: getSeconds(untilInTimezone, timezone),
+      _from: getSeconds(fromInTimezone, selectedTimezone),
+      _until: getSeconds(untilInTimezone, selectedTimezone),
     });
   }
 
@@ -594,7 +640,8 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
 
   return (
-      <div className="flex items-start card p-6 mb-6 control-panel">
+        <div>
+          <div className="flex items-start card p-6 mb-6 control-panel">
         {/*<div className="control-panel__controls col-1">*/}
         {/*<div className="searchbar">*/}
         {/*  <div className="flex items-center">*/}
@@ -692,7 +739,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               ]}
               value={range}
               showTime={{format: "h:mmA"}}
-              format="MMM D YYYY h:mma UTC"
+              format="MMM D YYYY h:mma"
               onChange={handleRangeChange}
               onOk={handleRangeChange}
               style={{ width: '450px' }}
@@ -706,15 +753,33 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               showSearch
               placeholder="Select a Timezone"
               optionFilterProp="children"
-              style={{width: '120px'}}
+              style={{width: '180px'}}
+              dropdownStyle={{ width: '180px' }}
+              defaultValue="UTC"
+              value={selectedTimezone}
+              onChange={(value) => setSelectedTimezone(value)}
           >
-            <Option value="UTC 0:00">UTC 0:00</Option>
-            <Option value="UTC +1:00">UTC +1:00</Option>
-            <Option value="UTC -1:00">UTC -1:00</Option>
+            {timezones.map((tz) => (
+                <Option key={tz} value={tz}>
+                  {tz}
+                </Option>
+            ))}
           </Select>
         </div>
 
       </div>
+
+          {entityCode && <DynamicBreadCrumb
+              searchParams={searchParams}
+              entityType={entityType}
+              entityCode={entityCode}
+              countryOptions={countryOptions}
+              regionOptions={regionOptions}
+              asnOptions={asnOptions}
+              getCountryCodeFromRegion={getCountryCodeFromRegion}
+          />}
+        </div>
+
   );
 }
 

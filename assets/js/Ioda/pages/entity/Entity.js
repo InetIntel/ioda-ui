@@ -38,7 +38,7 @@
 // React Imports
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
@@ -193,7 +193,8 @@ const Entity = (props) => {
     rawAsnSignalsUcsdNt,
     rawAsnSignalsMeritNt,
     additionalRawSignal,
-    navigate
+    navigate,
+    searchParams
   } = props;
 
   const timeSeriesChartRef = useRef();
@@ -312,6 +313,12 @@ const Entity = (props) => {
   // Popovers
   const [displayChartSettingsPopover, setDisplayChartSettingsPopover] = useState(false);
   const [displayChartSharePopover, setDisplayChartSharePopover] = useState(false);
+
+  const regionSearchParam = useState(searchParams?.get("region") || null);
+  const countrySearchParam = useState(searchParams?.get("country") || null);
+  const asnSearchParam = useState(searchParams?.get("asn") || null);
+
+
 
   const initialTableLimit = 300;
   const initialHtsLimit = 100;
@@ -803,19 +810,9 @@ const Entity = (props) => {
 
   // Control Panel
   // manage the date selected in the input
-  function handleTimeFrame ({ from, until }) {
-    if(regionCode != null && regionCode.length > 0) {
-      navigate(
-          `/${entityTypeState}/${entityCodeState}/region/${regionCode}?from=${from}&until=${until}`
-      );
-    }
-    if(asnCode != null && asnCode.length > 0) {
-      navigate(
-          `/${entityTypeState}/${entityCodeState}/asn/${asnCode}?from=${from}&until=${until}`
-      );
-    }
+  function handleTimeFrame ({ _from, _until }) {
     navigate(
-      `/${entityTypeState}/${entityCodeState}?from=${from}&until=${until}`
+      `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
     );
   }
 
@@ -2462,6 +2459,7 @@ const Entity = (props) => {
         regionCode={regionCode}
         asnCode={asnCode}
         onSelect={(entity) => handleResultClick(entity)}
+        searchParams={searchParams}
       />
       {displayTimeRangeError ? (
         <Error />
@@ -3173,6 +3171,7 @@ const EntityFn = (props) => {
   // using useRef to avoid re-rendering between renders
   const previousFullPath = useRef(window.location.href);
   const { countryCode, entityType, regionCode, asnCode } = useParams();
+  const [searchParams] = useSearchParams();
 
   // Reload page if the URL changes.
   useEffect(() => {
@@ -3183,6 +3182,14 @@ const EntityFn = (props) => {
     }
   }, [window.location.href]);
 
+  useEffect(() => {
+    const regionSearchCode = searchParams.get('region');
+    console.log(regionSearchCode)
+    if(regionSearchCode) {
+      navigate(`/region/${regionSearchCode[0]}`, {replace: true});
+    }
+  }, [searchParams]);
+
   return (
     <Entity
       {...props}
@@ -3191,6 +3198,7 @@ const EntityFn = (props) => {
       entityCode={countryCode}
       regionCode={regionCode}
       asnCode={asnCode}
+      searchParams={searchParams}
     />
   );
 };

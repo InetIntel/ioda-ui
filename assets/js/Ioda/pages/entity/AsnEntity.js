@@ -38,7 +38,7 @@
 // React Imports
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
@@ -193,7 +193,8 @@ const Entity = (props) => {
         rawAsnSignalsUcsdNt,
         rawAsnSignalsMeritNt,
         additionalRawSignal,
-        navigate
+        navigate,
+        searchParams
     } = props;
 
     const timeSeriesChartRef = useRef();
@@ -248,7 +249,11 @@ const Entity = (props) => {
     const [currentTable, setCurrentTable] = useState("alert")
     const [eventDataRaw, setEventDataRaw] = useState(null);
     const [alertDataRaw, setAlertDataRaw] = useState(null);
-
+    // relatedTo entity Map
+    const [topoData, setTopoData] = useState(null);
+    const [topoScores, setTopoScores] = useState(null);
+    const [bounds, setBounds] = useState(null);
+    //const [relatedToMapSummaryState, setRelatedToMapSummaryState] = useState(null);
     const [summaryDataMapRaw, setSummaryDataMapRaw] = useState(null);
     // relatedTo entity Table
     const [relatedToTableApiPageNumber, setRelatedToTableApiPageNumber] = useState(0);
@@ -367,20 +372,20 @@ const Entity = (props) => {
         props.searchEventsAction(
             timeSignalFrom,
             timeSignalUntil,
-            entityTypeState,
+            "asn",
             entityCodeState
         );
         props.searchAlertsAction(
             fromDate,
             untilDate,
-            entityTypeState,
+            "asn",
             entityCodeState,
             null,
             null,
             null
         );
         props.getSignalsAction(
-            entityTypeState,
+            "asn",
             entityCodeState,
             timeSignalFrom,
             timeSignalUntil,
@@ -402,7 +407,7 @@ const Entity = (props) => {
         const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(from, until);
         if(!sourceParams) return;
         props.getSignalsAction(
-            entityTypeState,
+            "asn",
             entityCodeState,
             timeSignalFrom,
             timeSignalUntil,
@@ -410,7 +415,7 @@ const Entity = (props) => {
             3000,
             sourceParams
         );
-    }, [sourceParams, from, until, entityTypeState, entityCodeState]);
+    }, [sourceParams, from, until, "asn", entityCodeState]);
 
     // Make API call for data to populate XY Chart
     useEffect(() => {
@@ -800,26 +805,26 @@ const Entity = (props) => {
 
     // Control Panel
     // manage the date selected in the input
-    function handleTimeFrame ({ from, until }) {
+    function handleTimeFrame ({ _from, _until }) {
         if(regionCode != null && regionCode.length > 0) {
             navigate(
-                `/${entityTypeState}/${entityCodeState}/region/${regionCode}?from=${from}&until=${until}`
+                `/${entityTypeState}/${entityCodeState}/region/${regionCode}?from=${_from}&until=${_until}`
             );
         }
         if(asnCode != null && asnCode.length > 0) {
             navigate(
-                `/${entityTypeState}/${entityCodeState}/asn/${asnCode}?from=${from}&until=${until}`
+                `/${entityTypeState}/${entityCodeState}/asn/${asnCode}?from=${_from}&until=${_until}`
             );
         }
         navigate(
-            `/${entityTypeState}/${entityCodeState}?from=${from}&until=${until}`
+            `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
         );
     }
 
     function handleControlPanelClose() {
         navigate(
             hasDateRangeInUrl()
-                ? `/dashboard?from=${from}&until=${until}`
+                ? `/dashboard?from=${_from}&until=${_until}`
                 : `/dashboard`
         );
     }
@@ -1601,7 +1606,42 @@ const Entity = (props) => {
                 }
             )
     }
+    // Process Geo data from api, attribute outage scores to a new topoData property where possible, then render Map
+    function getMapScores() {
+        if (topoData && summaryDataMapRaw) {
+            let _topoData = topoData;
+            let features = [];
+            let scores = [];
+            let outageCoords;
 
+            // get Topographic info for a country if it has outages
+            summaryDataMapRaw.map((outage) => {
+                let topoItemIndex = topoData.features.findIndex(
+                    (topoItem) => topoItem.properties.name === outage.entity.name
+                );
+
+                if (topoItemIndex > 0) {
+                    let item = _topoData.features[topoItemIndex];
+                    item.properties.score = outage.scores.overall;
+                    _topoData.features[topoItemIndex] = item;
+                    features.push(item);
+                    // Used to determine coloring on map objects
+                    scores.push(outage.scores.overall);
+                    scores.sort((a, b) => {
+                        return a - b;
+                    });
+                }
+            });
+
+            // get impacted coordinates to determine zoom location based on affected entities, if any
+            if (features.length > 0) {
+                outageCoords = getOutageCoords(features);
+            }
+
+            setTopoScores(scores);
+            setBounds(outageCoords);
+        }
+    }
     // Make API call to retrieve summary data to populate on map
     function getDataRelatedToMapSummary(entityType) {
         const limit = 170;
@@ -2422,6 +2462,7 @@ const Entity = (props) => {
                 entityCode={entityCodeState}
                 entityType="asn"
                 onSelect={(entity) => handleResultClick(entity)}
+                searchParams={searchParams}
             />
             {displayTimeRangeError ? (
                 <Error />
@@ -2616,7 +2657,13 @@ const Entity = (props) => {
                         toggleModal={toggleModal}
                         showMapModal={showMapModal}
                         showTableModal={showTableModal}
-
+                        // to populate map
+                        topoData={topoData}
+                        topoScores={topoScores}
+                        bounds={bounds}
+                        handleEntityShapeClick={(entity) =>
+                            handleEntityShapeClick(entity)
+                        }
                         // to populate asn summary table
                         relatedToTableSummaryProcessed={
                             relatedToTableSummaryProcessed
@@ -3128,7 +3175,7 @@ const EntityFn = (props) => {
     // using useRef to avoid re-rendering between renders
     const previousFullPath = useRef(window.location.href);
     const { entityCode, entityType, regionCode, asnCode } = useParams();
-
+    const [searchParams] = useSearchParams();
     // Reload page if the URL changes.
     useEffect(() => {
         if (previousFullPath.current !== window.location.href) {
@@ -3146,6 +3193,7 @@ const EntityFn = (props) => {
             entityCode={entityCode}
             regionCode={regionCode}
             asnCode={asnCode}
+            searchParams={searchParams}
         />
     );
 };

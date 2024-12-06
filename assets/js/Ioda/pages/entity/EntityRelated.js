@@ -35,7 +35,7 @@
  * MODIFICATIONS.
  */
 
-import React, {Component, useRef} from "react";
+import React, {Component, useRef, useState} from "react";
 import RawSignalsModal from "../../components/modal/RawSignalsModal";
 import T from "i18n-react";
 import Loading from "../../components/loading/Loading";
@@ -96,7 +96,7 @@ const EntityRelated = (props) => {
     rawAsnSignalsRawPingSlash24Length,
     rawAsnSignalsRawUcsdNtLength,
     rawAsnSignalsRawMeritNtLength,
-    relatedToTableSummaryProcessed
+    relatedToTableSummaryProcessed,
   } = props;
 
   const relatedTableConfig = useRef();

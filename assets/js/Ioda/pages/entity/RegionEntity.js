@@ -38,7 +38,7 @@
 // React Imports
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
@@ -185,7 +185,8 @@ const RegionEntity = (props) => {
     rawRegionalSignalsUcsdNt,
     rawRegionalSignalsMeritNt,
     additionalRawSignal,
-    navigate
+    navigate,
+    searchParams
   } = props;
 
 
@@ -679,14 +680,17 @@ const RegionEntity = (props) => {
 
   // Control Panel
   // manage the date selected in the input
-  function handleTimeFrame ({ from, until }) {
-    if(regionCode != null && regionCode.length > 0) {
+  function handleTimeFrame ({ _from, _until }) {
+    console.log(regionCode)
+    console.log(from, until)
+    if(regionCode != null) {
       navigate(
-          `/country/${parentEntityCode}/region/${regionCode}?from=${from}&until=${until}`
+          `/region/${regionCode}?from=${_from}&until=${_until}`
       );
+      return;
     }
     navigate(
-      `/${country}/${parentEntityCode}?from=${from}&until=${until}`
+      `/dashboard?from=${_from}&until=${_until}`
     );
   }
 
@@ -2260,6 +2264,7 @@ const RegionEntity = (props) => {
         entityCode={entityCodeState}
         entityType="region"
         onSelect={(entity) => handleResultClick(entity)}
+        searchParams={searchParams}
       />
       {displayTimeRangeError ? (
         <Error />
@@ -2735,8 +2740,8 @@ const RegionEntityFn = (props) => {
   const navigate = useNavigate();
   // using useRef to avoid re-rendering between renders
   const previousFullPath = useRef(window.location.href);
-  const { entityCode, entityType, regionCode, asnCode } = useParams();
-
+  const { entityCode, entityType, regionCode, asnCode, countryCode } = useParams();
+  const [searchParams] = useSearchParams();
   // Reload page if the URL changes.
   useEffect(() => {
     if (previousFullPath.current !== window.location.href) {
@@ -2754,6 +2759,7 @@ const RegionEntityFn = (props) => {
       entityCode={entityCode}
       regionCode={regionCode}
       asnCode={asnCode}
+      searchParams={searchParams}
     />
   );
 };

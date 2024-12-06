@@ -44,7 +44,7 @@ const Dashboard = (props) => {
         navigate,
         searchSummaryAction,
         totalOutagesAction,
-        entityType: urlEntityType
+        entityType
     } = props;
 
     const title = useMemo(() => T.translate("entity.pageTitle"), []);
@@ -62,7 +62,7 @@ const Dashboard = (props) => {
 
     const { urlFromDate, urlUntilDate } = useMemo(() => getDateRangeFromUrl(), []);
 
-    const entityType = "region";
+    // const entityType = "region";
     // Control Panel
     const [from, setFrom] = useState(urlFromDate ?? getPreviousMinutesAsUTCSecondRange(24 * 60).start);
     const [until, setUntil] = useState(urlUntilDate ?? getNowAsUTCSeconds());
@@ -161,7 +161,7 @@ const Dashboard = (props) => {
         getDataTopo(activeTabType);
         getDataOutageSummary(activeTabType);
         getTotalOutages(activeTabType);
-        navigate(`/dashboard?from=${from}&until=${until}`);
+        navigate(`/dashboard?from=${_from}&until=${_until}`);
     }
 
     // Tabbing
@@ -466,7 +466,7 @@ const DashboardFn = (props) => {
         <Dashboard
             {...props}
             tab={tab}
-            entityType={entityType}
+            entityType="region"
             navigate={navigate}
         />
     );
