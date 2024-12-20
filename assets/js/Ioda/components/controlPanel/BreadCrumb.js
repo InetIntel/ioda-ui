@@ -16,6 +16,7 @@ const DynamicBreadCrumb = ({searchParams, entityCode, entityType, getCountryCode
 
     const getCountryNameFromCode = (code) => {
         const country =  countries.filter(country => country.code === code);
+        console.log(code, country);
         if(country.length > 0){
             return country[0].name;
         }
@@ -71,9 +72,10 @@ const DynamicBreadCrumb = ({searchParams, entityCode, entityType, getCountryCode
                 case "region":
                     itemsList = itemsList.concat({title: <a href="/dashboard"> All Countries </a>});
                     const countryCode = await getCountryCodeFromRegion(entityCode);
+                    console.log(countryCode);
                     if(countryCode != null) {
                         const countryName = getCountryNameFromCode(countryCode);
-                        const countryUrl = `/country/${entityCode}`;
+                        const countryUrl = `/country/${countryCode}`;
                         itemsList = itemsList.concat({
                             title: <a href={countryUrl}> {countryName} </a>
                         });

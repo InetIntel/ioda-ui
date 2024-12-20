@@ -1,26 +1,18 @@
-import React, {useRef, useEffect, useCallback} from "react";
-import { useState } from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import T from "i18n-react";
 import Tooltip from "../../components/tooltip/Tooltip";
 import dayjs from "../../utils/dayjs";
 import countries from "../../constants/countries.json";
 
-import {
-  DatePicker,
-  Button,
-  Popover,
-  InputNumber,
-  Select,
-  Divider,
-  message,
-    notification
-} from "antd";
-import { getNowAsUTC, secondsToUTC, getSeconds } from "../../utils/timeUtils";
+import {Button, DatePicker, notification, Select} from "antd";
+import {getNowAsUTC, getSeconds, secondsToTimeZone, secondsToUTC} from "../../utils/timeUtils";
 
 import {fetchData} from "../../data/ActionCommons";
 import {v4 as uuidv4} from "uuid";
 import DynamicBreadCrumb from "./BreadCrumb";
+
 const { RangePicker } = DatePicker;
+import { Switch } from 'antd';
 
 const RANGES = {
   LAST_60_MINS: "last_60_mins",
@@ -37,6 +29,14 @@ const UNITS = {
   WEEK: "week",
 };
 
+const allTimezones = Intl.supportedValuesOf('timeZone');
+const userTimezone = dayjs.tz.guess();
+const timezones = [
+  'UTC',
+  userTimezone,
+  ...allTimezones.filter((tz) => tz !== 'UTC' && tz !== userTimezone),
+];
+
 const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title, onSelect, entityCode, entityType, countryCode, searchParams}) => {
   const [popoutOpen, setPopoutOpen] = useState(false);
   const regionSearchParam = useState(searchParams?.get("region") || null);
@@ -44,7 +44,11 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   const asnSearchParam = useState(searchParams?.get("asn") || null);
   const [customDuration, setCustomDuration] = useState(1);
   const [customUnit, setCustomUnit] = useState(UNITS.DAY);
-  const [range, setRange] = useState([secondsToUTC(from), secondsToUTC(until)]);
+  // console.log('timezone', localStorage.getItem('timezone'));
+  const [range, setRange] = useState(
+      (localStorage.getItem('timezone') && localStorage.getItem('timezone') !== 'UTC') ?
+          [secondsToTimeZone(from), secondsToTimeZone(until) ] :
+          [secondsToUTC(from), secondsToUTC(until)]);
   const [countrySearchText, setCountrySearchText] = useState("All Countries");
   const [countrySelectedCode, setCountrySelectedCode] = useState("all");
   const [regionSearchText, setRegionSearchText] = useState("N/A");
@@ -59,8 +63,94 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   const [popUpNotification, setPopUpNotification] = useState(false);
   const [popUpCondition, setPopUpCondition] = useState(true);
 
-  const timezones = Intl.supportedValuesOf('timeZone');
-  const [selectedTimezone, setSelectedTimezone] = useState(dayjs.tz.guess());
+  const [selectedTimezone, setSelectedTimezone] = useState(() => {
+    console.log("localStorage: ", selectedTimezone)
+    return  localStorage.getItem('timezone') || userTimezone;
+  });
+
+  const [isSwitchActive, setIsSwitchActive] = useState(() => {
+    return localStorage.getItem("timezone") === 'UTC' || false;
+  });
+
+  useEffect(() => {
+    const storedTimezone = localStorage.getItem('timezone') || userTimezone;
+    setSelectedTimezone(storedTimezone);
+    setIsSwitchActive(storedTimezone === userTimezone || storedTimezone === 'UTC');
+  }, [selectedTimezone]);
+
+  const handleTimezoneToggleSwitch = (checked) => {
+    const newTimezone = checked ? userTimezone : 'UTC';
+    localStorage.setItem("timezone", newTimezone);
+    console.log(newTimezone);
+    setSelectedTimezone(newTimezone);
+
+    // const fromInTimezone = dayjs.tz(from, newTimezone);
+    // const untilInTimezone = dayjs.tz(until, newTimezone);
+    // console.log(fromInTimezone)
+    // console.log(untilInTimezone)
+    // setRange([fromInTimezone, untilInTimezone]);
+    //
+
+    if (from && until && range.length === 2) {
+      const [fromDayjs, untilDayjs] = range;
+
+      console.log(value)
+      const fromInSelectedTimezone = fromDayjs.tz(value, true);
+      const untilInSelectedTimezone = untilDayjs.tz(value, true);
+
+      // Convert the existing range to UTC for the new timezone
+      const fromInUTC = fromInSelectedTimezone.tz("UTC");
+      const untilInUTC = untilInSelectedTimezone.tz("UTC");
+
+      // Trigger the API with updated UTC values
+      onTimeFrameChange({
+        _from: getSeconds(fromInUTC),
+        _until: getSeconds(untilInUTC),
+      });
+    }
+  };
+
+  const handleTimezoneChange = (value) => {
+    setSelectedTimezone(value);
+    localStorage.setItem("timezone", value);
+    console.log(value);
+    setIsSwitchActive(value === userTimezone || value === 'UTC');
+    // // if (range && range.length === 2) {
+    // //   handleRangeChange(range);
+    // // }
+    // console.log(value);
+    // console.log(from);
+    // console.log(until);
+    // const fromInTimezone = dayjs.tz(from, value);
+    // const untilInTimezone = dayjs.tz(until, value);
+    // console.log(fromInTimezone)
+    // console.log(untilInTimezone)
+    //
+    // // onTimeFrameChange({
+    // //   _from: getSeconds(fromInTimezone, value),
+    // //   _until: getSeconds(untilInTimezone, value),
+    // // });
+
+    if (from && until && range.length === 2) {
+      console.log(value)
+      const [fromDayjs, untilDayjs] = range;
+      console.log(value)
+      const fromInSelectedTimezone = fromDayjs.tz(value, true);
+      const untilInSelectedTimezone = untilDayjs.tz(value, true);
+
+      setRange([fromInSelectedTimezone, untilInSelectedTimezone]);
+
+      const fromInUTC = fromInSelectedTimezone.tz("UTC");
+      const untilInUTC = untilInSelectedTimezone.tz("UTC");
+
+      // Trigger the API with updated UTC values
+      onTimeFrameChange({
+        _from: getSeconds(fromInUTC),
+        _until: getSeconds(untilInUTC),
+      });
+      console.log(value)
+    }
+  };
 
   const MAX_LIMITS = 11;
 
@@ -77,6 +167,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   //        -> Currently, it will be only based on country even if asnCode is selected.
   const getCountryCodeFromRegion = useCallback(async (regionCode) => {
     if (regionCountryCacheRef.current[regionCode]) {
+      console.log(regionCountryCacheRef.current[regionCode])
       return regionCountryCacheRef.current[regionCode];
     }
     try {
@@ -86,6 +177,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       if (countries.length > 0) {
 
         const countryCode = countries[0].code;
+        console.log(countryCode)
 
         regionCountryCacheRef.current[regionCode] = countryCode;
         return countryCode;
@@ -100,20 +192,16 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   async function getCountryNamesFromAsn(asnCode) {
     try {
-      console.log(asnCode)
       const url = `/entities/query?entityType=geoasn&relatedTo=asn/${asnCode}`
       const fetched = await fetchData({url});
       // console.log(fetched?.data);
       const geoasns = (fetched?.data?.data ?? []);
-      console.log(geoasns);
-      const matchingCountryNames = geoasns
-          .filter(item => item.subnames && item.subnames.country)
-          .map(item => item.subnames.country);
-      console.log(matchingCountryNames);
       // if (matchingCountryNames.length > 0) {
       //   return matchingCountryNames.map(country => country.code);
       // }
-      return matchingCountryNames;
+      return geoasns
+          .filter(item => item.subnames && item.subnames.country)
+          .map(item => item.subnames.country);
     } catch(error) {
       console.log("Error getting country code");
       return null;
@@ -126,7 +214,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       const url = `/entities/query?entityType=asn&entityCode=${asnCode}`
       const fetched = await fetchData({url});
       const asnEntity = fetched?.data?.data ?? [];
-      console.log(asnEntity);
       if(asnEntity.length > 0) {
         const entity = asnEntity[0];
         return {
@@ -150,7 +237,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   //fetch countries names to populate the dropdown
   useEffect(()=> {
-    console.log("Effect triggered");
     const fetchCountries = async () => {
       try {
         let url = `/entities/query?entityType=country`
@@ -183,7 +269,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
           map[country.code] = country.emoji;
           return map;
         }, {});
-        console.log(updatedResults);
         const countrySearchResultOptions = (updatedResults || []).map((d) => ({
           value: d.id,
           name: d.label,
@@ -204,12 +289,11 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   //fetch region names to populate the dropdown
   useEffect(()=> {
-    console.log("Effect triggered");
+
     const fetchRegions = async () => {
       try {
         let url = '/entities/query?entityType=region';
         if(entityType){
-          console.log("entityType:", entityType);
           let countryCode = "";
           if(entityType === "country" && entityCode){
             countryCode = entityCode;
@@ -221,7 +305,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             url += `&relatedTo=country/${countryCode}`
           }
         }
-        console.log(url)
         const fetched = await fetchData({url});
         const results = (fetched?.data?.data ?? []).map((entity) => {
           return {
@@ -264,7 +347,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   // fetch asn names to populate the dropdown
   useEffect(()=> {
-    console.log("Effect triggered");
+
     // put selected option in
     const fetchAsnNetworks = async () => {
       try {
@@ -275,8 +358,8 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               url += `&relatedTo=country/${entityCode}`;
             }
             else if (entityType === "region") {
-               const countryCode = await getCountryCodeFromRegion(entityCode);
-               url += `&relatedTo=country/${countryCode}`;
+               // const countryCode = await getCountryCodeFromRegion(entityCode);
+               url += `&relatedTo=region/${entityCode}`;
             }
           }
           if(entityType === "asn") {
@@ -338,7 +421,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   // Fill the dropdowns with the selected values whenever "Country" is chosen as the entity.
   useEffect(() => {
-    console.log("Effect triggered");
+
     if(entityCode && entityType === "country"){
       const _countryNameMap = countries.reduce((map, country) => {
         map[country.code] = country.name;
@@ -353,7 +436,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   // Fill the dropdowns with the selected values whenever "Regions" is chosen as the entity.
   useEffect(() => {
-    console.log("Effect triggered");
+
     if (entityType === "region" && entityCode && regionOptions.length > 0) {
       const fetchRegionData = async () => {
         const _countryNameMap = countries.reduce((map, country) => {
@@ -365,9 +448,9 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
           const countryCode = await getCountryCodeFromRegion(entityCode);
           setCountrySearchText(_countryNameMap[countryCode]);
           setCountrySelectedCode(countryCode);
-          console.log(regionOptions)
+
           const region = await regionOptions.find((region) => region.entity.code === entityCode);
-          console.log(region);
+
           setRegionSearchText(region ? region.entity.name : "");
 
           setAsnSearchText("All Networks");
@@ -382,7 +465,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   // Fill the dropdowns with the selected values whenever "Asn/Networks" is chosen as the entity.
   useEffect(() => {
-    console.log("Effect triggered");
+
     if (entityType === "asn" && entityCode
         && asnOptions.length > 0
     ) {
@@ -390,7 +473,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       const fetchAsnData = async () => {
         try {
           const countryNames = await getCountryNamesFromAsn(entityCode);
-          console.log(countryNames);
           if(countryNames.length === 1) {
             setCountrySearchText(countryNames[0]);
           }
@@ -421,9 +503,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               // duration: 5,
             });
           }
-          // console.log(asnOptions);
           const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
-          console.log(asn)
           setAsnSearchText(asn ? asn : "");
           setRegionSearchText("All Regions");
         } catch (error) {
@@ -436,7 +516,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   }, [entityType, entityCode, asnOptions]);
 
   useEffect(() => {
-    console.log("Effect triggered");
     if(entityCode === undefined && entityType) {
       switch (entityType) {
         case "country":
@@ -460,7 +539,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       }
     }
   }, [entityType, entityCode]);
-
 
 
   const handleCountrySelect = (id) => {
@@ -489,17 +567,22 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     setPopoutOpen(val);
   }
 
-  function handleRangeChange([fromDayjs, untilDayjs]) {
-
-    const fromInTimezone = fromDayjs.tz(selectedTimezone);
-    const untilInTimezone = untilDayjs.tz(selectedTimezone);
-
-    setRange([fromInTimezone, untilInTimezone]);
+  function handleRangeChange([fromDayjs, untilDayjs], timezone) {
+    console.log(selectedTimezone)
     console.log(fromDayjs)
-    console.log(untilDayjs)
+    const fromInTimezone = fromDayjs.tz(selectedTimezone, true);
+    const untilInTimezone = untilDayjs.tz(selectedTimezone, true);
+    console.log(fromInTimezone)
+
+    const fromInUTC = fromInTimezone.tz("UTC");
+    const untilInUTC = untilInTimezone.tz("UTC");
+
+    // Update the displayed range
+    setRange([fromDayjs, untilDayjs]);
+
     onTimeFrameChange({
-      _from: getSeconds(fromInTimezone, selectedTimezone),
-      _until: getSeconds(untilInTimezone, selectedTimezone),
+      _from: getSeconds(fromInUTC),
+      _until: getSeconds(untilInUTC),
     });
   }
 
@@ -642,132 +725,153 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   return (
         <div>
           <div className="flex items-start card p-6 mb-6 control-panel">
-        {/*<div className="control-panel__controls col-1">*/}
-        {/*<div className="searchbar">*/}
-        {/*  <div className="flex items-center">*/}
-        {/*    <T.p*/}
-        {/*        text={"controlPanel.searchBarPlaceholder"}*/}
-        {/*        className="text-lg"*/}
-        {/*    />*/}
-        {/*    <Tooltip*/}
-        {/*        title={tooltipSearchBarTitle}*/}
-        {/*        text={tooltipSearchBarText}*/}
-        {/*    />*/}
-        {/*  </div>*/}
-        {/*  {searchbar()}*/}
-        {/*</div>*/}
+            {/*<div className="control-panel__controls col-1">*/}
+            {/*<div className="searchbar">*/}
+            {/*  <div className="flex items-center">*/}
+            {/*    <T.p*/}
+            {/*        text={"controlPanel.searchBarPlaceholder"}*/}
+            {/*        className="text-lg"*/}
+            {/*    />*/}
+            {/*    <Tooltip*/}
+            {/*        title={tooltipSearchBarTitle}*/}
+            {/*        text={tooltipSearchBarText}*/}
+            {/*    />*/}
+            {/*  </div>*/}
+            {/*  {searchbar()}*/}
+            {/*</div>*/}
 
-        {/*Countries*/}
-        <div className="control-panel__controls">
-          <label className="control-panel__label">Country</label>
-          <Select
-              showSearch
-              placeholder="Search Countries"
-              value={countrySearchText}
-              optionFilterProp="name" //label
-              onChange={handleCountryChange}
-              onSelect={handleCountrySelect}
-              options={countryOptions}
-              style={{width: '150px'}}
-          >
-          </Select>
+            {/*Countries*/}
+            <div className="control-panel__controls">
+              <label className="control-panel__label">Country</label>
+              <Select
+                  showSearch
+                  placeholder="Search Countries"
+                  value={countrySearchText}
+                  optionFilterProp="name" //label
+                  onChange={handleCountryChange}
+                  onSelect={handleCountrySelect}
+                  options={countryOptions}
+                  style={{width: '150px'}}
+              >
+              </Select>
 
-        </div>
+            </div>
 
-        {/*Region*/}
-        <div className="control-panel__controls">
-          <label className="control-panel__label">Region</label>
-          <Select
-              showSearch
-              placeholder="Search Regions"
-              value={regionSearchText}
-              optionFilterProp="label"
-              onChange={handleRegionChange}
-              onSelect={handleRegionSelect}
-              options={regionOptions}
-              style={{width: '150px'}}
-          >
-          </Select>
-        </div>
+            {/*Region*/}
+            <div className="control-panel__controls">
+              <label className="control-panel__label">Region</label>
+              <Select
+                  showSearch
+                  placeholder="Search Regions"
+                  value={regionSearchText}
+                  optionFilterProp="label"
+                  onChange={handleRegionChange}
+                  onSelect={handleRegionSelect}
+                  options={regionOptions}
+                  style={{width: '150px'}}
+              >
+              </Select>
+            </div>
 
-        {/*Asn*/}
-        <div className="control-panel__controls">
-          <label className="control-panel__label">Networks</label>
+            {/*Asn*/}
+            <div className="control-panel__controls">
+              <label className="control-panel__label">Networks</label>
 
-          <Select
-              showSearch
-              placeholder="Search Networks"
-              value={asnSearchText}
-              optionFilterProp="label"
-              onChange={handleAsnChange}
-              onSelect={handleAsnSelect}
-              options={asnOptions}
-              style={{width: '150px'}}
-          >
-          </Select>
-        </div>
+              <Select
+                  showSearch
+                  placeholder="Search Networks"
+                  value={asnSearchText}
+                  optionFilterProp="label"
+                  onChange={handleAsnChange}
+                  onSelect={handleAsnSelect}
+                  options={asnOptions}
+                  style={{width: '150px'}}
+              >
+              </Select>
+            </div>
 
-        {/*Range Picker*/}
-        <div className="control-panel__controls" >
-          <label className="control-panel__label" style={{display: 'inline-flex', alignItems: 'center', height: '12.1px'}}>
-            {/*<span >*/}
-            <T.p text={"controlPanel.timeRange"} className="text-lg"/>
-            <Tooltip
-                title={tooltipTimeRangeTitle}
-                text={tooltipTimeRangeText}
-            />
-            {/*</span>*/}
-          </label>
-          <RangePicker
-              presets={[
-                {
-                  label: (
-                      <span
-                          aria-label="Quick Select"
-                          style={{
-                            color: '#dad7d6',
-                            cursor: 'default',
-                            fontWeight: 'bold',
-                            pointerEvents: 'none',
-                          }}
-                                >
+            {/*Range Picker*/}
+            <div className="control-panel__controls">
+              <label className="control-panel__label"
+                     style={{display: 'inline-flex', alignItems: 'center', height: '12.1px'}}>
+                {/*<span >*/}
+                <T.p text={"controlPanel.timeRange"} className="text-lg"/>
+                <Tooltip
+                    title={tooltipTimeRangeTitle}
+                    text={tooltipTimeRangeText}
+                />
+                {/*</span>*/}
+              </label>
+              <RangePicker
+                  presets={[
+                    {
+                      label: (
+                          <span
+                              aria-label="Quick Select"
+                              style={{
+                                color: '#dad7d6',
+                                cursor: 'default',
+                                fontWeight: 'bold',
+                                pointerEvents: 'none',
+                              }}
+                          >
                       Quick Select:
                     </span>
-                            ),
-                          },
-                          ...rangePresets,
-              ]}
-              value={range}
-              showTime={{format: "h:mmA"}}
-              format="MMM D YYYY h:mma"
-              onChange={handleRangeChange}
-              onOk={handleRangeChange}
-              style={{ width: '450px' }}
-          />
-        </div>
+                      ),
+                    },
+                    ...rangePresets,
+                  ]}
+                  value={range}
+                  showTime={{format: "h:mmA"}}
+                  format="MMM D YYYY h:mma"
+                  onChange={handleRangeChange}
+                  onOk={handleRangeChange}
+                  style={{width: '400px'}}
+              />
+            </div>
 
-        {/*Time Zone*/}
-        <div className="control-panel__controls">
-          <label className="control-panel__label">Timezone</label>
-          <Select
-              showSearch
-              placeholder="Select a Timezone"
-              optionFilterProp="children"
-              style={{width: '180px'}}
-              dropdownStyle={{ width: '180px' }}
-              defaultValue="UTC"
-              value={selectedTimezone}
-              onChange={(value) => setSelectedTimezone(value)}
-          >
-            {timezones.map((tz) => (
-                <Option key={tz} value={tz}>
-                  {tz}
-                </Option>
-            ))}
-          </Select>
-        </div>
+            {/*<div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px'}}>*/}
+            {/*  <span>UTC</span>*/}
+            {/*  <Switch*/}
+            {/*      checked={isSwitchActive}*/}
+            {/*      onChange={handleTimezoneToggleSwitch}*/}
+            {/*      checkedChildren="Local"*/}
+            {/*      unCheckedChildren="UTC"*/}
+            {/*  />*/}
+            {/*  <span>Local</span>*/}
+            {/*</div>*/}
+            {/*Time Zone*/}
+            <div className="control-panel__controls">
+              <label className="control-panel__label">Timezone</label>
+              <Select
+                  showSearch
+                  placeholder="Select a Timezone"
+                  optionFilterProp="children"
+                  style={{width: '150px'}}
+                  dropdownStyle={{width: '180px'}}
+                  value={selectedTimezone}
+                  defaultValue={selectedTimezone}
+                  onChange={handleTimezoneChange}
+              >
+                {timezones.map((tz) => (
+                    <Option key={tz} value={tz}>
+                      {tz}
+                    </Option>
+                ))}
+              </Select>
 
-      </div>
+            </div>
+            <div style={{display: 'flex', alignItems: 'center', marginTop: '3rem'}}>
+              <Switch
+                  size="small"
+                  checked={selectedTimezone === userTimezone}
+                  onChange={handleTimezoneToggleSwitch}
+                  checkedChildren="Local"
+                  unCheckedChildren="UTC"
+              />
+            </div>
+
+          </div>
 
           {entityCode && <DynamicBreadCrumb
               searchParams={searchParams}
@@ -775,12 +879,12 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               entityCode={entityCode}
               countryOptions={countryOptions}
               regionOptions={regionOptions}
-              asnOptions={asnOptions}
-              getCountryCodeFromRegion={getCountryCodeFromRegion}
-          />}
-        </div>
+                asnOptions={asnOptions}
+                getCountryCodeFromRegion={getCountryCodeFromRegion}
+            />}
+          </div>
 
-  );
-}
+          );
+          }
 
-export default ControlPanel;
+          export default ControlPanel;

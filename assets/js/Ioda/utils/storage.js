@@ -1,5 +1,6 @@
 export const LANG_KEY = "lang";
 export const SIMPLIED_VIEW_KEY = "simplified_view";
+// export const TIME_ZONE = "timezone";
 
 export const getSavedLanguagePreference = () => {
   return localStorage.getItem(LANG_KEY) || "en";

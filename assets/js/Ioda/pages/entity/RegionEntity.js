@@ -194,7 +194,7 @@ const RegionEntity = (props) => {
 
   const isAdvancedMode = getSavedAdvancedModePreference();
   // Global
-
+  const [entityTypeState, setEntityTypeState] = useState("region");
   const [entityCodeState, setEntityCodeState] = useState(regionCode); // regionCode
   const [entityName, setEntityName] = useState(""); // regionName
   const [parentEntityName, setParentEntityName] = useState(""); //countryName
@@ -682,7 +682,7 @@ const RegionEntity = (props) => {
   // manage the date selected in the input
   function handleTimeFrame ({ _from, _until }) {
     console.log(regionCode)
-    console.log(from, until)
+    console.log(_from, _until)
     if(regionCode != null) {
       navigate(
           `/region/${regionCode}?from=${_from}&until=${_until}`
@@ -2453,6 +2453,141 @@ const RegionEntity = (props) => {
             </div>
           </div>
 
+
+          <EntityRelated
+              entityName={entityName}
+              entityType={entityTypeState}
+              parentEntityName={parentEntityName}
+              toggleModal={toggleModal}
+              showMapModal={showMapModal}
+              showTableModal={showTableModal}
+              // to populate map
+              topoData={topoData}
+              topoScores={topoScores}
+              bounds={bounds}
+              handleEntityShapeClick={(entity) =>
+                  handleEntityShapeClick(entity)
+              }
+              // to populate asn summary table
+              relatedToTableSummaryProcessed={
+                relatedToTableSummaryProcessed
+              }
+              relatedToTableSummary={relatedToTableSummaryState}
+              // handleEntityClick={(entity) => this.handleEntityClick(entity)}
+              // raw signals tables for region modal
+              handleSelectAndDeselectAllButtons={(event) =>
+                  handleSelectAndDeselectAllButtons(event)
+              }
+              regionalSignalsTableSummaryDataProcessed={
+                regionalSignalsTableSummaryDataProcessed
+              }
+              toggleEntityVisibilityInHtsViz={(event) =>
+                  toggleEntityVisibilityInHtsViz(event, "region")
+              }
+              handleCheckboxEventLoading={(item) =>
+                  handleCheckboxEventLoading(item)
+              }
+              asnSignalsTableSummaryDataProcessed={
+                asnSignalsTableSummaryDataProcessed
+              }
+              // Regional HTS methods
+              regionalSignalsTableEntitiesChecked={
+                regionalSignalsTableEntitiesChecked
+              }
+              asnSignalsTableEntitiesChecked={
+                asnSignalsTableEntitiesChecked
+              }
+              initialTableLimit={initialTableLimit}
+              rawRegionalSignalsProcessedPingSlash24={
+                rawRegionalSignalsProcessedPingSlash24
+              }
+              rawRegionalSignalsProcessedBgp={
+                rawRegionalSignalsProcessedBgp
+              }
+              rawRegionalSignalsProcessedUcsdNt={
+                rawRegionalSignalsProcessedUcsdNt
+              }
+              rawRegionalSignalsProcessedMeritNt={
+                rawRegionalSignalsProcessedMeritNt
+              }
+              rawAsnSignalsProcessedPingSlash24={
+                rawAsnSignalsProcessedPingSlash24
+              }
+              rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
+              rawAsnSignalsProcessedUcsdNt={
+                rawAsnSignalsProcessedUcsdNt
+              }
+              rawAsnSignalsProcessedMeritNt={
+                rawAsnSignalsProcessedMeritNt
+              }
+              summaryDataMapRaw={summaryDataMapRaw}
+              rawSignalsMaxEntitiesHtsError={
+                rawSignalsMaxEntitiesHtsError
+              }
+              // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
+              asnSignalsTableTotalCount={asnSignalsTableTotalCount}
+              regionalSignalsTableTotalCount={
+                regionalSignalsTableTotalCount
+              }
+              // function used to call api to load remaining entities
+              handleLoadAllEntitiesButton={(event) =>
+                  handleLoadAllEntitiesButton(event)
+              }
+              // Used to determine if load all message should display or not
+              regionalRawSignalsLoadAllButtonClicked={
+                regionalRawSignalsLoadAllButtonClicked
+              }
+              asnRawSignalsLoadAllButtonClicked={
+                asnRawSignalsLoadAllButtonClicked
+              }
+              // modal loading icon for load all button
+              loadAllButtonEntitiesLoading={
+                loadAllButtonEntitiesLoading
+              }
+              handleAdditionalEntitiesLoading={() =>
+                  handleAdditionalEntitiesLoading()
+              }
+              additionalRawSignalRequestedPingSlash24={
+                additionalRawSignalRequestedPingSlash24
+              }
+              additionalRawSignalRequestedBgp={
+                additionalRawSignalRequestedBgp
+              }
+              additionalRawSignalRequestedUcsdNt={
+                additionalRawSignalRequestedUcsdNt
+              }
+              additionalRawSignalRequestedMeritNt={
+                additionalRawSignalRequestedMeritNt
+              }
+              // used for tracking when check max/uncheck all loading icon should appear and not
+              checkMaxButtonLoading={checkMaxButtonLoading}
+              uncheckAllButtonLoading={uncheckAllButtonLoading}
+              // used to check if there are no entities available to load (to control when loading bar disappears)
+              rawRegionalSignalsRawBgpLength={
+                rawRegionalSignalsRawBgp.length
+              }
+              rawRegionalSignalsRawPingSlash24Length={
+                rawRegionalSignalsRawPingSlash24.length
+              }
+              rawRegionalSignalsRawUcsdNtLength={
+                rawRegionalSignalsRawUcsdNt.length
+              }
+              rawRegionalSignalsRawMeritNtLength={
+                rawRegionalSignalsRawMeritNt.length
+              }
+              rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp.length}
+              rawAsnSignalsRawPingSlash24Length={
+                rawAsnSignalsRawPingSlash24.length
+              }
+              rawAsnSignalsRawUcsdNtLength={
+                rawAsnSignalsRawUcsdNt.length
+              }
+              rawAsnSignalsRawMeritNtLength={
+                rawAsnSignalsRawMeritNt.length
+              }
+          />
+
+
         </React.Fragment>
       ) : (
         <div className="p-6 text-lg card">
@@ -2623,6 +2758,18 @@ const mapDispatchToProps = (dispatch) => {
         relatedToEntityCode
       );
     },
+    asnSignalsTableSummaryDataAction: (
+        entityType,
+        relatedToEntityType,
+        relatedToEntityCode
+    ) => {
+      asnSignalsTableSummaryDataAction(
+          dispatch,
+          entityType,
+          relatedToEntityType,
+          relatedToEntityCode
+      );
+    },
     getRawRegionalSignalsPingSlash24Action: (
       entityType,
       entities,
@@ -2709,6 +2856,94 @@ const mapDispatchToProps = (dispatch) => {
         order,
         dataSource,
         maxPoints
+      );
+    },
+    getRawAsnSignalsPingSlash24Action: (
+        entityType,
+        entities,
+        from,
+        until,
+        attr = null,
+        order = null,
+        dataSource,
+        maxPoints = null
+    ) => {
+      getRawAsnSignalsPingSlash24Action(
+          dispatch,
+          entityType,
+          entities,
+          from,
+          until,
+          attr,
+          order,
+          dataSource,
+          maxPoints
+      );
+    },
+    getRawAsnSignalsBgpAction: (
+        entityType,
+        entities,
+        from,
+        until,
+        attr = null,
+        order = null,
+        dataSource,
+        maxPoints = null
+    ) => {
+      getRawAsnSignalsBgpAction(
+          dispatch,
+          entityType,
+          entities,
+          from,
+          until,
+          attr,
+          order,
+          dataSource,
+          maxPoints
+      );
+    },
+    getRawAsnSignalsUcsdNtAction: (
+        entityType,
+        entities,
+        from,
+        until,
+        attr = null,
+        order = null,
+        dataSource,
+        maxPoints = null
+    ) => {
+      getRawAsnSignalsUcsdNtAction(
+          dispatch,
+          entityType,
+          entities,
+          from,
+          until,
+          attr,
+          order,
+          dataSource,
+          maxPoints
+      );
+    },
+    getRawAsnSignalsMeritNtAction: (
+        entityType,
+        entities,
+        from,
+        until,
+        attr = null,
+        order = null,
+        dataSource,
+        maxPoints = null
+    ) => {
+      getRawAsnSignalsMeritNtAction(
+          dispatch,
+          entityType,
+          entities,
+          from,
+          until,
+          attr,
+          order,
+          dataSource,
+          maxPoints
       );
     },
     getAdditionalRawSignalAction: (

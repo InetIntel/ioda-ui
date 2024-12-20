@@ -97,6 +97,7 @@ const EntityRelated = (props) => {
     rawAsnSignalsRawUcsdNtLength,
     rawAsnSignalsRawMeritNtLength,
     relatedToTableSummaryProcessed,
+    handleGlobalAsnSignals,
   } = props;
 
   const relatedTableConfig = useRef();
@@ -268,6 +269,7 @@ const EntityRelated = (props) => {
               rawRegionalSignalsRawMeritNtLength={
                 rawRegionalSignalsRawMeritNtLength
               }
+              handleGlobalAsnSignals={handleGlobalAsnSignals}
             />
           </div>
           <div className="map" style={{ display: "block", height: "40.5rem" }}>
@@ -422,6 +424,7 @@ const EntityRelated = (props) => {
               rawAsnSignalsRawMeritNtLength={
                 rawAsnSignalsRawMeritNtLength
               }
+              handleGlobalAsnSignals={handleGlobalAsnSignals}
             />
           </div>
           <div className="tab__table" ref={relatedTableConfig}>

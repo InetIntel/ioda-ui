@@ -65,9 +65,24 @@ const Dashboard = (props) => {
   // const entityType = useMemo(() => tabs[urlEntityType] ? urlEntityType : country.type, []);
   // const entityType= "country";
   // Control Panel
+  // const [from, setFrom] = useState(
+  //     urlFromDate ??
+  //     (localStorage.getItem('timezone')
+  //         ? getCurrentAndPastTimeInSecondsForTimezone(localStorage.getItem('timezone')).start
+  //         : getPreviousMinutesAsUTCSecondRange(24 * 60).start)
+  // );
+  //
+  // const [until, setUntil] = useState(
+  //     urlUntilDate ??
+  //     (localStorage.getItem('timezone')
+  //         ? getCurrentAndPastTimeInSecondsForTimezone(localStorage.getItem('timezone')).end
+  //         : getNowAsUTCSeconds())
+  // );
   const [from, setFrom] = useState(urlFromDate ?? getPreviousMinutesAsUTCSecondRange(24 * 60).start);
   const [until, setUntil] = useState(urlUntilDate ?? getNowAsUTCSeconds());
-  // Tabs
+
+  console.log(from, until)
+// Tabs
   const [activeTabType, setActiveTabType] = useState(entityType);
   //Tab View Changer Button
   const [tabCurrentView, setTabCurrentView] =
@@ -151,8 +166,10 @@ const Dashboard = (props) => {
   // manage the date selected in the input
   function handleTimeFrame({_from, _until}) {
     if (from === _from && until === _until) {
+      console.log("No change")
       return;
     }
+    console.log("No change")
 
     setFrom(_from);
     setUntil(_until);
@@ -168,6 +185,7 @@ const Dashboard = (props) => {
     getDataOutageSummary(activeTabType);
     getTotalOutages(activeTabType);
     navigate(`/dashboard?from=${_from}&until=${_until}`);
+    console.log('Passed navigate')
   }
 
   // Tabbing

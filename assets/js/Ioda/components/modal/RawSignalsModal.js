@@ -52,7 +52,7 @@ import {
 } from "../../utils";
 import HorizonTSChart from "horizon-timeseries-chart";
 import { Style } from "react-style-tag";
-import { Button, Modal } from "antd";
+import {Button, Modal, Switch} from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 import {connect} from "react-redux";
 
@@ -96,8 +96,13 @@ const RawSignalsModal = (props) => {
     rawRegionalSignalsRawMeritNtLength,
     rawAsnSignalsRawMeritNtLength,
     additionalRawSignalRequestedMeritNt,
-    additionalRawSignalRequestedBgp
+    additionalRawSignalRequestedBgp,
+    handleGlobalAsnSignals,
+    entityName,
+    rawAsnSignalsRawBgpLength,
+    uncheckAllButtonLoading,
   } = props;
+  // console.log(asnSignalsTableSummaryDataProcessed);
 
   const [mounted, setMounted] = useState(false);
   const [additionalEntitiesLoading, setAdditionalEntitiesLoading] = useState(false);
@@ -106,6 +111,7 @@ const RawSignalsModal = (props) => {
   const [renderingDataUcsdNt, setRenderingDataUcsdNt] = useState(false);
   const [renderingDataMeritNt, setRenderingDataMeritNt] = useState(false);
   const [chartWidth, setChartWidth] = useState(null);
+  const [globalSwitch, setGlobalSwitch] = useState(false);
 
   let configPingSlash24 = useRef(null);
   let configBgp = useRef(null);
@@ -337,6 +343,10 @@ const RawSignalsModal = (props) => {
     }, 600);
   }
 
+  const handleGlobalSwitch = () => {
+    setGlobalSwitch(globalSwitch => !globalSwitch);
+    handleGlobalAsnSignals();
+  }
 
 
   const regionTitle = T.translate("entityModal.regionTitle");
@@ -399,6 +409,8 @@ const RawSignalsModal = (props) => {
     return null;
   }
 
+  const modeStatus = globalSwitch ? "Global" : "Local";
+
   return (
       <Modal
           open={showModal}
@@ -458,7 +470,7 @@ const RawSignalsModal = (props) => {
               <Button
                   type="primary"
                   className="ml-auto"
-                  icon={<CloseOutlined />}
+                  icon={<CloseOutlined/>}
                   onClick={() => toggleModal(modalLocation)}
               />
             </div>
@@ -485,6 +497,14 @@ const RawSignalsModal = (props) => {
                   {currentCountInHts3}
                 </p>
             )}
+          </div>
+          <div className="row items-center">
+            <Switch
+                className="mr-3"
+                checked={globalSwitch}
+                onChange={handleGlobalSwitch}
+            />
+            <span className="text-lg">{modeStatus}</span>
           </div>
           <div className="flex gap-6 modal__content">
             <div className="col-1 mw-0">
@@ -615,7 +635,7 @@ const RawSignalsModal = (props) => {
                               }
                           />
                       ) : (
-                          <Loading />
+                          <Loading/>
                       )
                   ) : asnSignalsTableSummaryDataProcessed &&
                   asnSignalsTableTotalCount ? (
@@ -634,7 +654,7 @@ const RawSignalsModal = (props) => {
                           }
                       />
                   ) : (
-                      <Loading />
+                      <Loading/>
                   )}
                 </div>
               </div>
@@ -643,7 +663,7 @@ const RawSignalsModal = (props) => {
                     <h3 className="heading-h3">{regionalMapTitle}</h3>
                     <div
                         className="modal__map"
-                        style={{ display: "block", height: "40.5rem" }}
+                        style={{display: "block", height: "40.5rem"}}
                     >
                       {topoData &&
                       bounds &&
@@ -667,7 +687,7 @@ const RawSignalsModal = (props) => {
                             </h2>
                           </div>
                       ) : (
-                          <Loading />
+                          <Loading/>
                       )}
                     </div>
                   </div>
@@ -681,18 +701,18 @@ const RawSignalsModal = (props) => {
                   <>
                     {rawRegionalSignalsRawPingSlash24Length !== 0 &&
                     rawRegionalSignalsProcessedPingSlash24 &&
-                    rawRegionalSi/gnalsProcessedPingSlash24.length ===
+                    rawRegionalSignalsProcessedPingSlash24.length ===
                     0 ? null :
                         rawRegionalSignalsRawPingSlash24Length === 0 &&
                         !rawRegionalSignalsProcessedPingSlash24 ? (
-                            <Loading text="Retrieving Data..." />
+                            <Loading text="Retrieving Data..."/>
                         ) : rawRegionalSignalsRawPingSlash24Length !== 0 &&
                         titlePingSlash24 &&
                         titlePingSlash24.current &&
                         titlePingSlash24.current.nextElementSibling !==
                         "div#region-horizon-chart--pingSlash24.modal__chart" ? (
                             <div className="renderingDataPingSlash24">
-                              <Loading text="Rendering Data..." />
+                              <Loading text="Rendering Data..."/>
                             </div>
                         ) : null}
                   </>
@@ -703,20 +723,20 @@ const RawSignalsModal = (props) => {
                     rawAsnSignalsProcessedPingSlash24.length ===
                     0 ? null : rawAsnSignalsRawPingSlash24Length ===
                     0 && !rawAsnSignalsProcessedPingSlash24 ? (
-                        <Loading text="Retrieving Data..." />
+                        <Loading text="Retrieving Data..."/>
                     ) : rawAsnSignalsRawPingSlash24Length !== 0 &&
                     titlePingSlash24 &&
                     titlePingSlash24.current &&
                     titlePingSlash24.current.nextElementSibling !==
                     "div#asn-horizon-chart--pingSlash24.modal__chart" ? (
                         <div className="renderingDataPingSlash24">
-                          <Loading text="Rendering Data..." />
+                          <Loading text="Rendering Data..."/>
                         </div>
                     ) : null}
                   </>
               )}
               {additionalRawSignalRequestedPingSlash24 === true ? (
-                  <Loading />
+                  <Loading/>
               ) : modalLocation === "map" ? (
                   <>
                     {rawRegionalSignalsProcessedPingSlash24 &&
@@ -755,14 +775,14 @@ const RawSignalsModal = (props) => {
                     rawRegionalSignalsProcessedBgp.length ===
                     0 ? null : rawRegionalSignalsRawBgpLength ===
                     0 && !rawRegionalSignalsProcessedBgp ? (
-                        <Loading text="Retrieving Data..." />
+                        <Loading text="Retrieving Data..."/>
                     ) : rawRegionalSignalsRawBgpLength !== 0 &&
                     titleBgp &&
                     titleBgp.current &&
                     titleBgp.current.nextElementSibling !==
                     "div#region-horizon-chart--bgp.modal__chart" ? (
                         <div className="renderingDataBgp">
-                          <Loading text="Rendering Data..." />
+                          <Loading text="Rendering Data..."/>
                         </div>
                     ) : null}
                   </>
@@ -773,20 +793,20 @@ const RawSignalsModal = (props) => {
                     rawAsnSignalsProcessedBgp.length ===
                     0 ? null : rawAsnSignalsRawBgpLength === 0 &&
                     !rawAsnSignalsProcessedBgp ? (
-                        <Loading text="Retrieving Data..." />
-                    ) :rawAsnSignalsRawBgpLength !== 0 &&
+                        <Loading text="Retrieving Data..."/>
+                    ) : rawAsnSignalsRawBgpLength !== 0 &&
                     titleBgp &&
                     titleBgp.current &&
                     titleBgp.current.nextElementSibling !==
                     "div#asn-horizon-chart--bgp.modal__chart" ? (
                         <div className="renderingDataBgp">
-                          <Loading text="Rendering Data..." />
+                          <Loading text="Rendering Data..."/>
                         </div>
                     ) : null}
                   </>
               )}
               {additionalRawSignalRequestedBgp === true ? (
-                  <Loading />
+                  <Loading/>
               ) : modalLocation === "map" ? (
                   <>
                     {rawRegionalSignalsProcessedBgp &&
@@ -824,14 +844,14 @@ const RawSignalsModal = (props) => {
                     rawRegionalSignalsProcessedMeritNt.length ===
                     0 ? null : rawRegionalSignalsRawMeritNtLength ===
                     0 && !rawRegionalSignalsProcessedMeritNt ? (
-                        <Loading text="Retrieving Data..." />
+                        <Loading text="Retrieving Data..."/>
                     ) : rawRegionalSignalsRawMeritNtLength !== 0 &&
                     configMeritNt &&
                     configMeritNt.current &&
                     configMeritNt.current.nextElementSibling !==
                     "div#region-horizon-chart--meritNt.modal__chart" ? (
                         <div className="renderingDataMeritNt">
-                          <Loading text="Rendering Data..." />
+                          <Loading text="Rendering Data..."/>
                         </div>
                     ) : null}
                   </>
@@ -841,21 +861,21 @@ const RawSignalsModal = (props) => {
                     rawAsnSignalsProcessedMeritNt &&
                     rawAsnSignalsProcessedMeritNt.length ===
                     0 ? null : rawAsnSignalsRawMeritNtLength === 0 &&
-                    ! rawAsnSignalsProcessedMeritNt ? (
-                        <Loading text="Retrieving Data..." />
+                    !rawAsnSignalsProcessedMeritNt ? (
+                        <Loading text="Retrieving Data..."/>
                     ) : rawAsnSignalsRawMeritNtLength !== 0 &&
                     configMeritNt &&
                     configMeritNt.current &&
                     configMeritNt.current.nextElementSibling !==
                     "div#asn-horizon-chart--meritNt.modal__chart" ? (
                         <div className="renderingDataMeritNt">
-                          <Loading text="Rendering Data..." />
+                          <Loading text="Rendering Data..."/>
                         </div>
                     ) : null}
                   </>
               )}
               {additionalRawSignalRequestedMeritNt === true ? (
-                  <Loading />
+                  <Loading/>
               ) : modalLocation === "map" ? (
                   <>
                     {rawRegionalSignalsProcessedMeritNt &&

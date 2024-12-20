@@ -23,12 +23,26 @@ export const secondsToUTC = (seconds) => {
   return millisecondsToUTC(milliseconds);
 };
 
+export const millisecondsToTimezone= (milliseconds) => {
+  const timezone = localStorage.getItem("timezone");
+  return dayjs(milliseconds).tz(timezone);
+};
+
+export const secondsToTimeZone = (seconds) => {
+  const milliseconds = secondsToMilliseconds(seconds);
+  return millisecondsToTimezone(milliseconds);
+};
+
 export const getNowAsUTC = () => {
   return dayjs.utc();
 };
 
-export const getSeconds = (dayjsObj, timezoneStr = 'UTC') => {
-  return millisecondsToSeconds(dayjs.tz(dayjsObj, timezoneStr).valueOf());
+// export const getSeconds = (dayjsObj, timezoneStr = 'UTC') => {
+//   return millisecondsToSeconds(dayjs.tz(dayjsObj, timezoneStr).valueOf());
+// };
+
+export const getSeconds = (dayjsObj) => {
+  return millisecondsToSeconds(dayjs.utc(dayjsObj).valueOf());
 };
 
 export const getNowAsUTCMilliseconds = () => {
@@ -44,6 +58,23 @@ export const getPreviousMinutesAsUTCSecondRange = (minutes) => {
   return {
     start: now - minutes * millisecondsToSeconds(MS_IN_MIN),
     end: now,
+  };
+};
+
+export const getCurrentAndPastTimeInSecondsForTimezone = (timezone) => {
+  if (!timezone) {
+    throw new Error('Timezone is required');
+  }
+
+  const currentTimeInMilliseconds = dayjs().tz(timezone).valueOf();
+
+  const currentTimeInSeconds = Math.floor(currentTimeInMilliseconds / 1000);
+
+  const time24HoursAgoInSeconds = currentTimeInSeconds - 24 * 60 * 60;
+
+  return {
+    start: time24HoursAgoInSeconds,
+    end: currentTimeInSeconds
   };
 };
 
