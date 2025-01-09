@@ -38,7 +38,7 @@
 // React Imports
 import React, { useState, useEffect, useRef } from "react";
 import { connect } from "react-redux";
-import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
@@ -174,16 +174,24 @@ const RegionEntity = (props) => {
 
   const {
     type,
+    entityType,
+    entityCode,
     regionCode,
+    asnCode,
     signals,
     alerts,
     relatedToMapSummary,
     relatedToTableSummary,
     regionalSignalsTableSummaryData,
+    asnSignalsTableSummaryData,
     rawRegionalSignalsPingSlash24,
     rawRegionalSignalsBgp,
     rawRegionalSignalsUcsdNt,
     rawRegionalSignalsMeritNt,
+    rawAsnSignalsPingSlash24,
+    rawAsnSignalsBgp,
+    rawAsnSignalsUcsdNt,
+    rawAsnSignalsMeritNt,
     additionalRawSignal,
     navigate,
     searchParams
@@ -303,6 +311,7 @@ const RegionEntity = (props) => {
   // Popovers
   const [displayChartSettingsPopover, setDisplayChartSettingsPopover] = useState(false);
   const [displayChartSharePopover, setDisplayChartSharePopover] = useState(false);
+  const [showGlobalSignals, setShowGlobalSignals] = useState(false);
 
   const initialTableLimit = 300;
   const initialHtsLimit = 100;
@@ -316,6 +325,21 @@ const RegionEntity = (props) => {
       setParentEntityCode(data[0]["attrs"]["country_code"] || parentEntityCode);
     });
   }
+
+  useEffect(() => {
+    // Get Topo Data for relatedTo Map
+    // ToDo: update parameter to base value off of url entity type
+    if(entityMetadata && Object.keys(entityMetadata).length > 0) {
+      getDataTopo("region");
+      getDataRelatedToMapSummary("region");
+      if(showGlobalSignals) {
+      getDataRelatedToTableSummary("asn");
+      }
+      else {
+        getDataRelatedToTableSummary("geoasn");
+      }
+    }
+  }, [entityMetadata, showGlobalSignals]);
 
   // Monitor screen width
   useEffect(() => {
@@ -463,11 +487,22 @@ const RegionEntity = (props) => {
     }
   }, [regionalSignalsTableSummaryDataState]);
 
+  useEffect(() => {
+    if(asnSignalsTableSummaryData) {
+      setAsnSignalsTableSummaryDataState(asnSignalsTableSummaryData);
+    }
+  }, [asnSignalsTableSummaryData, showGlobalSignals]);
+
+  useEffect(() => {
+    if(asnSignalsTableSummaryDataState) {
+      _combineValuesForSignalsTable("asn");
+    }
+  }, [asnSignalsTableSummaryDataState, showGlobalSignals]);
 
 
   useEffect(() => {
     console.log(tsDataNormalized)
-    if(tsDataNormalized) {
+    if(tsDataNormalized && Object.keys(tsDataNormalized).length > 0) {
       // For XY Plotted Graph
       convertValuesForXyViz();
     }
@@ -570,6 +605,81 @@ const RegionEntity = (props) => {
     }
   }, [rawRegionalSignalsRawMeritNt]);
 
+  // data for asn signals table Ping-Slash24 Source
+  useEffect(() => {
+    if(rawAsnSignalsPingSlash24 && showTableModal) {
+      let rawAsnSignals = [];
+      rawAsnSignalsPingSlash24.map((signal) => {
+        //Remove empty items and assign to proper state. Then call next function
+        signal.length ? rawAsnSignals.push(signal[0]) : null;
+      });
+      setRawAsnSignalsRawPingSlash24(rawAsnSignals);
+    }
+  }, [rawAsnSignalsPingSlash24, showTableModal, showGlobalSignals]);
+
+  useEffect(() => {
+    if(rawAsnSignalsRawPingSlash24) {
+      convertValuesForHtsViz("ping-slash24", "asn");
+    }
+  }, [rawAsnSignalsRawPingSlash24]);
+
+  // data for asn signals table BGP Source
+  useEffect(() => {
+    if(rawAsnSignalsBgp && showTableModal) {
+      // assign to respective state
+      let rawAsnSignals = [];
+      rawAsnSignalsBgp.map((signal) => {
+        //Remove empty items and assign to proper state. Then call next function
+        signal.length ? rawAsnSignals.push(signal[0]) : null;
+      });
+      setRawAsnSignalsRawBgp(rawAsnSignals);
+    }
+  }, [rawAsnSignalsBgp, showTableModal]);
+
+  useEffect(() => {
+    if(rawAsnSignalsRawBgp) {
+      convertValuesForHtsViz("bgp", "asn");
+    }
+  }, [rawAsnSignalsRawBgp]);
+
+  // data for asn signals table UCSD-NT Source
+  useEffect(() => {
+    if(rawAsnSignalsUcsdNt && showTableModal) {
+      // assign to respective state
+      let rawAsnSignals = [];
+      rawAsnSignalsUcsdNt.map((signal) => {
+        //Remove empty items and assign to proper state. Then call next function
+        signal.length ? rawAsnSignals.push(signal[0]) : null;
+      });
+      setRawAsnSignalsRawUcsdNt(rawAsnSignals);
+    }
+  }, [rawAsnSignalsUcsdNt, showTableModal]);
+
+  useEffect(() => {
+    if(rawAsnSignalsRawUcsdNt) {
+      convertValuesForHtsViz("ucsd-nt", "asn");
+    }
+  }, [rawAsnSignalsRawUcsdNt]);
+
+  // data for asn signals table Merit-NT Source
+  useEffect(() => {
+    if(rawAsnSignalsMeritNt && showTableModal) {
+      // assign to respective state
+      let rawAsnSignals = [];
+      rawAsnSignalsMeritNt.map((signal) => {
+        //Remove empty items and assign to proper state. Then call next function
+        signal.length ? rawAsnSignals.push(signal[0]) : null;
+      });
+      setRawAsnSignalsRawMeritNt(rawAsnSignals);
+    }
+  }, [rawAsnSignalsMeritNt, showTableModal]);
+
+  useEffect(() => {
+    if(rawAsnSignalsRawMeritNt) {
+      convertValuesForHtsViz("merit-nt", "asn");
+    }
+  }, [rawAsnSignalsRawMeritNt]);
+
   // data for additional raw feed signals to use after load all button is clicked
   useEffect(() => {
     if(!additionalRawSignal) return;
@@ -651,15 +761,21 @@ const RegionEntity = (props) => {
   }, [showMapModal]);
 
   useEffect(() => {
+    console.log("Getting asns/geoasns");
     if (showTableModal) {
       if (!rawAsnSignalsLoaded) {
-        props.asnSignalsTableSummaryDataAction("asn", "region", entityCodeState)
+        if(showGlobalSignals) {
+          props.asnSignalsTableSummaryDataAction("asn", "region", entityCodeState)
+        }
+        else {
+          props.asnSignalsTableSummaryDataAction("geoasn", "region", entityCodeState)
+        }
         setRawAsnSignalsLoaded(true);
       }
     } else {
       setRawAsnSignalsLoaded(false);
     }
-  }, [showTableModal]);
+  }, [showTableModal, showGlobalSignals]);
 
   useEffect(() => {
     if(regionalSignalsTableSummaryDataProcessed && Object.keys(regionalSignalsTableSummaryDataProcessed).length > 0) {
@@ -676,6 +792,45 @@ const RegionEntity = (props) => {
 
   }, [regionalSignalsTableSummaryDataProcessed]);
 
+  useEffect(() => {
+    console.log("Getting asn/geoasns");
+    if(asnSignalsTableSummaryDataProcessed && Object.keys(asnSignalsTableSummaryDataProcessed).length > 0) {
+      // Populate Stacked horizon graph with all regions
+      if(showGlobalSignals) {
+        convertValuesForHtsViz("ping-slash24", "asn");
+        convertValuesForHtsViz("bgp", "asn");
+        convertValuesForHtsViz("ucsd-nt", "asn");
+        convertValuesForHtsViz("merit-nt", "asn");
+      }
+      else {
+        convertValuesForHtsViz("ping-slash24", "geoasn");
+        convertValuesForHtsViz("bgp", "geoasn");
+        convertValuesForHtsViz("ucsd-nt", "geoasn");
+        convertValuesForHtsViz("merit-nt", "geoasn");
+      }
+
+      if(entityTypeState !== "asn") {
+        if(showGlobalSignals) {
+          getSignalsHtsDataEvents("asn", "ping-slash24");
+          getSignalsHtsDataEvents("asn", "ucsd-nt");
+          getSignalsHtsDataEvents("asn", "bgp");
+          getSignalsHtsDataEvents("asn", "merit-nt");
+        }
+        else {
+          getSignalsHtsDataEvents("geoasn", "ping-slash24");
+          getSignalsHtsDataEvents("geoasn", "ucsd-nt");
+          getSignalsHtsDataEvents("geoasn", "bgp");
+          getSignalsHtsDataEvents("geoasn", "merit-nt");
+        }
+      }
+      else {
+        getSignalsHtsDataEvents("country", "ping-slash24");
+        getSignalsHtsDataEvents("country", "ucsd-nt");
+        getSignalsHtsDataEvents("country", "bgp");
+        getSignalsHtsDataEvents("country", "merit-nt");
+      }
+    }
+  }, [asnSignalsTableSummaryDataProcessed, entityTypeState, showGlobalSignals]);
 
 
   // Control Panel
@@ -1114,8 +1269,8 @@ const RegionEntity = (props) => {
               fontSize: "12px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-            formatter: function () {
-              return formatYAxisLabels(this.value);
+            formatter: function (value) {
+              return formatYAxisLabels(value);
             },
           },
         },
@@ -1142,8 +1297,8 @@ const RegionEntity = (props) => {
               fontSize: "12px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-            formatter: function () {
-              return formatYAxisLabels(this.value);
+            formatter: function (value) {
+              return formatYAxisLabels(value);
             },
           },
         },
@@ -1515,6 +1670,43 @@ const RegionEntity = (props) => {
       setBounds(outageCoords);
     }
   }
+  // Make API call to retrieve summary data to populate on map
+  function getDataRelatedToMapSummary(entityType) {
+    const limit = 170;
+    const includeMetadata = true;
+    let page = 0;
+    const entityCode = null;
+    let relatedToEntityType, relatedToEntityCode;
+    switch (entityTypeState) {
+      case "country":
+        relatedToEntityType = entityTypeState;
+        relatedToEntityCode = entityCodeState;
+        break;
+      case "region":
+        relatedToEntityType = "country";
+        relatedToEntityCode =
+            entityMetadata[0]["attrs"]["fqid"].split(".")[3];
+        break;
+      case "asn":
+        relatedToEntityType = "asn";
+        relatedToEntityCode =
+            entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+        break;
+    }
+    // console.log(entityType, relatedToEntityType, relatedToEntityCode);
+    props.searchRelatedToMapSummary(
+        from,
+        until,
+        entityType,
+        relatedToEntityType,
+        relatedToEntityCode,
+        entityCode,
+        limit,
+        page,
+        includeMetadata
+    );
+  }
+
 
   // function to manage when a user clicks a country in the map
   function handleEntityShapeClick(entity) {
@@ -1538,6 +1730,50 @@ const RegionEntity = (props) => {
 
   // Summary Table for related ASNs
   // Make API call to retrieve summary data to populate on map
+  function getDataRelatedToTableSummary(entityType) {
+    console.log(entityType)
+    const limit = initialTableLimit;
+    let page = relatedToTableApiPageNumber;
+    const includeMetadata = true;
+    const entityCode = null;
+    let relatedToEntityType, relatedToEntityCode;
+    console.log(entityMetadata[0]["attrs"]["fqid"].split("."))
+    switch (entityTypeState) {
+      case "country":
+        relatedToEntityType = entityTypeState;
+        relatedToEntityCode = entityCodeState;
+        break;
+      case "region":
+        relatedToEntityType = "country";
+        relatedToEntityCode =
+            entityMetadata[0]["attrs"]["fqid"].split(".")[3];
+        break;
+      case "asn":
+        relatedToEntityType = "asn";
+        relatedToEntityCode =
+            entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+        entityType = "country";
+        break;
+      case "geoasn":
+        relatedToEntityType = "geoasn";
+        relatedToEntityCode =
+            entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+        entityType = "country";
+        break;
+    }
+    console.log(entityType, relatedToEntityType, relatedToEntityCode);
+    props.searchRelatedToTableSummary(
+        from,
+        until,
+        entityType,
+        relatedToEntityType,
+        relatedToEntityCode,
+        entityCode,
+        limit,
+        page,
+        includeMetadata
+    );
+  }
 
   // Make raw values from api compatible with table component
   function _convertValuesForSummaryTable(){
@@ -1617,6 +1853,8 @@ const RegionEntity = (props) => {
         break;
       case "asn":
       case "country":
+      case "geoasn":
+        console.log(dataSource)
         entities = asnSignalsTableSummaryDataProcessed
           .map((entity) => {
             // some entities don't return a code to be used in an api call, seem to default to '??' in that event
@@ -1727,6 +1965,7 @@ const RegionEntity = (props) => {
         }
         break;
       case "asn":
+      case "geoasn":
         signalsTableSummaryDataProcessed =
           asnSignalsTableSummaryDataProcessed;
         switch (dataSource) {
@@ -1760,6 +1999,7 @@ const RegionEntity = (props) => {
         setRegionalSignalsTableEntitiesChecked(entitiesChecked);
         break;
       case "asn":
+      case "geoasn":
         setAsnSignalsTableEntitiesChecked(entitiesChecked);
         break;
     }
@@ -2218,6 +2458,12 @@ const RegionEntity = (props) => {
     setTsDataSeriesVisibleMap(tmpVisibleSeries);
   }
 
+  function handleGlobalAsnSignals() {
+    console.log("Global clicked");
+    setRawAsnSignalsLoaded(prev => !prev);
+    setShowGlobalSignals(showGlobalSignals => !showGlobalSignals);
+  }
+
   function handleSelectTab(selectedKey) {
     if (currentTab !== selectedKey) {
       setCurrentTab(selectedKey);
@@ -2472,7 +2718,6 @@ const RegionEntity = (props) => {
               relatedToTableSummaryProcessed={
                 relatedToTableSummaryProcessed
               }
-              relatedToTableSummary={relatedToTableSummaryState}
               // handleEntityClick={(entity) => this.handleEntityClick(entity)}
               // raw signals tables for region modal
               handleSelectAndDeselectAllButtons={(event) =>
@@ -2585,6 +2830,7 @@ const RegionEntity = (props) => {
               rawAsnSignalsRawMeritNtLength={
                 rawAsnSignalsRawMeritNt.length
               }
+              handleGlobalAsnSignals={handleGlobalAsnSignals}
           />
 
 
@@ -2616,11 +2862,16 @@ const mapStateToProps = (state) => {
     mapModalSummary: state.iodaApi.mapModalSummary,
     mapModalTopoData: state.iodaApi.mapModalTopoData,
     regionalSignalsTableSummaryData:
-      state.iodaApi.regionalSignalsTableSummaryData,
+    state.iodaApi.regionalSignalsTableSummaryData,
+    asnSignalsTableSummaryData: state.iodaApi.asnSignalsTableSummaryData,
     rawRegionalSignalsPingSlash24: state.iodaApi.rawRegionalSignalsPingSlash24,
     rawRegionalSignalsBgp: state.iodaApi.rawRegionalSignalsBgp,
     rawRegionalSignalsUcsdNt: state.iodaApi.rawRegionalSignalsUcsdNt,
     rawRegionalSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
+    rawAsnSignalsPingSlash24: state.iodaApi.rawRegionalSignalsPingSlash24,
+    rawAsnSignalsBgp: state.iodaApi.rawRegionalSignalsBgp,
+    rawAsnSignalsUcsdNt: state.iodaApi.rawRegionalSignalsUcsdNt,
+    rawAsnSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
     additionalRawSignal: state.iodaApi.additionalRawSignal,
   };
 };
@@ -2990,7 +3241,7 @@ const RegionEntityFn = (props) => {
     <RegionEntity
       {...props}
       navigate={navigate}
-      entityType={entityType}
+      entityType="region"
       entityCode={entityCode}
       regionCode={regionCode}
       asnCode={asnCode}

@@ -241,7 +241,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       try {
         let url = `/entities/query?entityType=country`
         const fetched = await fetchData({url});
-        const results = (fetched?.data?.data ?? []).map((entity) => ({
+        let results = (fetched?.data?.data ?? []).map((entity) => ({
           label: entity.name,
           id: uuidv4(),
           entity: {
@@ -251,6 +251,15 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             url : `country/${entity.code}`,
           },
         }));
+
+
+        if (entityType === "asn") {
+          const countryNames = await getCountryNamesFromAsn(entityCode);
+          if (countryNames && countryNames.length > 0) {
+            results = results.filter(item => countryNames.includes(item.label));
+          }
+        }
+
 
         const allCountryOption = {
           label: "All Countries",

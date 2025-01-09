@@ -315,11 +315,6 @@ const Entity = (props) => {
   // Popovers
   const [displayChartSettingsPopover, setDisplayChartSettingsPopover] = useState(false);
   const [displayChartSharePopover, setDisplayChartSharePopover] = useState(false);
-
-  const regionSearchParam = useState(searchParams?.get("region") || null);
-  const countrySearchParam = useState(searchParams?.get("country") || null);
-  const asnSearchParam = useState(searchParams?.get("asn") || null);
-
   const [showGlobalSignals, setShowGlobalSignals] = useState(false);
 
   const initialTableLimit = 300;
@@ -341,12 +336,12 @@ const Entity = (props) => {
     if(entityMetadata && Object.keys(entityMetadata).length > 0) {
       getDataTopo("region");
       getDataRelatedToMapSummary("region");
-      // if(showGlobalSignals) {
+      if(showGlobalSignals) {
         getDataRelatedToTableSummary("asn");
-      // }
-      // else {
-      //   getDataRelatedToTableSummary("geoasn");
-      // }
+      }
+      else {
+        getDataRelatedToTableSummary("geoasn");
+      }
     }
   }, [entityMetadata, showGlobalSignals]);
 
@@ -477,7 +472,7 @@ const Entity = (props) => {
       console.log(relatedToTableSummary);
       setRelatedToTableSummaryState(relatedToTableSummary);
     }
-  }, [relatedToTableSummary, showGlobalSignals]);
+  }, [relatedToTableSummary]);
 
   useEffect(() => {
     if(relatedToTableSummaryState) {
@@ -1770,12 +1765,12 @@ const Entity = (props) => {
           entityMetadata[0]["attrs"]["fqid"].split(".")[1];
         entityType = "country";
         break;
-      // case "geoasn":
-      //   relatedToEntityType = "geoasn";
-      //   relatedToEntityCode =
-      //       entityMetadata[0]["attrs"]["fqid"].split(".")[1];
-      //   entityType = "country";
-      //   break;
+      case "geoasn":
+        relatedToEntityType = "geoasn";
+        relatedToEntityCode =
+            entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+        entityType = "country";
+        break;
     }
     console.log(entityType, relatedToEntityType, relatedToEntityCode);
     props.searchRelatedToTableSummary(
