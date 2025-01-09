@@ -55,7 +55,7 @@ import Footer from "./components/footer/Footer";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Entity from "./pages/entity/Entity";
-import ProjectInfo from "./pages/projectinfo/ProjectInfo";
+import About from "./pages/about/About";
 import Help from "./pages/help/Help";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
@@ -92,7 +92,7 @@ class App extends Component {
         <Header />
         <Routes>
           <Route path="/dashboard/:entityType?" element={<Dashboard />} />
-          <Route exact path="/project" element={<ProjectInfo />} />
+          <Route exact path="/about" element={<About />} />
           <Route exact path="/help" element={<Help />} />
           <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
           <Route exact path="/:entityType/:entityCode" element={<Entity />} />

@@ -124,7 +124,7 @@ const Header = () => {
 
   const dashboard = T.translate("header.dashboard");
   const reports = T.translate("header.reports");
-  const project = T.translate("header.projectInfo");
+  const about = T.translate("header.about");
   const help = T.translate("header.help");
   const iodaLogoAltText = T.translate("header.iodaLogoAltText");
   const api = T.translate("header.api");
@@ -155,8 +155,8 @@ const Header = () => {
           </div>
 
           <div className="header__item">
-            <Link to="/project" className="a-fake">
-              {project}
+            <Link to="/about" className="a-fake">
+              {about}
             </Link>
           </div>
 
@@ -242,11 +242,11 @@ const Header = () => {
 
           <div className="header__drawer-item">
             <Link
-                to="/project"
+                to="/about"
                 className="a-fake"
                 onClick={() => setShowDrawer(false)}
             >
-              {project}
+              {about}
             </Link>
           </div>
 
