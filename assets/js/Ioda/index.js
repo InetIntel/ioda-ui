@@ -72,8 +72,9 @@ class App extends Component {
     this.state = {
       error: null,
       alert: {
-        // title: "Welcome to Our Application",
-        // description: "This is an optional alert description.",
+        //title: "Upcoming IODA Unavailablilty",
+        //description: "Due to scheduled data center maintenance, IODA will be unavailable from 5pm ET on January 24 through to 9am ET on January 27. We apologize for any inconvenience.",
+	//type: AlertStatus.Warning
         // type: AlertStatus.Success, // AlertStatus.Warning, AlertStatus.Success, AlertStatus.Error
       },
     };
@@ -142,9 +143,5 @@ const root = createRoot(container);
 // await google analytics to initialize
 
 root.render(
-  <Provider store={store}>
-    <BrowserRouter>
       <App />
-    </BrowserRouter>
-  </Provider>
 );
