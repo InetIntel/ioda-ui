@@ -68,53 +68,17 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     return  localStorage.getItem('timezone') || userTimezone;
   });
 
-  const [isSwitchActive, setIsSwitchActive] = useState(() => {
-    return localStorage.getItem("timezone") === 'UTC' || false;
-  });
 
   useEffect(() => {
     const storedTimezone = localStorage.getItem('timezone') || userTimezone;
     setSelectedTimezone(storedTimezone);
-    setIsSwitchActive(storedTimezone === userTimezone || storedTimezone === 'UTC');
   }, [selectedTimezone]);
 
-  const handleTimezoneToggleSwitch = (checked) => {
-    const newTimezone = checked ? userTimezone : 'UTC';
-    localStorage.setItem("timezone", newTimezone);
-    console.log(newTimezone);
-    setSelectedTimezone(newTimezone);
-
-    // const fromInTimezone = dayjs.tz(from, newTimezone);
-    // const untilInTimezone = dayjs.tz(until, newTimezone);
-    // console.log(fromInTimezone)
-    // console.log(untilInTimezone)
-    // setRange([fromInTimezone, untilInTimezone]);
-    //
-
-    if (from && until && range.length === 2) {
-      const [fromDayjs, untilDayjs] = range;
-
-      console.log(value)
-      const fromInSelectedTimezone = fromDayjs.tz(value, true);
-      const untilInSelectedTimezone = untilDayjs.tz(value, true);
-
-      // Convert the existing range to UTC for the new timezone
-      const fromInUTC = fromInSelectedTimezone.tz("UTC");
-      const untilInUTC = untilInSelectedTimezone.tz("UTC");
-
-      // Trigger the API with updated UTC values
-      onTimeFrameChange({
-        _from: getSeconds(fromInUTC),
-        _until: getSeconds(untilInUTC),
-      });
-    }
-  };
 
   const handleTimezoneChange = (value) => {
     setSelectedTimezone(value);
     localStorage.setItem("timezone", value);
     console.log(value);
-    setIsSwitchActive(value === userTimezone || value === 'UTC');
     // // if (range && range.length === 2) {
     // //   handleRangeChange(range);
     // // }
@@ -158,11 +122,8 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   // const {  countryCode, regionCode, asnCode } = useParams();
   const regionCountryCacheRef = useRef({});
 
-  // if entityType is set, then countryCode, regionCode and asnCode will be null
-  // else if countryCode/regionCode/asnCode is not null, entityType will be null
-
-  // TODO - if countryCode and regionCode is selected, then what will be the options in asn networks.
-  //        -> Currently, it will be only based on country even if some region is selected.
+  // TODO - if countryCode is selected, then what will be the options in asn networks.
+  //        -> Currently, it will show geoasn and it will be only based on country.
   // TODO - if countryCode and asnCode is selected, then what will be the options in regions.
   //        -> Currently, it will be only based on country even if asnCode is selected.
   const getCountryCodeFromRegion = useCallback(async (regionCode) => {
@@ -236,6 +197,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   }
 
   //fetch countries names to populate the dropdown
+  // countries are filtered based on region or asn
   useEffect(()=> {
     const fetchCountries = async () => {
       try {
@@ -259,7 +221,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             results = results.filter(item => countryNames.includes(item.label));
           }
         }
-
+        // TODO - filter based on regions too
 
         const allCountryOption = {
           label: "All Countries",
@@ -364,11 +326,10 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
         if(entityType){
           if(entityCode){
             if( (entityType === "country")) {
-              url += `&relatedTo=country/${entityCode}`;
+              url = `/entities/query?entityType=geoasn&relatedTo=country/${entityCode}`;
             }
             else if (entityType === "region") {
-               // const countryCode = await getCountryCodeFromRegion(entityCode);
-               url += `&relatedTo=region/${entityCode}`;
+              url = `/entities/query?entityType=geoasn&relatedTo=region/${entityCode}`;
             }
           }
           if(entityType === "asn") {
@@ -378,7 +339,8 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
         const fetched = await fetchData({url});
         const results = await Promise.all(
             (fetched?.data?.data ?? []).map(async (entity) => {
-              let asnUrl = `asn/${entity.code}`;
+              let asnUrl = `geoasn/${entity.code}`;
+              // TODO - also can be asn when no country and region is selected.
               if (countrySelectedCode !== "all" && countrySelectedCode !== "N/A") {
                 asnUrl = `asn=${entityCode}?country=${countrySelectedCode}?`;
               }
@@ -869,15 +831,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
                 ))}
               </Select>
 
-            </div>
-            <div style={{display: 'flex', alignItems: 'center', marginTop: '3rem'}}>
-              <Switch
-                  size="small"
-                  checked={selectedTimezone === userTimezone}
-                  onChange={handleTimezoneToggleSwitch}
-                  checkedChildren="Local"
-                  unCheckedChildren="UTC"
-              />
             </div>
 
           </div>

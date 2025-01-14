@@ -258,7 +258,7 @@ export function combineValuesForSignalsTable(entitiesWithOutages, additionalEnti
 // Function for raw signals table on entity page
 // Will process time series data and return in a format compatible with the Horizon-time-series visual
 export function convertTsDataForHtsViz(tsData) {
-    console.log(tsData)
+    // console.log(tsData)
     let series = [];
     tsData.map(signal => {
         let values = [];

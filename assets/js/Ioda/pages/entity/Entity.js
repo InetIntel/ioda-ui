@@ -203,7 +203,7 @@ const Entity = (props) => {
 
   const isAdvancedMode = getSavedAdvancedModePreference();
   // Global
-  const [entityTypeState, setEntityTypeState] = useState("country");
+  const [entityTypeState, setEntityTypeState] = useState(entityType);
   const [entityCodeState, setEntityCodeState] = useState(entityCode);
   const [entityName, setEntityName] = useState("");
   const [parentEntityName, setParentEntityName] = useState("");
@@ -1267,7 +1267,7 @@ const Entity = (props) => {
           startOnTick: true,
           endOnTick: true,
           tickAmount: 12,
-          //tickInterval: 10,
+          // tickInterval: 10,
           gridLineWidth: 1,
           gridLineColor: "#E6E6E6",
           gridLineDashStyle: "ShortDash",
@@ -1281,8 +1281,8 @@ const Entity = (props) => {
               fontSize: "12px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-            formatter: function (value) {
-              return formatYAxisLabels(value);
+            formatter: function (obj) {
+              return formatYAxisLabels(obj.value);
             },
           },
         },
@@ -1309,12 +1309,13 @@ const Entity = (props) => {
               fontSize: "12px",
               fontFamily: CUSTOM_FONT_FAMILY,
             },
-            formatter: function (value) {
-              return formatYAxisLabels(value);
+            formatter: function (obj) {
+              return formatYAxisLabels(obj.value);
             },
           },
         },
       ],
+
       series: chartSignals,
     };
     // Rerender chart and set navigator bounds
@@ -1699,6 +1700,7 @@ const Entity = (props) => {
         relatedToEntityCode =
           entityMetadata[0]["attrs"]["fqid"].split(".")[3];
         break;
+      case "geoasn":
       case "asn":
         relatedToEntityType = "asn";
         relatedToEntityCode =
@@ -1766,7 +1768,7 @@ const Entity = (props) => {
         entityType = "country";
         break;
       case "geoasn":
-        relatedToEntityType = "geoasn";
+        relatedToEntityType = "country";
         relatedToEntityCode =
             entityMetadata[0]["attrs"]["fqid"].split(".")[1];
         entityType = "country";
@@ -1938,6 +1940,7 @@ const Entity = (props) => {
           setRegionalSignalsTableTotalCount(signalsTableData.length);
         }
         break;
+      case "geoasn":
       case "asn":
         if (relatedToTableSummaryState && asnSignalsTableSummaryDataState) {
           let signalsTableData = combineValuesForSignalsTable(
@@ -2052,6 +2055,7 @@ const Entity = (props) => {
         }
         break;
       case "asn":
+      case "geoasn":
         switch (dataSource) {
           case "ping-slash24":
             setRawAsnSignalsProcessedPingSlash24(
@@ -2086,6 +2090,7 @@ const Entity = (props) => {
           regionalSignalsTableSummaryDataProcessed;
         break;
       case "asn":
+      case "geoasn":
         signalsTableSummaryDataProcessed =
           asnSignalsTableSummaryDataProcessed;
         break;
@@ -2166,6 +2171,7 @@ const Entity = (props) => {
                           signalsTableSummaryDataProcessed);
                       setRawSignalsMaxEntitiesHtsError("");
                       break;
+                    case "geoasn":
                     case "asn":
                       setAsnSignalsTableSummaryDataProcessed(
                           signalsTableSummaryDataProcessed);
@@ -2182,6 +2188,7 @@ const Entity = (props) => {
                   setRegionalSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed)
                   setRawSignalsMaxEntitiesHtsError("");
                   break;
+                case "geoasn":
                 case "asn":
                   setAsnSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
                   setRawSignalsMaxEntitiesHtsError("");
@@ -2210,6 +2217,7 @@ const Entity = (props) => {
             setAdditionalRawSignalRequestedUcsdNt(false);
             setAdditionalRawSignalRequestedMeritNt(false);
             break;
+          case "geoasn":
           case "asn":
             setAsnSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
             setRawSignalsMaxEntitiesHtsError("");
@@ -2352,6 +2360,7 @@ const Entity = (props) => {
         signalsTableSummaryDataProcessed =
           regionalSignalsTableSummaryDataProcessed;
         break;
+      case "geoasn":
       case "asn":
         signalsTableSummaryDataProcessed =
           asnSignalsTableSummaryDataProcessed;
@@ -2385,6 +2394,7 @@ const Entity = (props) => {
             toggleEntityVisibilityInHtsViz(item, item["entityType"]);
           }, 500);
           break;
+        case "geoasn":
         case "asn":
           setAdditionalRawSignalRequestedPingSlash24(true);
           setAdditionalRawSignalRequestedBgp(true);
@@ -2518,7 +2528,7 @@ const Entity = (props) => {
         searchbar={populateSearchBar}
         onTimeFrameChange={handleTimeFrame}
         onClose={handleControlPanelClose}
-        entityType="country"
+        entityType={entityTypeState}
         entityCode={entityCodeState}
         title={entityName}
         regionCode={regionCode}
@@ -3236,7 +3246,7 @@ const EntityFn = (props) => {
   const navigate = useNavigate();
   // using useRef to avoid re-rendering between renders
   const previousFullPath = useRef(window.location.href);
-  const { countryCode, entityType, regionCode, asnCode } = useParams();
+  const { entityCode, entityType } = useParams();
   const [searchParams] = useSearchParams();
 
   // Reload page if the URL changes.
@@ -3260,10 +3270,8 @@ const EntityFn = (props) => {
     <Entity
       {...props}
       navigate={navigate}
-      entityType="country"
-      entityCode={countryCode}
-      regionCode={regionCode}
-      asnCode={asnCode}
+      entityType={entityType}
+      entityCode={entityCode}
       searchParams={searchParams}
     />
   );

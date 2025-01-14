@@ -201,8 +201,8 @@ const Entity = (props) => {
 
     const isAdvancedMode = getSavedAdvancedModePreference();
     // Global
-    const [entityTypeState, setEntityTypeState] = useState("asn");
-    const [entityCodeState, setEntityCodeState] = useState(asnCode);
+    const [entityTypeState, setEntityTypeState] = useState(entityType);
+    const [entityCodeState, setEntityCodeState] = useState(entityCode);
     const [entityName, setEntityName] = useState("");
     const [parentEntityName, setParentEntityName] = useState("");
     const [parentEntityCode, setParentEntityCode] = useState("");

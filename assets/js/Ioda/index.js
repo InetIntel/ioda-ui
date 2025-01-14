@@ -102,9 +102,11 @@ class App extends Component {
           <Route exact path="/project" element={<ProjectInfo />} />
           <Route exact path="/help" element={<Help />} />
           <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
-          <Route exact path="/country/:countryCode" element={<Entity />} />
-          <Route exact path="/region/:regionCode" element={<RegionEntity />} />
-          <Route exact path="/asn/:asnCode" element={<AsnEntity />} />
+          {/*<Route exact path="/country/:countryCode" element={<Entity />} />*/}
+          {/*<Route exact path="/region/:regionCode" element={<RegionEntity />} />*/}
+          {/*<Route exact path="/asn/:asnCode" element={<AsnEntity />} />*/}
+          {/*<Route exact path="/geoasn/:asnCode" element={<AsnEntity />} />*/}
+          <Route exact path="/:entityType/:entityCode" element={<Entity />} />
           <Route path="/" element={<Home />} />
         </Routes>
         <Footer />
