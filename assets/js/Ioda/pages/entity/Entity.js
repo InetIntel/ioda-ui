@@ -325,7 +325,12 @@ const Entity = (props) => {
     getEntityMetadata(entityName, entityCode).then((data) => {
       setEntityMetadata(data);
       setEntityName(data[0]["name"]);
-      setParentEntityName(data[0]["attrs"]["country_name"] || parentEntityName);
+      if(entityType === "geoasn") {
+        setParentEntityName(data[0]["subnames"]["country"] || parentEntityName);
+      }
+      else {
+        setParentEntityName(data[0]["code"].split("-").pop() || parentEntityName);
+      }
       setParentEntityCode(data[0]["attrs"]["country_code"] || parentEntityCode);
     });
   }
@@ -1701,13 +1706,16 @@ const Entity = (props) => {
           entityMetadata[0]["attrs"]["fqid"].split(".")[3];
         break;
       case "geoasn":
+        relatedToEntityType = "geoasn";
+        relatedToEntityCode =
+            entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+        break;
       case "asn":
         relatedToEntityType = "asn";
         relatedToEntityCode =
           entityMetadata[0]["attrs"]["fqid"].split(".")[1];
         break;
     }
-    // console.log(entityType, relatedToEntityType, relatedToEntityCode);
     props.searchRelatedToMapSummary(
       from,
       until,
@@ -1770,8 +1778,8 @@ const Entity = (props) => {
       case "geoasn":
         relatedToEntityType = "country";
         relatedToEntityCode =
-            entityMetadata[0]["attrs"]["fqid"].split(".")[1];
-        entityType = "country";
+            entityMetadata[0]["attrs"]["fqid"].split("-").pop();
+        entityType = "geoasn";
         break;
     }
     console.log(entityType, relatedToEntityType, relatedToEntityCode);
