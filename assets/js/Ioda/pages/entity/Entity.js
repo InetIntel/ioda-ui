@@ -325,12 +325,7 @@ const Entity = (props) => {
     getEntityMetadata(entityName, entityCode).then((data) => {
       setEntityMetadata(data);
       setEntityName(data[0]["name"]);
-      if(entityType === "geoasn") {
-        setParentEntityName(data[0]["subnames"]["country"] || parentEntityName);
-      }
-      else {
-        setParentEntityName(data[0]["code"].split("-").pop() || parentEntityName);
-      }
+      setParentEntityName(data[0]["attrs"]["country_name"] || parentEntityName);
       setParentEntityCode(data[0]["attrs"]["country_code"] || parentEntityCode);
     });
   }
@@ -341,12 +336,7 @@ const Entity = (props) => {
     if(entityMetadata && Object.keys(entityMetadata).length > 0) {
       getDataTopo("region");
       getDataRelatedToMapSummary("region");
-      if(showGlobalSignals) {
-        getDataRelatedToTableSummary("asn");
-      }
-      else {
-        getDataRelatedToTableSummary("geoasn");
-      }
+      getDataRelatedToTableSummary();
     }
   }, [entityMetadata, showGlobalSignals]);
 
@@ -358,7 +348,6 @@ const Entity = (props) => {
       window.removeEventListener("resize", resize);
     };
   }, []);
-
 
   useEffect(() => {
     // If fromDate is after untilDate, show error and terminate
@@ -396,18 +385,83 @@ const Entity = (props) => {
         null,
         null
     );
-    props.getSignalsAction(
-        entityTypeState,
-        entityCodeState,
-        timeSignalFrom,
-        timeSignalUntil,
-        null,
-        3000,
-        sourceParams
-    );
+    if(entityTypeState === "asn" && entityCodeState && entityCodeState.includes("-")) {
+      props.getSignalsAction(
+          "geoasn",
+          entityCodeState,
+          timeSignalFrom,
+          timeSignalUntil,
+          null,
+          3000,
+          sourceParams
+      );
+    }
+    else {
+      props.getSignalsAction(
+          entityTypeState,
+          entityCodeState,
+          timeSignalFrom,
+          timeSignalUntil,
+          null,
+          3000,
+          sourceParams
+      );
+    }
+
     // Get entity name from code provided in url
     updateEntityMetaData(entityTypeState, entityCodeState);
   }, [untilDate, fromDate, entityType, entityCode]);
+
+
+
+  // useEffect(() => {
+  //   // If fromDate is after untilDate, show error and terminate
+  //   if (untilDate - fromDate <= 0) {
+  //     setDisplayTimeRangeError(true);
+  //     return;
+  //   }
+  //   setFrom(fromDate);
+  //   setUntil(untilDate);
+  //   setTsDataLegendRangeFrom(fromDate);
+  //   setTsDataLegendRangeUntil(untilDate);
+  //   // If the difference is larger than the limit, terminate
+  //   if (untilDate - fromDate >= controlPanelTimeRangeLimit) {
+  //     return;
+  //   }
+  //   const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(
+  //       fromDate,
+  //       untilDate
+  //   );
+  //   // Overview Panel
+  //   // Pull events from the same range as time series signal to show all
+  //   // alerts in the navigator range
+  //   props.searchEventsAction(
+  //       timeSignalFrom,
+  //       timeSignalUntil,
+  //       entityTypeState,
+  //       entityCodeState
+  //   );
+  //   props.searchAlertsAction(
+  //       fromDate,
+  //       untilDate,
+  //       entityTypeState,
+  //       entityCodeState,
+  //       null,
+  //       null,
+  //       null
+  //   );
+  //   props.getSignalsAction(
+  //       entityTypeState,
+  //       entityCodeState,
+  //       timeSignalFrom,
+  //       timeSignalUntil,
+  //       null,
+  //       3000,
+  //       sourceParams
+  //   );
+  //   // Get entity name from code provided in url
+  //   updateEntityMetaData(entityTypeState, entityCodeState);
+  // }, [untilDate, fromDate, entityType, entityCode]);
 
   useEffect(() => {
     if(props.datasources) {
@@ -1640,6 +1694,7 @@ const Entity = (props) => {
   // RelatedTo Map
   // Make API call to retrieve topographic data
   function getDataTopo(entityType) {
+    console.log("Topo Action called with ", entityType)
     getTopoAction(entityType)
       .then((data) =>
         topojson.feature(
@@ -1697,7 +1752,7 @@ const Entity = (props) => {
     let relatedToEntityType, relatedToEntityCode;
     switch (entityTypeState) {
       case "country":
-        relatedToEntityType = entityTypeState;
+        relatedToEntityType = "country";
         relatedToEntityCode = entityCodeState;
         break;
       case "region":
@@ -1751,38 +1806,33 @@ const Entity = (props) => {
 
   // Summary Table for related ASNs
   // Make API call to retrieve summary data to populate on map
-  function getDataRelatedToTableSummary(entityType) {
-    console.log(entityType)
+  function getDataRelatedToTableSummary() {
     const limit = initialTableLimit;
     let page = relatedToTableApiPageNumber;
     const includeMetadata = true;
     const entityCode = null;
+    let entityType;
     let relatedToEntityType, relatedToEntityCode;
-    console.log(entityMetadata[0]["attrs"]["fqid"].split("."))
+    console.log(entityMetadata)
     switch (entityTypeState) {
       case "country":
+        entityType = showGlobalSignals ? "asn" : "geoasn";
         relatedToEntityType = entityTypeState;
         relatedToEntityCode = entityCodeState;
         break;
       case "region":
+        entityType = showGlobalSignals ? "asn" : "geoasn";
         relatedToEntityType = "country";
         relatedToEntityCode =
           entityMetadata[0]["attrs"]["fqid"].split(".")[3];
         break;
       case "asn":
+        entityType = "country";
         relatedToEntityType = "asn";
         relatedToEntityCode =
           entityMetadata[0]["attrs"]["fqid"].split(".")[1];
-        entityType = "country";
-        break;
-      case "geoasn":
-        relatedToEntityType = "country";
-        relatedToEntityCode =
-            entityMetadata[0]["attrs"]["fqid"].split("-").pop();
-        entityType = "geoasn";
         break;
     }
-    console.log(entityType, relatedToEntityType, relatedToEntityCode);
     props.searchRelatedToTableSummary(
       from,
       until,
@@ -3265,14 +3315,6 @@ const EntityFn = (props) => {
       window.location.reload();
     }
   }, [window.location.href]);
-
-  useEffect(() => {
-    const regionSearchCode = searchParams.get('region');
-    console.log(regionSearchCode)
-    if(regionSearchCode) {
-      navigate(`/region/${regionSearchCode[0]}`, {replace: true});
-    }
-  }, [searchParams]);
 
   return (
     <Entity

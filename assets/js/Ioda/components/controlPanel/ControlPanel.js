@@ -6,7 +6,7 @@ import countries from "../../constants/countries.json";
 
 import {Button, DatePicker, notification, Select} from "antd";
 import {getNowAsUTC, getSeconds, secondsToTimeZone, secondsToUTC} from "../../utils/timeUtils";
-
+import { CloseOutlined } from "@ant-design/icons";
 import {fetchData} from "../../data/ActionCommons";
 import {v4 as uuidv4} from "uuid";
 import DynamicBreadCrumb from "./BreadCrumb";
@@ -52,6 +52,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   const [countryOptions, setCountryOptions] = useState([]);
   const [regionOptions, setRegionOptions] = useState([]);
   const [asnOptions, setAsnOptions] = useState([]);
+  const [allCountryOptionUrl, setAllCountryOptionUrl] = useState("country");
 
 
   const [selectedTimezone, setSelectedTimezone] = useState(() => {
@@ -92,6 +93,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   // const {  countryCode, regionCode, asnCode } = useParams();
   const regionCountryCacheRef = useRef({});
+  const asnRegionCountryCacheRef = useRef({});
 
   // TODO - if countryCode is selected, then what will be the options in asn networks.
   //        -> Currently, it will show geoasn and it will be only based on country.
@@ -107,23 +109,22 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       const fetched = await fetchData({url});
       const countries = (fetched?.data?.data ?? []);
       if (countries.length > 0) {
-
         const countryCode = countries[0].code;
-
-
         regionCountryCacheRef.current[regionCode] = countryCode;
         return countryCode;
       }
     } catch(error) {
       console.log("Error getting country code");
-      return "all_country";
+      return "";
     }
-    return "all_country";
-  }, [fetchData])
+    return "";
+  }, [fetchData]);
 
 
-  async function getCountryNamesFromAsn(asnCode) {
+  const getCountryNamesFromAsn = useCallback(async (geoasnCode) => {
     try {
+      // asnGeoCode -> {138322-AF, 138322, 138322-12}
+      const asnCode = geoasnCode.split("-")[0];
       const url = `/entities/query?entityType=geoasn&relatedTo=asn/${asnCode}`
       const fetched = await fetchData({url});
 
@@ -136,7 +137,8 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       console.log("Error getting country code");
       return null;
     }
-  }
+  }, [fetchData]);
+
   // returns countryCode, countryName for a geoasn
   const getCountryInfoFromGeoAsn = useCallback( async (geoasnCode) => {
     try {
@@ -156,7 +158,13 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   const getAsnNetworkEntity = useCallback(async (asnCode) => {
     try{
-      const url = `/entities/query?entityType=asn&entityCode=${asnCode}`
+      let url;
+      if(asnCode.includes("-")) {
+        url = `/entities/query?entityType=geoasn&entityCode=${asnCode}`
+      }
+      else {
+        url = `/entities/query?entityType=asn&entityCode=${asnCode}`
+      }
       const fetched = await fetchData({url});
       const asnEntity = fetched?.data?.data ?? [];
       if(asnEntity.length > 0) {
@@ -198,35 +206,36 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
           },
         }));
 
-
-        if (entityType === "asn") {
-          const countryNames = await getCountryNamesFromAsn(entityCode);
-          if (countryNames && countryNames.length > 0) {
-            results = results.filter(item => countryNames.includes(item.label));
-          }
-        }
-        else if(entityType === "geoasn") {
-          const countryInfo = await getCountryInfoFromGeoAsn(entityCode);
-          const countryName = countryInfo.name;
-          if (countryName) {
-            results = results.filter(item => countryName.toLowerCase() === item.label.toLowerCase());
-          }
-        }
-        // TODO - filter based on regions too
-
-        const allCountryOption = {
+        let allCountryOption = {
           label: "All Countries",
           id: uuidv4(),
           entity: {
             name: "All Countries",
             code: "All Countries",
             type: "all_countries",
-            url: 'country'
+            url: `${allCountryOptionUrl}`
           }
         }
-
+        if (entityType === "asn" && entityCode) {
+          const countryNames = await getCountryNamesFromAsn(entityCode);
+          if (countryNames && countryNames.length > 0) {
+            results = results.filter(item => countryNames.includes(item.label));
+            const asnCode = entityCode.split("-")[0];
+            results = results.map(item => {
+              item.entity.url = `${entityType}/${asnCode}-${item.entity.code}`;
+              return item;
+            });
+            allCountryOption.entity.url = `asn/${asnCode}`;
+          }
+        }
+        else if (entityType === "region" && entityCode) {
+          const countryCode = await getCountryCodeFromRegion(entityCode);
+          if (countryCode !== "") {
+            results = results.filter(item => countryCode === item.entity.code);
+            allCountryOption.entity.url = 'country';
+          }
+        }
         const updatedResults = [allCountryOption, ...results];
-
         const _countryFlagMap = countries.reduce((map, country) => {
           map[country.code] = country.emoji;
           return map;
@@ -247,7 +256,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     };
     // Call the async function
     fetchCountries();
-  }, []);
+  }, [entityCode, entityType]);
 
   //fetch region names to populate the dropdown
   useEffect(()=> {
@@ -255,24 +264,24 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     const fetchRegions = async () => {
       try {
         let url = '/entities/query?entityType=region';
-        if(entityType){
+        if(entityCode){
           let countryCode = "";
           if(entityType === "country" && entityCode){
             countryCode = entityCode;
           }
-          else if(entityType === "region"){
+          else if(entityType === "region" && entityCode){
             countryCode = await getCountryCodeFromRegion(entityCode);
           }
-          else if(entityType === "geoasn") {
-            const countryInfo = await getCountryInfoFromGeoAsn(entityCode);
-            countryCode = countryInfo.code;
-          }
-          if(countryCode !== "" && countryCode !== "all_countries") {
+          if(countryCode !== "") {
             url += `&relatedTo=country/${countryCode}`
+          }
+          if(entityType === "asn" && entityCode) {
+            const asnCode = entityCode.split("-")[0]
+            url += `&relatedTo=asn/${asnCode}`
           }
         }
         const fetched = await fetchData({url});
-        const results = (fetched?.data?.data ?? []).map((entity) => {
+        let results = (fetched?.data?.data ?? []).map((entity) => {
           return {
             label: entity.name,
             id: uuidv4(),
@@ -285,7 +294,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
           }
         });
 
-        const allRegionOption = {
+        let allRegionOption = {
           label: "All Regions",
           id: uuidv4(),
           entity: {
@@ -295,6 +304,15 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             url: 'region'
           }
         }
+        if (entityType === "asn" && entityCode) {
+            const asnCode = entityCode.split("-")[0];
+            results = results.map(item => {
+              item.entity.url = `${entityType}/${asnCode}-${item.entity.code}`;
+              return item;
+            });
+          allRegionOption.entity.url = `asn/${asnCode}`;
+        }
+        // Regions are already filtered based on country in API call
         const updatedResults = [allRegionOption, ...results];
 
         const regionOptions = (updatedResults || []).map((d) => ({
@@ -317,33 +335,35 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     // put selected option in
     const fetchAsnNetworks = async () => {
       try {
-        let url = `/entities/query?entityType=asn`;
+        let url = '/entities/query?entityType=asn';
         if(entityType){
-          if(entityCode){
-            if( (entityType === "country")) {
-              url = `/entities/query?entityType=geoasn&relatedTo=country/${entityCode}`;
-            }
-            else if (entityType === "region") {
+          if(entityCode) {
+            const urlString = '/entities/query?entityType=geoasn';
+            if ((entityType === "country")) {
+              url = urlString + `&relatedTo=country/${entityCode}`;
+            } else if (entityType === "region") {
               const countryCode = await getCountryCodeFromRegion(entityCode);
-              url = `/entities/query?entityType=geoasn&relatedTo=country/${countryCode}`;
+              url = urlString + `&relatedTo=country/${countryCode}`;
+            } else if(entityType === "asn") {
+              if (entityCode.includes("-")) {
+                const geoCode = entityCode.split("-")[1];
+                if (isNaN(geoCode)) { // country
+                  url = urlString + `&relatedTo=country/${geoCode}`;
+                } else { // region
+                  url = urlString + `&relatedTo=region/${geoCode}`;
+                }
+              }
             }
-            else if (entityType === "geoasn") {
-              const countryInfo = await getCountryInfoFromGeoAsn(entityCode);
-              const countryCode = countryInfo.code;
-              url = `/entities/query?entityType=geoasn&relatedTo=country/${countryCode}`;
-            }
-          }
-          if(entityType === "asn") {
-            url =  '/entities/query?entityType=asn';
           }
         }
+
         const fetched = await fetchData({url});
         const results = await Promise.all(
             (fetched?.data?.data ?? []).map(async (entity) => {
-              let asnUrl = `geoasn/${entity.code}`;
+              let asnUrl = `asn/${entity.code}`;
               // TODO - also can be asn when no country and region is selected.
               if (countrySelectedCode !== "all" && countrySelectedCode !== "N/A") {
-                asnUrl = `asn=${entityCode}?country=${countrySelectedCode}?`;
+                asnUrl = `asn=${entityCode}`;
               }
               return {
                 label: entity.name,
@@ -378,12 +398,12 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
         } else {
           updatedResults = [allNetworkOption, ...results];
         }
-        const _asnOptions = (updatedResults || []).map((d) => ({
+        const asnOptions = (updatedResults || []).map((d) => ({
           value: d.id,
           label: d.label,
           entity: d.entity
         }));
-        setAsnOptions(_asnOptions);
+        setAsnOptions(asnOptions);
       } catch (error) {
         console.error("Error fetching asn networks:", error);
       }
@@ -399,19 +419,19 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       return map;
     }, {});
 
-    const fillCountry = async () => {
-      const countryInfo = await getCountryInfoFromGeoAsn(entityCode);
-      const countryCode = countryInfo.code;
-      setCountrySearchText(_countryNameMap[countryCode]);
-      setCountrySelectedCode(entityCode);
-    }
-
     if (entityCode && entityType === "country") {
       setCountrySearchText(_countryNameMap[entityCode]);
       setCountrySelectedCode(entityCode);
-    } else if (entityType === "geoasn") {
-      fillCountry();
     }
+    // else if (entityType === "asn") {
+    //   if(entityCode.includes("-")) {
+    //     const geoCode = entityCode.split("-");
+    //     if(!isNaN(geoCode)) {
+    //       setCountrySearchText(_countryNameMap[geoCode]);
+    //       setCountrySelectedCode(geoCode);
+    //     }
+    //   }
+    // }
     setRegionSearchText("All Regions");
     setAsnSearchText("All Networks");
   }, [entityType, entityCode]);
@@ -454,43 +474,59 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
       const fetchAsnData = async () => {
         try {
-          const countryNames = await getCountryNamesFromAsn(entityCode);
-          if(countryNames.length === 1) {
-            setCountrySearchText(countryNames[0]);
+          if(entityCode.includes("-")) {
+            const _countryNameMap = countries.reduce((map, country) => {
+              map[country.code] = country.name;
+              return map;
+            }, {});
+            const geoCode = entityCode.split("-")[1];
+            if(isNaN(geoCode)) { // country
+              setCountrySearchText(_countryNameMap[geoCode]);
+              setCountrySelectedCode(geoCode);
+              setRegionSearchText("All Regions")
+            }
+            else { // region
+              console.log("Region found")
+              const selectedRegion = regionOptions.find((region) => region.entity.code === geoCode);
+              console.log(selectedRegion);
+              setRegionSearchText(selectedRegion ? selectedRegion.label : "");
+              setCountrySelectedCode("N/A")
+            }
+            const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
+            setAsnSearchText(asn ? asn : "");
           }
           else {
-            notification.info({
-              message: 'Multiple Countries Found',
-              description: (
-                  <p>
-                    The selected ASN operates in{' '} {countryNames.length} countries - {' '}
-                    {countryNames.slice(0, -1).map((country, index) => (
-                        <span key={index} style={{color: 'blue'}}>{country}</span>
-                    )).reduce((prev, curr) => [prev, ', ', curr])}
-                    {' and '}
-                    <span style={{color: 'blue'}}>{countryNames.slice(-1)}</span>.
-                  </p>
-              ),
-              // duration: 5,
-            });
+            const countryNames = await getCountryNamesFromAsn(entityCode);
+            if(countryNames.length === 1) {
+              setCountrySearchText("All Countries");
+            }
+            else {
+              notification.info({
+                message: 'Multiple Countries Found',
+                description: (
+                    <p>
+                      The selected ASN operates in{' '} {countryNames.length} countries - {' '}
+                      {countryNames.slice(0, -1).map((country, index) => (
+                          <span key={index} style={{color: 'blue'}}>{country}</span>
+                      )).reduce((prev, curr) => [prev, ', ', curr])}
+                      {' and '}
+                      <span style={{color: 'blue'}}>{countryNames.slice(-1)}</span>.
+                    </p>
+                ),
+                // duration: 5,
+              });
+            }
+            const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
+            console.log(asn)
+            setAsnSearchText(asn ? asn : "");
+            console.log("Region search text")
+            setRegionSearchText("N/A");
           }
-          const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
-          setAsnSearchText(asn ? asn : "");
-          setRegionSearchText("All Regions");
         } catch (error) {
           console.error("Error fetching ASN data:", error);
         }
       };
-
       fetchAsnData();
-    }
-    else if(entityType === "geoasn" && entityCode && asnOptions.length > 0) {
-      const fillGeoAsn = async () => {
-        const geoasn = asnOptions.find((geoasn) => geoasn.entity.code === entityCode);
-        setAsnSearchText(geoasn ? geoasn : "");
-        setRegionSearchText("All Regions");
-      }
-      fillGeoAsn();
     }
   }, [entityType, entityCode, asnOptions]);
 
@@ -498,7 +534,6 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     if(entityCode === undefined && entityType) {
       switch (entityType) {
         case "country":
-        case "geoasn":
           setCountrySearchText("All Countries");
           setCountrySelectedCode("all")
           setRegionSearchText("N/A")
@@ -697,159 +732,174 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
 
   return (
-        <div>
-          <div className="flex items-start card p-6 mb-6 control-panel">
-            {/*<div className="control-panel__controls col-1">*/}
-            {/*<div className="searchbar">*/}
-            {/*  <div className="flex items-center">*/}
-            {/*    <T.p*/}
-            {/*        text={"controlPanel.searchBarPlaceholder"}*/}
-            {/*        className="text-lg"*/}
-            {/*    />*/}
-            {/*    <Tooltip*/}
-            {/*        title={tooltipSearchBarTitle}*/}
-            {/*        text={tooltipSearchBarText}*/}
-            {/*    />*/}
-            {/*  </div>*/}
-            {/*  {searchbar()}*/}
-            {/*</div>*/}
+      <div>
+        {/*<div className="col-1 w-full flex items-center gap-3 justify-end mb-4 control-panel__title">*/}
+        {/*  /!*<h1 className="text-4xl text-right">Reset</h1>*!/*/}
+        {/*  <Button type="default">*/}
+        {/*    Reset*/}
+        {/*  </Button>*/}
+        {/*  {onClose && (*/}
+        {/*      <Button*/}
+        {/*          icon={<CloseOutlined/>}*/}
+        {/*          onClick={() => onClose()}*/}
+        {/*      />*/}
+        {/*    //<Button type="default" onClick={resetFilters} />*/}
+        {/*  // Reset*/}
+        {/*// </Button>*/}
+        {/*  )}*/}
+        {/*</div>*/}
+        <div className="flex items-start card p-6 mb-6 control-panel">
+          {/*<div className="control-panel__controls col-1">*/}
+          {/*<div className="searchbar">*/}
+          {/*  <div className="flex items-center">*/}
+          {/*    <T.p*/}
+          {/*        text={"controlPanel.searchBarPlaceholder"}*/}
+          {/*        className="text-lg"*/}
+          {/*    />*/}
+          {/*    <Tooltip*/}
+          {/*        title={tooltipSearchBarTitle}*/}
+          {/*        text={tooltipSearchBarText}*/}
+          {/*    />*/}
+          {/*  </div>*/}
+          {/*  {searchbar()}*/}
+          {/*</div>*/}
 
-            {/*Countries*/}
-            <div className="control-panel__controls">
-              <label className="control-panel__label">Country</label>
-              <Select
-                  showSearch
-                  placeholder="Search Countries"
-                  value={countrySearchText}
-                  optionFilterProp="name" //label
-                  onChange={handleCountryChange}
-                  onSelect={handleCountrySelect}
-                  options={countryOptions}
-                  style={{width: '150px'}}
-              >
-              </Select>
+          {/*Countries*/}
+          <div className="control-panel__controls">
+            <label className="control-panel__label">Country</label>
+            <Select
+                showSearch
+                placeholder="Search Countries"
+                value={countrySearchText}
+                optionFilterProp="name" //label
+                onChange={handleCountryChange}
+                onSelect={handleCountrySelect}
+                options={countryOptions}
+                style={{width: '150px'}}
+            >
+            </Select>
 
-            </div>
+          </div>
 
-            {/*Region*/}
-            <div className="control-panel__controls">
-              <label className="control-panel__label">Region</label>
-              <Select
-                  showSearch
-                  placeholder="Search Regions"
-                  value={regionSearchText}
-                  optionFilterProp="label"
-                  onChange={handleRegionChange}
-                  onSelect={handleRegionSelect}
-                  options={regionOptions}
-                  style={{width: '150px'}}
-              >
-              </Select>
-            </div>
+          {/*Region*/}
+          <div className="control-panel__controls">
+            <label className="control-panel__label">Region</label>
+            <Select
+                showSearch
+                placeholder="Search Regions"
+                value={regionSearchText}
+                optionFilterProp="label"
+                onChange={handleRegionChange}
+                onSelect={handleRegionSelect}
+                options={regionOptions}
+                style={{width: '150px'}}
+            >
+            </Select>
+          </div>
 
-            {/*Asn*/}
-            <div className="control-panel__controls">
-              <label className="control-panel__label">Networks</label>
+          {/*Asn*/}
+          <div className="control-panel__controls">
+            <label className="control-panel__label">Networks</label>
 
-              <Select
-                  showSearch
-                  placeholder="Search Networks"
-                  value={asnSearchText}
-                  optionFilterProp="label"
-                  onChange={handleAsnChange}
-                  onSelect={handleAsnSelect}
-                  options={asnOptions}
-                  style={{width: '150px'}}
-              >
-              </Select>
-            </div>
+            <Select
+                showSearch
+                placeholder="Search Networks"
+                value={asnSearchText}
+                optionFilterProp="label"
+                onChange={handleAsnChange}
+                onSelect={handleAsnSelect}
+                options={asnOptions}
+                style={{width: '150px'}}
+            >
+            </Select>
+          </div>
 
-            {/*Range Picker*/}
-            <div className="control-panel__controls">
-              <label className="control-panel__label"
-                     style={{display: 'inline-flex', alignItems: 'center', height: '12.1px'}}>
-                {/*<span >*/}
-                <T.p text={"controlPanel.timeRange"} className="text-lg"/>
-                <Tooltip
-                    title={tooltipTimeRangeTitle}
-                    text={tooltipTimeRangeText}
-                />
-                {/*</span>*/}
-              </label>
-              <RangePicker
-                  presets={[
-                    {
-                      label: (
-                          <span
-                              aria-label="Quick Select"
-                              style={{
-                                color: '#dad7d6',
-                                cursor: 'default',
-                                fontWeight: 'bold',
-                                pointerEvents: 'none',
-                              }}
-                          >
+          {/*Range Picker*/}
+          <div className="control-panel__controls">
+            <label className="control-panel__label"
+                   style={{display: 'inline-flex', alignItems: 'center', height: '12.1px'}}>
+              {/*<span >*/}
+              <T.p text={"controlPanel.timeRange"} className="text-lg"/>
+              <Tooltip
+                  title={tooltipTimeRangeTitle}
+                  text={tooltipTimeRangeText}
+              />
+              {/*</span>*/}
+            </label>
+            <RangePicker
+                presets={[
+                  {
+                    label: (
+                        <span
+                            aria-label="Quick Select"
+                            style={{
+                              color: '#dad7d6',
+                              cursor: 'default',
+                              fontWeight: 'bold',
+                              pointerEvents: 'none',
+                            }}
+                        >
                       Quick Select:
                     </span>
-                      ),
-                    },
-                    ...rangePresets,
-                  ]}
-                  value={range}
-                  showTime={{format: "h:mmA"}}
-                  format="MMM D YYYY h:mma"
-                  onChange={handleRangeChange}
-                  onOk={handleRangeChange}
-                  style={{width: '400px'}}
-              />
-            </div>
+                    ),
+                  },
+                  ...rangePresets,
+                ]}
+                value={range}
+                showTime={{format: "h:mmA"}}
+                format="MMM D YYYY h:mma"
+                onChange={handleRangeChange}
+                onOk={handleRangeChange}
+                style={{width: '400px'}}
+            />
+          </div>
 
-            {/*<div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px'}}>*/}
-            {/*  <span>UTC</span>*/}
-            {/*  <Switch*/}
-            {/*      checked={isSwitchActive}*/}
-            {/*      onChange={handleTimezoneToggleSwitch}*/}
-            {/*      checkedChildren="Local"*/}
-            {/*      unCheckedChildren="UTC"*/}
-            {/*  />*/}
-            {/*  <span>Local</span>*/}
-            {/*</div>*/}
-            {/*Time Zone*/}
-            <div className="control-panel__controls">
-              <label className="control-panel__label">Timezone</label>
-              <Select
-                  showSearch
-                  placeholder="Select a Timezone"
-                  optionFilterProp="children"
-                  style={{width: '150px'}}
-                  dropdownStyle={{width: '180px'}}
-                  value={selectedTimezone}
-                  defaultValue={selectedTimezone}
-                  onChange={handleTimezoneChange}
-              >
-                {timezones.map((tz) => (
-                    <Option key={tz} value={tz}>
-                      {tz}
-                    </Option>
-                ))}
-              </Select>
-
-            </div>
+          {/*<div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px'}}>*/}
+          {/*  <span>UTC</span>*/}
+          {/*  <Switch*/}
+          {/*      checked={isSwitchActive}*/}
+          {/*      onChange={handleTimezoneToggleSwitch}*/}
+          {/*      checkedChildren="Local"*/}
+          {/*      unCheckedChildren="UTC"*/}
+          {/*  />*/}
+          {/*  <span>Local</span>*/}
+          {/*</div>*/}
+          {/*Time Zone*/}
+          <div className="control-panel__controls">
+            <label className="control-panel__label">Timezone</label>
+            <Select
+                showSearch
+                placeholder="Select a Timezone"
+                optionFilterProp="children"
+                style={{width: '150px'}}
+                dropdownStyle={{width: '180px'}}
+                value={selectedTimezone}
+                defaultValue={selectedTimezone}
+                onChange={handleTimezoneChange}
+            >
+              {timezones.map((tz) => (
+                  <Option key={tz} value={tz}>
+                    {tz}
+                  </Option>
+              ))}
+            </Select>
 
           </div>
 
-          {entityCode && <DynamicBreadCrumb
-              searchParams={searchParams}
-              entityType={entityType}
-              entityCode={entityCode}
-              countryOptions={countryOptions}
-              regionOptions={regionOptions}
-                asnOptions={asnOptions}
-                getCountryCodeFromRegion={getCountryCodeFromRegion}
-            />}
-          </div>
+        </div>
 
-          );
-          }
+        {entityCode && <DynamicBreadCrumb
+            searchParams={searchParams}
+            entityType={entityType}
+            entityCode={entityCode}
+            countryOptions={countryOptions}
+            regionOptions={regionOptions}
+            asnOptions={asnOptions}
+            getCountryCodeFromRegion={getCountryCodeFromRegion}
+        />}
+      </div>
 
-          export default ControlPanel;
+  );
+}
+
+export default ControlPanel;

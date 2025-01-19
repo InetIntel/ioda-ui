@@ -100,8 +100,6 @@ const EntityRelated = (props) => {
     handleGlobalAsnSignals,
   } = props;
 
-  console.log(props)
-
   const relatedTableConfig = useRef();
 
     const regionalModalButtonText = T.translate(
@@ -314,7 +312,7 @@ const EntityRelated = (props) => {
                 <h3 className="text-2xl">
                   {entityType === "country"
                     ? `Outages of ASNs/ISPs operating in ${entityName}`
-                    : (entityType === "region" || entityType === "geoasn")
+                    : entityType === "region"
                     ? `Outages of ASNs/ISPs operating in ${parentEntityName}`
                     : entityType === "asn"
                     ? `Countries where ${entityName} operates that experienced outages`
