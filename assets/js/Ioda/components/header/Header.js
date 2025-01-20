@@ -89,12 +89,12 @@ const languageOptions = [
 ];
 
 const Header = () => {
-
   const [language, setLanguage] = useState(getSavedLanguagePreference());
-  const [advancedMode, setAdvancedMode] = useState(getSavedAdvancedModePreference());
+  const [advancedMode, setAdvancedMode] = useState(
+    getSavedAdvancedModePreference()
+  );
   const [showDrawer, setShowDrawer] = useState(false);
   const [mounted, setMounted] = useState(false);
-
 
   // const setShowDrawer = (showDrawer) => {
   //   this.setState({ showDrawer });
@@ -126,6 +126,7 @@ const Header = () => {
   const reports = T.translate("header.reports");
   const about = T.translate("header.about");
   const help = T.translate("header.help");
+  const resources = T.translate("header.resources");
   const iodaLogoAltText = T.translate("header.iodaLogoAltText");
   const api = T.translate("header.api");
   const viewToggleHelp = T.translate("header.viewToggleHelp");
@@ -133,167 +134,178 @@ const Header = () => {
   const modeStatus = advancedMode ? "Advanced" : "Simple";
 
   return (
-      <div className="header">
-        <div className="header__container p-6 max-cont row items-center">
-          <div className="header__logo mr-auto">
-            <Link to="/">
-              <img src={iodaLogo} alt={iodaLogoAltText} width="97" />
-            </Link>
-          </div>
-          <div className="header__item">
-            <Link to="/dashboard" className="a-fake">
-              {dashboard}
-            </Link>
-          </div>
-          <div className="header__item">
-            <a
-                href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
-                className="a-fake"
-            >
-              {api}
-            </a>
-          </div>
-
-          <div className="header__item">
-            <Link to="/about" className="a-fake">
-              {about}
-            </Link>
-          </div>
-
-          <div className="header__item">
-            <a href="/reports" className="a-fake">
-              {reports}
-            </a>
-          </div>
-
-          <div className="header__item">
-            <Link to="/help" className="a-fake">
-              {help}
-            </Link>
-          </div>
-
-          <div className="header__item">
-            <Select
-                value={language}
-                style={{ width: 100 }}
-                className="ml-md"
-                onChange={handleLanguageChange}
-                options={languageOptions}
-                popupClassName="header__language-select"
-            />
-          </div>
-
-          <div className="header__item">
-            <Tooltip title={viewToggleHelp}>
-              <div className="row items-center">
-                <Switch
-                    className="mr-3"
-                    checked={advancedMode}
-                    onChange={handleModeChange}
-                />
-                <span className="text-lg">{modeStatus}</span>
-              </div>
-            </Tooltip>
-          </div>
-
-          <div className="header__drawer-icon">
-            <Button icon={<MenuOutlined />} onClick={toggleDrawerMenu} />
-          </div>
+    <div className="header">
+      <div className="header__container p-6 max-cont row items-center">
+        <div className="header__logo mr-auto">
+          <Link to="/">
+            <img src={iodaLogo} alt={iodaLogoAltText} width="97" />
+          </Link>
+        </div>
+        <div className="header__item">
+          <Link to="/dashboard" className="a-fake">
+            {dashboard}
+          </Link>
+        </div>
+        <div className="header__item">
+          <a
+            href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+            className="a-fake"
+          >
+            {api}
+          </a>
         </div>
 
-        {/* DRAWER MENU */}
-        <Drawer
-            placement="right"
-            onClose={() => setShowDrawer(false)}
-            open={showDrawer}
-            className="header__drawer-body"
-            closeIcon={
-              <CloseOutlined style={{ fontSize: "16px", color: "#fff" }} />
-            }
-            extra={
-              <Link to="/" onClick={() => setShowDrawer(false)}>
-                <img
-                    src={iodaLogo}
-                    alt={iodaLogoAltText}
-                    width="97"
-                    height="35"
-                />
-              </Link>
-            }
-            width={320}
-        >
-          <div className="header__drawer-item">
-            <Link
-                to="/dashboard"
-                className="a-fake"
-                onClick={() => setShowDrawer(false)}
-            >
-              {dashboard}
-            </Link>
-          </div>
-          <div className="header__drawer-item">
-            <a
-                href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
-                className="a-fake"
-            >
-              {api}
-            </a>
-          </div>
+        <div className="header__item">
+          <Link to="/about" className="a-fake">
+            {about}
+          </Link>
+        </div>
 
-          <div className="header__drawer-item">
-            <Link
-                to="/about"
-                className="a-fake"
-                onClick={() => setShowDrawer(false)}
-            >
-              {about}
-            </Link>
-          </div>
+        <div className="header__item">
+          <a href="/reports" className="a-fake">
+            {reports}
+          </a>
+        </div>
 
-          <div className="header__drawer-item">
-            <a href="/reports" className="a-fake">
-              {reports}
-            </a>
-          </div>
+        <div className="header__item">
+          <Link to="/help" className="a-fake">
+            {help}
+          </Link>
+        </div>
 
-          <div className="header__drawer-item">
-            <Link
-                to="/help"
-                className="a-fake"
-                onClick={() => setShowDrawer(false)}
-            >
-              {help}
-            </Link>
-          </div>
+        <div className="header__item">
+          <Link to="/resources" className="a-fake">
+            {resources}
+          </Link>
+        </div>
 
-          <div
-              className="header__drawer-item mt-6 pt-6"
-              style={{ borderTop: "1px solid gray" }}
-          >
-            <Select
-                value={language}
-                style={{ width: 100 }}
-                className="ml-md"
-                onChange={handleLanguageChange}
-                options={languageOptions}
-            />
-          </div>
+        <div className="header__item">
+          <Select
+            value={language}
+            style={{ width: 100 }}
+            className="ml-md"
+            onChange={handleLanguageChange}
+            options={languageOptions}
+            popupClassName="header__language-select"
+          />
+        </div>
 
-          <div className="header__drawer-item">
-            <Tooltip title={viewToggleHelp}>
-              <div className="ml-6 row items-center">
-                <Switch
-                    className="mr-3"
-                    checked={advancedMode}
-                    onChange={handleModeChange}
-                />
-                <span>{modeStatus}</span>
-              </div>
-            </Tooltip>
-          </div>
-        </Drawer>
+        <div className="header__item">
+          <Tooltip title={viewToggleHelp}>
+            <div className="row items-center">
+              <Switch
+                className="mr-3"
+                checked={advancedMode}
+                onChange={handleModeChange}
+              />
+              <span className="text-lg">{modeStatus}</span>
+            </div>
+          </Tooltip>
+        </div>
+
+        <div className="header__drawer-icon">
+          <Button icon={<MenuOutlined />} onClick={toggleDrawerMenu} />
+        </div>
       </div>
+
+      {/* DRAWER MENU */}
+      <Drawer
+        placement="right"
+        onClose={() => setShowDrawer(false)}
+        open={showDrawer}
+        className="header__drawer-body"
+        closeIcon={
+          <CloseOutlined style={{ fontSize: "16px", color: "#fff" }} />
+        }
+        extra={
+          <Link to="/" onClick={() => setShowDrawer(false)}>
+            <img src={iodaLogo} alt={iodaLogoAltText} width="97" height="35" />
+          </Link>
+        }
+        width={320}
+      >
+        <div className="header__drawer-item">
+          <Link
+            to="/dashboard"
+            className="a-fake"
+            onClick={() => setShowDrawer(false)}
+          >
+            {dashboard}
+          </Link>
+        </div>
+        <div className="header__drawer-item">
+          <a
+            href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+            className="a-fake"
+          >
+            {api}
+          </a>
+        </div>
+
+        <div className="header__drawer-item">
+          <Link
+            to="/about"
+            className="a-fake"
+            onClick={() => setShowDrawer(false)}
+          >
+            {about}
+          </Link>
+        </div>
+
+        <div className="header__drawer-item">
+          <a href="/reports" className="a-fake">
+            {reports}
+          </a>
+        </div>
+
+        <div className="header__drawer-item">
+          <Link
+            to="/help"
+            className="a-fake"
+            onClick={() => setShowDrawer(false)}
+          >
+            {help}
+          </Link>
+        </div>
+
+        <div className="header__drawer-item">
+          <Link
+            to="/resources"
+            className="a-fake"
+            onClick={() => setShowDrawer(false)}
+          >
+            {resources}
+          </Link>
+        </div>
+
+        <div
+          className="header__drawer-item mt-6 pt-6"
+          style={{ borderTop: "1px solid gray" }}
+        >
+          <Select
+            value={language}
+            style={{ width: 100 }}
+            className="ml-md"
+            onChange={handleLanguageChange}
+            options={languageOptions}
+          />
+        </div>
+
+        <div className="header__drawer-item">
+          <Tooltip title={viewToggleHelp}>
+            <div className="ml-6 row items-center">
+              <Switch
+                className="mr-3"
+                checked={advancedMode}
+                onChange={handleModeChange}
+              />
+              <span>{modeStatus}</span>
+            </div>
+          </Tooltip>
+        </div>
+      </Drawer>
+    </div>
   );
-}
+};
 
 export default Header;

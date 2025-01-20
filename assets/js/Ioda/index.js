@@ -57,6 +57,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import Entity from "./pages/entity/Entity";
 import About from "./pages/about/About";
 import Help from "./pages/help/Help";
+import Resources from "./pages/resources/Resources";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import { initializeAnalytics } from "./utils/analytics";
@@ -94,6 +95,7 @@ class App extends Component {
           <Route path="/dashboard/:entityType?" element={<Dashboard />} />
           <Route exact path="/about" element={<About />} />
           <Route exact path="/help" element={<Help />} />
+          <Route exact path="/resources" element={<Resources />} />
           <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
           <Route exact path="/:entityType/:entityCode" element={<Entity />} />
           <Route path="/" element={<Home />} />
@@ -109,8 +111,8 @@ const reducers = {
 };
 
 const store = configureStore({
-  reducer: reducers
-})
+  reducer: reducers,
+});
 const container = document.getElementById("root");
 const root = createRoot(container);
 

@@ -5,10 +5,11 @@
     "iodaLogoAltText": "IODA Logo",
     "help": "Help",
     "about": "About",
+    "resources": "Resources",
     "explorer": "Explorer",
     "acknowledgements": "Acknowledgements",
     "api": "API",
-    "viewToggleHelp":"This Toggle is used to switch between Simplified and Advanced view of the dashboard."
+    "viewToggleHelp": "This Toggle is used to switch between Simplified and Advanced view of the dashboard."
   },
   "home": {
     "title": "IODA",
@@ -306,6 +307,9 @@
     "title": "About",
     "text": "IODA (Internet Outage Detection and Analysis) is a project that originally began at CAIDA at the University of California San Diego (see also the Acknowledgements page). Since 2022 the project continues at the Georgia Institute of Technology.",
     "link1": "Original CAIDA project page"
+  },
+  "resources": {
+    "title": "Resources"
   },
   "iranReport2020": {
     "title": "An analysis of large Internet outages affecting Iranian networks in early 2020",
