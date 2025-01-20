@@ -198,7 +198,6 @@ const Entity = (props) => {
     navigate,
     searchParams
   } = props;
-
   const timeSeriesChartRef = useRef();
 
   const isAdvancedMode = getSavedAdvancedModePreference();
@@ -338,7 +337,12 @@ const Entity = (props) => {
       getDataRelatedToMapSummary("region");
       getDataRelatedToTableSummary();
     }
-  }, [entityMetadata, showGlobalSignals]);
+  }, [entityMetadata]);
+
+  useEffect(() => {
+    console.log("Calling relatedTo Table Summary");
+    getDataRelatedToTableSummary();
+  }, [showGlobalSignals]);
 
   // Monitor screen width
   useEffect(() => {
@@ -555,13 +559,14 @@ const Entity = (props) => {
     if(asnSignalsTableSummaryData) {
       setAsnSignalsTableSummaryDataState(asnSignalsTableSummaryData);
     }
-  }, [asnSignalsTableSummaryData, showGlobalSignals]);
+  }, [asnSignalsTableSummaryData]);
+
 
   useEffect(() => {
     if(asnSignalsTableSummaryDataState) {
       _combineValuesForSignalsTable("asn");
     }
-  }, [asnSignalsTableSummaryDataState, showGlobalSignals]);
+  }, [asnSignalsTableSummaryDataState, relatedToTableSummaryState]);
 
   useEffect(() => {
     if(tsDataNormalized && Object.keys(tsDataNormalized).length > 0) {
@@ -823,17 +828,9 @@ const Entity = (props) => {
   }, [showMapModal]);
 
   useEffect(() => {
-    console.log("Getting asns/geoasns");
-    if (showTableModal) {
-      if (!rawAsnSignalsLoaded) {
-        if(showGlobalSignals) {
-          props.asnSignalsTableSummaryDataAction("asn", entityTypeState, entityCodeState)
-        }
-        else {
-          props.asnSignalsTableSummaryDataAction("geoasn", entityTypeState, entityCodeState)
-        }
-        setRawAsnSignalsLoaded(true);
-      }
+    if (showTableModal && !rawAsnSignalsLoaded) {
+      props.asnSignalsTableSummaryDataAction( showGlobalSignals ? "asn" : "geoasn", entityTypeState, entityCodeState)
+      setRawAsnSignalsLoaded(true);
     } else {
       setRawAsnSignalsLoaded(false);
     }
@@ -872,7 +869,6 @@ const Entity = (props) => {
   ]);
 
   useEffect(() => {
-     console.log("Getting asn/geoasns");
     if(asnSignalsTableSummaryDataProcessed && Object.keys(asnSignalsTableSummaryDataProcessed).length > 0) {
       // Populate Stacked horizon graph with all regions
       if(showGlobalSignals) {
@@ -1813,7 +1809,6 @@ const Entity = (props) => {
     const entityCode = null;
     let entityType;
     let relatedToEntityType, relatedToEntityCode;
-    console.log(entityMetadata)
     switch (entityTypeState) {
       case "country":
         entityType = showGlobalSignals ? "asn" : "geoasn";
@@ -1998,7 +1993,6 @@ const Entity = (props) => {
           setRegionalSignalsTableTotalCount(signalsTableData.length);
         }
         break;
-      case "geoasn":
       case "asn":
         if (relatedToTableSummaryState && asnSignalsTableSummaryDataState) {
           let signalsTableData = combineValuesForSignalsTable(
