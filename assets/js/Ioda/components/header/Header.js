@@ -147,18 +147,11 @@ class Header extends Component {
               <img src={iodaLogo} alt={iodaLogoAltText} width="97" />
             </Link>
           </div>
+
           <div className="header__item">
             <Link to="/dashboard" className="a-fake">
               {dashboard}
             </Link>
-          </div>
-          <div className="header__item">
-            <a
-              href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
-              className="a-fake"
-            >
-              {api}
-            </a>
           </div>
 
           <div className="header__item">
@@ -170,6 +163,15 @@ class Header extends Component {
           <div className="header__item">
             <a href="/reports" className="a-fake">
               {reports}
+            </a>
+          </div>
+
+          <div className="header__item">
+            <a
+              href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+              className="a-fake"
+            >
+              {api}
             </a>
           </div>
 

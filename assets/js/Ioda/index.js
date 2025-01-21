@@ -51,6 +51,7 @@ import { iodaApiReducer } from "./data/DataReducer";
 // Global Components
 import Header from "./components/header/Header";
 import Footer from "./components/footer/Footer";
+import GlobalAlert from "./components/alert/GlobalAlert";
 // Routes
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -60,6 +61,7 @@ import Help from "./pages/help/Help";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import { initializeAnalytics } from "./utils/analytics";
+import { AlertStatus } from "./constants/types/status";
 
 initializeAnalytics();
 
@@ -69,6 +71,12 @@ class App extends Component {
 
     this.state = {
       error: null,
+      alert: {
+        //title: "Upcoming IODA Unavailablilty",
+        //description: "Due to scheduled data center maintenance, IODA will be unavailable from 5pm ET on January 24 through to 9am ET on January 27. We apologize for any inconvenience.",
+	//type: AlertStatus.Warning
+        // type: AlertStatus.Success, // AlertStatus.Warning, AlertStatus.Success, AlertStatus.Error
+      },
     };
   }
 
@@ -77,29 +85,47 @@ class App extends Component {
     return { error: errorObject };
   }
 
+  componentDidCatch(error, info) {
+    // Log the error to an error reporting service
+    console.log(error, info);
+  }
+
   render() {
-    if (this.state.error) {
-      return (
-        <div className="app">
-          <Header />
-          <Error error={this.state.error} />
-          <Footer />
-        </div>
-      );
-    }
+    const { error, alert } = this.state;
+
     return (
-      <div className="app">
-        <Header />
-        <Routes>
-          <Route path="/dashboard/:entityType?" element={<Dashboard />} />
-          <Route exact path="/project" element={<ProjectInfo />} />
-          <Route exact path="/help" element={<Help />} />
-          <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
-          <Route exact path="/:entityType/:entityCode" element={<Entity />} />
-          <Route path="/" element={<Home />} />
-        </Routes>
-        <Footer />
-      </div>
+      <Provider store={store}>
+        <BrowserRouter>
+          <div className="app">
+            <Header />
+            {error ? (
+              <Error error={error} />
+            ) : (
+              <>
+                <GlobalAlert
+                  title={alert.title}
+                  description={alert.description}
+                  type={alert.type}
+                />
+                <Routes>
+                  <Route path="/dashboard/:entityType?"
+		    element={<Dashboard />} />
+                  <Route exact path="/project" element={<ProjectInfo />} />
+                  <Route exact path="/help" element={<Help />} />
+                  <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
+                  <Route
+                    exact
+                    path="/:entityType/:entityCode"
+                    element={<Entity />}
+                  />
+                  <Route path="/" element={<Home />} />
+                </Routes>
+              </>
+            )}
+            <Footer />
+          </div>
+        </BrowserRouter>
+      </Provider>
     );
   }
 }
@@ -117,9 +143,5 @@ const root = createRoot(container);
 // await google analytics to initialize
 
 root.render(
-  <Provider store={store}>
-    <BrowserRouter>
       <App />
-    </BrowserRouter>
-  </Provider>
 );
