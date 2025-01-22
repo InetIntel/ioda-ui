@@ -104,6 +104,8 @@ const RawSignalsModal = (props) => {
   } = props;
   // console.log(asnSignalsTableSummaryDataProcessed);
 
+  console.log(props);
+
   const [mounted, setMounted] = useState(false);
   const [additionalEntitiesLoading, setAdditionalEntitiesLoading] = useState(false);
   const [renderingDataPingSlash24, setRenderingDataPingSlash24] = useState(false);
@@ -139,6 +141,30 @@ const RawSignalsModal = (props) => {
       genChart("bgp", "asn");
     }
   }, [rawAsnSignalsProcessedBgp]);
+
+  useEffect(() => {
+    if(configPingSlash24.current) {
+      genChart("ping-slash24", "asn");
+    }
+  }, [rawAsnSignalsProcessedPingSlash24]);
+
+  useEffect(() => {
+    if(configPingSlash24.current) {
+      genChart("ping-slash24", "region");
+    }
+  }, [rawRegionalSignalsProcessedPingSlash24]);
+
+  useEffect(() => {
+    if(configMeritNt.current) {
+      genChart("merit-nt", "asn");
+    }
+  }, [rawAsnSignalsProcessedMeritNt]);
+
+  useEffect(() => {
+    if(configMeritNt.current) {
+      genChart("merit-nt", "region");
+    }
+  }, [rawRegionalSignalsProcessedMeritNt]);
 
   useEffect(() => {
     if(configPingSlash24.current){
@@ -212,6 +238,7 @@ const RawSignalsModal = (props) => {
         }
         break;
       case "asn":
+        console.log(dataSource);
         switch (dataSource) {
           case "ping-slash24":
             if (
@@ -255,7 +282,7 @@ const RawSignalsModal = (props) => {
         }
         break;
     }
-
+    console.log("rawSignalsProcessed", rawSignalsProcessedArray);
     if (rawSignalsProcessedArray && rawSignalsProcessedArray.length > 0) {
       const chart = (width) => {
         // draw viz
@@ -264,6 +291,7 @@ const RawSignalsModal = (props) => {
                 `${entityType}-horizon-chart--${dataSourceForCSS}`
             )
         );
+        console.log(chart)
 
         const color =
             legend.find((item) => item.key === dataSource).color ??
@@ -332,6 +360,7 @@ const RawSignalsModal = (props) => {
         );
       }
     } else {
+      console.log("Null");
       return null;
     }
   }

@@ -90,15 +90,15 @@ const DynamicBreadCrumb = ({searchParams, entityCode, entityType, getCountryCode
                     break;
                 case "asn":
                     itemsList = itemsList.concat({title: <a href="/asn"> All Networks </a>});
-                    if(countrySearchParam[0] != null) {
-                        itemsList = [];
-                        itemsList = itemsList.concat({title: <a href="/country"> All Countries </a>});
-                        const countryName = getCountryNameFromCode(countrySearchParam[0]);
-                        const countryUrl = `/country=${countrySearchParam[0]}`;
-                        itemsList = itemsList.concat({
-                            title: <a href={countryUrl}> {countryName} </a>
-                        })
-                    }
+                    // if(countrySearchParam[0] != null) {
+                    //     itemsList = [];
+                    //     itemsList = itemsList.concat({title: <a href="/country"> All Countries </a>});
+                    //     const countryName = getCountryNameFromCode(countrySearchParam[0]);
+                    //     const countryUrl = `/country=${countrySearchParam[0]}`;
+                    //     itemsList = itemsList.concat({
+                    //         title: <a href={countryUrl}> {countryName} </a>
+                    //     })
+                    // }
                     if(entityCode != null) {
                         const asnName = await getAsnNameFromCode(entityCode);
                         let asnUrl = `/asn/${entityCode}`;

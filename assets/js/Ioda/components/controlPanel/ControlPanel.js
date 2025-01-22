@@ -733,21 +733,18 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   return (
       <div>
-        {/*<div className="col-1 w-full flex items-center gap-3 justify-end mb-4 control-panel__title">*/}
-        {/*  /!*<h1 className="text-4xl text-right">Reset</h1>*!/*/}
-        {/*  <Button type="default">*/}
-        {/*    Reset*/}
-        {/*  </Button>*/}
-        {/*  {onClose && (*/}
-        {/*      <Button*/}
-        {/*          icon={<CloseOutlined/>}*/}
-        {/*          onClick={() => onClose()}*/}
-        {/*      />*/}
-        {/*    //<Button type="default" onClick={resetFilters} />*/}
-        {/*  // Reset*/}
-        {/*// </Button>*/}
-        {/*  )}*/}
-        {/*</div>*/}
+        <div className="col-1 w-full flex items-center gap-3 justify-end mb-4 control-panel__title">
+          {/*<h1 className="text-4xl text-right">Reset</h1>*/}
+          <Button type="default">
+            {title}
+          </Button>
+          {onClose && (
+              <Button
+                  icon={<CloseOutlined/>}
+                  onClick={() => onClose()}
+              />
+          )}
+        </div>
         <div className="flex items-start card p-6 mb-6 control-panel">
           {/*<div className="control-panel__controls col-1">*/}
           {/*<div className="searchbar">*/}
@@ -885,6 +882,24 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             </Select>
 
           </div>
+
+          {entityCode &&  <div className="control-panel__reset-filter" style={{width: '100%', textAlign: 'center', marginTop: '10px'}}>
+            <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onClose();
+                }}
+                style={{
+                  color: '#007bff',
+                  textDecoration: 'underline',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                }}
+            >
+              Reset Filter
+            </a>
+          </div> }
 
         </div>
 

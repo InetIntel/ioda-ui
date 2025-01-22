@@ -203,7 +203,7 @@ export function combineValuesForSignalsTable(entitiesWithOutages, additionalEnti
 
         // Display entity with outage on signal table, if asn add ip count property
         let summaryItem;
-        (entity.entity.type === 'asn' || entity.entity.type === 'geoasn')
+        (entity.entity.type === 'asn')
             ? summaryItem = {
                 visibility: index < initialLimit,
                 entityType: entity["entity"].type,
