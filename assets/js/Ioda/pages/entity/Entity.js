@@ -168,9 +168,7 @@ const getMaxValue = (values) =>
 const urlRange = getDateRangeFromUrl();
 const fromDate =
   urlRange.urlFromDate ?? getSeconds(getNowAsUTC().subtract(24, "hour"));
-console.log(urlRange)
 const untilDate = urlRange.urlUntilDate ?? getNowAsUTCSeconds();
-console.log(untilDate);
 
 const Entity = (props) => {
 
@@ -345,7 +343,6 @@ const Entity = (props) => {
   }, [entityMetadata]);
 
   useEffect(() => {
-    console.log("Calling relatedTo Table Summary");
     getDataRelatedToTableSummary();
   }, [showGlobalSignals]);
 
@@ -537,7 +534,6 @@ const Entity = (props) => {
   // After API call for outage summary data completes, pass summary data to table component for data merging
   useEffect(() => {
     if(relatedToTableSummary) {
-      console.log(relatedToTableSummary);
       setRelatedToTableSummaryState(relatedToTableSummary);
     }
   }, [relatedToTableSummary]);
@@ -574,17 +570,13 @@ const Entity = (props) => {
   }, [asnSignalsTableSummaryDataState, relatedToTableSummaryState]);
 
   useEffect(() => {
-    if(tsDataNormalized && Object.keys(tsDataNormalized).length > 0) {
       // For XY Plotted Graph
       convertValuesForXyViz();
-    }
   }, [tsDataNormalized]);
 
   useEffect(() => {
-    if(tsDataDisplayOutageBands) {
       // For XY Plotted Graph
       convertValuesForXyViz();
-    }
   }, [tsDataDisplayOutageBands]);
 
   useEffect(() => {
@@ -826,7 +818,6 @@ const Entity = (props) => {
 
 
   useEffect(() => {
-    console.log("Global effect", showGlobalSignals);
     if(regionalSignalsTableSummaryDataProcessed && Object.keys(regionalSignalsTableSummaryDataProcessed).length > 0) {
       // Get data for Stacked horizon series raw signals with all regions if data is not yet available
       if (showGlobalSignals) {
@@ -849,10 +840,7 @@ const Entity = (props) => {
   useEffect(() => {
 
     if(!convertValuesForHtsVizCalled) return;
-    console.log("Called Convert Values", convertValuesForHtsVizCalled);
     if(convertValuesForHtsVizCalled === "asn") {
-      console.log("Called convertValuesForHtsVizCalled");
-      console.log(asnSignalsTableSummaryDataProcessed)
       if(showGlobalSignals) {
         convertValuesForHtsViz("ping-slash24", "asn");
         convertValuesForHtsViz("bgp", "asn");
@@ -878,24 +866,7 @@ const Entity = (props) => {
   ]);
 
   useEffect(() => {
-    // console.log(asnSignalsTableSummaryDataProcessed);
-    if(
-        // asnSignalsTableSummaryDataProcessed && Object.keys(asnSignalsTableSummaryDataProcessed).length > 0 &&
-        combineCalled) {
-      // Populate Stacked horizon graph with all regions
-      console.log("Inside")
-      // if(showGlobalSignals) {
-      //   convertValuesForHtsViz("ping-slash24", "asn");
-      //   convertValuesForHtsViz("bgp", "asn");
-      //   convertValuesForHtsViz("ucsd-nt", "asn");
-      //   convertValuesForHtsViz("merit-nt", "asn");
-      // }
-      // else {
-      //   convertValuesForHtsViz("ping-slash24", "geoasn");
-      //   convertValuesForHtsViz("bgp", "geoasn");
-      //   convertValuesForHtsViz("ucsd-nt", "geoasn");
-      //   convertValuesForHtsViz("merit-nt", "geoasn");
-      // }
+    if(combineCalled) {
       if(combineCalled === "region") {
         getSignalsHtsDataEvents("region", "ping-slash24");
         getSignalsHtsDataEvents("region", "bgp");
@@ -904,7 +875,6 @@ const Entity = (props) => {
       }
       else {
         if(entityTypeState !== "asn") { // region or country
-          console.log("getting signals for HTS", entityTypeState);
           if(showGlobalSignals) {
             getSignalsHtsDataEvents("asn", "ping-slash24");
             getSignalsHtsDataEvents("asn", "ucsd-nt");
@@ -912,7 +882,6 @@ const Entity = (props) => {
             getSignalsHtsDataEvents("asn", "merit-nt");
           }
           else {
-            console.log("Getting geoasn useEffect")
             getSignalsHtsDataEvents("geoasn", "ping-slash24");
             getSignalsHtsDataEvents("geoasn", "ucsd-nt");
             getSignalsHtsDataEvents("geoasn", "bgp");
@@ -941,7 +910,6 @@ const Entity = (props) => {
     navigate(
       `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
     );
-    console.log("here")
   }
 
   function handleControlPanelClose() {
@@ -952,11 +920,18 @@ const Entity = (props) => {
     );
   }
 
+  function handleEntityChange(url) {
+    navigate(
+        hasDateRangeInUrl()
+            ? `/${url}?from=${from}&until=${until}`
+            : `/${url}`
+    );
+  }
+
   // Define what happens when user clicks suggested search result entry
   function handleResultClick(entity){
     if (!entity) return;
     if (!entity.url) return;
-    console.log(entity);
     // navigate(`/${entity.type}/${entity.code}`);
     navigate(`/${entity.url}`)
   }
@@ -1718,7 +1693,6 @@ const Entity = (props) => {
   // RelatedTo Map
   // Make API call to retrieve topographic data
   function getDataTopo(entityType) {
-    console.log("Topo Action called with ", entityType)
     getTopoAction(entityType)
       .then((data) =>
         topojson.feature(
@@ -1887,7 +1861,6 @@ const Entity = (props) => {
     let attr = null;
     let order = "desc";
     let entities;
-    console.log(entityType)
     switch (entityType) {
       case "region":
         entities = regionalSignalsTableSummaryDataProcessed
@@ -1901,7 +1874,6 @@ const Entity = (props) => {
         if(entities.length === 0){
           return;
         }
-        console.log(entities)
         switch (dataSource) {
           case "ping-slash24":
             props.getRawRegionalSignalsPingSlash24Action(
@@ -1952,7 +1924,6 @@ const Entity = (props) => {
       case "asn":
       case "country":
       case "geoasn":
-        console.log(dataSource)
         entities = asnSignalsTableSummaryDataProcessed
           .map((entity) => {
             // some entities don't return a code to be used in an api call, seem to default to '??' in that event
@@ -1961,7 +1932,6 @@ const Entity = (props) => {
             }
           })
           .toString();
-        console.log(entities)
         if(entities.length === 0){
           return;
         }
@@ -2016,7 +1986,6 @@ const Entity = (props) => {
   }
   // Combine summary outage data with other raw signal data for populating Raw Signal Table
   function _combineValuesForSignalsTable(entityType) {
-    console.log("Combining values", entityType)
     switch (entityType) {
       case "region":
         if (summaryDataMapRaw && regionalSignalsTableSummaryDataState) {
@@ -2091,7 +2060,6 @@ const Entity = (props) => {
     }
 
     // Get list of entities that should be visible
-    console.log(signalsTableSummaryDataProcessed);
     signalsTableSummaryDataProcessed.map((obj) => {
       if (obj.visibility || obj.visibility === true) {
         visibilityChecked.push(obj.entityCode);
@@ -2172,15 +2140,12 @@ const Entity = (props) => {
 
   useEffect(() => {
     if(toggledEntity && Object.keys(toggledEntity).length > 0){
-      console.log("Toggle useEffect")
       const {entity, entityType} = toggledEntity;
-      console.log(entityType, entity)
       toggleEntityVisibilityInHtsViz(entity, entityType);
     }
   }, [toggledEntity])
   // function to manage what happens when a checkbox is changed in the raw signals table
   function toggleEntityVisibilityInHtsViz(entity, entityType) {
-    console.log(entityType);
     let maxEntitiesPopulatedMessage = T.translate(
         "entityModal.maxEntitiesPopulatedMessage"
     );
@@ -2196,8 +2161,6 @@ const Entity = (props) => {
           asnSignalsTableSummaryDataProcessed;
         break;
     }
-    console.log(signalsTableSummaryDataProcessed);
-
     // find the entity that was clicked
     const indexValue = signalsTableSummaryDataProcessed
         .findIndex((obj) => obj.entityCode === entity.entityCode
@@ -2208,9 +2171,6 @@ const Entity = (props) => {
       return;
     }
     const entityData = signalsTableSummaryDataProcessed[indexValue];
-
-    console.log(entityData["visibility"]);
-
     switch (entityData["visibility"]) {
       case true:
         // If checkbox is now set to true, determine if adding it will breach the limit
@@ -2220,7 +2180,6 @@ const Entity = (props) => {
           // check if entity data is already available
           switch (entityData["initiallyLoaded"]) {
             case false:
-              console.log("Initially Not loaded")
               const updatedData = signalsTableSummaryDataProcessed.map((item, idx) =>
                 idx === indexValue
                     ? { ...item, visibility: true }
@@ -2239,7 +2198,6 @@ const Entity = (props) => {
                 const { entityCode, entityType } = entityData;
 
                 if (entityType && entityCode) {
-                  console.log(entityType)
                   const rawSignalTypes = ["ping-slash24", "bgp", "ucsd-nt", "merit-nt"];
                   rawSignalTypes.forEach((signalType) =>
                       props.getAdditionalRawSignalAction(
@@ -2271,7 +2229,6 @@ const Entity = (props) => {
               break;
             case true:
               // set new data
-              console.log("Initially loaded")
               switch (entityType) {
                 case "region":
                   setRegionalSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed)
@@ -2315,7 +2272,6 @@ const Entity = (props) => {
             break;
           case "geoasn":
           case "asn":
-            console.log(entityType);
             setAsnSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
             setRawSignalsMaxEntitiesHtsError("");
             setAdditionalRawSignalRequestedPingSlash24(false);
@@ -2369,7 +2325,6 @@ const Entity = (props) => {
       setUncheckAllButtonLoading(false);
     }
     if (target === "checkMaxAsn") {
-      console.log("checkMax Asn clicked");
       // Check if all entities are loaded
       // if (this.state.asnRawSignalsLoadAllButtonClicked) {
       setCheckMaxButtonLoading(true);
@@ -2458,7 +2413,6 @@ const Entity = (props) => {
     const maxEntitiesPopulatedMessage = T.translate(
         "entityModal.maxEntitiesPopulatedMessage"
     );
-    console.log("Checkbox event clicked ", item);
     // Set checkbox visibility
     let signalsTableSummaryDataProcessed;
     switch (item.entityType) {
@@ -2599,7 +2553,6 @@ const Entity = (props) => {
   }
 
   function handleGlobalAsnSignals() {
-    console.log("Global clicked");
     setRawAsnSignalsLoaded(prev => !prev);
     setShowGlobalSignals(showGlobalSignals => !showGlobalSignals);
   }
@@ -2643,7 +2596,7 @@ const Entity = (props) => {
       <ControlPanel
         from={from}
         until={until}
-        searchbar={populateSearchBar}
+        // searchbar={populateSearchBar}
         onTimeFrameChange={handleTimeFrame}
         onClose={handleControlPanelClose}
         entityType={entityTypeState}
@@ -2654,6 +2607,8 @@ const Entity = (props) => {
         onSelect={(entity) => handleResultClick(entity)}
         searchParams={searchParams}
         parentEntityName={parentEntityName}
+        handleEntityChange={handleEntityChange}
+        showGlobalSignals={showGlobalSignals}
       />
       {displayTimeRangeError ? (
         <Error />

@@ -102,9 +102,7 @@ const RawSignalsModal = (props) => {
     rawAsnSignalsRawBgpLength,
     uncheckAllButtonLoading,
   } = props;
-  // console.log(asnSignalsTableSummaryDataProcessed);
 
-  console.log(props);
 
   const [mounted, setMounted] = useState(false);
   const [additionalEntitiesLoading, setAdditionalEntitiesLoading] = useState(false);

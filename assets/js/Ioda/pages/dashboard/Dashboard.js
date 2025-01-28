@@ -188,6 +188,14 @@ const Dashboard = (props) => {
     console.log('Passed navigate')
   }
 
+  function handleEntityChange(url) {
+    navigate(
+        hasDateRangeInUrl()
+            ? `/${url}?from=${from}&until=${until}`
+            : `/${url}`
+    );
+  }
+
   // Tabbing
   // Function to map active tab to state and manage url
   function handleSelectTab(selectedTab) {
@@ -406,12 +414,13 @@ const Dashboard = (props) => {
         </Helmet>
         <ControlPanel
           onTimeFrameChange={handleTimeFrame}
-          searchbar={populateSearchBar}
+          // searchbar={populateSearchBar}
           from={from}
           until={until}
           title={title}
           entityType="country"
           onSelect={(entity) => handleResultClick(entity)}
+          handleEntityChange={handleEntityChange}
         />
         <div className="w-full mb-6">
           <Radio.Group

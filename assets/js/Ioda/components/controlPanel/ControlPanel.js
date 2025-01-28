@@ -4,12 +4,13 @@ import Tooltip from "../../components/tooltip/Tooltip";
 import dayjs from "../../utils/dayjs";
 import countries from "../../constants/countries.json";
 
-import {Button, DatePicker, notification, Select} from "antd";
+import {Button, DatePicker, notification, Select, Popover, Divider, InputNumber, Space} from "antd";
 import {getNowAsUTC, getSeconds, secondsToTimeZone, secondsToUTC} from "../../utils/timeUtils";
-import { CloseOutlined } from "@ant-design/icons";
+import {ClockCircleOutlined, CloseOutlined} from "@ant-design/icons";
 import {fetchData} from "../../data/ActionCommons";
 import {v4 as uuidv4} from "uuid";
 import DynamicBreadCrumb from "./BreadCrumb";
+import {debounce} from "lodash";
 
 const { RangePicker } = DatePicker;
 
@@ -36,13 +37,14 @@ const timezones = [
   ...allTimezones.filter((tz) => tz !== 'UTC' && tz !== userTimezone),
 ];
 
-const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title, onSelect, entityCode, entityType, countryCode, searchParams}) => {
+const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect, entityCode, entityType, countryCode, searchParams,
+                       handleEntityChange, showGlobalSignals}) => {
 
   const [customDuration, setCustomDuration] = useState(1);
   const [customUnit, setCustomUnit] = useState(UNITS.DAY);
   const [range, setRange] = useState(
-      (localStorage.getItem('timezone') && localStorage.getItem('timezone') !== 'UTC') ?
-          [secondsToTimeZone(from), secondsToTimeZone(until) ] :
+      // (localStorage.getItem('timezone') && localStorage.getItem('timezone') !== 'UTC') ?
+      //     [secondsToTimeZone(from), secondsToTimeZone(until) ] :
           [secondsToUTC(from), secondsToUTC(until)]);
   const [countrySearchText, setCountrySearchText] = useState("All Countries");
   const [countrySelectedCode, setCountrySelectedCode] = useState("all");
@@ -52,53 +54,49 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   const [countryOptions, setCountryOptions] = useState([]);
   const [regionOptions, setRegionOptions] = useState([]);
   const [asnOptions, setAsnOptions] = useState([]);
-  const [allCountryOptionUrl, setAllCountryOptionUrl] = useState("country");
 
+  const [customRangePopOutOpen, setCustomRangePopOutOpen] = useState(false);
+  const [asnSearchLoading, setAsnSearchLoading] = useState(false);
 
   const [selectedTimezone, setSelectedTimezone] = useState(() => {
-    return  localStorage.getItem('timezone') || userTimezone;
+    return  "UTC";
   });
 
 
-  useEffect(() => {
-    const storedTimezone = localStorage.getItem('timezone') || userTimezone;
-    setSelectedTimezone(storedTimezone);
-  }, [selectedTimezone]);
+  // useEffect(() => {
+  //   const storedTimezone = localStorage.getItem('timezone') || userTimezone;
+  //   setSelectedTimezone(storedTimezone);
+  // }, [selectedTimezone]);
 
 
-  const handleTimezoneChange = (value) => {
-    setSelectedTimezone(value);
-    localStorage.setItem("timezone", value);
-
-    if (from && until && range.length === 2) {
-      const [fromDayjs, untilDayjs] = range;
-      const fromInSelectedTimezone = fromDayjs.tz(value, true);
-      const untilInSelectedTimezone = untilDayjs.tz(value, true);
-
-      setRange([fromInSelectedTimezone, untilInSelectedTimezone]);
-
-      const fromInUTC = fromInSelectedTimezone.tz("UTC");
-      const untilInUTC = untilInSelectedTimezone.tz("UTC");
-
-      // Trigger the API with updated UTC values
-      onTimeFrameChange({
-        _from: getSeconds(fromInUTC),
-        _until: getSeconds(untilInUTC),
-      });
-    }
-  };
+  // const handleTimezoneChange = (value) => {
+  //   setSelectedTimezone(value);
+  //   localStorage.setItem("timezone", value);
+  //
+  //   if (from && until && range.length === 2) {
+  //     const [fromDayjs, untilDayjs] = range;
+  //     const fromInSelectedTimezone = fromDayjs.tz(value, true);
+  //     const untilInSelectedTimezone = untilDayjs.tz(value, true);
+  //
+  //     setRange([fromInSelectedTimezone, untilInSelectedTimezone]);
+  //
+  //     const fromInUTC = fromInSelectedTimezone.tz("UTC");
+  //     const untilInUTC = untilInSelectedTimezone.tz("UTC");
+  //
+  //     // Trigger the API with updated UTC values
+  //     onTimeFrameChange({
+  //       _from: getSeconds(fromInUTC),
+  //       _until: getSeconds(untilInUTC),
+  //     });
+  //   }
+  // };
 
   const MAX_LIMITS = 11;
 
 
-  // const {  countryCode, regionCode, asnCode } = useParams();
   const regionCountryCacheRef = useRef({});
   const asnRegionCountryCacheRef = useRef({});
 
-  // TODO - if countryCode is selected, then what will be the options in asn networks.
-  //        -> Currently, it will show geoasn and it will be only based on country.
-  // TODO - if countryCode and asnCode is selected, then what will be the options in regions.
-  //        -> Currently, it will be only based on country even if asnCode is selected.
   const getCountryCodeFromRegion = useCallback(async (regionCode) => {
     if (regionCountryCacheRef.current[regionCode]) {
 
@@ -188,6 +186,42 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     return {};
   }, [fetchData]);
 
+  const allCountryOption = {
+    label: "All Countries",
+    id: uuidv4(),
+    entity: {
+      name: "All Countries",
+      code: "All Countries",
+      type: "all_countries",
+      url: `country`,
+      backUrl: 'dashboard'
+    }
+  }
+
+  const allRegionOption = {
+    label: "All Regions",
+    id: uuidv4(),
+    entity: {
+      name: "All Regions",
+      code: "All Regions",
+      type: "all_regions",
+      url: 'region',
+      backUrl: 'dashboard'
+    }
+  }
+
+  const allNetworkOption = {
+    label: "All Networks",
+    id: uuidv4(),
+    entity: {
+      name: "All Networks",
+      code: "All Networks",
+      type: "all_networks",
+      url: 'asn',
+      backUrl: 'dashboard'
+    }
+  }
+
   //fetch countries names to populate the dropdown
   // countries are filtered based on region or geo-asn/asn
   useEffect(()=> {
@@ -203,19 +237,11 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             code: entity.code,
             type: entity.type,
             url : `country/${entity.code}`,
+            backUrl: `dashboard`
           },
         }));
 
-        let allCountryOption = {
-          label: "All Countries",
-          id: uuidv4(),
-          entity: {
-            name: "All Countries",
-            code: "All Countries",
-            type: "all_countries",
-            url: `${allCountryOptionUrl}`
-          }
-        }
+
         if (entityType === "asn" && entityCode) {
           const countryNames = await getCountryNamesFromAsn(entityCode);
           if (countryNames && countryNames.length > 0) {
@@ -223,9 +249,11 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             const asnCode = entityCode.split("-")[0];
             results = results.map(item => {
               item.entity.url = `${entityType}/${asnCode}-${item.entity.code}`;
+              item.entity.backUrl = `${entityType}/${asnCode}`;
               return item;
             });
             allCountryOption.entity.url = `asn/${asnCode}`;
+            allCountryOption.entity.backUrl = `asn/${asnCode}`;
           }
         }
         else if (entityType === "region" && entityCode) {
@@ -251,6 +279,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
         }));
         setCountryOptions(countrySearchResultOptions);
       } catch (error) {
+        setCountryOptions([allCountryOption]);
         console.error("Error fetching countries:", error);
       }
     };
@@ -276,8 +305,19 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
             url += `&relatedTo=country/${countryCode}`
           }
           if(entityType === "asn" && entityCode) {
-            const asnCode = entityCode.split("-")[0]
-            url += `&relatedTo=asn/${asnCode}`
+            if (entityCode.includes("-")) {
+              const geoCode = entityCode.split("-")[1];
+              if(isNaN(geoCode)) { // country
+                url += `&relatedTo=country/${geoCode}`
+              }
+              else { // region
+                countryCode = await getCountryCodeFromRegion(geoCode);
+                url += `&relatedTo=country/${countryCode}`
+              }
+            }
+            else {
+              url += `&relatedTo=asn/${entityCode}`
+            }
           }
         }
         const fetched = await fetchData({url});
@@ -290,27 +330,21 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               code: entity.code,
               type: entity.type,
               url: `region/${entity.code}`,
+              backUrl: 'region'
             }
           }
         });
 
-        let allRegionOption = {
-          label: "All Regions",
-          id: uuidv4(),
-          entity: {
-            name: "All Regions",
-            code: "All Regions",
-            type: "all_regions",
-            url: 'region'
-          }
-        }
+
         if (entityType === "asn" && entityCode) {
             const asnCode = entityCode.split("-")[0];
             results = results.map(item => {
               item.entity.url = `${entityType}/${asnCode}-${item.entity.code}`;
+              item.entity.backUrl = `/${entityType}/${asnCode}`;
               return item;
             });
-          allRegionOption.entity.url = `asn/${asnCode}`;
+          allRegionOption.entity.url = `/asn/${asnCode}`;
+          allRegionOption.entity.backUrl = `/asn/${asnCode}`;
         }
         // Regions are already filtered based on country in API call
         const updatedResults = [allRegionOption, ...results];
@@ -322,6 +356,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
         }));
         setRegionOptions(regionOptions);
       } catch (error) {
+        setRegionOptions([allRegionOption])
         console.error("Error fetching regions:", error);
       }
     };
@@ -373,21 +408,13 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
                   code: entity.code,
                   type: entity.type,
                   url: asnUrl,
+                  backUrl: 'asn'
                 },
               };
             })
         );
 
-        const allNetworkOption = {
-          label: "All Networks",
-          id: uuidv4(),
-          entity: {
-            name: "All Networks",
-            code: "All Networks",
-            type: "all_networks",
-            url: 'asn'
-          }
-        }
+
 
         let updatedResults = [];
         if(entityCode && entityType === "asn") {
@@ -405,6 +432,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
         }));
         setAsnOptions(asnOptions);
       } catch (error) {
+        setAsnOptions([allNetworkOption])
         console.error("Error fetching asn networks:", error);
       }
     };
@@ -486,9 +514,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               setRegionSearchText("All Regions")
             }
             else { // region
-              console.log("Region found")
               const selectedRegion = regionOptions.find((region) => region.entity.code === geoCode);
-              console.log(selectedRegion);
               setRegionSearchText(selectedRegion ? selectedRegion.label : "");
               setCountrySelectedCode("N/A")
             }
@@ -517,9 +543,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               });
             }
             const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
-            console.log(asn)
             setAsnSearchText(asn ? asn : "");
-            console.log("Region search text")
             setRegionSearchText("N/A");
           }
         } catch (error) {
@@ -556,6 +580,7 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
   }, [entityType, entityCode]);
 
 
+  // Triggered when a country is selected by clicking on one of the select option
   const handleCountrySelect = (id) => {
     const entity = countryOptions.find((d) => d.value === id)?.entity ?? null;
     if (!entity) return;
@@ -564,25 +589,37 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     onSelect(entity);
   }
 
+  // Triggered when a region is selected by clicking on one of the select option
   const handleRegionSelect = (id) => {
     const entity = regionOptions.find((d) => d.value === id)?.entity ?? null;
     if (!entity) return;
     setRegionSearchText(entity.name);
     onSelect(entity);
+    // handleRegionChange();
   }
 
+  // Triggered when an asn is selected from clicking on one of the select option
   const handleAsnSelect = (id) => {
     const entity = asnOptions.find((d) => d.value === id)?.entity ?? null;
     if (!entity) return;
     setAsnSearchText(entity.name);
     onSelect(entity);
+    // handleAsnChange();
   }
 
-  function handlePopoutOpen(val) {
-    setPopoutOpen(val);
+  const handleCustomRangePopOut = (val) => {
+    setCustomRangePopOutOpen(val);
+  };
+
+  const handleCustomUnitChange = (val) => {
+    setCustomUnit(val);
   }
 
-  function handleRangeChange([fromDayjs, untilDayjs], timezone) {
+  const handleCustomDurationChange = (val) => {
+    setCustomDuration(val);
+  }
+
+  function handleRangeChange([fromDayjs, untilDayjs]) {
 
     const fromInTimezone = fromDayjs.tz(selectedTimezone, true);
     const untilInTimezone = untilDayjs.tz(selectedTimezone, true);
@@ -600,11 +637,11 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
     });
   }
 
-  function handleCustomRange() {
+  const handleCustomRange = ()=>  {
     const from = getNowAsUTC().subtract(customDuration, customUnit);
     const until = getNowAsUTC();
     handleRangeChange([from, until]);
-    handlePopoutOpen(false);
+    setCustomRangePopOutOpen(false);
   }
 
   function handlePredefinedRangeSelection({ value }) {
@@ -632,9 +669,8 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
       ]);
     }
 
-    handlePopoutOpen(false);
+    setCustomRangePopOutOpen(false);
   }
-
 
   const tooltipSearchBarTitle = T.translate("tooltip.searchBar.title");
   const tooltipSearchBarText = T.translate("tooltip.searchBar.text");
@@ -699,67 +735,170 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
 
   const [regions, setRegions] = useState(['N/A']);
 
-  function handleCountryChange(query) {
-    setCountrySearchText(query);
+  // Triggered when there is change in search box of country
+  function handleCountrySelectChange(id) {
+    if(id === undefined) {
+      if(countrySearchText !== "N/A") {
+        const entity = countryOptions.find((d) => d.name === countrySearchText)?.entity ?? null;
+        if(entity != null){
+          handleEntityChange(entity.backUrl);
+        }
+      }
+    }
+    else {
+      setCountrySearchText(id);
+    }
   }
 
-  function handleRegionChange(query) {
-    setRegionSearchText(query);
+  function handleRegionSelectChange(id) {
+    if(id === undefined) {
+      if(regionSearchText !== "N/A") {
+        const entity = regionOptions.find((d) => d.name === regionSearchText)?.entity ?? null;
+        if(entity != null){
+          handleEntityChange(entity.backUrl);
+        }
+      }
+    }
+    else {
+      setRegionSearchText(id);
+    }
   }
 
-  function handleAsnChange(query) {
-    setAsnSearchText(query);
+  function handleAsnSelectChange(id) {
+
+    if(id === undefined) {
+      if(asnSearchText !== "N/A") {
+        const entity = asnOptions.find((d) => d.name === asnSearchText)?.entity ?? null;
+        if(entity != null){
+          handleEntityChange(entity.backUrl);
+        }
+      }
+    }
+    else {
+      setAsnSearchText(id);
+    }
   }
+  const handleAsnSearch = (asnSearchText) => {
+    if(asnSearchText) {
+      const isMatchingOptionLoaded = asnOptions.some((option) => {
+        const entity = option?.entity || {};
+        return (
+            entity.name?.toLowerCase().includes(asnSearchText.toLowerCase()) ||
+            entity.code?.toLowerCase().includes(asnSearchText.toLowerCase()) ||
+            entity.type?.toLowerCase().includes(asnSearchText.toLowerCase())
+        );
+      });
+
+
+      if (!isMatchingOptionLoaded) {
+        fetchAsnMatchingOptions(asnSearchText);
+      }
+    }
+    setAsnSearchText(asnSearchText);
+  }
+  const debouncedHandleAsnSearch = useCallback(debounce(handleAsnSearch, 200), [asnOptions]);
+
+  const fetchAsnMatchingOptions = async (asnSearchText) => {
+    setAsnSearchLoading(true);
+    if (asnSearchText.trim().length < 2) {
+      return;
+    }
+    try {
+      const entityTypeUrlText = showGlobalSignals ? 'asn' : 'geoasn';
+      let url = `/entities/query?entityType=${entityTypeUrlText}&search=${asnSearchText}`
+      const fetched = await fetchData({url});
+      const resultsArray = Array.isArray(fetched?.data?.data) ? fetched.data.data : [];
+      const results = await Promise.all(
+          resultsArray.map(async (entity) => {
+            let asnUrl = `asn/${entity.code}`;
+            return {
+              label: entity.name,
+              id: uuidv4(),
+              entity: {
+                name: entity.name,
+                code: entity.code,
+                type: entity.type,
+                url: asnUrl,
+                backUrl: 'asn'
+              },
+            };
+          })
+      );
+      const updatedResults = [...asnOptions, ...results];
+      const options = (updatedResults || []).map((d) => ({
+        value: d.id,
+        label: d.label,
+        entity: d.entity
+      }));
+      setAsnOptions(options);
+    } catch (error) {
+      console.error("Failed to fetch asn options based on search text:", error);
+    } finally {
+      setAsnSearchLoading(false);
+    }
+  };
 
   const rangePresets = [
     {
       label: 'Past Hour',
-      value: [dayjs().add(-7, 'd'), dayjs()],
+      value: [dayjs().add(-60, 'minute'), dayjs()],
     },
     {
       label: 'Past Day',
-      value: [dayjs().add(-7, 'd'), dayjs()],
+      value: [dayjs().add(-24, 'hour'), dayjs()],
     },
     {
       label: 'Past 7 Days',
-      value: [dayjs().add(-7, 'd'), dayjs()],
+      value: [dayjs().add(-7, 'day'), dayjs()],
     },
     {
       label: 'Past 30 Days',
-      value: [dayjs().add(-14, 'd'), dayjs()],
+      value: [dayjs().add(-30, 'day'), dayjs()],
+    },
+    {
+      label: (
+          // <Space>
+          <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}
+               onClick={(e) => e.stopPropagation()}>
+            <span>Last</span>
+            <InputNumber
+                min={1}
+                value={customDuration}
+                onChange={(value) => handleCustomDurationChange(value || 1)}
+                size="small"
+                style={{width: 60}}
+            />
+            <span>
+            <Select
+                className="col"
+                value={customUnit}
+                onChange={handleCustomUnitChange}
+                options={customUnitOptions}
+                size="small"
+                style={{width: 80}}
+            />
+            </span>
+            <Button
+                type="primary"
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCustomRange();
+                }}
+            >
+              Go
+            </Button>
+              {/*</Space>*/}
+          </div>
+      ),
+      value: null,
     }
   ];
 
 
   return (
       <div>
-        <div className="col-1 w-full flex items-center gap-3 justify-end mb-4 control-panel__title">
-          {/*<h1 className="text-4xl text-right">Reset</h1>*/}
-          <Button type="default">
-            {title}
-          </Button>
-          {onClose && (
-              <Button
-                  icon={<CloseOutlined/>}
-                  onClick={() => onClose()}
-              />
-          )}
-        </div>
         <div className="flex items-start card p-6 mb-6 control-panel">
-          {/*<div className="control-panel__controls col-1">*/}
-          {/*<div className="searchbar">*/}
-          {/*  <div className="flex items-center">*/}
-          {/*    <T.p*/}
-          {/*        text={"controlPanel.searchBarPlaceholder"}*/}
-          {/*        className="text-lg"*/}
-          {/*    />*/}
-          {/*    <Tooltip*/}
-          {/*        title={tooltipSearchBarTitle}*/}
-          {/*        text={tooltipSearchBarText}*/}
-          {/*    />*/}
-          {/*  </div>*/}
-          {/*  {searchbar()}*/}
-          {/*</div>*/}
 
           {/*Countries*/}
           <div className="control-panel__controls">
@@ -769,9 +908,10 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
                 placeholder="Search Countries"
                 value={countrySearchText}
                 optionFilterProp="name" //label
-                onChange={handleCountryChange}
+                onChange={handleCountrySelectChange}
                 onSelect={handleCountrySelect}
                 options={countryOptions}
+                allowClear
                 style={{width: '150px'}}
             >
             </Select>
@@ -786,10 +926,11 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
                 placeholder="Search Regions"
                 value={regionSearchText}
                 optionFilterProp="label"
-                onChange={handleRegionChange}
+                onChange={handleRegionSelectChange}
                 onSelect={handleRegionSelect}
                 options={regionOptions}
                 style={{width: '150px'}}
+                allowClear
             >
             </Select>
           </div>
@@ -803,10 +944,21 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
                 placeholder="Search Networks"
                 value={asnSearchText}
                 optionFilterProp="label"
-                onChange={handleAsnChange}
+                onChange={handleAsnSelectChange}
                 onSelect={handleAsnSelect}
+                onSearch={debouncedHandleAsnSearch}
                 options={asnOptions}
                 style={{width: '150px'}}
+                allowClear
+                filterOption={(input, option) => {
+                  const entity = option?.entity || {};
+                  return (
+                      entity.name.toLowerCase().includes(input.toLowerCase()) ||
+                      entity.code.toLowerCase().includes(input.toLowerCase()) ||
+                      entity.type.toLowerCase().includes(input.toLowerCase())
+                  );
+                }}
+                optionLabelProp="label"
             >
             </Select>
           </div>
@@ -823,32 +975,80 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
               />
               {/*</span>*/}
             </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+            <Popover
+                overlayStyle={{
+                  width: 240,
+                }}
+                placement="bottomLeft"
+                trigger="click"
+                open={customRangePopOutOpen}
+                onOpenChange={handleCustomRangePopOut}
+                content={
+                  <div>
+                    {predefinedRangeGrid}
+                    <Divider className="my-4" />
+                    <div className="flex gap-1 items-center mb-3">
+                      <span className="text-xl mr-1">Last</span>
+                      <InputNumber
+                          value={customDuration}
+                          onChange={handleCustomDurationChange}
+                          min={1}
+                          size="small"
+                          style={{ maxWidth: 60 }}
+                      />
+                      <Select
+                          className="col"
+                          value={customUnit}
+                          onChange={handleCustomUnitChange}
+                          options={customUnitOptions}
+                          size="small"
+                          style={{ width: 80 }}
+                      />
+                      <Button
+                          type="primary"
+                          size="small"
+                          onClick={handleCustomRange}
+                      >
+                        Go
+                      </Button>
+                    </div>
+                  </div>
+                }
+            >
+              <Button
+                  className="mr-3"
+                  icon={<ClockCircleOutlined />}
+                  type="primary"
+              />
+            </Popover>
             <RangePicker
-                presets={[
-                  {
-                    label: (
-                        <span
-                            aria-label="Quick Select"
-                            style={{
-                              color: '#dad7d6',
-                              cursor: 'default',
-                              fontWeight: 'bold',
-                              pointerEvents: 'none',
-                            }}
-                        >
-                      Quick Select:
-                    </span>
-                    ),
-                  },
-                  ...rangePresets,
-                ]}
+                // presets={[
+                //   {
+                //     label: (
+                //         <span
+                //             aria-label="Quick Select"
+                //             style={{
+                //               color: '#dad7d6',
+                //               cursor: 'default',
+                //               fontWeight: 'bold',
+                //               pointerEvents: 'none',
+                //             }}
+                //         >
+                //       Quick Select:
+                //     </span>
+                //     ),
+                //   },
+                //   ...rangePresets,
+                // ]}
                 value={range}
                 showTime={{format: "h:mmA"}}
-                format="MMM D YYYY h:mma"
+                format="MMM D YYYY h:mma UTC"
                 onChange={handleRangeChange}
                 onOk={handleRangeChange}
-                style={{width: '400px'}}
+                style={{width: '480px'}}
             />
+            </div>
           </div>
 
           {/*<div style={{display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px'}}>*/}
@@ -862,44 +1062,26 @@ const ControlPanel = ({from, until, searchbar, onTimeFrameChange, onClose, title
           {/*  <span>Local</span>*/}
           {/*</div>*/}
           {/*Time Zone*/}
-          <div className="control-panel__controls">
-            <label className="control-panel__label">Timezone</label>
-            <Select
-                showSearch
-                placeholder="Select a Timezone"
-                optionFilterProp="children"
-                style={{width: '150px'}}
-                dropdownStyle={{width: '180px'}}
-                value={selectedTimezone}
-                defaultValue={selectedTimezone}
-                onChange={handleTimezoneChange}
-            >
-              {timezones.map((tz) => (
-                  <Option key={tz} value={tz}>
-                    {tz}
-                  </Option>
-              ))}
-            </Select>
+          {/*<div className="control-panel__controls">*/}
+          {/*  <label className="control-panel__label">Timezone</label>*/}
+          {/*  <Select*/}
+          {/*      showSearch*/}
+          {/*      placeholder="Select a Timezone"*/}
+          {/*      optionFilterProp="children"*/}
+          {/*      style={{width: '150px'}}*/}
+          {/*      dropdownStyle={{width: '180px'}}*/}
+          {/*      value={selectedTimezone}*/}
+          {/*      defaultValue={selectedTimezone}*/}
+          {/*      onChange={handleTimezoneChange}*/}
+          {/*  >*/}
+          {/*    {timezones.map((tz) => (*/}
+          {/*        <Option key={tz} value={tz}>*/}
+          {/*          {tz}*/}
+          {/*        </Option>*/}
+          {/*    ))}*/}
+          {/*  </Select>*/}
 
-          </div>
-
-          {entityCode &&  <div className="control-panel__reset-filter" style={{width: '100%', textAlign: 'center', marginTop: '10px'}}>
-            <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  onClose();
-                }}
-                style={{
-                  color: '#007bff',
-                  textDecoration: 'underline',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                }}
-            >
-              Reset Filter
-            </a>
-          </div> }
+          {/*</div>*/}
 
         </div>
 
