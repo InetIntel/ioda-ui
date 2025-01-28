@@ -41,132 +41,147 @@ import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
 
-import print_1 from "images/resources/print-1.png";
-import print_2 from "images/resources/print-2.png";
-import print_3 from "images/resources/print-3.png";
 import download_icon from "images/resources/download-icon.png";
+import link_resources from "./LinkConstants";
+import text_resources from "./TextConstants";
 
-const printableResources = [
-  {
-    title: "How to use IODA",
-    date: "July 24, 2019",
-    type: "PDF",
-    link: "https://inetintel.github.io/IODA-site-files/files/brochure2024/Download_4Pages.pdf",
-    thumbnail: print_1,
-  },
-  {
-    title: "How to use IODA",
-    date: "July 24, 2019",
-    type: "PRINTABLE PAMPHLET",
-    link: "https://inetintel.github.io/IODA-site-files/files/brochure2024/Download_4Pages.pdf",
-    thumbnail: print_2,
-  },
-  {
-    title: "IODA for Journalists",
-    date: "July 24, 2019",
-    type: "PRINTABLE PAMPHLET",
-    link: "https://inetintel.github.io/IODA-site-files/files/brochure2024/Download_4Pages.pdf",
-    thumbnail: print_3,
-  },
-];
+const TextResource = ({ title, content }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <Title
+        level={3}
+        style={{ cursor: "pointer", color: "#1890ff", paddingLeft: "50px" }}
+        onClick={() => setExpanded(!expanded)}
+      >
+        {title}
+      </Title>
+      {expanded && (
+        <div style={{ paddingLeft: "70px" }}>
+          <Paragraph>{content}</Paragraph>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Resources = () => {
   const [activeTab, setActiveTab] = useState("printable");
 
-  const renderPrintableResources = () => (
-    <Row gutter={[16, 16]} justify="center">
-      {printableResources.map((resource, index) => (
-        <Col xs={24} sm={12} md={8} key={index}>
-          {/* <a
-            href={resource.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: "none" }}
-          > */}
-          <Card
-            hoverable
-            style={{
-              textAlign: "left",
-              borderRadius: "2px",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-            }}
-            bodyStyle={{ padding: "13px" }}
-          >
-            <div
+  const renderLinkResources = (tab) => (
+    <Row gutter={[16, 16]} justify="left">
+      {link_resources
+        .filter((resource) => resource.tab === tab)
+        .map((resource, index) => (
+          <Col xs={24} sm={12} md={8} key={index}>
+            <Card
+              hoverable
               style={{
-                marginBottom: "16px",
-                display: "flex",
-                justifyContent: "center",
+                textAlign: "left",
+                borderRadius: "2px",
+                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                cursor: "default",
+                minHeight: resource.tab === "present" ? "300px" : "260px",
+                position: "relative",
               }}
+              bodyStyle={{ padding: "12px" }}
             >
-              <img
-                src={resource.thumbnail}
-                alt={resource.title}
+              <div
                 style={{
-                  width: "200px",
-                  height: "100px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                }}
-              />
-            </div>
-            <div>
-              <Text
-                style={{
-                  font: "SF Pro Text",
-                  fontSize: "14px",
-                  color: "#A6A6A6",
+                  marginBottom: "16px",
+                  display: "flex",
+                  justifyContent: "center",
                 }}
               >
-                {resource.type}
-              </Text>
-              <Title level={4} style={{ margin: "6px 0" }}>
-                {resource.title}
-              </Title>
-              <Text
-                style={{
-                  color: "#A6A6A6",
-                  fontSize: "12px",
-                  font: "SF Pro Text",
-                }}
-              >
-                <Text style={{ color: "#454545" }}> Last Updated - </Text>
-                <Text style={{ color: "#A6A6A6" }}>{resource.date}</Text>
-              </Text>
-            </div>
-            <a
-              href={resource.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                position: "absolute",
-                top: "150px",
-                right: "15px",
-              }}
-            >
-              <img
-                src={download_icon}
-                alt="Download"
-                style={{
-                  width: "40px",
-                  height: "40px",
-                }}
-              />
-            </a>
-          </Card>
-          {/* </a> */}
-        </Col>
-      ))}
+                {resource.category === "video" ? (
+                  <iframe
+                    width="100%"
+                    height="130px"
+                    src={resource.link}
+                    title={resource.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ borderRadius: "8px" }}
+                  ></iframe>
+                ) : (
+                  <img
+                    src={resource.thumbnail}
+                    alt={resource.title}
+                    style={{
+                      width: "250px",
+                      height: "130px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                    }}
+                  />
+                )}
+              </div>
+              <div>
+                <Text
+                  style={{
+                    font: "SF Pro Text",
+                    fontSize: "14px",
+                    color: "#A6A6A6",
+                  }}
+                >
+                  {resource.type}
+                </Text>
+                {resource.category === "video" ? (
+                  <Title level={5} style={{ margin: "6px 0" }}>
+                    {resource.title}
+                  </Title>
+                ) : (
+                  <Title
+                    level={5}
+                    style={{ margin: "6px 0", paddingRight: "40px" }}
+                  >
+                    {resource.title}
+                  </Title>
+                )}
+              </div>
+              {resource.category !== "video" && (
+                <a
+                  href={resource.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    position: "absolute",
+                    bottom: "13px",
+                    right: "13px",
+                  }}
+                >
+                  <img
+                    src={download_icon}
+                    alt="Download"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                    }}
+                  />
+                </a>
+              )}
+            </Card>
+          </Col>
+        ))}
     </Row>
+  );
+
+  const renderTextResources = (tab) => (
+    <div style={{ padding: "5px" }}>
+      {text_resources
+        .filter((text) => text.tab === tab)
+        .map((text, index) => (
+          <TextResource key={index} title={text.title} content={text.content} />
+        ))}
+    </div>
   );
 
   return (
     <div
       className="max-cont project-info"
-      style={{
-        maxWidth: "100%",
-        padding: "0",
-      }}
+      style={{ maxWidth: "100%", padding: "0" }}
     >
       <Helmet>
         <title>IODA | Resources</title>
@@ -174,7 +189,6 @@ const Resources = () => {
       </Helmet>
 
       <div className="mb-24">
-        {/* Header Section */}
         <div
           className="ioda-container"
           style={{ position: "relative", textAlign: "center" }}
@@ -220,7 +234,7 @@ const Resources = () => {
             </Paragraph>
           </div>
         </div>
-        {/* Tabs Section */}
+
         <Tabs
           centered
           activeKey={activeTab}
@@ -232,26 +246,19 @@ const Resources = () => {
           }}
         >
           <Tabs.TabPane tab="Printable Resources" key="printable">
-            {renderPrintableResources()}
+            {renderLinkResources("printable")}
           </Tabs.TabPane>
           <Tabs.TabPane tab="Screencasts" key="screencasts">
-            <div style={{ textAlign: "center", padding: "20px" }}>
-              <Text style={{ color: "#888" }}>Screencasts will go here.</Text>
-            </div>
+            {renderLinkResources("screencast")}
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Presentations" key="presentations">
+            {renderLinkResources("present")}
           </Tabs.TabPane>
           <Tabs.TabPane tab="Technical Terms" key="terms">
-            <div style={{ textAlign: "center", padding: "20px" }}>
-              <Text style={{ color: "#888" }}>
-                Technical terms content will go here.
-              </Text>
-            </div>
+            {renderTextResources("technical")}
           </Tabs.TabPane>
           <Tabs.TabPane tab="Repositories and Data Access" key="repositories">
-            <div style={{ textAlign: "center", padding: "20px" }}>
-              <Text style={{ color: "#888" }}>
-                Repository and data access content will go here.
-              </Text>
-            </div>
+            {renderTextResources("repo")}
           </Tabs.TabPane>
         </Tabs>
       </div>
