@@ -46,14 +46,15 @@ import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
 
 const TextResource = ({ title, content }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   return (
     <div style={{ marginBottom: "20px" }}>
       <Title
         level={3}
-        style={{ cursor: "pointer", color: "#1890ff", paddingLeft: "50px" }}
-        onClick={() => setExpanded(!expanded)}
+        // style={{ cursor: "pointer", color: "#1890ff", paddingLeft: "50px" }}
+        // onClick={() => setExpanded(!expanded)}
+        style={{ color: "#1890ff", paddingLeft: "50px" }}
       >
         {title}
       </Title>
@@ -248,7 +249,7 @@ const Resources = () => {
           <Tabs.TabPane tab="Printable Resources" key="printable">
             {renderLinkResources("printable")}
           </Tabs.TabPane>
-          <Tabs.TabPane tab="Screencasts" key="screencasts">
+          <Tabs.TabPane tab="Video Tutorials" key="screencasts">
             {renderLinkResources("screencast")}
           </Tabs.TabPane>
           <Tabs.TabPane tab="Presentations" key="presentations">
