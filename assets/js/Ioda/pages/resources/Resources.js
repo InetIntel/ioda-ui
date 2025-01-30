@@ -252,7 +252,7 @@ const Resources = () => {
           <Tabs.TabPane tab="Video Tutorials" key="screencasts">
             {renderLinkResources("screencast")}
           </Tabs.TabPane>
-          <Tabs.TabPane tab="Presentations" key="presentations">
+          <Tabs.TabPane tab="Slides" key="presentations">
             {renderLinkResources("present")}
           </Tabs.TabPane>
           <Tabs.TabPane tab="Technical Terms" key="terms">
