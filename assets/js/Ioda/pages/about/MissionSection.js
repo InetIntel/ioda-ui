@@ -34,7 +34,7 @@ const missionData = [
 
 const MissionSection = () => {
     return (
-        <div style={{  padding: "50px 0px", textAlign: "center", backgroundColor: "#fff"}}>
+        <div style={{  padding: "10px 0px", textAlign: "center"}}>
             {/* Mission Header */}
             <Text style={{ fontSize: "20px", color: "#FBBF24", fontWeight: "bold", width: "60%"}}>
                 OUR MISSION

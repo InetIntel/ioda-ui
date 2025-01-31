@@ -68,7 +68,7 @@ const About = () => {
                 />
             </Helmet>
 
-            <div className="mb-24">
+            <div>
                 <div className="ioda-container" style={{position: 'relative', textAlign: 'center'}}>
                     <img
                         src={worldmap}
