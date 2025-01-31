@@ -50,6 +50,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
   const [countrySelectedCode, setCountrySelectedCode] = useState("all");
   const [regionSearchText, setRegionSearchText] = useState("N/A");
   const [asnSearchText, setAsnSearchText] = useState("N/A");
+  const [asnSelectedCode, setAsnSelectedCode] = useState(null);
 
   const [countryOptions, setCountryOptions] = useState([]);
   const [regionOptions, setRegionOptions] = useState([]);
@@ -191,7 +192,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     id: uuidv4(),
     entity: {
       name: "All Countries",
-      code: "All Countries",
+      code: "all_countries",
       type: "all_countries",
       url: `country`,
       backUrl: 'dashboard'
@@ -203,7 +204,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     id: uuidv4(),
     entity: {
       name: "All Regions",
-      code: "All Regions",
+      code: "all_regions",
       type: "all_regions",
       url: 'region',
       backUrl: 'dashboard'
@@ -215,15 +216,16 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     id: uuidv4(),
     entity: {
       name: "All Networks",
-      code: "All Networks",
+      code: "all_networks",
       type: "all_networks",
       url: 'asn',
       backUrl: 'dashboard'
     }
   }
 
-  //fetch countries names to populate the dropdown
+  // fetch countries names to populate the dropdown
   // countries are filtered based on region or geo-asn/asn
+  // only countries dropdown is affected
   useEffect(()=> {
     const fetchCountries = async () => {
       try {
@@ -395,11 +397,6 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
         const fetched = await fetchData({url});
         const results = await Promise.all(
             (fetched?.data?.data ?? []).map(async (entity) => {
-              let asnUrl = `asn/${entity.code}`;
-              // TODO - also can be asn when no country and region is selected.
-              if (countrySelectedCode !== "all" && countrySelectedCode !== "N/A") {
-                asnUrl = `asn=${entityCode}`;
-              }
               return {
                 label: entity.name,
                 id: uuidv4(),
@@ -407,17 +404,18 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                   name: entity.name,
                   code: entity.code,
                   type: entity.type,
-                  url: asnUrl,
+                  url: `asn/${entity.code}`,
                   backUrl: 'asn'
                 },
               };
             })
         );
 
-
+        const selectedNetwork =
+            await results.find((asn) => asn.entity.code == entityCode);
 
         let updatedResults = [];
-        if(entityCode && entityType === "asn") {
+        if(!selectedNetwork && entityCode && entityType === "asn") {
           const selectedNetworkOption = await getAsnNetworkEntity(entityCode);
           if (selectedNetworkOption) {
             updatedResults = [allNetworkOption, selectedNetworkOption, ...results];
@@ -462,6 +460,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     // }
     setRegionSearchText("All Regions");
     setAsnSearchText("All Networks");
+    setAsnSelectedCode("all_networks")
   }, [entityType, entityCode]);
 
   // Fill the dropdowns with the selected values whenever "Regions" is chosen as the entity.
@@ -484,6 +483,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           setRegionSearchText(region ? region.entity.name : "");
 
           setAsnSearchText("All Networks");
+          setAsnSelectedCode("all_networks");
         } catch (error) {
           console.error("Error fetching country code:", error);
         }
@@ -514,12 +514,13 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
               setRegionSearchText("All Regions")
             }
             else { // region
-              const selectedRegion = regionOptions.find((region) => region.entity.code === geoCode);
+              const selectedRegion = await regionOptions.find((region) => region.entity.code === geoCode);
               setRegionSearchText(selectedRegion ? selectedRegion.label : "");
               setCountrySelectedCode("N/A")
             }
-            const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
-            setAsnSearchText(asn ? asn : "");
+            const asn = await asnOptions.find((asn) => entityCode == asn.entity.code);
+            setAsnSearchText(asn ? asn.entity.name : "");
+            setAsnSelectedCode(asn ? asn.entity.code : null)
           }
           else {
             const countryNames = await getCountryNamesFromAsn(entityCode);
@@ -542,8 +543,9 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 // duration: 5,
               });
             }
-            const asn = await asnOptions.find((asn) => asn.entity.code === entityCode);
-            setAsnSearchText(asn ? asn : "");
+            const asn = await asnOptions.find((asn) => asn.entity.code == entityCode);
+            setAsnSearchText(asn ? asn.entity.name : "");
+            setAsnSelectedCode(asn ? asn.entity.code : null);
             setRegionSearchText("N/A");
           }
         } catch (error) {
@@ -562,18 +564,21 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           setCountrySelectedCode("all")
           setRegionSearchText("N/A")
           setAsnSearchText("N/A")
+          setAsnSelectedCode(null)
           break;
         case "region":
           setCountrySearchText("N/A")
           setCountrySelectedCode("N/A")
           setRegionSearchText("All Regions");
           setAsnSearchText("N/A")
+          setAsnSelectedCode(null)
           break;
         case "asn":
           setCountrySearchText("N/A")
           setCountrySelectedCode("N/A")
           setRegionSearchText("N/A")
           setAsnSearchText("All Networks");
+          setAsnSelectedCode("all_networks")
           break;
       }
     }
@@ -603,6 +608,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     const entity = asnOptions.find((d) => d.value === id)?.entity ?? null;
     if (!entity) return;
     setAsnSearchText(entity.name);
+    setAsnSelectedCode(entity.code);
     onSelect(entity);
     // handleAsnChange();
   }
@@ -765,10 +771,9 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
   }
 
   function handleAsnSelectChange(id) {
-
     if(id === undefined) {
-      if(asnSearchText !== "N/A") {
-        const entity = asnOptions.find((d) => d.name === asnSearchText)?.entity ?? null;
+      if(asnSelectedCode) {
+        const entity = asnOptions.find((d) => d.entity.code === asnSelectedCode)?.entity ?? null;
         if(entity != null){
           handleEntityChange(entity.backUrl);
         }
@@ -776,6 +781,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     }
     else {
       setAsnSearchText(id);
+      setAsnSelectedCode(id);
     }
   }
   const handleAsnSearch = (asnSearchText) => {
@@ -913,6 +919,8 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 options={countryOptions}
                 allowClear
                 style={{width: '150px'}}
+                popupMatchSelectWidth={false}
+                dropdownStyle={{ width: 200}}
             >
             </Select>
 
@@ -929,8 +937,10 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 onChange={handleRegionSelectChange}
                 onSelect={handleRegionSelect}
                 options={regionOptions}
-                style={{width: '150px'}}
                 allowClear
+                style={{width: '150px'}}
+                popupMatchSelectWidth={false}
+                dropdownStyle={{ width: 200}}
             >
             </Select>
           </div>
@@ -948,7 +958,9 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 onSelect={handleAsnSelect}
                 onSearch={debouncedHandleAsnSearch}
                 options={asnOptions}
-                style={{width: '150px'}}
+                style={{width: '200px'}}
+                popupMatchSelectWidth={false}
+                dropdownStyle={{ width: 300 }}
                 allowClear
                 filterOption={(input, option) => {
                   const entity = option?.entity || {};
