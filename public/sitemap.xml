@@ -254,5 +254,7 @@
 <url> <loc>https://ioda.inetintel.cc.gatech.edu/country??</loc> </url>
 <url> <loc>https://ioda.inetintel.cc.gatech.edu/country??</loc> </url>
 <url> <loc>https://ioda.inetintel.cc.gatech.edu/country??</loc> </url>
+<url> <loc>https://ioda.inetintel.cc.gatech.edu/country/:entityCode/region/:regionCode</loc> </url>
+<url> <loc>https://ioda.inetintel.cc.gatech.edu/country/:entityCode/asn/:asnCode</loc> </url>
 <url> <loc>https://ioda.inetintel.cc.gatech.edu/</loc> </url>
 </urlset>

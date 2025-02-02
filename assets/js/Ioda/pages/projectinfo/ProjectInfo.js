@@ -77,18 +77,6 @@ const data = [
     logoHref:
       "https://www.opentech.fund/results/supported-projects/internet-outage-detection-and-analysis/",
     children: `This platform was also supported by the Open Technology Fund under contract number 1002-2018-027.`,
-    children: (
-      <Fragment>
-        This platform was also supported by the{" "}
-        <a
-          className="a-fake text-color-link"
-          href="https://www.opentech.fund/projects-we-support/supported-projects/internet-outage-detection-and-analysis/"
-        >
-          Open Technology Fund
-        </a>{" "}
-        (2018, 2019, 2020).
-      </Fragment>
-    ),
   },
   {
     logo: isoc,

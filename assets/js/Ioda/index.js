@@ -55,15 +55,12 @@ import Footer from "./components/footer/Footer";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Entity from "./pages/entity/Entity";
-import RegionEntity from "./pages/entity/RegionEntity";
-import ProjectInfo from "./pages/projectinfo/ProjectInfo";
+import About from "./pages/about/About";
 import Help from "./pages/help/Help";
+import Resources from "./pages/resources/Resources";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import { initializeAnalytics } from "./utils/analytics";
-import RegionDashboard from "./pages/dashboard/RegionDashboard";
-import AsnDashboard from "./pages/dashboard/AsnDashboard";
-import AsnEntity from "./pages/entity/AsnEntity";
 
 initializeAnalytics();
 
@@ -95,17 +92,11 @@ class App extends Component {
       <div className="app">
         <Header />
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/country" element={<Dashboard />} />
-          <Route path="/region" element={<RegionDashboard />} />
-          <Route path="/asn" element={<AsnDashboard />} />
-          <Route exact path="/project" element={<ProjectInfo />} />
+          <Route path="/dashboard/:entityType?" element={<Dashboard />} />
+          <Route exact path="/about" element={<About />} />
           <Route exact path="/help" element={<Help />} />
+          <Route exact path="/resources" element={<Resources />} />
           <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
-          {/*<Route exact path="/country/:countryCode" element={<Entity />} />*/}
-          {/*<Route exact path="/region/:regionCode" element={<RegionEntity />} />*/}
-          {/*<Route exact path="/asn/:asnCode" element={<AsnEntity />} />*/}
-          {/*<Route exact path="/geoasn/:asnCode" element={<AsnEntity />} />*/}
           <Route exact path="/:entityType/:entityCode" element={<Entity />} />
           <Route path="/" element={<Home />} />
         </Routes>
