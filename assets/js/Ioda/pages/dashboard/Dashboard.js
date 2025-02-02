@@ -81,7 +81,6 @@ const Dashboard = (props) => {
   const [from, setFrom] = useState(urlFromDate ?? getPreviousMinutesAsUTCSecondRange(24 * 60).start);
   const [until, setUntil] = useState(urlUntilDate ?? getNowAsUTCSeconds());
 
-  console.log(from, until)
 // Tabs
   const [activeTabType, setActiveTabType] = useState(entityType);
   //Tab View Changer Button
@@ -166,10 +165,8 @@ const Dashboard = (props) => {
   // manage the date selected in the input
   function handleTimeFrame({_from, _until}) {
     if (from === _from && until === _until) {
-      console.log("No change")
       return;
     }
-    console.log("No change")
 
     setFrom(_from);
     setUntil(_until);
@@ -185,7 +182,6 @@ const Dashboard = (props) => {
     getDataOutageSummary(activeTabType);
     getTotalOutages(activeTabType);
     navigate(`/dashboard?from=${_from}&until=${_until}`);
-    console.log('Passed navigate')
   }
 
   function handleEntityChange(url) {
@@ -375,7 +371,6 @@ const Dashboard = (props) => {
   function handleResultClick (entity) {
     if (!entity) return;
     if (!entity.url) return;
-    console.log(entity)
     // navigate(`/${entity.type}/${entity.code}`);
     navigate(`/${entity.url}`)
   }

@@ -125,7 +125,6 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
     let summaryData = [];
     let allScores = [];
     let min, max;
-    console.log(summaryDataRaw)
     summaryDataRaw.map(summary => {
         allScores.push(summary.scores.overall)
     });
@@ -176,9 +175,6 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
 }
 
 export function combineValuesForSignalsTable(entitiesWithOutages, additionalEntities, initialLimit) {
-    console.log(entitiesWithOutages)
-    console.log(additionalEntities)
-    console.log(initialLimit)
     let summaryData = [];
     let outageCount = 0;
     let duplicatesRemoved = additionalEntities;
@@ -199,11 +195,10 @@ export function combineValuesForSignalsTable(entitiesWithOutages, additionalEnti
         });
         // Remove entity from raw entity list
         duplicatesRemoved = duplicatesRemoved.filter(obj => obj.code !== entity["entity"].code);
-        console.log(entity)
 
         // Display entity with outage on signal table, if asn add ip count property
         let summaryItem;
-        (entity.entity.type === 'asn')
+        (entity.entity.type === 'asn' || entity.entity.type === 'geoasn')
             ? summaryItem = {
                 visibility: index < initialLimit,
                 entityType: entity["entity"].type,
@@ -258,7 +253,6 @@ export function combineValuesForSignalsTable(entitiesWithOutages, additionalEnti
 // Function for raw signals table on entity page
 // Will process time series data and return in a format compatible with the Horizon-time-series visual
 export function convertTsDataForHtsViz(tsData) {
-    // console.log(tsData)
     let series = [];
     tsData.map(signal => {
         let values = [];

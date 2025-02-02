@@ -124,6 +124,13 @@ const RawSignalsModal = (props) => {
   let titleUcsdNt = useRef(null);
   let titleMeritNt = useRef(null);
 
+  console.log(asnSignalsTableSummaryDataProcessed)
+
+  const updatedAsnSignalsTableSummaryDataProcessed = (asnSignalsTableSummaryDataProcessed ?? []).map(summary => ({
+    ...summary,
+    ipCount: (summary.ipCount === "NaN" || summary.ipCount === "") ? "Unknown" : summary.ipCount,
+  }));
+
   useEffect(() => {
     setMounted(showModal);
   }, [showModal]);
@@ -236,7 +243,6 @@ const RawSignalsModal = (props) => {
         }
         break;
       case "asn":
-        console.log(dataSource);
         switch (dataSource) {
           case "ping-slash24":
             if (
@@ -280,7 +286,6 @@ const RawSignalsModal = (props) => {
         }
         break;
     }
-    console.log("rawSignalsProcessed", rawSignalsProcessedArray);
     if (rawSignalsProcessedArray && rawSignalsProcessedArray.length > 0) {
       const chart = (width) => {
         // draw viz
@@ -289,7 +294,6 @@ const RawSignalsModal = (props) => {
                 `${entityType}-horizon-chart--${dataSourceForCSS}`
             )
         );
-        console.log(chart)
 
         const color =
             legend.find((item) => item.key === dataSource).color ??
@@ -358,7 +362,6 @@ const RawSignalsModal = (props) => {
         );
       }
     } else {
-      console.log("Null");
       return null;
     }
   }
@@ -525,14 +528,14 @@ const RawSignalsModal = (props) => {
                 </p>
             )}
           </div>
-          <div className="row items-center">
+          { entityType !== "asn" && <div className="row items-center">
             <Switch
                 className="mr-3"
                 checked={globalSwitch}
                 onChange={handleGlobalSwitch}
             />
             <span className="text-lg">{modeStatus}</span>
-          </div>
+          </div> }
           <div className="flex gap-6 modal__content">
             <div className="col-1 mw-0">
               <div className="modal__table-container rounded card p-3 mb-6">
@@ -668,7 +671,7 @@ const RawSignalsModal = (props) => {
                   asnSignalsTableTotalCount ? (
                       <Table
                           type="signal"
-                          data={asnSignalsTableSummaryDataProcessed}
+                          data={updatedAsnSignalsTableSummaryDataProcessed}
                           totalCount={asnSignalsTableTotalCount}
                           entityType={
                             entityType === "asn" ? "country" : "asn"

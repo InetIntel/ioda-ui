@@ -100,6 +100,12 @@ const EntityRelated = (props) => {
     handleGlobalAsnSignals,
   } = props;
 
+
+  const updatedRelatedToTableSummaryProcessed = (relatedToTableSummaryProcessed ?? []).map(summary => ({
+    ...summary,
+    ipCount: summary.ipCount === "NaN" ? "Unknown" : summary.ipCount,
+  }));
+
   const relatedTableConfig = useRef();
 
     const regionalModalButtonText = T.translate(
@@ -431,8 +437,8 @@ const EntityRelated = (props) => {
             {relatedToTableSummaryProcessed ? (
               <Table
                 type="summary"
-                data={relatedToTableSummaryProcessed}
-                totalCount={relatedToTableSummaryProcessed.length}
+                data={updatedRelatedToTableSummaryProcessed}
+                totalCount={updatedRelatedToTableSummaryProcessed.length}
                 entityType={entityType === ("asn" || "geoasn") ? "country" : "asn"}
               />
             ) : (
