@@ -124,7 +124,6 @@ const RawSignalsModal = (props) => {
   let titleUcsdNt = useRef(null);
   let titleMeritNt = useRef(null);
 
-  console.log(asnSignalsTableSummaryDataProcessed)
 
   const updatedAsnSignalsTableSummaryDataProcessed = (asnSignalsTableSummaryDataProcessed ?? []).map(summary => ({
     ...summary,
@@ -528,14 +527,16 @@ const RawSignalsModal = (props) => {
                 </p>
             )}
           </div>
-          { entityType !== "asn" && <div className="row items-center">
+          { entityType !== "asn" &&
+              <div className="row items-center">
             <Switch
                 className="mr-3"
                 checked={globalSwitch}
                 onChange={handleGlobalSwitch}
             />
             <span className="text-lg">{modeStatus}</span>
-          </div> }
+          </div>
+        }
           <div className="flex gap-6 modal__content">
             <div className="col-1 mw-0">
               <div className="modal__table-container rounded card p-3 mb-6">

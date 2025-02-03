@@ -256,7 +256,6 @@ const Entity = (props) => {
   const [summaryDataMapRaw, setSummaryDataMapRaw] = useState(null);
   // relatedTo entity Table
   const [relatedToTableApiPageNumber, setRelatedToTableApiPageNumber] = useState(0);
-  const [relatedToTableSummaryState, setRelatedToTableSummaryState] = useState(null);
   const [relatedToTableSummaryProcessed, setRelatedToTableSummaryProcessed] = useState(null);
   const [relatedToTablePageNumber, setRelatedToTablePageNumber] = useState(0);
   // RawSignalsModal window display status
@@ -338,7 +337,7 @@ const Entity = (props) => {
       getDataRelatedToMapSummary("region");
       getDataRelatedToTableSummary();
     }
-  }, [entityMetadata]);
+  }, [entityMetadata, showGlobalSignals]);
 
   useEffect(() => {
     if(entityTypeState === "asn") {
@@ -486,15 +485,9 @@ const Entity = (props) => {
   // After API call for outage summary data completes, pass summary data to table component for data merging
   useEffect(() => {
     if(relatedToTableSummary) {
-      setRelatedToTableSummaryState(relatedToTableSummary);
-    }
-  }, [relatedToTableSummary]);
-
-  useEffect(() => {
-    if(relatedToTableSummaryState) {
       _convertValuesForSummaryTable();
     }
-  }, [relatedToTableSummaryState]);
+  }, [relatedToTableSummary]);
 
   useEffect(() => {
     if (regionalSignalsTableSummaryData) {
@@ -503,10 +496,10 @@ const Entity = (props) => {
   }, [regionalSignalsTableSummaryData]);
 
   useEffect(() => {
-    if(asnSignalsTableSummaryData) {
+    if(asnSignalsTableSummaryData && relatedToTableSummary) {
       _combineValuesForSignalsTable("asn");
     }
-  }, [asnSignalsTableSummaryData]);
+  }, [asnSignalsTableSummaryData, relatedToTableSummary]);
 
   useEffect(() => {
       // For XY Plotted Graph
@@ -748,8 +741,9 @@ const Entity = (props) => {
 
   useEffect(() => {
     if (showTableModal && !rawAsnSignalsLoaded) {
+      const entityTypeProp = entityTypeState === "asn" ? "country" : (showGlobalSignals ? "asn" : "geoasn")
       props.asnSignalsTableSummaryDataAction(
-          showGlobalSignals ? "asn" : "geoasn", entityTypeState, entityCodeState)
+          entityTypeProp, entityTypeState, entityCodeState)
       setRawAsnSignalsLoaded(true);
     } else {
       setRawAsnSignalsLoaded(false);
@@ -1754,7 +1748,7 @@ const Entity = (props) => {
   }
   // Make raw values from api compatible with table component
   function _convertValuesForSummaryTable(){
-    let summaryData = convertValuesForSummaryTable(relatedToTableSummaryState);
+    let summaryData = convertValuesForSummaryTable(relatedToTableSummary);
     if (relatedToTableApiPageNumber === 0) {
       setRelatedToTableSummaryProcessed(summaryData);
     }
@@ -1843,10 +1837,11 @@ const Entity = (props) => {
         if(entities.length === 0){
           return;
         }
+        let entityTypeProp = entityType === "country" ? entityType : (showGlobalSignals ? "asn" : "geoasn");
         switch (dataSource) {
           case "ping-slash24":
             props.getRawAsnSignalsPingSlash24Action(
-              showGlobalSignals ? "asn" : "geoasn",
+              entityTypeProp,
               entities,
               from,
               until,
@@ -1857,7 +1852,7 @@ const Entity = (props) => {
             break;
           case "bgp":
             props.getRawAsnSignalsBgpAction(
-                showGlobalSignals ? "asn" : "geoasn",
+              entityTypeProp,
               entities,
               from,
               until,
@@ -1868,7 +1863,7 @@ const Entity = (props) => {
             break;
           case "ucsd-nt":
             props.getRawAsnSignalsUcsdNtAction(
-                showGlobalSignals ? "asn" : "geoasn",
+              entityTypeProp,
               entities,
               from,
               until,
@@ -1879,7 +1874,7 @@ const Entity = (props) => {
             break;
           case "merit-nt":
             props.getRawAsnSignalsMeritNtAction(
-                showGlobalSignals ? "asn" : "geoasn",
+              entityTypeProp,
               entities,
               from,
               until,
@@ -1908,9 +1903,9 @@ const Entity = (props) => {
         }
         break;
       case "asn":
-        if (relatedToTableSummaryState && asnSignalsTableSummaryData) {
+        if (relatedToTableSummary && asnSignalsTableSummaryData) {
           let signalsTableData = combineValuesForSignalsTable(
-            relatedToTableSummaryState,
+            relatedToTableSummary,
             asnSignalsTableSummaryData,
             initialHtsLimit
           );
@@ -2062,6 +2057,7 @@ const Entity = (props) => {
         break;
       case "asn":
       case "geoasn":
+      case "country":
         signalsTableSummaryDataProcessed =
           asnSignalsTableSummaryDataProcessed;
         break;
@@ -2124,6 +2120,7 @@ const Entity = (props) => {
                       break;
                     case "geoasn":
                     case "asn":
+                    case "country":
                       setAsnSignalsTableSummaryDataProcessed(
                           updatedData);
                       setRawSignalsMaxEntitiesHtsError("");
@@ -2142,6 +2139,7 @@ const Entity = (props) => {
                   break;
                 case "geoasn":
                 case "asn":
+                case "country":
                   setAsnSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
                   setRawSignalsMaxEntitiesHtsError("");
                   setConvertValuesForHtsVizCalled("asn");
@@ -2177,6 +2175,7 @@ const Entity = (props) => {
             break;
           case "geoasn":
           case "asn":
+          case "country":
             setAsnSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
             setRawSignalsMaxEntitiesHtsError("");
             setAdditionalRawSignalRequestedPingSlash24(false);
@@ -2298,7 +2297,7 @@ const Entity = (props) => {
     if (name === "asnLoadAllEntities") {
       setAsnRawSignalsLoadAllButtonClicked(true);
       let signalsTableData = combineValuesForSignalsTable(
-        relatedToTableSummaryState,
+        relatedToTableSummary,
         asnSignalsTableSummaryData,
             0
           );
@@ -2326,6 +2325,7 @@ const Entity = (props) => {
             regionalSignalsTableSummaryDataProcessed;
         break;
       case "geoasn":
+      case "country":
       case "asn":
         signalsTableSummaryDataProcessed =
             asnSignalsTableSummaryDataProcessed;
@@ -2372,6 +2372,7 @@ const Entity = (props) => {
         break;
       case "geoasn":
       case "asn":
+      case "country":
         setAdditionalRawSignalRequestedPingSlash24(true);
         setAdditionalRawSignalRequestedBgp(true);
         setAdditionalRawSignalRequestedUcsdNt(true);
