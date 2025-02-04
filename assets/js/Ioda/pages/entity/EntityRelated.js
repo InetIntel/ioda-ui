@@ -43,6 +43,7 @@ import Tooltip from "../../components/tooltip/Tooltip";
 import TopoMap from "../../components/map/Map";
 import Table from "../../components/table/Table";
 import { Button } from "antd";
+import UpstreamComponent from "./components/UpstreamComponent";
 
 const EntityRelated = (props) => {
 
@@ -136,6 +137,7 @@ const EntityRelated = (props) => {
     );
 
     return (
+        <div>
       <div className="flex items-stretch gap-6 entity-related">
         {/* Region Panel */}
         <div className="card mw-0 p-6 col-1">
@@ -446,7 +448,13 @@ const EntityRelated = (props) => {
             )}
           </div>
         </div>
+
+        {/*<div className="card mw-0 p-6 col-1">*/}
+
+        {/*</div>*/}
       </div>
+    <UpstreamComponent />
+    </div>
     );
 }
 
