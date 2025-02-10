@@ -69,9 +69,8 @@ const TextResource = ({ title, content }) => {
 
 const Resources = () => {
   const [activeTab, setActiveTab] = useState("printable");
-
   const renderLinkResources = (tab) => (
-    <Row gutter={[16, 16]} justify="left">
+    <Row gutter={[16, 16]} justify="venter" style={{ padding: "0 8px" }}>
       {link_resources
         .filter((resource) => resource.tab === tab)
         .map((resource, index) => (
@@ -83,10 +82,18 @@ const Resources = () => {
                 borderRadius: "2px",
                 boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                 cursor: "default",
-                minHeight: resource.tab === "present" ? "300px" : "260px",
+                minHeight: resource.tab === "present" ? "310px" : "280px",
                 position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
               }}
-              bodyStyle={{ padding: "12px" }}
+              bodyStyle={{
+                padding: "12px",
+                display: "flex",
+                flexDirection: "column",
+                flexGrow: 1,
+              }}
             >
               <div
                 style={{
@@ -111,7 +118,8 @@ const Resources = () => {
                     src={resource.thumbnail}
                     alt={resource.title}
                     style={{
-                      width: "250px",
+                      // width: "250px",
+                      width: "100%",
                       height: "130px",
                       objectFit: "cover",
                       borderRadius: "8px",
@@ -119,29 +127,50 @@ const Resources = () => {
                   />
                 )}
               </div>
-              <div>
-                <Text
+              <Text
+                style={{
+                  font: "SF Pro Text",
+                  fontSize: "14px",
+                  color: "#A6A6A6",
+                }}
+              >
+                {resource.type}
+              </Text>
+              <Title level={5} style={{ margin: "6px 0" }}>
+                {resource.title}
+              </Title>
+
+              {/* Tags Section */}
+              {resource.tags && resource.tags.length > 0 && (
+                <div
                   style={{
-                    font: "SF Pro Text",
-                    fontSize: "14px",
-                    color: "#A6A6A6",
+                    position: "absolute",
+                    bottom: "10px",
+                    left: "12px",
+                    right: "12px",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "5px",
                   }}
                 >
-                  {resource.type}
-                </Text>
-                {resource.category === "video" ? (
-                  <Title level={5} style={{ margin: "6px 0" }}>
-                    {resource.title}
-                  </Title>
-                ) : (
-                  <Title
-                    level={5}
-                    style={{ margin: "6px 0", paddingRight: "40px" }}
-                  >
-                    {resource.title}
-                  </Title>
-                )}
-              </div>
+                  {resource.tags.map((tag, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        background: "#f0f0f0",
+                        color: "#333",
+                        padding: "4px 8px",
+                        borderRadius: "12px",
+                        fontSize: "12px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {resource.category !== "video" && (
                 <a
                   href={resource.link}
@@ -149,8 +178,8 @@ const Resources = () => {
                   rel="noopener noreferrer"
                   style={{
                     position: "absolute",
-                    bottom: "13px",
-                    right: "13px",
+                    bottom: "10px",
+                    right: "10px",
                   }}
                 >
                   <img
@@ -202,7 +231,9 @@ const Resources = () => {
               left: "50%",
               transform: "translate(-50%, -50%)",
               textAlign: "center",
-              width: "580px",
+              // width: "580px",
+              width: "100%",
+              maxWidth: "580px",
             }}
           >
             <Title
@@ -235,33 +266,33 @@ const Resources = () => {
             </Paragraph>
           </div>
         </div>
-
-        <Tabs
-          centered
-          activeKey={activeTab}
-          onChange={(key) => setActiveTab(key)}
-          style={{
-            marginBottom: "40px",
-            marginTop: "-300px",
-            width: "900px",
-          }}
-        >
-          <Tabs.TabPane tab="Printable Resources" key="printable">
-            {renderLinkResources("printable")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Video Tutorials" key="screencasts">
-            {renderLinkResources("screencast")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Slides" key="presentations">
-            {renderLinkResources("present")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Technical Terms" key="terms">
-            {renderTextResources("technical")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Repositories and Data Access" key="repositories">
-            {renderTextResources("repo")}
-          </Tabs.TabPane>
-        </Tabs>
+        <div style={{ width: "100%" }}>
+          <Tabs
+            activeKey={activeTab}
+            onChange={(key) => setActiveTab(key)}
+            style={{
+              marginBottom: "40px",
+              marginTop: "-300px",
+              maxWidth: "900px",
+            }}
+          >
+            <Tabs.TabPane tab="Printable Resources" key="printable">
+              {renderLinkResources("printable")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Video Tutorials" key="screencasts">
+              {renderLinkResources("screencast")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Presentations" key="presentations">
+              {renderLinkResources("present")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Glossary" key="terms">
+              {renderTextResources("technical")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Repositories and Data Access" key="repositories">
+              {renderTextResources("repo")}
+            </Tabs.TabPane>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
