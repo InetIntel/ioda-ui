@@ -81,7 +81,6 @@ const link_resources = [
     link: "https://www.youtube.com/embed/YjsZoSyRbDQ",
     category: "video",
     tab: "screencast",
-    tags: ["tag5", "tag6"],
   },
   {
     title: "What IODA does and does not measure",
