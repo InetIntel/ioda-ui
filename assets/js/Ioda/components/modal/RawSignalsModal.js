@@ -427,6 +427,14 @@ const RawSignalsModal = (props) => {
       "tooltip.entityRawSignalsHeading.text"
   );
 
+  const tooltipEntityAsnConnectivityTitle = T.translate(
+      "tooltip.tooltipEntityAsnConnectivity.title"
+  );
+
+  const tooltipEntityAsnConnectivityText = T.translate(
+      "tooltip.tooltipEntityAsnConnectivity.text"
+  );
+
   const activeCSS = `display: block;`;
   const inactiveCSS = `display: none;`;
 
@@ -438,7 +446,7 @@ const RawSignalsModal = (props) => {
     return null;
   }
 
-  const modeStatus = globalSwitch ? "Global" : "Local";
+  const modeStatus = globalSwitch ? "Global ASN connectivity" : "Local ASN connectivity";
 
   return (
       <Modal
@@ -535,6 +543,10 @@ const RawSignalsModal = (props) => {
                 onChange={handleGlobalSwitch}
             />
             <span className="text-lg">{modeStatus}</span>
+                <Tooltip
+                    title={tooltipEntityAsnConnectivityTitle}
+                    text={tooltipEntityAsnConnectivityText}
+                />
           </div>
         }
           <div className="flex gap-6 modal__content">

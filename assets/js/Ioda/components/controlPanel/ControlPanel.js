@@ -49,6 +49,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
   const [countrySearchText, setCountrySearchText] = useState("All Countries");
   const [countrySelectedCode, setCountrySelectedCode] = useState("all");
   const [regionSearchText, setRegionSearchText] = useState("N/A");
+  const [regionSelectedCode, setRegionSelectedCode] = useState(null);
   const [asnSearchText, setAsnSearchText] = useState("N/A");
   const [asnSelectedCode, setAsnSelectedCode] = useState(null);
 
@@ -194,7 +195,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       name: "All Countries",
       code: "all_countries",
       type: "all_countries",
-      url: `country`,
+      url: `dashboard/country`,
       backUrl: 'dashboard'
     }
   }
@@ -206,7 +207,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       name: "All Regions",
       code: "all_regions",
       type: "all_regions",
-      url: 'region',
+      url: 'dashboard/region',
       backUrl: 'dashboard'
     }
   }
@@ -218,7 +219,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       name: "All Networks",
       code: "all_networks",
       type: "all_networks",
-      url: 'asn',
+      url: 'dashboard/asn',
       backUrl: 'dashboard'
     }
   }
@@ -332,7 +333,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
               code: entity.code,
               type: entity.type,
               url: `region/${entity.code}`,
-              backUrl: 'region'
+              backUrl: 'dashboard/region'
             }
           }
         });
@@ -342,11 +343,11 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
             const asnCode = entityCode.split("-")[0];
             results = results.map(item => {
               item.entity.url = `${entityType}/${asnCode}-${item.entity.code}`;
-              item.entity.backUrl = `/${entityType}/${asnCode}`;
+              item.entity.backUrl = `${entityType}/${asnCode}`;
               return item;
             });
-          allRegionOption.entity.url = `/asn/${asnCode}`;
-          allRegionOption.entity.backUrl = `/asn/${asnCode}`;
+          allRegionOption.entity.url = `asn/${asnCode}`;
+          allRegionOption.entity.backUrl = `asn/${asnCode}`;
         }
         // Regions are already filtered based on country in API call
         const updatedResults = [allRegionOption, ...results];
@@ -405,7 +406,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                   code: entity.code,
                   type: entity.type,
                   url: `asn/${entity.code}`,
-                  backUrl: 'asn'
+                  backUrl: 'dashboard/asn'
                 },
               };
             })
@@ -460,6 +461,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     // }
     setRegionSearchText("All Regions");
     setAsnSearchText("All Networks");
+    setRegionSelectedCode("all_regions");
     setAsnSelectedCode("all_networks")
   }, [entityType, entityCode]);
 
@@ -477,10 +479,10 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           const countryCode = await getCountryCodeFromRegion(entityCode);
           setCountrySearchText(_countryNameMap[countryCode]);
           setCountrySelectedCode(countryCode);
-
-          const region = await regionOptions.find((region) => region.entity.code === entityCode);
+          const region = await regionOptions.find((region) => region.entity.code == entityCode);
 
           setRegionSearchText(region ? region.entity.name : "");
+          setRegionSelectedCode(region ? region.entity.code : "");
 
           setAsnSearchText("All Networks");
           setAsnSelectedCode("all_networks");
@@ -563,6 +565,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           setCountrySearchText("All Countries");
           setCountrySelectedCode("all")
           setRegionSearchText("N/A")
+            setRegionSelectedCode(null)
           setAsnSearchText("N/A")
           setAsnSelectedCode(null)
           break;
@@ -570,6 +573,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           setCountrySearchText("N/A")
           setCountrySelectedCode("N/A")
           setRegionSearchText("All Regions");
+          setRegionSelectedCode(null)
           setAsnSearchText("N/A")
           setAsnSelectedCode(null)
           break;
@@ -758,8 +762,8 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
 
   function handleRegionSelectChange(id) {
     if(id === undefined) {
-      if(regionSearchText !== "N/A") {
-        const entity = regionOptions.find((d) => d.name === regionSearchText)?.entity ?? null;
+      if(regionSelectedCode) {
+        const entity = regionOptions.find((d) => d.entity.code === regionSelectedCode)?.entity ?? null;
         if(entity != null){
           handleEntityChange(entity.backUrl);
         }
@@ -767,13 +771,14 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     }
     else {
       setRegionSearchText(id);
+      setRegionSelectedCode(id);
     }
   }
 
   function handleAsnSelectChange(id) {
     if(id === undefined) {
       if(asnSelectedCode) {
-        const entity = asnOptions.find((d) => d.entity.code === asnSelectedCode)?.entity ?? null;
+        const entity = asnOptions.find((d) => d.entity.code == asnSelectedCode)?.entity ?? null;
         if(entity != null){
           handleEntityChange(entity.backUrl);
         }

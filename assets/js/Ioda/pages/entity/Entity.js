@@ -1837,7 +1837,7 @@ const Entity = (props) => {
         if(entities.length === 0){
           return;
         }
-        let entityTypeProp = entityType === "country" ? entityType : (showGlobalSignals ? "asn" : "geoasn");
+        let entityTypeProp = entityType !== "asn" ? (showGlobalSignals ? "asn" : "geoasn") : entityType;
         switch (dataSource) {
           case "ping-slash24":
             props.getRawAsnSignalsPingSlash24Action(

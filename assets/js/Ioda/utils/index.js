@@ -153,7 +153,7 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
         let summaryItem;
         (summary.entity.type === 'asn' || summary.entity.type === 'geoasn')
             ? summaryItem = {
-                entityType: summary["entity"].type,
+                entityType: 'asn',
                 entityCode: summary["entity"].code,
                 name: summary["entity"].name,
                 score: overallScore,

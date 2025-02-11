@@ -12,17 +12,17 @@ const tabOptions = [countryTabTitle, regionTabTitle, asnTabTitle];
 const country = {
     type: 'country',
     tab: 1,
-    url: '/dashboard'
+    url: '/dashboard/country'
 };
 const region = {
     type: 'region',
     tab: 2,
-    url: '/region'
+    url: '/dashboard/region'
 };
 const asn = {
     type: 'asn',
     tab: 3,
-    url: '/asn'
+    url: '/dashboard/asn'
 };
 
 export {tabOptions, country, region, asn};

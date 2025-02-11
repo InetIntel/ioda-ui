@@ -43,9 +43,10 @@ const Dashboard = (props) => {
     eventSignals,
     navigate,
     searchSummaryAction,
-    totalOutagesAction,
-    entityType
+    totalOutagesAction
   } = props;
+
+  const urlEntityType = props.entityType;
 
   const title = useMemo(() => T.translate("entity.pageTitle"), []);
 
@@ -62,7 +63,7 @@ const Dashboard = (props) => {
 
   const { urlFromDate, urlUntilDate } = useMemo(() => getDateRangeFromUrl(), []);
 
-  // const entityType = useMemo(() => tabs[urlEntityType] ? urlEntityType : country.type, []);
+  const entityType = useMemo(() => tabs[urlEntityType] ? urlEntityType : country.type, []);
   // const entityType= "country";
   // Control Panel
   // const [from, setFrom] = useState(
@@ -494,7 +495,7 @@ const DashboardFn = (props) => {
     <Dashboard
       {...props}
       tab={tab}
-      entityType="country"
+      entityType={entityType}
       navigate={navigate}
     />
   );
