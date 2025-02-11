@@ -54,6 +54,7 @@ const link_resources = [
     thumbnail: print_1,
     category: "file",
     tab: "printable",
+    tags: ["tag1", "tag2"],
   },
   {
     title: "How to use IODA for Less Technical Users",
@@ -62,6 +63,7 @@ const link_resources = [
     thumbnail: print_2,
     category: "file",
     tab: "printable",
+    tags: ["tag2"],
   },
   {
     title: "IODA for Journalists",
@@ -70,6 +72,7 @@ const link_resources = [
     thumbnail: print_3,
     category: "file",
     tab: "printable",
+    tags: ["tag3", "tag4"],
   },
 
   {

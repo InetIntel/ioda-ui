@@ -36,7 +36,7 @@
  */
 
 import React, { useState } from "react";
-import { Typography, Card, Row, Col, Tabs } from "antd";
+import { Typography, Card, Row, Col, Tabs, Tag } from "antd";
 import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
@@ -54,12 +54,12 @@ const TextResource = ({ title, content }) => {
         level={3}
         // style={{ cursor: "pointer", color: "#1890ff", paddingLeft: "50px" }}
         // onClick={() => setExpanded(!expanded)}
-        style={{ color: "#1890ff", paddingLeft: "50px" }}
+        style={{ color: "#1890ff", paddingLeft: "20px" }}
       >
         {title}
       </Title>
       {expanded && (
-        <div style={{ paddingLeft: "70px" }}>
+        <div style={{ paddingLeft: "40px" }}>
           <Paragraph>{content}</Paragraph>
         </div>
       )}
@@ -70,56 +70,109 @@ const TextResource = ({ title, content }) => {
 const Resources = () => {
   const [activeTab, setActiveTab] = useState("printable");
 
-  const renderLinkResources = (tab) => (
-    <Row gutter={[16, 16]} justify="left">
-      {link_resources
-        .filter((resource) => resource.tab === tab)
-        .map((resource, index) => (
-          <Col xs={24} sm={12} md={8} key={index}>
-            <Card
-              hoverable
-              style={{
-                textAlign: "left",
-                borderRadius: "2px",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                cursor: "default",
-                minHeight: resource.tab === "present" ? "300px" : "260px",
-                position: "relative",
-              }}
-              bodyStyle={{ padding: "12px" }}
-            >
-              <div
+  const printableResources = link_resources.filter(
+    (resource) => resource.tab === "printable"
+  );
+
+  const allTags = [
+    ...new Set(printableResources.flatMap((resource) => resource.tags || [])),
+  ];
+
+  const [selectedTags, setSelectedTags] = useState(allTags);
+
+  const toggleTag = (tag) => {
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tag)
+        ? prevTags.filter((t) => t !== tag)
+        : [...prevTags, tag]
+    );
+  };
+
+  const renderLinkResources = (tab) => {
+    let filteredResources = link_resources.filter(
+      (resource) => resource.tab === tab
+    );
+
+    if (tab === "printable" && selectedTags.length < allTags.length) {
+      filteredResources = filteredResources.filter((resource) =>
+        resource.tags?.some((tag) => selectedTags.includes(tag))
+      );
+    }
+
+    return (
+      <>
+        {tab === "printable" && (
+          <div style={{ marginBottom: "16px", textAlign: "center" }}>
+            <Text strong style={{ marginRight: "8px" }}>
+              Filter by Tags:
+            </Text>
+            {allTags.map((tag) => (
+              <Tag
+                key={tag}
+                color={selectedTags.includes(tag) ? "blue" : "default"}
+                style={{ cursor: "pointer", marginBottom: "8px" }}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </Tag>
+            ))}
+          </div>
+        )}
+        <Row gutter={[16, 16]} justify="left" style={{ padding: "0 8px" }}>
+          {filteredResources.map((resource, index) => (
+            <Col xs={24} sm={12} md={8} key={index}>
+              <Card
+                hoverable
                 style={{
-                  marginBottom: "16px",
+                  textAlign: "left",
+                  borderRadius: "2px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                  cursor: "default",
+                  minHeight: resource.tab === "present" ? "310px" : "280px",
+                  position: "relative",
                   display: "flex",
-                  justifyContent: "center",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                }}
+                bodyStyle={{
+                  padding: "12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
                 }}
               >
-                {resource.category === "video" ? (
-                  <iframe
-                    width="100%"
-                    height="130px"
-                    src={resource.link}
-                    title={resource.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={{ borderRadius: "8px" }}
-                  ></iframe>
-                ) : (
-                  <img
-                    src={resource.thumbnail}
-                    alt={resource.title}
-                    style={{
-                      width: "250px",
-                      height: "130px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                    }}
-                  />
-                )}
-              </div>
-              <div>
+                <div
+                  style={{
+                    marginBottom: "16px",
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  {resource.category === "video" ? (
+                    <iframe
+                      width="100%"
+                      height="130px"
+                      src={resource.link}
+                      title={resource.title}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ borderRadius: "8px" }}
+                    ></iframe>
+                  ) : (
+                    <img
+                      src={resource.thumbnail}
+                      alt={resource.title}
+                      style={{
+                        // width: "250px",
+                        width: "100%",
+                        height: "130px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  )}
+                </div>
                 <Text
                   style={{
                     font: "SF Pro Text",
@@ -129,45 +182,75 @@ const Resources = () => {
                 >
                   {resource.type}
                 </Text>
-                {resource.category === "video" ? (
-                  <Title level={5} style={{ margin: "6px 0" }}>
-                    {resource.title}
-                  </Title>
-                ) : (
-                  <Title
-                    level={5}
-                    style={{ margin: "6px 0", paddingRight: "40px" }}
-                  >
-                    {resource.title}
-                  </Title>
-                )}
-              </div>
-              {resource.category !== "video" && (
-                <a
-                  href={resource.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    position: "absolute",
-                    bottom: "13px",
-                    right: "13px",
-                  }}
-                >
-                  <img
-                    src={download_icon}
-                    alt="Download"
+                <Title level={5} style={{ margin: "6px 0" }}>
+                  {resource.title}
+                </Title>
+
+                {/* Tags Section */}
+                {resource.tags && resource.tags.length > 0 && (
+                  <div
                     style={{
-                      width: "40px",
-                      height: "40px",
+                      position: "absolute",
+                      bottom: "10px",
+                      left: "12px",
+                      right: "12px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "2px",
                     }}
-                  />
-                </a>
-              )}
-            </Card>
-          </Col>
-        ))}
-    </Row>
-  );
+                  >
+                    {resource.tags.map((tag, i) => (
+                      // <span
+                      //   key={i}
+                      //   style={{
+                      //     background: "#f0f0f0",
+                      //     color: "#333",
+                      //     padding: "4px 8px",
+                      //     borderRadius: "12px",
+                      //     fontSize: "12px",
+                      //     whiteSpace: "nowrap",
+                      //   }}
+                      // >
+                      //   {tag}
+                      // </span>
+                      <Tag
+                        key={tag}
+                        color={selectedTags.includes(tag) ? "blue" : "default"}
+                      >
+                        {tag}
+                      </Tag>
+                    ))}
+                  </div>
+                )}
+
+                {resource.category !== "video" && (
+                  <a
+                    href={resource.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      position: "absolute",
+                      bottom: "10px",
+                      right: "10px",
+                    }}
+                  >
+                    <img
+                      src={download_icon}
+                      alt="Download"
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                      }}
+                    />
+                  </a>
+                )}
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </>
+    );
+  };
 
   const renderTextResources = (tab) => (
     <div style={{ padding: "5px" }}>
@@ -202,7 +285,9 @@ const Resources = () => {
               left: "50%",
               transform: "translate(-50%, -50%)",
               textAlign: "center",
-              width: "580px",
+              // width: "580px",
+              width: "100%",
+              maxWidth: "580px",
             }}
           >
             <Title
@@ -235,33 +320,33 @@ const Resources = () => {
             </Paragraph>
           </div>
         </div>
-
-        <Tabs
-          centered
-          activeKey={activeTab}
-          onChange={(key) => setActiveTab(key)}
-          style={{
-            marginBottom: "40px",
-            marginTop: "-300px",
-            width: "900px",
-          }}
-        >
-          <Tabs.TabPane tab="Printable Resources" key="printable">
-            {renderLinkResources("printable")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Video Tutorials" key="screencasts">
-            {renderLinkResources("screencast")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Slides" key="presentations">
-            {renderLinkResources("present")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Technical Terms" key="terms">
-            {renderTextResources("technical")}
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Repositories and Data Access" key="repositories">
-            {renderTextResources("repo")}
-          </Tabs.TabPane>
-        </Tabs>
+        <div style={{ width: "100%" }}>
+          <Tabs
+            activeKey={activeTab}
+            onChange={(key) => setActiveTab(key)}
+            style={{
+              marginBottom: "40px",
+              marginTop: "-300px",
+              maxWidth: "900px",
+            }}
+          >
+            <Tabs.TabPane tab="Printable Resources" key="printable">
+              {renderLinkResources("printable")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Video Tutorials" key="screencasts">
+              {renderLinkResources("screencast")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Presentations" key="presentations">
+              {renderLinkResources("present")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Glossary" key="terms">
+              {renderTextResources("technical")}
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Repositories and Data Access" key="repositories">
+              {renderTextResources("repo")}
+            </Tabs.TabPane>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
