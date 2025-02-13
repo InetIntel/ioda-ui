@@ -30,3 +30,8 @@
     max-height: 34rem;
   }
 }
+
+.upstream__chart {
+  min-width: 0;
+  flex-grow: 1;
+}

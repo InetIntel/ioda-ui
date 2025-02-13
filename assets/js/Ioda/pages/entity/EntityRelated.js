@@ -44,6 +44,7 @@ import TopoMap from "../../components/map/Map";
 import Table from "../../components/table/Table";
 import { Button } from "antd";
 import UpstreamComponent from "./components/UpstreamComponent";
+import LatencyComponent from "./components/LatencyComponent";
 
 const EntityRelated = (props) => {
 
@@ -453,7 +454,7 @@ const EntityRelated = (props) => {
 
         {/*</div>*/}
       </div>
-    <UpstreamComponent />
+           <LatencyComponent />
     </div>
     );
 }

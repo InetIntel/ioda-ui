@@ -162,7 +162,8 @@
     "regionalSectionTitleAsnType": "Regions where {asn} operates that experienced outages",
     "selectedSignal": "Selected Signal",
     "eventTab": "Event",
-    "alertTab": "Alert"
+    "alertTab": "Alert",
+    "upstreamChartTitle": "Upstream Delay Connectivity for "
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",
