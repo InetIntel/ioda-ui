@@ -43,7 +43,6 @@ import Tooltip from "../../components/tooltip/Tooltip";
 import TopoMap from "../../components/map/Map";
 import Table from "../../components/table/Table";
 import { Button } from "antd";
-import UpstreamComponent from "./components/UpstreamComponent";
 import LatencyComponent from "./components/LatencyComponent";
 
 const EntityRelated = (props) => {
@@ -449,12 +448,8 @@ const EntityRelated = (props) => {
             )}
           </div>
         </div>
-
-        {/*<div className="card mw-0 p-6 col-1">*/}
-
-        {/*</div>*/}
       </div>
-           <LatencyComponent />
+          {entityType && entityType === 'asn' && <LatencyComponent />}
     </div>
     );
 }
