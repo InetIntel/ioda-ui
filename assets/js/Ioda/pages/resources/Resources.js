@@ -393,7 +393,6 @@ const Resources = () => {
           </Tabs>
         </div>
       </div>
-      //{" "}
     </div>
   );
 };
