@@ -35,7 +35,7 @@
  * MODIFICATIONS.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Typography, Card, Row, Col, Tabs, Tag } from "antd";
 import { Helmet } from "react-helmet";
 
@@ -44,6 +44,7 @@ const { Title, Paragraph, Text } = Typography;
 import download_icon from "images/resources/download-icon.png";
 import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const TextResource = ({ title, content }) => {
   const [expanded, setExpanded] = useState(true);
@@ -68,7 +69,21 @@ const TextResource = ({ title, content }) => {
 };
 
 const Resources = () => {
-  const [activeTab, setActiveTab] = useState("printable");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const getActiveTabFromURL = () => {
+    const params = new URLSearchParams(location.search);
+    return params.get("tab") || "printable";
+  };
+  const [activeTab, setActiveTab] = useState(getActiveTabFromURL);
+  useEffect(() => {
+    setActiveTab(getActiveTabFromURL);
+  }, [location]);
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    navigate(`?tab=${key}`, { replace: true });
+  };
+  // const [activeTab, setActiveTab] = useState("printable");
 
   const printableResources = link_resources.filter(
     (resource) => resource.tab === "printable"
@@ -118,9 +133,20 @@ const Resources = () => {
             ))}
           </div>
         )}
-        <Row gutter={[16, 16]} justify="left" style={{ padding: "0 8px" }}>
+        <Row
+          gutter={[16, 16]}
+          justify="left"
+          // style={{ padding: "0 8px", minWidth: "100%" }}
+          style={{ padding: "0 8px" }}
+        >
           {filteredResources.map((resource, index) => (
-            <Col xs={24} sm={12} md={8} key={index}>
+            <Col
+              xs={24}
+              sm={12}
+              md={8}
+              style={{ minWidth: "300px" }}
+              key={index}
+            >
               <Card
                 hoverable
                 style={{
@@ -132,7 +158,7 @@ const Resources = () => {
                   position: "relative",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
+                  // justifyContent: "space-between",
                 }}
                 bodyStyle={{
                   padding: "12px",
@@ -271,7 +297,6 @@ const Resources = () => {
         <title>IODA | Resources</title>
         <meta name="description" content="Resource hub for IODA users." />
       </Helmet>
-
       <div className="mb-24">
         <div
           className="ioda-container"
@@ -314,21 +339,41 @@ const Resources = () => {
                 margin: 0,
               }}
             >
-              View and download our screencasts, user guides, and animations to
+              View and download our guides, tutorials, and presentations to
               learn about IODA's signals and how to use IODA data to monitor
               Internet connectivity and disruptions.
             </Paragraph>
           </div>
         </div>
-        <div style={{ width: "100%" }}>
+        {/* <div style={{ width: "100%" }}> */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "900px",
+            minWidth: "300px",
+            margin: "0 auto",
+          }}
+        >
           <Tabs
             activeKey={activeTab}
-            onChange={(key) => setActiveTab(key)}
+            // onChange={(key) => setActiveTab(key)}
+            onChange={handleTabChange}
+            centered
             style={{
               marginBottom: "40px",
               marginTop: "-300px",
               maxWidth: "900px",
+              textAlign: "left",
+              width: "100%",
             }}
+            // tabBarStyle={{
+            //   // display: "flex",
+            //   // justifyContent: "center",
+            //   // overflowX: "auto", // Enables horizontal scrolling
+            //   // // whiteSpace: "nowrap", // Prevents wrapping
+            //   // maxWidth: "100%", // Ensures it doesn't overflow the screen
+            //   // paddingBottom: "5px", // Ensures tabs are fully visible
+            // }}
           >
             <Tabs.TabPane tab="Printable Resources" key="printable">
               {renderLinkResources("printable")}
@@ -348,6 +393,7 @@ const Resources = () => {
           </Tabs>
         </div>
       </div>
+      //{" "}
     </div>
   );
 };
