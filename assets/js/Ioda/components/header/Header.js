@@ -94,7 +94,7 @@ const Header = () => {
     getSavedAdvancedModePreference()
   );
   const [showDrawer, setShowDrawer] = useState(false);
-  const [mounted, setMounted] = useState(false);
+
 
   // const setShowDrawer = (showDrawer) => {
   //   this.setState({ showDrawer });
@@ -105,18 +105,12 @@ const Header = () => {
   };
 
   const handleLanguageChange = (language) => {
-    if (!mounted) {
-      return;
-    }
     setLanguage(language);
     saveLanguagePreference(language);
     window.location.reload();
   };
 
   const handleModeChange = (isAdvancedMode) => {
-    if (!mounted) {
-      return;
-    }
     setAdvancedMode(advancedMode);
     saveAdvancedModePreference(isAdvancedMode);
     window.location.reload();

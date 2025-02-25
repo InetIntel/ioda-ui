@@ -99,6 +99,7 @@ const EntityRelated = (props) => {
     rawAsnSignalsRawMeritNtLength,
     relatedToTableSummaryProcessed,
     handleGlobalAsnSignals,
+    handleGlobalRegionalAsnSignals,
   } = props;
 
 
@@ -278,6 +279,7 @@ const EntityRelated = (props) => {
                 rawRegionalSignalsRawMeritNtLength
               }
               handleGlobalAsnSignals={handleGlobalAsnSignals}
+              handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
             />
           </div>
           <div className="map" style={{ display: "block", height: "40.5rem" }}>
@@ -433,6 +435,7 @@ const EntityRelated = (props) => {
                 rawAsnSignalsRawMeritNtLength
               }
               handleGlobalAsnSignals={handleGlobalAsnSignals}
+              handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
             />
           </div>
           <div className="tab__table" ref={relatedTableConfig}>

@@ -98,6 +98,7 @@ const RawSignalsModal = (props) => {
     additionalRawSignalRequestedMeritNt,
     additionalRawSignalRequestedBgp,
     handleGlobalAsnSignals,
+    handleGlobalRegionalAsnSignals,
     entityName,
     rawAsnSignalsRawBgpLength,
     uncheckAllButtonLoading,
@@ -112,6 +113,7 @@ const RawSignalsModal = (props) => {
   const [renderingDataMeritNt, setRenderingDataMeritNt] = useState(false);
   const [chartWidth, setChartWidth] = useState(null);
   const [globalSwitch, setGlobalSwitch] = useState(false);
+  const [globalRegionalAsnConnectivity, setGlobalRegionalAsnConnectivity] = useState(false);
 
   let configPingSlash24 = useRef(null);
   let configBgp = useRef(null);
@@ -377,6 +379,12 @@ const RawSignalsModal = (props) => {
     handleGlobalAsnSignals();
   }
 
+  const handleRegionalAsnConnectivity = () => {
+    setGlobalRegionalAsnConnectivity(connectivity => !connectivity);
+    handleGlobalRegionalAsnSignals();
+  }
+
+
 
   const regionTitle = T.translate("entityModal.regionTitle");
   const asnTitle = T.translate("entityModal.asnTitle");
@@ -447,6 +455,7 @@ const RawSignalsModal = (props) => {
   }
 
   const modeStatus = globalSwitch ? "Global ASN connectivity" : "Local ASN connectivity";
+  const connectivityASNStatus = globalRegionalAsnConnectivity ? "Global ASN connectivity" : "Local ASN connectivity";
 
   return (
       <Modal
@@ -535,20 +544,36 @@ const RawSignalsModal = (props) => {
                 </p>
             )}
           </div>
-          { entityType !== "asn" &&
+          {/* Show local/global connectivity for ASN signals */}
+          {/* Raw regional signals */}
+          { modalLocation === "map" && entityType === "asn" &&
               <div className="row items-center">
             <Switch
                 className="mr-3"
-                checked={globalSwitch}
-                onChange={handleGlobalSwitch}
+                checked={globalRegionalAsnConnectivity}
+                onChange={handleRegionalAsnConnectivity}
             />
-            <span className="text-lg">{modeStatus}</span>
+            <span className="text-lg">{connectivityASNStatus}</span>
                 <Tooltip
                     title={tooltipEntityAsnConnectivityTitle}
                     text={tooltipEntityAsnConnectivityText}
                 />
           </div>
         }
+          { modalLocation === "table" && entityType !== "asn" &&
+              <div className="row items-center">
+                <Switch
+                    className="mr-3"
+                    checked={globalSwitch}
+                    onChange={handleGlobalSwitch}
+                />
+                <span className="text-lg">{modeStatus}</span>
+                <Tooltip
+                    title={tooltipEntityAsnConnectivityTitle}
+                    text={tooltipEntityAsnConnectivityText}
+                />
+              </div>
+          }
           <div className="flex gap-6 modal__content">
             <div className="col-1 mw-0">
               <div className="modal__table-container rounded card p-3 mb-6">
