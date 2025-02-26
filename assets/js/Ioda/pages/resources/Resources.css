@@ -1,0 +1,32 @@
+.ant-tabs-nav {
+  width: 100% !important;
+}
+
+.ant-tabs-tab {
+  display: block !important;
+  flex: 1 !important;
+  text-align: center !important;
+}
+
+.ant-tabs-nav > div:nth-of-type(1) {
+  display: unset !important;
+  width: 100% !important;
+}
+
+.resources-container {
+  width: 900px; /* Set a fixed width */
+  max-width: 100%; /* Ensure it doesn't overflow */
+  margin: 0 auto; /* Center it */
+}
+
+@media (max-width: 1024px) {
+  .resources-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .resources-container {
+    width: 100%;
+  }
+}

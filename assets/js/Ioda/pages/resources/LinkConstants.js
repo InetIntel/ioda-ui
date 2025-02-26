@@ -81,6 +81,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/YjsZoSyRbDQ",
     category: "video",
     tab: "screencast",
+    tags: ["tag1"],
   },
   {
     title: "What IODA does and does not measure",
@@ -88,6 +89,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/ZPtFQgtjiSw",
     category: "video",
     tab: "screencast",
+    tags: ["tag2"],
   },
   {
     title: "Introduction to IODA's measurements",
@@ -95,6 +97,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/xvV9kTOb4J8",
     category: "video",
     tab: "screencast",
+    tags: ["tag3"],
   },
   {
     title: "How the Internet gets shutdown",
@@ -102,6 +105,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/uk4iBd94Rno",
     category: "video",
     tab: "screencast",
+    tags: ["tag4"],
   },
   {
     title: "Case Study: How the Economist uses IODA",
@@ -109,6 +113,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/vhPkrj3288k",
     category: "video",
     tab: "screencast",
+    tags: ["tag1"],
   },
   {
     title: "Case Study: How IODA measures Internet shutdowns in Iran",
@@ -116,6 +121,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/A70BwfEgP7s",
     category: "video",
     tab: "screencast",
+    tags: ["tag2"],
   },
   {
     title: "How to use the IODA dashboard",
@@ -123,6 +129,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/yDpducExaOI",
     category: "video",
     tab: "screencast",
+    tags: ["tag3"],
   },
   {
     title: "IODA in practice: Russia-Ukraine War",
@@ -130,6 +137,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/b9N6gpaLSPY",
     category: "video",
     tab: "screencast",
+    tags: ["tag4"],
   },
   {
     title: "IODA in practice: Iran protests September - October 2022",
@@ -137,6 +145,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/8sEF0AljSvg",
     category: "video",
     tab: "screencast",
+    tags: ["tag1"],
   },
   {
     title:
@@ -146,6 +155,7 @@ const link_resources = [
     thumbnail: present_1,
     category: "file",
     tab: "present",
+    tags: ["tag1"],
   },
   {
     title: "Gaza Connectivity: Internet Outages and Shutdowns, November 2023",
@@ -154,6 +164,7 @@ const link_resources = [
     thumbnail: present_2,
     category: "file",
     tab: "present",
+    tags: ["tag2"],
   },
   {
     title: "IODA Jeopardy Game",
@@ -162,6 +173,7 @@ const link_resources = [
     thumbnail: present_3,
     category: "file",
     tab: "present",
+    tags: ["tag3"],
   },
   {
     title: "IODA Splintercon Presentation",
@@ -170,6 +182,7 @@ const link_resources = [
     thumbnail: present_4,
     category: "file",
     tab: "present",
+    tags: ["tag4"],
   },
   {
     title:
@@ -178,6 +191,7 @@ const link_resources = [
     link: "https://www.youtube.com/embed/8m8ibnJsdTc",
     category: "video",
     tab: "present",
+    tags: ["tag1"],
   },
 ];
 

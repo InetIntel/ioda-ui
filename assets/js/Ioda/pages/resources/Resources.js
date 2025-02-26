@@ -46,6 +46,8 @@ import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import "./Resources.css";
+
 const TextResource = ({ title, content }) => {
   const [expanded, setExpanded] = useState(true);
 
@@ -76,6 +78,7 @@ const Resources = () => {
     return params.get("tab") || "printable";
   };
   const [activeTab, setActiveTab] = useState(getActiveTabFromURL);
+  //const [tabFontSize, setTabFontSize] = useState("16px");
   useEffect(() => {
     setActiveTab(getActiveTabFromURL);
   }, [location]);
@@ -83,7 +86,6 @@ const Resources = () => {
     setActiveTab(key);
     navigate(`?tab=${key}`, { replace: true });
   };
-  // const [activeTab, setActiveTab] = useState("printable");
 
   const printableResources = link_resources.filter(
     (resource) => resource.tab === "printable"
@@ -108,7 +110,7 @@ const Resources = () => {
       (resource) => resource.tab === tab
     );
 
-    if (tab === "printable" && selectedTags.length < allTags.length) {
+    if (selectedTags.length < allTags.length) {
       filteredResources = filteredResources.filter((resource) =>
         resource.tags?.some((tag) => selectedTags.includes(tag))
       );
@@ -116,7 +118,7 @@ const Resources = () => {
 
     return (
       <>
-        {tab === "printable" && (
+        <div className="resources-container">
           <div style={{ marginBottom: "16px", textAlign: "center" }}>
             <Text strong style={{ marginRight: "8px" }}>
               Filter by Tags:
@@ -132,148 +134,122 @@ const Resources = () => {
               </Tag>
             ))}
           </div>
-        )}
-        <Row
-          gutter={[16, 16]}
-          justify="left"
-          // style={{ padding: "0 8px", minWidth: "100%" }}
-          style={{ padding: "0 8px" }}
-        >
-          {filteredResources.map((resource, index) => (
-            <Col
-              xs={24}
-              sm={12}
-              md={8}
-              style={{ minWidth: "300px" }}
-              key={index}
-            >
-              <Card
-                hoverable
-                style={{
-                  textAlign: "left",
-                  borderRadius: "2px",
-                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                  cursor: "default",
-                  minHeight: resource.tab === "present" ? "310px" : "280px",
-                  position: "relative",
-                  display: "flex",
-                  flexDirection: "column",
-                  // justifyContent: "space-between",
-                }}
-                bodyStyle={{
-                  padding: "12px",
-                  display: "flex",
-                  flexDirection: "column",
-                  flexGrow: 1,
-                }}
-              >
-                <div
-                  style={{
-                    marginBottom: "16px",
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  {resource.category === "video" ? (
-                    <iframe
-                      width="100%"
-                      height="130px"
-                      src={resource.link}
-                      title={resource.title}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      style={{ borderRadius: "8px" }}
-                    ></iframe>
-                  ) : (
-                    <img
-                      src={resource.thumbnail}
-                      alt={resource.title}
-                      style={{
-                        // width: "250px",
-                        width: "100%",
-                        height: "130px",
-                        objectFit: "cover",
-                        borderRadius: "8px",
-                      }}
-                    />
-                  )}
-                </div>
-                <Text
-                  style={{
-                    font: "SF Pro Text",
-                    fontSize: "14px",
-                    color: "#A6A6A6",
-                  }}
-                >
-                  {resource.type}
-                </Text>
-                <Title level={5} style={{ margin: "6px 0" }}>
-                  {resource.title}
-                </Title>
 
-                {/* Tags Section */}
-                {resource.tags && resource.tags.length > 0 && (
+          <Row gutter={[16, 16]} justify="left" style={{ padding: "0 8px" }}>
+            {filteredResources.map((resource, index) => (
+              <Col
+                xs={24}
+                sm={12}
+                md={8}
+                style={{ minWidth: "300px" }}
+                key={index}
+              >
+                <Card
+                  hoverable
+                  style={{
+                    textAlign: "left",
+                    borderRadius: "2px",
+                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                    cursor: "default",
+                    minHeight: resource.tab === "present" ? "320px" : "280px",
+                    position: "relative",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                  bodyStyle={{
+                    padding: "12px",
+                    display: "flex",
+                    flexDirection: "column",
+                    flexGrow: 1,
+                  }}
+                >
                   <div
                     style={{
-                      position: "absolute",
-                      bottom: "10px",
-                      left: "12px",
-                      right: "12px",
+                      marginBottom: "16px",
                       display: "flex",
-                      flexWrap: "wrap",
-                      gap: "2px",
+                      justifyContent: "center",
                     }}
                   >
-                    {resource.tags.map((tag, i) => (
-                      // <span
-                      //   key={i}
-                      //   style={{
-                      //     background: "#f0f0f0",
-                      //     color: "#333",
-                      //     padding: "4px 8px",
-                      //     borderRadius: "12px",
-                      //     fontSize: "12px",
-                      //     whiteSpace: "nowrap",
-                      //   }}
-                      // >
-                      //   {tag}
-                      // </span>
-                      <Tag
-                        key={tag}
-                        color={selectedTags.includes(tag) ? "blue" : "default"}
-                      >
-                        {tag}
-                      </Tag>
-                    ))}
+                    {resource.category === "video" ? (
+                      <iframe
+                        width="100%"
+                        height="130px"
+                        src={resource.link}
+                        title={resource.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        style={{ borderRadius: "8px" }}
+                      ></iframe>
+                    ) : (
+                      <img
+                        src={resource.thumbnail}
+                        alt={resource.title}
+                        style={{
+                          width: "100%",
+                          height: "130px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    )}
                   </div>
-                )}
+                  <Text style={{ fontSize: "14px", color: "#A6A6A6" }}>
+                    {resource.type}
+                  </Text>
+                  <Title level={5} style={{ margin: "6px 0" }}>
+                    {resource.title}
+                  </Title>
 
-                {resource.category !== "video" && (
-                  <a
-                    href={resource.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      position: "absolute",
-                      bottom: "10px",
-                      right: "10px",
-                    }}
-                  >
-                    <img
-                      src={download_icon}
-                      alt="Download"
+                  {/* Tags Section */}
+                  {resource.tags && resource.tags.length > 0 && (
+                    <div
                       style={{
-                        width: "40px",
-                        height: "40px",
+                        position: "absolute",
+                        bottom: "10px",
+                        left: "12px",
+                        right: "12px",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "2px",
                       }}
-                    />
-                  </a>
-                )}
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                    >
+                      {resource.tags.map((tag, i) => (
+                        <Tag
+                          key={tag}
+                          color={
+                            selectedTags.includes(tag) ? "blue" : "default"
+                          }
+                        >
+                          {tag}
+                        </Tag>
+                      ))}
+                    </div>
+                  )}
+
+                  {resource.category !== "video" && (
+                    <a
+                      href={resource.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        position: "absolute",
+                        bottom: "10px",
+                        right: "10px",
+                      }}
+                    >
+                      <img
+                        src={download_icon}
+                        alt="Download"
+                        style={{ width: "40px", height: "40px" }}
+                      />
+                    </a>
+                  )}
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </div>
       </>
     );
   };
@@ -345,7 +321,6 @@ const Resources = () => {
             </Paragraph>
           </div>
         </div>
-        {/* <div style={{ width: "100%" }}> */}
         <div
           style={{
             width: "100%",
@@ -363,22 +338,14 @@ const Resources = () => {
               marginBottom: "40px",
               marginTop: "-300px",
               maxWidth: "900px",
-              textAlign: "left",
+              // textAlign: "left",
               width: "100%",
             }}
-            // tabBarStyle={{
-            //   // display: "flex",
-            //   // justifyContent: "center",
-            //   // overflowX: "auto", // Enables horizontal scrolling
-            //   // // whiteSpace: "nowrap", // Prevents wrapping
-            //   // maxWidth: "100%", // Ensures it doesn't overflow the screen
-            //   // paddingBottom: "5px", // Ensures tabs are fully visible
-            // }}
           >
             <Tabs.TabPane tab="Printable Resources" key="printable">
               {renderLinkResources("printable")}
             </Tabs.TabPane>
-            <Tabs.TabPane tab="Video Tutorials" key="screencasts">
+            <Tabs.TabPane tab="Video Tutorials" key="video">
               {renderLinkResources("screencast")}
             </Tabs.TabPane>
             <Tabs.TabPane tab="Presentations" key="presentations">
