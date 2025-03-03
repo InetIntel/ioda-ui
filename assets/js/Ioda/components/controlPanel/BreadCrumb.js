@@ -78,7 +78,7 @@ const DynamicBreadCrumb = ({entityCode, entityType, getCountryCodeFromRegion}) =
                     })
                     break;
                 case "asn":
-                    itemsList = itemsList.concat({title: <a href="/asn"> All Networks </a>});
+                    itemsList = itemsList.concat({title: <a href="/dashboard/asn"> All Networks </a>});
                     if (entityCode.includes("-")) {
                         const [asnCode, geoCode] = entityCode.split("-");
                         const asnName = await getAsnNameFromCode(asnCode);

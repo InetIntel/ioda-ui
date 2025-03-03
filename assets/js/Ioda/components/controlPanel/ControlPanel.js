@@ -308,19 +308,11 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
             url += `&relatedTo=country/${countryCode}`
           }
           if(entityType === "asn" && entityCode) {
-            if (entityCode.includes("-")) {
-              const geoCode = entityCode.split("-")[1];
-              if(isNaN(geoCode)) { // country
-                url += `&relatedTo=country/${geoCode}`
-              }
-              else { // region
-                countryCode = await getCountryCodeFromRegion(geoCode);
-                url += `&relatedTo=country/${countryCode}`
-              }
+            let relatedToEntityCode = entityCode;
+            if (relatedToEntityCode.includes("-")) {
+               relatedToEntityCode = entityCode.split("-")[0];
             }
-            else {
-              url += `&relatedTo=asn/${entityCode}`
-            }
+              url += `&relatedTo=asn/${relatedToEntityCode}`
           }
         }
         const fetched = await fetchData({url});
@@ -338,7 +330,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           }
         });
 
-
+        // backUrl
         if (entityType === "asn" && entityCode) {
             const asnCode = entityCode.split("-")[0];
             results = results.map(item => {
@@ -346,8 +338,15 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
               item.entity.backUrl = `${entityType}/${asnCode}`;
               return item;
             });
-          allRegionOption.entity.url = `asn/${asnCode}`;
-          allRegionOption.entity.backUrl = `asn/${asnCode}`;
+            allRegionOption.entity.url = `asn/${asnCode}`;
+            allRegionOption.entity.backUrl = `asn/${asnCode}`;
+        }
+        const countryCode = await getCountryCodeFromRegion(entityCode);
+        if (entityType === "region" && entityCode) {
+          results = results.map(item => {
+            item.entity.backUrl = `country/${countryCode}`;
+            return item;
+          });
         }
         // Regions are already filtered based on country in API call
         const updatedResults = [allRegionOption, ...results];
@@ -388,7 +387,8 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 if (isNaN(geoCode)) { // country
                   url = urlString + `&relatedTo=country/${geoCode}`;
                 } else { // region
-                  url = urlString + `&relatedTo=region/${geoCode}`;
+                  const countryCode = await getCountryCodeFromRegion(geoCode);
+                  url = urlString + `&relatedTo=country/${countryCode}`;
                 }
               }
             }
@@ -411,9 +411,11 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
               };
             })
         );
-
-        const selectedNetwork =
-            await results.find((asn) => asn.entity.code == entityCode);
+        let selectedNetwork;
+        if(results.length > 0) {
+          selectedNetwork =
+              await results.find((asn) => asn.entity.code == entityCode);
+        }
 
         let updatedResults = [];
         if(!selectedNetwork && entityCode && entityType === "asn") {
@@ -423,6 +425,25 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           }
         } else {
           updatedResults = [allNetworkOption, ...results];
+        }
+
+        if (entityType === "asn" && entityCode) {
+          if(entityCode.includes("-")) {
+            const geoCode = entityCode.split("-")[1];
+            let backurl;
+            if (isNaN(geoCode)) { // country
+              backurl = `country/${geoCode}`;
+            } else { // region
+              backurl = `region/${geoCode}`;
+            }
+
+            updatedResults = updatedResults.map(item => {
+              item.entity.backUrl = backurl;
+              return item;
+            });
+            allCountryOption.entity.url = `dashboard/country`;
+            allCountryOption.entity.backUrl = `dashboard/country`;
+          }
         }
         const asnOptions = (updatedResults || []).map((d) => ({
           value: d.id,
@@ -518,9 +539,11 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
             else { // region
               const selectedRegion = await regionOptions.find((region) => region.entity.code === geoCode);
               setRegionSearchText(selectedRegion ? selectedRegion.label : "");
-              setCountrySelectedCode("N/A")
+              const countryCode = await getCountryCodeFromRegion(geoCode);
+              setCountrySearchText(_countryNameMap[countryCode]);
+              setCountrySelectedCode(countryCode);
             }
-            const asn = await asnOptions.find((asn) => entityCode == asn.entity.code);
+            const asn = await asnOptions.find((asn) => entityCode === asn.entity.code);
             setAsnSearchText(asn ? asn.entity.name : "");
             setAsnSelectedCode(asn ? asn.entity.code : null)
           }

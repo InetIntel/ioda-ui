@@ -863,8 +863,7 @@ const Entity = (props) => {
   function handleResultClick(entity){
     if (!entity) return;
     if (!entity.url) return;
-    // navigate(`/${entity.type}/${entity.code}`);
-    navigate(`/${entity.url}`)
+    handleEntityChange(entity.url);
   }
 
   // Function that returns search bar passed into control panel
