@@ -54,7 +54,6 @@ import HorizonTSChart from "horizon-timeseries-chart";
 import { Style } from "react-style-tag";
 import {Button, Modal, Switch} from "antd";
 import { CloseOutlined } from "@ant-design/icons";
-import {connect} from "react-redux";
 
 const RawSignalsModal = (props) => {
 
@@ -102,10 +101,10 @@ const RawSignalsModal = (props) => {
     entityName,
     rawAsnSignalsRawBgpLength,
     uncheckAllButtonLoading,
+    parentEntityName
   } = props;
 
-
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
   const [additionalEntitiesLoading, setAdditionalEntitiesLoading] = useState(false);
   const [renderingDataPingSlash24, setRenderingDataPingSlash24] = useState(false);
   const [renderingDataBgp, setRenderingDataBgp] = useState(false);
@@ -133,42 +132,64 @@ const RawSignalsModal = (props) => {
   }));
 
   useEffect(() => {
-    setMounted(showModal);
-  }, [showModal]);
-
-  useEffect(() => {
     if(configBgp.current) {
-      genChart("bgp", "region");
+      try{
+        genChart("bgp", "region");
+      } catch(error) {
+        console.log("Error rendering chart")
+      }
+
     }
   }, [rawRegionalSignalsProcessedBgp]);
 
   useEffect(() => {
     if(configBgp.current) {
-      genChart("bgp", "asn");
+      try {
+        genChart("bgp", "asn");
+      } catch(error) {
+        console.log("Error rendering chart")
+      }
+
     }
   }, [rawAsnSignalsProcessedBgp]);
 
   useEffect(() => {
     if(configPingSlash24.current) {
-      genChart("ping-slash24", "asn");
+      try {
+        genChart("ping-slash24", "asn");
+      } catch(error) {
+        console.log("Error rendering chart")
+      }
     }
   }, [rawAsnSignalsProcessedPingSlash24]);
 
   useEffect(() => {
     if(configPingSlash24.current) {
-      genChart("ping-slash24", "region");
+      try {
+        genChart("ping-slash24", "region");
+      } catch(error) {
+        console.log("Error rendering chart")
+      }
     }
   }, [rawRegionalSignalsProcessedPingSlash24]);
 
   useEffect(() => {
     if(configMeritNt.current) {
-      genChart("merit-nt", "asn");
+      try {
+        genChart("merit-nt", "asn");
+      } catch(error) {
+        console.log("Error rendering chart")
+      }
     }
   }, [rawAsnSignalsProcessedMeritNt]);
 
   useEffect(() => {
     if(configMeritNt.current) {
-      genChart("merit-nt", "region");
+      try {
+        genChart("merit-nt", "region");
+      } catch(error) {
+        console.log("Error rendering chart")
+      }
     }
   }, [rawRegionalSignalsProcessedMeritNt]);
 
@@ -198,7 +219,7 @@ const RawSignalsModal = (props) => {
 
   const genChart = (dataSource, entityType) => {
     // set variables
-    let dataSourceForCSS, rawSignalsLoadedBoolean, rawSignalsProcessedArray;
+    let dataSourceForCSS, rawSignalsProcessedArray;
     switch (entityType) {
       case "region":
         switch (dataSource) {
@@ -501,7 +522,7 @@ const RawSignalsModal = (props) => {
             <div className="flex items-center">
               {modalLocation === "map" ? (
                   <h2 className="text-2xl">
-                    {regionTitle} {entityName}
+                    {regionTitle} {parentEntityName}
                   </h2>
               ) : modalLocation === "table" ? (
                   <h2 className="text-2xl">
@@ -726,7 +747,7 @@ const RawSignalsModal = (props) => {
                   )}
                 </div>
               </div>
-              {modalLocation === "map" && mounted ? (
+              {modalLocation === "map" && showModal ? (
                   <div className="modal__map-container rounded card p-3 mb-6">
                     <h3 className="heading-h3">{regionalMapTitle}</h3>
                     <div

@@ -1,34 +1,34 @@
 import React from "react";
 import { Typography, Row, Col, Card } from "antd";
 //Images
-import osp from "images/about/os.png";
-import outage from "images/about/outage.png";
-import cflag from "images/about/cflag.png";
-import location from "images/about/location.png";
-import bdw from "images/about/bandwidth.png";
+import osp from "images/about/os.svg";
+import outage from "images/about/outage.svg";
+import cflag from "images/about/cflag.svg";
+import location from "images/about/location.svg";
+import bdw from "images/about/bandwidth.svg";
 
 const { Title, Text } = Typography;
 
 const missionData = [
     {
         icon: osp,
-        text: "With its open-source dashboard, IODA tracks the severity of Internet disruptions, from minor to major outages.",
+        text: "IODA monitors connectivity of global Internet infrastructure and tracks the severity of Internet disruptions, from minor to major outages.",
     },
     {
         icon: outage,
-        text: "IODA monitors outages occurring in countries, subnational regions, and networks over time.",
-    },
-    {
-        icon: cflag,
-        text: "IODA's Country-level data shows drops and recovery of Internet connectivity across entire nations.",
+        text: "IODA provides data at the country, subnational, and Internet Service Provider / Autonomous System level.",
     },
     {
         icon: location,
-        text: "IODA captures connectivity at subnational granularity & provides unprecedented visibility into disruptions.",
+        text: "IODA’s alert system automatically tracks abnormal drops in Internet connectivity in near real-time.",
     },
     {
         icon: bdw,
-        text: "Network level data tracks disruptions within individual ISPs or network providers.",
+        text: "Our team of Internet measurement experts are dedicated to finding cutting-edge scientific methods to detect Internet outages and disruptions.",
+    },
+    {
+        icon: cflag,
+        text: "We partner with a variety of data and research organizations to support policy, media, and advocacy work.",
     },
 ];
 
@@ -64,7 +64,7 @@ const MissionSection = () => {
                                 backgroundColor: "#FAFAFA",
                                 height: "200px",
                             }}
-                            bodyStyle={{ padding: "16px", textAlign: "center" }}
+                            bodyStyle={{ padding: "16px", textAlign: "left" }}
                         >
                             <div style={{marginBottom: "16px"}}><img
                                 src={item.icon}

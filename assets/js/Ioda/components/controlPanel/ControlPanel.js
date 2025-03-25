@@ -4,9 +4,9 @@ import Tooltip from "../../components/tooltip/Tooltip";
 import dayjs from "../../utils/dayjs";
 import countries from "../../constants/countries.json";
 
-import {Button, DatePicker, notification, Select, Popover, Divider, InputNumber, Space} from "antd";
-import {getNowAsUTC, getSeconds, secondsToTimeZone, secondsToUTC} from "../../utils/timeUtils";
-import {ClockCircleOutlined, CloseOutlined} from "@ant-design/icons";
+import {Button, DatePicker, Divider, InputNumber, notification, Popover, Select} from "antd";
+import {getNowAsUTC, getSeconds, secondsToUTC} from "../../utils/timeUtils";
+import {ClockCircleOutlined} from "@ant-design/icons";
 import {fetchData} from "../../data/ActionCommons";
 import {v4 as uuidv4} from "uuid";
 import DynamicBreadCrumb from "./BreadCrumb";
@@ -224,6 +224,16 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     }
   }
 
+  const getRegionsOfACountry = async (countryName) => {
+    let url = `/entities/query?entityType=region&relatedTo=country/${countryName}`;
+    const fetched = await fetchData({url});
+    return await Promise.all(
+        (fetched?.data?.data ?? []).map(async (entity) => {
+          return entity.name;
+        })
+    );
+  }
+
   // fetch countries names to populate the dropdown
   // countries are filtered based on region or geo-asn/asn
   // only countries dropdown is affected
@@ -329,6 +339,18 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
             }
           }
         });
+        // filter geoasns based on country selected if geoasn with country is selected.
+        if(entityType === "asn" && entityCode) {
+          if (entityCode.includes("-")) {
+            const geoCode = entityCode.split("-")[1];
+            if (isNaN(geoCode)) { // country
+              const regionsAllowed = await getRegionsOfACountry(geoCode);
+              results = results.filter(item =>
+                regionsAllowed.includes(item.label)
+              )
+            }
+          }
+        }
 
         // backUrl
         if (entityType === "asn" && entityCode) {
@@ -571,7 +593,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
             const asn = await asnOptions.find((asn) => asn.entity.code == entityCode);
             setAsnSearchText(asn ? asn.entity.name : "");
             setAsnSelectedCode(asn ? asn.entity.code : null);
-            setRegionSearchText("N/A");
+            setRegionSearchText("All Networks");
           }
         } catch (error) {
           console.error("Error fetching ASN data:", error);
@@ -587,23 +609,24 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
         case "country":
           setCountrySearchText("All Countries");
           setCountrySelectedCode("all")
-          setRegionSearchText("N/A")
-            setRegionSelectedCode(null)
-          setAsnSearchText("N/A")
+          setRegionSearchText("All Regions")
+          setRegionSelectedCode(null)
+          setAsnSearchText("All Networks")
           setAsnSelectedCode(null)
           break;
         case "region":
-          setCountrySearchText("N/A")
+          setCountrySearchText("All Countries")
           setCountrySelectedCode("N/A")
           setRegionSearchText("All Regions");
           setRegionSelectedCode(null)
-          setAsnSearchText("N/A")
+          setAsnSearchText("All Networks")
           setAsnSelectedCode(null)
           break;
         case "asn":
-          setCountrySearchText("N/A")
+          setCountrySearchText("All Countries")
           setCountrySelectedCode("N/A")
-          setRegionSearchText("N/A")
+          setRegionSearchText("All Regions")
+          setRegionSelectedCode(null)
           setAsnSearchText("All Networks");
           setAsnSelectedCode("all_networks")
           break;

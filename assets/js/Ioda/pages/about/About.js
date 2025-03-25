@@ -36,7 +36,7 @@
  */
 
 // React Imports
-import React from "react";
+import React, { useEffect } from "react";
 import { Typography, Card, Row, Col } from "antd";
 const { Title, Paragraph } = Typography;
 import Mission from './MissionSection';
@@ -52,9 +52,7 @@ import worldmap from "images/about/world-map-background.png";
 import worldMapBackground from 'images/about/world-map-background.png';
 
 const About = () => {
-
-  console.log(worldMapBackground)
-
+    useEffect(() => { window.scrollTo(0, 0); }, []);
     return (
         <div className="max-cont project-info" style={{
             maxWidth: "100%",
@@ -68,48 +66,16 @@ const About = () => {
                 />
             </Helmet>
 
-            <div>
-                <div className="ioda-container" style={{position: 'relative', textAlign: 'center'}}>
-                    <img
-                        src={worldmap}
-                        alt="World Map"
-                        className="background-image"
-                    />
-                    <div
-                        className="overlay-text"
-                        style={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            textAlign: 'center',
-                            width: '626px',
-                        }}
-                    >
+            <div className="world-map-section">
+                <div className="world-map-container">
+                    <img src={worldmap} alt="World Map" className="world-map-image"/>
+                    <div className="world-map-content">
                         <Title
-                            level={1}
-                            style={{
-                                fontSize: '24px',
-                                fontWeight: 500,
-                                textAlign: 'center',
-                                fontFamily: 'Inter, sans-serif',
-                                color: '#1F2937',
-                                marginBottom: '70px',
-                                marginTop: '-170px',
-                            }}
-                        >
+                            level={2}
+                            className="world-map-title">
                             Measuring and Detecting Internet Outages Worldwide in Real-Time
                         </Title>
-                        <Paragraph
-                            style={{
-                                fontSize: '18px',
-                                fontWeight: 400,
-                                textAlign: 'center',
-                                fontFamily: 'Inter, sans-serif',
-                                color: '#494545',
-                                margin: 0,
-                            }}
-                        >
+                        <Paragraph className="world-map-paragraph">
                             Users across the globe rely on IODA to track and monitor Internet connectivity. IODA also
                             provides a valuable
                             open-data source for the technical research community that inspires collaboration and spurs

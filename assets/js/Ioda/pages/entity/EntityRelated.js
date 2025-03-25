@@ -280,6 +280,7 @@ const EntityRelated = (props) => {
               }
               handleGlobalAsnSignals={handleGlobalAsnSignals}
               handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
+              parentEntityName={parentEntityName}
             />
           </div>
           <div className="map" style={{ display: "block", height: "40.5rem" }}>
