@@ -36,17 +36,204 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Typography, Card, Row, Col, Tabs, Tag } from "antd";
+import {
+  Select,
+  Typography,
+  Card,
+  Row,
+  Col,
+  Tabs,
+  Input,
+  Button,
+  Dropdown,
+} from "antd";
+import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
 import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
-
+const { Option } = Select;
 import download_icon from "images/resources/download-icon.png";
 import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import "./Resources.css";
+
+const FilterComponent = ({ resources, onFilterChange }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const [selectedProfessions, setSelectedProfessions] = useState([]);
+  const [selectedCommunity, setSelectedCommunity] = useState([]);
+  const [selectedExpertise, setSelectedExpertise] = useState([]);
+
+  const [professionsOptions, setProfessionsOptions] = useState([]);
+  const [communityOptions, setCommunityOptions] = useState([]);
+  const [expertiseOptions, setExpertiseOptions] = useState([]);
+
+  useEffect(() => {
+    const professionsSet = new Set();
+    const communitySet = new Set();
+    const expertiseSet = new Set();
+
+    resources.forEach((resource) => {
+      resource.tags.user?.forEach((tag) => professionsSet.add(tag));
+      resource.tags.community?.forEach((tag) => communitySet.add(tag));
+      resource.tags.expertise?.forEach((tag) => expertiseSet.add(tag));
+    });
+
+    setProfessionsOptions([...professionsSet]);
+    setCommunityOptions([...communitySet]);
+    setExpertiseOptions([...expertiseSet]);
+  }, [resources]);
+
+  const toggleSelection = (value, selected, setSelected) => {
+    if (selected.includes(value)) {
+      setSelected(selected.filter((v) => v !== value));
+    } else {
+      setSelected([...selected, value]);
+    }
+  };
+
+  const handleApplyFilters = () => {
+    onFilterChange({
+      searchQuery,
+      professions: selectedProfessions,
+      community: selectedCommunity,
+      expertise: selectedExpertise,
+    });
+    setOpen(false);
+  };
+
+  const filterMenu = (
+    <div
+      className="filter-menu-box"
+      style={{ marginTop: "6px" }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="filter-header">
+        <span>Filter By Categories</span>
+        <Button
+          type="default"
+          // size="small"
+          className="save-button"
+          onClick={handleApplyFilters}
+        >
+          Save
+        </Button>
+      </div>
+
+      <div className="filter-section">
+        <div className="filter-label">Community</div>
+        <div className="pill-container">
+          {communityOptions.map((item) => (
+            <div
+              key={item}
+              className={`pill ${
+                selectedCommunity.includes(item) ? "pill-selected" : ""
+              }`}
+              onClick={() =>
+                toggleSelection(item, selectedCommunity, setSelectedCommunity)
+              }
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="filter-section">
+        <div className="filter-label">User</div>
+        <div className="pill-container">
+          {professionsOptions.map((item) => (
+            <div
+              key={item}
+              className={`pill ${
+                selectedProfessions.includes(item) ? "pill-selected" : ""
+              }`}
+              onClick={() =>
+                toggleSelection(
+                  item,
+                  selectedProfessions,
+                  setSelectedProfessions
+                )
+              }
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="filter-section">
+        <div className="filter-label">Expertise</div>
+        <div className="pill-container">
+          {expertiseOptions.map((item) => (
+            <div
+              key={item}
+              className={`pill ${
+                selectedExpertise.includes(item) ? "pill-selected" : ""
+              }`}
+              onClick={() =>
+                toggleSelection(item, selectedExpertise, setSelectedExpertise)
+              }
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ width: "100%", maxWidth: "900px", marginTop: "250px" }}>
+      <Row gutter={[10, 12]} align="middle" justify="center">
+        {/* Search Input */}
+        <Col span={14}>
+          <Input
+            placeholder="Search by Keywords"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ height: "35px", borderRadius: "8px" }}
+          />
+        </Col>
+        <Col span={3}>
+          <Dropdown
+            open={open}
+            onOpenChange={setOpen}
+            dropdownRender={() => filterMenu}
+            trigger={["click"]}
+            placement="bottomRight"
+          >
+            <Button
+              icon={<FilterOutlined />}
+              onClick={() => setOpen(!open)}
+              style={{
+                height: "35px",
+                borderRadius: "8px",
+                width: "100%",
+                border: "1px solid #2e76ff",
+                color: "#2e76ff",
+              }}
+            >
+              Filter
+            </Button>
+          </Dropdown>
+        </Col>
+        <Col span={3}>
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            onClick={handleApplyFilters}
+            style={{ height: "35px", borderRadius: "8px", width: "100%" }}
+          >
+            Search
+          </Button>
+        </Col>
+      </Row>
+    </div>
+  );
+};
 
 const TextResource = ({ title, content }) => {
   const [expanded, setExpanded] = useState(true);
@@ -75,10 +262,15 @@ const Resources = () => {
   const navigate = useNavigate();
   const getActiveTabFromURL = () => {
     const params = new URLSearchParams(location.search);
-    return params.get("tab") || "printable";
+    return params.get("tab") || "tutorials";
   };
   const [activeTab, setActiveTab] = useState(getActiveTabFromURL);
-  //const [tabFontSize, setTabFontSize] = useState("16px");
+  const [filters, setFilters] = useState({
+    searchQuery: "",
+    professions: [],
+    community: [],
+    expertise: [],
+  });
   useEffect(() => {
     setActiveTab(getActiveTabFromURL);
   }, [location]);
@@ -90,53 +282,57 @@ const Resources = () => {
   const printableResources = link_resources.filter(
     (resource) => resource.tab === "printable"
   );
+  const filteredResources = (tab, filters) => {
+    return link_resources
+      .filter((resource) => resource.tab === tab)
+      .filter((resource) => {
+        if (filters.searchQuery.length === 0) return true;
+        return resource.title
+          .toLowerCase()
+          .includes(filters.searchQuery.toLowerCase());
+      })
+      .filter((resource) => {
+        if (filters.professions.length === 0) return true;
+        return resource.tags.user?.some((tag) =>
+          filters.professions.includes(tag)
+        );
+      })
+      .filter((resource) => {
+        if (filters.community.length === 0) return true;
+        return resource.tags.community.some((tag) =>
+          filters.community.includes(tag)
+        );
+      })
+      .filter((resource) => {
+        if (filters.expertise.length === 0) return true;
+        return resource.tags.expertise.some((tag) =>
+          filters.expertise.includes(tag)
+        );
+      });
+  };
 
-  const allTags = [
-    ...new Set(printableResources.flatMap((resource) => resource.tags || [])),
-  ];
+  const getTagClass = (tag, category, selectedTags) => {
+    let classes = "tag-base";
 
-  const [selectedTags, setSelectedTags] = useState(allTags);
+    if (category === "profession") classes += " tag-profession";
+    if (category === "community") classes += " tag-community";
+    if (category === "expertise") classes += " tag-expertise";
 
-  const toggleTag = (tag) => {
-    setSelectedTags((prevTags) =>
-      prevTags.includes(tag)
-        ? prevTags.filter((t) => t !== tag)
-        : [...prevTags, tag]
-    );
+    if (selectedTags.includes(tag)) {
+      classes += " tag-selected";
+    }
+
+    return classes;
   };
 
   const renderLinkResources = (tab) => {
-    let filteredResources = link_resources.filter(
-      (resource) => resource.tab === tab
-    );
-
-    if (selectedTags.length < allTags.length) {
-      filteredResources = filteredResources.filter((resource) =>
-        resource.tags?.some((tag) => selectedTags.includes(tag))
-      );
-    }
+    const resources = filteredResources(tab, filters);
 
     return (
       <>
         <div className="resources-container">
-          <div style={{ marginBottom: "16px", textAlign: "center" }}>
-            <Text strong style={{ marginRight: "8px" }}>
-              Filter by Tags:
-            </Text>
-            {allTags.map((tag) => (
-              <Tag
-                key={tag}
-                color={selectedTags.includes(tag) ? "blue" : "default"}
-                style={{ cursor: "pointer", marginBottom: "8px" }}
-                onClick={() => toggleTag(tag)}
-              >
-                {tag}
-              </Tag>
-            ))}
-          </div>
-
           <Row gutter={[16, 16]} justify="left" style={{ padding: "0 8px" }}>
-            {filteredResources.map((resource, index) => (
+            {resources.map((resource, index) => (
               <Col
                 xs={24}
                 sm={12}
@@ -151,7 +347,7 @@ const Resources = () => {
                     borderRadius: "2px",
                     boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                     cursor: "default",
-                    minHeight: resource.tab === "present" ? "320px" : "280px",
+                    minHeight: resource.tab === "research" ? "370px" : "325px",
                     position: "relative",
                     display: "flex",
                     flexDirection: "column",
@@ -200,32 +396,54 @@ const Resources = () => {
                   <Title level={5} style={{ margin: "6px 0" }}>
                     {resource.title}
                   </Title>
-
                   {/* Tags Section */}
-                  {resource.tags && resource.tags.length > 0 && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: "10px",
-                        left: "12px",
-                        right: "12px",
-                        display: "flex",
-                        flexWrap: "wrap",
-                        gap: "2px",
-                      }}
-                    >
-                      {resource.tags.map((tag, i) => (
-                        <Tag
-                          key={tag}
-                          color={
-                            selectedTags.includes(tag) ? "blue" : "default"
-                          }
-                        >
-                          {tag}
-                        </Tag>
-                      ))}
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: resource.tab === "research" ? "285px" : "235px",
+                      // marginTop: "8px",
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: "4px",
+                    }}
+                  >
+                    {resource.tags.community?.map((tag) => (
+                      <span
+                        key={tag}
+                        className={getTagClass(
+                          tag,
+                          "community",
+                          filters.community
+                        )}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {resource.tags.user?.map((tag) => (
+                      <span
+                        key={tag}
+                        className={getTagClass(
+                          tag,
+                          "profession",
+                          filters.professions
+                        )}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {resource.tags.expertise?.map((tag) => (
+                      <span
+                        key={tag}
+                        className={getTagClass(
+                          tag,
+                          "expertise",
+                          filters.expertise
+                        )}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
 
                   {resource.category !== "video" && (
                     <a
@@ -234,14 +452,14 @@ const Resources = () => {
                       rel="noopener noreferrer"
                       style={{
                         position: "absolute",
-                        bottom: "10px",
+                        top: "155px",
                         right: "10px",
                       }}
                     >
                       <img
                         src={download_icon}
                         alt="Download"
-                        style={{ width: "40px", height: "40px" }}
+                        style={{ width: "34px", height: "34px" }}
                       />
                     </a>
                   )}
@@ -320,6 +538,10 @@ const Resources = () => {
               Internet connectivity and disruptions.
             </Paragraph>
           </div>
+          <FilterComponent
+            resources={link_resources}
+            onFilterChange={setFilters}
+          />
         </div>
         <div
           style={{
@@ -335,21 +557,18 @@ const Resources = () => {
             onChange={handleTabChange}
             centered
             style={{
-              marginBottom: "40px",
-              marginTop: "-300px",
+              // marginBottom: "40px",
+              marginTop: "-250px",
               maxWidth: "900px",
               // textAlign: "left",
               width: "100%",
             }}
           >
-            <Tabs.TabPane tab="Printable Resources" key="printable">
-              {renderLinkResources("printable")}
+            <Tabs.TabPane tab="Tutorials" key="tutorials">
+              {renderLinkResources("tutorials")}
             </Tabs.TabPane>
-            <Tabs.TabPane tab="Video Tutorials" key="video">
-              {renderLinkResources("screencast")}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Presentations" key="presentations">
-              {renderLinkResources("present")}
+            <Tabs.TabPane tab="Research" key="research">
+              {renderLinkResources("research")}
             </Tabs.TabPane>
             <Tabs.TabPane tab="Glossary" key="terms">
               {renderTextResources("technical")}
