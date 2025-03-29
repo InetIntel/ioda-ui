@@ -193,29 +193,6 @@ const RawSignalsModal = (props) => {
     }
   }, [rawRegionalSignalsProcessedMeritNt]);
 
-  useEffect(() => {
-    if(configPingSlash24.current){
-      setRenderingDataPingSlash24(configPingSlash24.current.clientHeight === 0);
-    }
-  }, [configPingSlash24]);
-
-  useEffect(() => {
-    if(configBgp.current){
-      setRenderingDataBgp(configBgp.current.clientHeight === 0);
-    }
-  }, [configBgp]);
-
-  useEffect(() => {
-    if(configUcsdNt.current){
-      setRenderingDataUcsdNt(configUcsdNt.current.clientHeight === 0);
-    }
-  }, [configUcsdNt]);
-
-  useEffect(() => {
-    if(configMeritNt.current){
-      setRenderingDataMeritNt(configMeritNt.current.clientHeight === 0);
-    }
-  }, [configMeritNt]);
 
   const genChart = (dataSource, entityType) => {
     // set variables
@@ -467,11 +444,7 @@ const RawSignalsModal = (props) => {
   const activeCSS = `display: block;`;
   const inactiveCSS = `display: none;`;
 
-  if (modalLocation === "map" && !showModal) {
-    return null;
-  }
-
-  if (modalLocation === "table" && !showModal) {
+  if (!showModal) {
     return null;
   }
 
@@ -526,7 +499,7 @@ const RawSignalsModal = (props) => {
                   </h2>
               ) : modalLocation === "table" ? (
                   <h2 className="text-2xl">
-                    {asnTitle} {entityName}
+                    {asnTitle} {parentEntityName}
                   </h2>
               ) : null}
               <Tooltip
@@ -788,40 +761,78 @@ const RawSignalsModal = (props) => {
               </h3>
               {modalLocation === "map" ? (
                   <>
-                    {rawRegionalSignalsRawPingSlash24Length !== 0 &&
-                    rawRegionalSignalsProcessedPingSlash24 &&
-                    rawRegionalSignalsProcessedPingSlash24.length ===
-                    0 ? null :
-                        rawRegionalSignalsRawPingSlash24Length === 0 &&
-                        !rawRegionalSignalsProcessedPingSlash24 ? (
-                            <Loading text="Retrieving Data..."/>
-                        ) : rawRegionalSignalsRawPingSlash24Length !== 0 &&
-                        titlePingSlash24 &&
-                        titlePingSlash24.current &&
-                        titlePingSlash24.current.nextElementSibling !==
-                        "div#region-horizon-chart--pingSlash24.modal__chart" ? (
-                            <div className="renderingDataPingSlash24">
-                              <Loading text="Rendering Data..."/>
-                            </div>
-                        ) : null}
+
+                  {(() => {
+                    if (rawRegionalSignalsRawPingSlash24Length === undefined ||
+                        rawRegionalSignalsRawPingSlash24Length === 0 ||
+                        rawRegionalSignalsProcessedPingSlash24 === undefined) {
+                      return (
+                          <div className="dataInitState">
+                            <Loading text="Retrieving Data..." />
+                          </div>
+                      );
+                    }
+
+                    if (rawRegionalSignalsRawPingSlash24Length > 0 &&
+                        (!rawRegionalSignalsProcessedPingSlash24 ||
+                            rawRegionalSignalsProcessedPingSlash24.length === 0)) {
+                      return (
+                          <div className="retrievingDataPingSlash24">
+                            <Loading text="Processing Data..." />
+                          </div>
+                      );
+                    }
+
+                    if (rawRegionalSignalsRawPingSlash24Length > 0 &&
+                        rawRegionalSignalsProcessedPingSlash24?.length > 0 &&
+                        titlePingSlash24?.current &&
+                        titlePingSlash24.current.nextElementSibling !== "div#region-horizon-chart--pingSlash24.modal__chart") {
+                      return (
+                          <div className="renderingDataPingSlash24">
+                            <Loading text="Rendering Data..." />
+                          </div>
+                      );
+                    }
+
+                    return null;
+                  })()}
                   </>
               ) : (
                   <>
-                    {rawAsnSignalsRawPingSlash24Length !== 0 &&
-                    rawAsnSignalsProcessedPingSlash24 &&
-                    rawAsnSignalsProcessedPingSlash24.length ===
-                    0 ? null : rawAsnSignalsRawPingSlash24Length ===
-                    0 && !rawAsnSignalsProcessedPingSlash24 ? (
-                        <Loading text="Retrieving Data..."/>
-                    ) : rawAsnSignalsRawPingSlash24Length !== 0 &&
-                    titlePingSlash24 &&
-                    titlePingSlash24.current &&
-                    titlePingSlash24.current.nextElementSibling !==
-                    "div#asn-horizon-chart--pingSlash24.modal__chart" ? (
-                        <div className="renderingDataPingSlash24">
-                          <Loading text="Rendering Data..."/>
-                        </div>
-                    ) : null}
+                    {(() => {
+                      if (rawAsnSignalsRawPingSlash24Length === undefined || rawAsnSignalsRawPingSlash24Length === 0 || rawAsnSignalsProcessedPingSlash24 === undefined) {
+                        return (
+                            <div className="dataInitState">
+                              <Loading text="Retrieving Data..."/>
+                            </div>
+                        );
+                      }
+
+                      if (rawAsnSignalsRawPingSlash24Length > 0 &&
+                          (!rawAsnSignalsProcessedPingSlash24 || rawAsnSignalsProcessedPingSlash24.length === 0)) {
+                        return (
+                            <div className="retrievingDataBgp">
+                              <Loading text="Retrieving Data..."/>
+                            </div>
+                        );
+                      }
+
+                      if (rawAsnSignalsRawPingSlash24Length > 0 &&
+                          rawAsnSignalsProcessedPingSlash24 &&
+                          rawAsnSignalsProcessedPingSlash24.length > 0 &&
+                          titlePingSlash24 &&
+                          titlePingSlash24.current &&
+                          titlePingSlash24.current.nextElementSibling !== "div#asn-horizon-chart--pingSlash24.modal__chart") {
+                        // console.log("Length found and also data")
+                        return (
+                            <div className="renderingDataPingSlash24">
+                              <Loading text="Rendering Data..."/>
+                            </div>
+                        );
+                      }
+
+                      return null;
+                    })()}
                   </>
               )}
               {additionalRawSignalRequestedPingSlash24 === true ? (
@@ -859,39 +870,76 @@ const RawSignalsModal = (props) => {
               </h3>
               {modalLocation === "map" ? (
                   <>
-                    {rawRegionalSignalsRawBgpLength !== 0 &&
-                    rawRegionalSignalsProcessedBgp &&
-                    rawRegionalSignalsProcessedBgp.length ===
-                    0 ? null : rawRegionalSignalsRawBgpLength ===
-                    0 && !rawRegionalSignalsProcessedBgp ? (
-                        <Loading text="Retrieving Data..."/>
-                    ) : rawRegionalSignalsRawBgpLength !== 0 &&
-                    titleBgp &&
-                    titleBgp.current &&
-                    titleBgp.current.nextElementSibling !==
-                    "div#region-horizon-chart--bgp.modal__chart" ? (
-                        <div className="renderingDataBgp">
-                          <Loading text="Rendering Data..."/>
-                        </div>
-                    ) : null}
+                    {(() => {
+                      if (rawRegionalSignalsRawBgpLength === undefined ||
+                          rawRegionalSignalsRawBgpLength === 0 ||
+                          rawRegionalSignalsProcessedBgp === undefined) {
+                        return (
+                            <div className="dataInitState">
+                              <Loading text="Retrieving Data..." />
+                            </div>
+                        );
+                      }
+
+                      if (rawRegionalSignalsRawBgpLength > 0 &&
+                          (!rawRegionalSignalsProcessedBgp ||
+                              rawRegionalSignalsProcessedBgp.length === 0)) {
+                        return (
+                            <div className="renderingDataBgp">
+                              <Loading text="Processing Data..." />
+                            </div>
+                        );
+                      }
+
+                      if (rawRegionalSignalsRawBgpLength > 0 &&
+                          rawRegionalSignalsProcessedBgp?.length > 0 &&
+                          titlePingSlash24?.current &&
+                          titlePingSlash24.current.nextElementSibling !== "div#region-horizon-chart--bgp.modal__chart") {
+                        return (
+                            <div className="renderingDataBgp">
+                              <Loading text="Rendering Data..." />
+                            </div>
+                        );
+                      }
+
+                      return null;
+                    })()}
                   </>
               ) : (
                   <>
-                    {rawAsnSignalsRawBgpLength !== 0 &&
-                    rawAsnSignalsProcessedBgp &&
-                    rawAsnSignalsProcessedBgp.length ===
-                    0 ? null : rawAsnSignalsRawBgpLength === 0 &&
-                    !rawAsnSignalsProcessedBgp ? (
-                        <Loading text="Retrieving Data..."/>
-                    ) : rawAsnSignalsRawBgpLength !== 0 &&
-                    titleBgp &&
-                    titleBgp.current &&
-                    titleBgp.current.nextElementSibling !==
-                    "div#asn-horizon-chart--bgp.modal__chart" ? (
-                        <div className="renderingDataBgp">
-                          <Loading text="Rendering Data..."/>
-                        </div>
-                    ) : null}
+                    {(() => {
+                      if (rawAsnSignalsRawBgpLength === undefined || rawAsnSignalsRawBgpLength === 0 || rawAsnSignalsProcessedBgp === undefined) {
+                        return (
+                            <div className="dataInitState">
+                              <Loading text="Retrieving Data..."/>
+                            </div>
+                        );
+                      }
+
+                      if (rawAsnSignalsRawBgpLength > 0 &&
+                          (!rawAsnSignalsProcessedBgp || rawAsnSignalsProcessedBgp.length === 0)) {
+                        return (
+                            <div className="retrievingDataBgp">
+                              <Loading text="Retrieving Data..."/>
+                            </div>
+                        );
+                      }
+
+                      if (rawAsnSignalsRawBgpLength > 0 &&
+                          rawAsnSignalsProcessedBgp &&
+                          rawAsnSignalsProcessedBgp.length > 0 &&
+                          titleBgp &&
+                          titleBgp.current &&
+                          titleBgp.current.nextElementSibling !== "div#asn-horizon-chart--bgp.modal__chart") {
+                        return (
+                            <div className="renderingDataBgp">
+                              <Loading text="Rendering Data..."/>
+                            </div>
+                        );
+                      }
+
+                      return null;
+                    })()}
                   </>
               )}
               {additionalRawSignalRequestedBgp === true ? (
@@ -928,39 +976,76 @@ const RawSignalsModal = (props) => {
               </h3>
               {modalLocation === "map" ? (
                   <>
-                    {rawRegionalSignalsRawMeritNtLength !== 0 &&
-                    rawRegionalSignalsProcessedMeritNt &&
-                    rawRegionalSignalsProcessedMeritNt.length ===
-                    0 ? null : rawRegionalSignalsRawMeritNtLength ===
-                    0 && !rawRegionalSignalsProcessedMeritNt ? (
-                        <Loading text="Retrieving Data..."/>
-                    ) : rawRegionalSignalsRawMeritNtLength !== 0 &&
-                    configMeritNt &&
-                    configMeritNt.current &&
-                    configMeritNt.current.nextElementSibling !==
-                    "div#region-horizon-chart--meritNt.modal__chart" ? (
-                        <div className="renderingDataMeritNt">
-                          <Loading text="Rendering Data..."/>
-                        </div>
-                    ) : null}
+                    {(() => {
+                      if (rawRegionalSignalsRawMeritNtLength === undefined ||
+                          rawRegionalSignalsRawMeritNtLength === 0 ||
+                          rawRegionalSignalsProcessedMeritNt === undefined) {
+                        return (
+                            <div className="dataInitState">
+                              <Loading text="Retrieving Data..." />
+                            </div>
+                        );
+                      }
+
+                      if (rawRegionalSignalsRawMeritNtLength > 0 &&
+                          (!rawRegionalSignalsProcessedBgp ||
+                              rawRegionalSignalsProcessedMeritNt.length === 0)) {
+                        return (
+                            <div className="renderingDataMeritNt">
+                              <Loading text="Processing Data..." />
+                            </div>
+                        );
+                      }
+
+                      if (rawRegionalSignalsRawMeritNtLength > 0 &&
+                          rawRegionalSignalsProcessedMeritNt?.length > 0 &&
+                          titlePingSlash24?.current &&
+                          titlePingSlash24.current.nextElementSibling !== "div#region-horizon-chart--meritNt.modal__chart") {
+                        return (
+                            <div className="renderingDataMeritNt">
+                              <Loading text="Rendering Data..." />
+                            </div>
+                        );
+                      }
+
+                      return null;
+                    })()}
                   </>
               ) : (
                   <>
-                    {rawAsnSignalsRawMeritNtLength !== 0 &&
-                    rawAsnSignalsProcessedMeritNt &&
-                    rawAsnSignalsProcessedMeritNt.length ===
-                    0 ? null : rawAsnSignalsRawMeritNtLength === 0 &&
-                    !rawAsnSignalsProcessedMeritNt ? (
-                        <Loading text="Retrieving Data..."/>
-                    ) : rawAsnSignalsRawMeritNtLength !== 0 &&
-                    configMeritNt &&
-                    configMeritNt.current &&
-                    configMeritNt.current.nextElementSibling !==
-                    "div#asn-horizon-chart--meritNt.modal__chart" ? (
-                        <div className="renderingDataMeritNt">
-                          <Loading text="Rendering Data..."/>
-                        </div>
-                    ) : null}
+                    {(() => {
+                      if (rawAsnSignalsRawMeritNtLength === undefined || rawAsnSignalsRawMeritNtLength === 0 || rawAsnSignalsProcessedMeritNt === undefined) {
+                        return (
+                            <div className="dataInitState">
+                              <Loading text="Retrieving Data..."/>
+                            </div>
+                        );
+                      }
+
+                      if (rawAsnSignalsRawMeritNtLength > 0 &&
+                          (!rawAsnSignalsProcessedMeritNt || rawAsnSignalsProcessedMeritNt.length === 0)) {
+                        return (
+                            <div className="renderingDataMeritNt">
+                              <Loading text="Retrieving Data..."/>
+                            </div>
+                        );
+                      }
+
+                      if (rawAsnSignalsRawMeritNtLength > 0 &&
+                          rawAsnSignalsProcessedMeritNt &&
+                          rawAsnSignalsProcessedMeritNt.length > 0 &&
+                          titleMeritNt &&
+                          titleMeritNt.current &&
+                          titleMeritNt.current.nextElementSibling !== "div#asn-horizon-chart--meritNt.modal__chart") {
+                        return (
+                            <div className="renderingDataMeritNt">
+                              <Loading text="Rendering Data..."/>
+                            </div>
+                        );
+                      }
+
+                      return null;
+                    })()}
                   </>
               )}
               {additionalRawSignalRequestedMeritNt === true ? (
@@ -1006,4 +1091,3 @@ RawSignalsModal.propTypes = {
 };
 
 export default React.memo(RawSignalsModal);
-

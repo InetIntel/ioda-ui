@@ -46,11 +46,11 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       // (localStorage.getItem('timezone') && localStorage.getItem('timezone') !== 'UTC') ?
       //     [secondsToTimeZone(from), secondsToTimeZone(until) ] :
           [secondsToUTC(from), secondsToUTC(until)]);
-  const [countrySearchText, setCountrySearchText] = useState("All Countries");
-  const [countrySelectedCode, setCountrySelectedCode] = useState("all");
-  const [regionSearchText, setRegionSearchText] = useState("N/A");
+  const [countrySearchText, setCountrySearchText] = useState(null);
+  const [countrySelectedCode, setCountrySelectedCode] = useState(null);
+  const [regionSearchText, setRegionSearchText] = useState(null);
   const [regionSelectedCode, setRegionSelectedCode] = useState(null);
-  const [asnSearchText, setAsnSearchText] = useState("N/A");
+  const [asnSearchText, setAsnSearchText] = useState(null);
   const [asnSelectedCode, setAsnSelectedCode] = useState(null);
 
   const [countryOptions, setCountryOptions] = useState([]);
@@ -59,6 +59,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
 
   const [customRangePopOutOpen, setCustomRangePopOutOpen] = useState(false);
   const [asnSearchLoading, setAsnSearchLoading] = useState(false);
+  const [regionSearchLoading, setRegionSearchLoading] = useState(false);
 
   const [selectedTimezone, setSelectedTimezone] = useState(() => {
     return  "UTC";
@@ -450,22 +451,24 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
         }
 
         if (entityType === "asn" && entityCode) {
+          let backurl;
           if(entityCode.includes("-")) {
             const geoCode = entityCode.split("-")[1];
-            let backurl;
             if (isNaN(geoCode)) { // country
               backurl = `country/${geoCode}`;
             } else { // region
               backurl = `region/${geoCode}`;
             }
-
-            updatedResults = updatedResults.map(item => {
-              item.entity.backUrl = backurl;
-              return item;
-            });
-            allCountryOption.entity.url = `dashboard/country`;
-            allCountryOption.entity.backUrl = `dashboard/country`;
           }
+          else {
+            backurl = 'dashboard/asn';
+          }
+          allCountryOption.entity.url = `dashboard/country`;
+          allCountryOption.entity.backUrl = `dashboard/country`;
+          updatedResults = updatedResults.map(item => {
+            item.entity.backUrl = backurl;
+            return item;
+          });
         }
         const asnOptions = (updatedResults || []).map((d) => ({
           value: d.id,
@@ -605,32 +608,12 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
 
   useEffect(() => {
     if(entityCode === undefined && entityType) {
-      switch (entityType) {
-        case "country":
-          setCountrySearchText("All Countries");
-          setCountrySelectedCode("all")
-          setRegionSearchText("All Regions")
-          setRegionSelectedCode(null)
-          setAsnSearchText("All Networks")
-          setAsnSelectedCode(null)
-          break;
-        case "region":
-          setCountrySearchText("All Countries")
-          setCountrySelectedCode("N/A")
-          setRegionSearchText("All Regions");
-          setRegionSelectedCode(null)
-          setAsnSearchText("All Networks")
-          setAsnSelectedCode(null)
-          break;
-        case "asn":
-          setCountrySearchText("All Countries")
-          setCountrySelectedCode("N/A")
-          setRegionSearchText("All Regions")
-          setRegionSelectedCode(null)
-          setAsnSearchText("All Networks");
-          setAsnSelectedCode("all_networks")
-          break;
-      }
+      setCountrySearchText("All Countries");
+      setCountrySelectedCode("all_countries")
+      setRegionSearchText("All Regions")
+      setRegionSelectedCode("all_regions")
+      setAsnSearchText("All Networks")
+      setAsnSelectedCode("all_networks")
     }
   }, [entityType, entityCode]);
 
@@ -854,14 +837,19 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     setAsnSearchText(asnSearchText);
   }
   const debouncedHandleAsnSearch = useCallback(debounce(handleAsnSearch, 200), [asnOptions]);
-
+  const debouncedRegionSearch = useCallback(
+      debounce((value) => {
+        handleRegionSearch(value);
+      }, 200),
+      [regionOptions]
+  );
   const fetchAsnMatchingOptions = async (asnSearchText) => {
     setAsnSearchLoading(true);
     if (asnSearchText.trim().length < 2) {
       return;
     }
     try {
-      const entityTypeUrlText = showGlobalSignals ? 'asn' : 'geoasn';
+      const entityTypeUrlText = 'asn';
       let url = `/entities/query?entityType=${entityTypeUrlText}&search=${asnSearchText}`
       const fetched = await fetchData({url});
       const resultsArray = Array.isArray(fetched?.data?.data) ? fetched.data.data : [];
@@ -876,7 +864,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 code: entity.code,
                 type: entity.type,
                 url: asnUrl,
-                backUrl: 'asn'
+                backUrl: 'dashboard'
               },
             };
           })
@@ -894,6 +882,66 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       setAsnSearchLoading(false);
     }
   };
+
+  const handleRegionSearch = (regionSearchText) => {
+    if(regionSearchText) {
+      const isMatchingOptionLoaded = regionOptions.some((option) => {
+        const entity = option?.entity || {};
+        return (
+            entity.name?.toLowerCase().includes(regionSearchText.toLowerCase()) ||
+            entity.code?.toLowerCase().includes(regionSearchText.toLowerCase()) ||
+            entity.type?.toLowerCase().includes(regionSearchText.toLowerCase())
+        );
+      });
+
+      if (!isMatchingOptionLoaded) {
+        console.log("No match found calling API");
+        fetchRegionMatchingOptions(regionSearchText);
+      }
+    }
+    setRegionSearchText(regionSearchText);
+  }
+
+  const fetchRegionMatchingOptions = async (regionSearchText) => {
+    setRegionSearchLoading(true);
+    if (regionSearchText.trim().length < 2) {
+      return;
+    }
+    try {
+      const entityTypeUrlText = 'region';
+      let url = `/entities/query?entityType=${entityTypeUrlText}&search=${regionSearchText}`
+      const fetched = await fetchData({url});
+      const resultsArray = Array.isArray(fetched?.data?.data) ? fetched.data.data : [];
+      const results = await Promise.all(
+          resultsArray.map(async (entity) => {
+            let asnUrl = `region/${entity.code}`;
+            return {
+              label: entity.name,
+              id: uuidv4(),
+              entity: {
+                name: entity.name,
+                code: entity.code,
+                type: entity.type,
+                url: asnUrl,
+                backUrl: 'dashboard'
+              },
+            };
+          })
+      );
+      const updatedResults = [...regionOptions, ...results];
+      const options = (updatedResults || []).map((d) => ({
+        value: d.id,
+        label: d.label,
+        entity: d.entity
+      }));
+      setRegionOptions(options);
+    } catch (error) {
+      console.error("Failed to fetch region options based on search text:", error);
+    } finally {
+      setRegionSearchLoading(false);
+    }
+  };
+
 
   const rangePresets = [
     {
@@ -987,6 +1035,11 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 optionFilterProp="label"
                 onChange={handleRegionSelectChange}
                 onSelect={handleRegionSelect}
+                onSearch={(value) => {
+                  if(countrySelectedCode === "all_countries" && asnSelectedCode === "all_networks") {
+                    debouncedRegionSearch(value);
+                  }
+                }}
                 options={regionOptions}
                 allowClear
                 style={{width: '150px'}}

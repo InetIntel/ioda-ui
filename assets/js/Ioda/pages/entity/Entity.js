@@ -325,8 +325,8 @@ const Entity = (props) => {
     getEntityMetadata(entityName, entityCode).then((data) => {
       setEntityMetadata(data);
       setEntityName(data[0]["name"]);
-      setParentEntityName(data[0]["attrs"]["country_name"] || parentEntityName);
-      setParentEntityCode(data[0]["attrs"]["country_code"] || parentEntityCode);
+      setParentEntityName(data[0]["attrs"]["country_name"] || data[0]["name"] || parentEntityName);
+      setParentEntityCode(data[0]["attrs"]["country_code"] || data[0]["code"] || parentEntityCode);
     });
   }
 
@@ -532,7 +532,12 @@ const Entity = (props) => {
 
   useEffect(() => {
     if(asnSignalsTableSummaryData && relatedToTableSummary) {
-      _combineValuesForSignalsTable("asn");
+      if(entityTypeState === "asn") {
+        _combineValuesForSignalsTable("country");
+      }
+      else {
+        _combineValuesForSignalsTable("asn");
+      }
     }
   }, [asnSignalsTableSummaryData, relatedToTableSummary, showGlobalSignals]);
 
@@ -568,6 +573,7 @@ const Entity = (props) => {
           .filter((signal) => signal.length) //Remove empty items and assign to proper state. Then call next function
           .map((signal) => signal[0]);
       setRawRegionalSignalsRawPingSlash24(rawRegionalSignals);
+      convertValuesForHtsViz("ping-slash24", "region", null, rawRegionalSignals);
     }
   }, [rawRegionalSignalsPingSlash24, showMapModal, showGlobalRegionalAsnSignals]);
 
@@ -584,15 +590,9 @@ const Entity = (props) => {
           .filter((signal) => signal.length) // Remove empty items
           .map((signal) => signal[0]); // Extract the first element
       setRawRegionalSignalsRawBgp(rawRegionalSignals);
+      convertValuesForHtsViz("bgp", "region", null, rawRegionalSignals);
     }
   }, [rawRegionalSignalsBgp, showMapModal, showGlobalRegionalAsnSignals]);
-
-
-  useEffect(() => {
-    if(rawRegionalSignalsRawBgp) {
-      convertValuesForHtsViz("bgp", "region");
-    }
-  }, [rawRegionalSignalsRawBgp, showGlobalRegionalAsnSignals]);
 
   // data for regional signals table UCSD-NT Source
   useEffect(() => {
@@ -601,15 +601,9 @@ const Entity = (props) => {
           .filter((signal) => signal.length) // Remove empty items
           .map((signal) => signal[0]); // Extract the first element
       setRawRegionalSignalsRawUcsdNt(rawRegionalSignals);
+      convertValuesForHtsViz("ucsd-nt", "region", null, rawRegionalSignals);
     }
   }, [rawRegionalSignalsUcsdNt, showMapModal, showGlobalRegionalAsnSignals]);
-
-
-  useEffect(() => {
-    if(rawRegionalSignalsRawUcsdNt) {
-      convertValuesForHtsViz("ucsd-nt", "region");
-    }
-  }, [rawRegionalSignalsRawUcsdNt, showGlobalRegionalAsnSignals]);
 
   // data for regional signals table Merit-NT Source
   useEffect(() => {
@@ -618,14 +612,9 @@ const Entity = (props) => {
           .filter((signal) => signal.length) // Remove empty items
           .map((signal) => signal[0]); // Extract the first element
       setRawRegionalSignalsRawMeritNt(rawRegionalSignals);
+      convertValuesForHtsViz("merit-nt", "region", null, rawRegionalSignals);
     }
   }, [rawRegionalSignalsMeritNt, showMapModal, showGlobalRegionalAsnSignals]);
-
-  useEffect(() => {
-    if(rawRegionalSignalsRawMeritNt) {
-      convertValuesForHtsViz("merit-nt", "region");
-    }
-  }, [rawRegionalSignalsRawMeritNt, showGlobalRegionalAsnSignals]);
 
   // data for asn signals table Ping-Slash24 Source
   useEffect(() => {
@@ -634,14 +623,9 @@ const Entity = (props) => {
           .filter((signal) => signal.length) // Remove empty items
           .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawPingSlash24(rawAsnSignals);
+      convertValuesForHtsViz("ping-slash24", "asn", null, rawAsnSignals);
     }
   }, [rawAsnSignalsPingSlash24, showTableModal, showGlobalSignals]);
-
-  useEffect(() => {
-    if(rawAsnSignalsRawPingSlash24) {
-      convertValuesForHtsViz("ping-slash24", "asn");
-    }
-  }, [rawAsnSignalsRawPingSlash24, showGlobalSignals]);
 
   // data for asn signals table BGP Source
   useEffect(() => {
@@ -650,15 +634,9 @@ const Entity = (props) => {
           .filter((signal) => signal.length) // Remove empty items
           .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawBgp(rawAsnSignals);
+      convertValuesForHtsViz("bgp", "asn", null, rawAsnSignals);
     }
   }, [rawAsnSignalsBgp, showTableModal, showGlobalSignals]);
-
-
-  useEffect(() => {
-    if(rawAsnSignalsRawBgp) {
-      convertValuesForHtsViz("bgp", "asn");
-    }
-  }, [rawAsnSignalsRawBgp, showGlobalSignals]);
 
   // data for asn signals table UCSD-NT Source
   useEffect(() => {
@@ -667,15 +645,9 @@ const Entity = (props) => {
           .filter((signal) => signal.length) // Remove empty items
           .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawUcsdNt(rawAsnSignals);
+      convertValuesForHtsViz("ucsd-nt", "asn", null, rawAsnSignals);
     }
   }, [rawAsnSignalsUcsdNt, showTableModal, showGlobalSignals]);
-
-
-  useEffect(() => {
-    if(rawAsnSignalsRawUcsdNt) {
-      convertValuesForHtsViz("ucsd-nt", "asn");
-    }
-  }, [rawAsnSignalsRawUcsdNt, showGlobalSignals]);
 
   // data for asn signals table Merit-NT Source
   useEffect(() => {
@@ -684,15 +656,9 @@ const Entity = (props) => {
           .filter((signal) => signal.length) // Remove empty items
           .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawMeritNt(rawAsnSignals);
+      convertValuesForHtsViz("merit-nt", "asn", null, rawAsnSignals);
     }
   }, [rawAsnSignalsMeritNt, showTableModal, showGlobalSignals]);
-
-
-  useEffect(() => {
-    if(rawAsnSignalsRawMeritNt) {
-      convertValuesForHtsViz("merit-nt", "asn");
-    }
-  }, [rawAsnSignalsRawMeritNt, showGlobalSignals]);
 
   // data for additional raw feed signals to use after load all button is clicked
   useEffect(() => {
@@ -848,7 +814,7 @@ const Entity = (props) => {
         getSignalsHtsDataEvents("country", "bgp");
         getSignalsHtsDataEvents("country", "merit-nt");
       }
-      else {
+      else if(combineCalled === "country") {
         getSignalsHtsDataEvents("asn", "ping-slash24");
         getSignalsHtsDataEvents("asn", "ucsd-nt");
         getSignalsHtsDataEvents("asn", "bgp");
@@ -863,7 +829,7 @@ const Entity = (props) => {
   // manage the date selected in the input
   function handleTimeFrame ({ _from, _until }) {
     navigate(
-      `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
+        `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
     );
   }
 
@@ -1873,7 +1839,6 @@ const Entity = (props) => {
         }
         break;
       case "asn":
-      case "country":
         entities = asnSignalsTableSummaryDataProcessed
           .map((entity) => {
             // some entities don't return a code to be used in an api call, seem to default to '??' in that event
@@ -1885,12 +1850,67 @@ const Entity = (props) => {
         if(entities.length === 0){
           return;
         }
-        if(entityType === "country") {
-          entityTypeProp = "country";
+        entityTypeProp = "country";
+        switch (dataSource) {
+          case "ping-slash24":
+            props.getRawAsnSignalsPingSlash24Action(
+                entityTypeProp,
+                entities,
+                from,
+                until,
+                attr,
+                order,
+                dataSource
+            );
+            break;
+          case "bgp":
+            props.getRawAsnSignalsBgpAction(
+                entityTypeProp,
+                entities,
+                from,
+                until,
+                attr,
+                order,
+                dataSource
+            );
+            break;
+          case "ucsd-nt":
+            props.getRawAsnSignalsUcsdNtAction(
+                entityTypeProp,
+                entities,
+                from,
+                until,
+                attr,
+                order,
+                dataSource
+            );
+            break;
+          case "merit-nt":
+            props.getRawAsnSignalsMeritNtAction(
+                entityTypeProp,
+                entities,
+                from,
+                until,
+                attr,
+                order,
+                dataSource
+            );
+            break;
         }
-        else {
-          entityTypeProp = entityType !== "asn" ? (showGlobalSignals ? "asn" : "geoasn") : entityType;
+        break;
+      case "country":
+        entities = asnSignalsTableSummaryDataProcessed
+            .map((entity) => {
+              // some entities don't return a code to be used in an api call, seem to default to '??' in that event
+              if (entity.code !== "??") {
+                return entity.entityCode;
+              }
+            })
+            .toString();
+        if(entities.length === 0){
+          return;
         }
+        entityTypeProp = entityType !== "asn" ? (showGlobalSignals ? "asn" : "geoasn") : entityType;
         switch (dataSource) {
           case "ping-slash24":
             props.getRawAsnSignalsPingSlash24Action(
@@ -1956,6 +1976,7 @@ const Entity = (props) => {
         setCombineCalled("region");
         break;
       case "asn":
+      case "country":
         if (relatedToTableSummary && asnSignalsTableSummaryData) {
           const signalsTableData = combineValuesForSignalsTable(
             relatedToTableSummary,
@@ -1964,13 +1985,13 @@ const Entity = (props) => {
           );
           setAsnSignalsTableSummaryDataProcessed(signalsTableData.slice(0, initialTableLimit));
           setAsnSignalsTableTotalCount(signalsTableData.length);
-          setCombineCalled("asn");
+          setCombineCalled(summaryPanelType);
         }
         break;
     }
   }
   // function that decides what data will populate in the horizon time series
-  function convertValuesForHtsViz(dataSource, entityType) {
+  function convertValuesForHtsViz(dataSource, entityType, directTableSummaryData = null, directRawSignals = null) {
     let visibilityChecked = [];
     let entitiesChecked = 0;
     let rawSignalsNew = [];
@@ -1978,37 +1999,113 @@ const Entity = (props) => {
     switch (entityType) {
       case "region":
         signalsTableSummaryDataProcessed =
-          regionalSignalsTableSummaryDataProcessed;
+            directTableSummaryData || regionalSignalsTableSummaryDataProcessed;
         switch (dataSource) {
           case "ping-slash24":
-            rawSignals = rawRegionalSignalsRawPingSlash24;
+            rawSignals = directRawSignals || rawRegionalSignalsRawPingSlash24;
             break;
           case "bgp":
-            rawSignals = rawRegionalSignalsRawBgp;
+            rawSignals = directRawSignals || rawRegionalSignalsRawBgp;
             break;
           case "ucsd-nt":
-            rawSignals = rawRegionalSignalsRawUcsdNt;
+            rawSignals = directRawSignals || rawRegionalSignalsRawUcsdNt;
             break;
           case "merit-nt":
-            rawSignals = rawRegionalSignalsRawMeritNt;
+            rawSignals = directRawSignals || rawRegionalSignalsRawMeritNt;
             break;
         }
         break;
       case "asn":
         signalsTableSummaryDataProcessed =
-          asnSignalsTableSummaryDataProcessed;
+            directTableSummaryData || asnSignalsTableSummaryDataProcessed;
         switch (dataSource) {
           case "ping-slash24":
-            rawSignals = rawAsnSignalsRawPingSlash24;
+            rawSignals = directRawSignals || rawAsnSignalsRawPingSlash24;
             break;
           case "bgp":
-            rawSignals = rawAsnSignalsRawBgp;
+            rawSignals = directRawSignals || rawAsnSignalsRawBgp;
             break;
           case "ucsd-nt":
-            rawSignals = rawAsnSignalsRawUcsdNt;
+            rawSignals = directRawSignals || rawAsnSignalsRawUcsdNt;
             break;
           case "merit-nt":
-            rawSignals = rawAsnSignalsRawMeritNt;
+            rawSignals = directRawSignals || rawAsnSignalsRawMeritNt;
+            break;
+        }
+        break;
+    }
+
+    // Get list of entities that should be visible
+    signalsTableSummaryDataProcessed.forEach((obj) => {
+      if (obj.visibility) {
+        visibilityChecked.push(obj.entityCode);
+        entitiesChecked += 1;
+      }
+    });
+
+    // Set count on current visible items
+    switch (entityType) {
+      case "region":
+        setRegionalSignalsTableEntitiesChecked(entitiesChecked);
+        break;
+      case "asn":
+        setAsnSignalsTableEntitiesChecked(entitiesChecked);
+        break;
+    }
+
+    // Remove other entities from array that shouldn't be displayed
+    visibilityChecked.forEach((entityCode) => {
+      rawSignals.forEach((obj) => {
+        if (obj.entityCode === entityCode) {
+          rawSignalsNew.push(obj);
+        }
+      });
+    });
+
+    // Set state with new array that dictates what populates
+    switch (entityType) {
+      case "region":
+        switch (dataSource) {
+          case "ping-slash24":
+            setRawRegionalSignalsProcessedPingSlash24(
+                convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedPingSlash24(false);
+            break;
+          case "bgp":
+            setRawRegionalSignalsProcessedBgp(
+                convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedBgp(false);
+            break;
+          case "ucsd-nt":
+            setRawRegionalSignalsProcessedUcsdNt(
+                convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedUcsdNt(false);
+            break;
+          case "merit-nt":
+            setRawRegionalSignalsProcessedMeritNt(
+                convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedMeritNt(false);
+            break;
+        }
+        break;
+      case "asn":
+        switch (dataSource) {
+          case "ping-slash24":
+            setRawAsnSignalsProcessedPingSlash24(
+                convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedPingSlash24(false);
+            break;
+          case "bgp":
+            setRawAsnSignalsProcessedBgp(convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedBgp(false);
+            break;
+          case "ucsd-nt":
+            setRawAsnSignalsProcessedUcsdNt(convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedUcsdNt(false);
+            break;
+          case "merit-nt":
+            setRawAsnSignalsProcessedMeritNt(convertTsDataForHtsViz(rawSignalsNew));
+            setAdditionalRawSignalRequestedMeritNt(false);
             break;
         }
         break;

@@ -169,7 +169,7 @@ const EntityRelated = (props) => {
                 {regionalModalButtonText}
               </Button>
             </div>
-            <RawSignalsModal
+            {showMapModal && <RawSignalsModal
               modalLocation={"map"}
               // entity name needed to populate text in headings
               entityName={entityName}
@@ -281,7 +281,7 @@ const EntityRelated = (props) => {
               handleGlobalAsnSignals={handleGlobalAsnSignals}
               handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
               parentEntityName={parentEntityName}
-            />
+            />}
           </div>
           <div className="map" style={{ display: "block", height: "40.5rem" }}>
             {topoData &&
@@ -342,7 +342,7 @@ const EntityRelated = (props) => {
                 {asnModalButtonText}
               </Button>
             </div>
-            <RawSignalsModal
+            {showTableModal && <RawSignalsModal
               modalLocation={"table"}
               // tracking when the modal should be visible
               showModal={showTableModal}
@@ -437,7 +437,8 @@ const EntityRelated = (props) => {
               }
               handleGlobalAsnSignals={handleGlobalAsnSignals}
               handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
-            />
+              parentEntityName={parentEntityName}
+            />}
           </div>
           <div className="tab__table" ref={relatedTableConfig}>
             {relatedToTableSummaryProcessed ? (

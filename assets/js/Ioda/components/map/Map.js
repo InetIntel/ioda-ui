@@ -114,12 +114,6 @@ const TopoMap = (props) => {
     zoom = 5;
   }
 
-  console.log("Map Props:", {
-    bounds: bounds,
-    center: bounds ? null : position,
-    zoom: bounds ? null : zoom,
-  });
-
   // Get color threshold bounds based on entity type
   let thresholdBounds = {};
   if (entityType === "country") {
@@ -127,7 +121,6 @@ const TopoMap = (props) => {
   } else if (entityType === "region") {
     thresholdBounds = getThresholdBoundsForRegion();
   }
-  console.log(thresholdBounds);
 
   return (
       <div
