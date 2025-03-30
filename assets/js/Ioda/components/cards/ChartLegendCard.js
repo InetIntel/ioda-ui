@@ -39,6 +39,8 @@ import { Checkbox, Collapse } from "antd";
 import { gtrColor, legend } from "../../utils";
 import { debounce } from "lodash";
 import { useParams } from "react-router-dom";
+import Tooltip from "../tooltip/Tooltip";
+import T from "i18n-react";
 
 const ChartLegendCard = ({
   legendHandler,
@@ -73,6 +75,14 @@ const ChartLegendCard = ({
       ? false
       : null;
 
+  const tooltipGoogleLegendText = T.translate(
+      "tooltip.googleLegend.text"
+  );
+
+  const tooltipGoogleLegendTitle = T.translate(
+      "tooltip.googleLegend.title"
+  );
+
   return (
     <>
       {legend
@@ -80,7 +90,7 @@ const ChartLegendCard = ({
           (item) => !item.key.includes(".") && checkedMap[item.key] != null
         )
         .map((item) => (
-          <div key={item.key}>
+          <div key={item.key} style={{ display: 'flex', alignItems: 'center' }}>
             <Checkbox
               className="ioda-checkbox mb-2"
               checked={checkedMap[item.key]}
@@ -93,11 +103,15 @@ const ChartLegendCard = ({
             >
               {item.title}
             </Checkbox>
+            <Tooltip
+                title={item.tooltip.title}
+                text={item.tooltip.text}
+            />
           </div>
         ))}
 
       {simplifiedView && !isCountryView && (
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <Checkbox
             key="gtr.WEB_SEARCH"
             className="ioda-checkbox mb-2"
@@ -110,6 +124,10 @@ const ChartLegendCard = ({
           >
             Google (Search)
           </Checkbox>
+          <Tooltip
+              title={tooltipGoogleLegendTitle}
+              text={tooltipGoogleLegendText}
+          />
         </div>
       )}
 
@@ -117,19 +135,26 @@ const ChartLegendCard = ({
         <Collapse rootClassName="mt-4" expandIconPosition="end">
           <Collapse.Panel
             header={
-              <Checkbox
-                indeterminate={googleExpandableChecked === null}
-                onChange={() => {}}
-                checked={googleExpandableChecked}
-              >
-                Google ({selectedGoogleSeries.length})
-              </Checkbox>
-            }
-            key="1"
-          >
+              <div style={{display: 'flex', alignItems: 'center'}}>
+                <Checkbox
+                    indeterminate={googleExpandableChecked === null}
+                    onChange={() => {
+                    }}
+                    checked={googleExpandableChecked}
+                >
+                  Google ({selectedGoogleSeries.length})
+                </Checkbox>
+                <Tooltip
+                    title={tooltipGoogleLegendTitle}
+                    text={tooltipGoogleLegendText}
+                />
+            </div>
+              }
+              key="1"
+            >
             {googleSeries.map((item) => (
               <div key={item.key}>
-                <Checkbox
+              <Checkbox
                   className="ioda-checkbox mb-2"
                   checked={!!checkedMap[item.key]}
                   onChange={() => handleChangeDebounced(item.key)}
@@ -137,9 +162,9 @@ const ChartLegendCard = ({
                     "--background-color": item.color,
                     "--border-color": item.color,
                   }}
-                >
-                  {item.title}
-                </Checkbox>
+              >
+              {item.title}
+            </Checkbox>
               </div>
             ))}
           </Collapse.Panel>

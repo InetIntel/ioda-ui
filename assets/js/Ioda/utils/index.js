@@ -59,16 +59,28 @@ export const legend = [
       title: T.translate("entity.activeProbingLegendText"),
       key: "ping-slash24",
       color: activeProbingColor,
+      tooltip: {
+          title: T.translate("tooltip.tooltipActiveProbingChartLegend.title"),
+          text: T.translate("tooltip.tooltipActiveProbingChartLegend.text"),
+      }
     },
     {
       title: T.translate("entity.bgpLegendText"),
       key: "bgp",
       color: bgpColor,
+      tooltip: {
+        title: T.translate("tooltip.tooltipBgpChartLegend.title"),
+        text: T.translate("tooltip.tooltipBgpChartLegend.text"),
+      }
     },
     {
       title: T.translate("entity.meritLegendText"),
       key: "merit-nt",
       color: meritNtColor,
+      tooltip: {
+        title: T.translate("tooltip.darknetChartLegend.title"),
+        text: T.translate("tooltip.darknetChartLegend.text"),
+      }
     },
       {
         title: T.translate("entity.googleMapText"),

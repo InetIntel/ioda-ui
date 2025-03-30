@@ -293,6 +293,22 @@
     "tooltipEntityAsnConnectivity": {
       "title": "ASN Connectivity",
       "text": "Use the toggle to switch between local and global view. Global view will show ASN signals anywhere that ASN operates. Local view will show ASN connectivity localized to this location."
+    },
+    "tooltipActiveProbingChartLegend": {
+      "title": "Active Probing (#/24s Up)",
+      "text": "Active Probing is an active measurement that checks if a network at a known location is responsive. An abnormal drop can indicate a loss in Internet connectivity."
+    },
+    "tooltipBgpChartLegend": {
+      "title": "BGP (#Visible /24s)",
+      "text": "Routing Announcements are made using Border Gateway Protocol (BGP) to direct traffic on the Internet. If these announcements stop, the signal will decrease, and networks will essentially disappear from the global Internet."
+    },
+    "darknetChartLegend": {
+      "title": "Telescope (# Unique Source IPs)",
+      "text": "Telescope signal is a measure of unsolicited Internet traffic. Think of it as an Internet Pollution. We generally see a normal amount of Internet Pollution but If this signal abnormally drops it could indicate an Internet outage."
+    },
+    "googleLegend": {
+      "title": "Google",
+      "text": "Google signals provide user statistics of various google products like search, youtube, gmail, maps, sheets, etc."
     }
   },
   "timestamp": {
