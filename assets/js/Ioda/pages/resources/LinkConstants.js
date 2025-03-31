@@ -435,6 +435,18 @@ const link_resources = [
       expertise: [],
     },
   },
+  {
+    title: "IODA Graph Markup Tool",
+    type: "Video",
+    link: "https://www.youtube.com/embed/LYm_Yu6QMuM",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+      user: ["Activist", "Lawyer", "Advocate", "Researcher", "Journalist"],
+      expertise: [],
+    },
+  },
 ];
 
 export default link_resources;

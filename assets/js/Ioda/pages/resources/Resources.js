@@ -34,7 +34,6 @@
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
  */
-
 import React, { useEffect, useState } from "react";
 import {
   Select,
@@ -52,39 +51,29 @@ import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
 const { Option } = Select;
+
 import download_icon from "images/resources/download-icon.png";
 import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import "./Resources.css";
+import { tabOptions } from "../dashboard/DashboardConstants";
 
 const FilterComponent = ({ resources, onFilterChange }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
 
-  const [selectedProfessions, setSelectedProfessions] = useState([]);
   const [selectedCommunity, setSelectedCommunity] = useState([]);
-  const [selectedExpertise, setSelectedExpertise] = useState([]);
-
-  const [professionsOptions, setProfessionsOptions] = useState([]);
   const [communityOptions, setCommunityOptions] = useState([]);
-  const [expertiseOptions, setExpertiseOptions] = useState([]);
 
   useEffect(() => {
-    const professionsSet = new Set();
     const communitySet = new Set();
-    const expertiseSet = new Set();
-
     resources.forEach((resource) => {
-      resource.tags.user?.forEach((tag) => professionsSet.add(tag));
-      resource.tags.community?.forEach((tag) => communitySet.add(tag));
-      resource.tags.expertise?.forEach((tag) => expertiseSet.add(tag));
+      resource.tags?.community?.forEach((tag) => communitySet.add(tag));
     });
 
-    setProfessionsOptions([...professionsSet]);
     setCommunityOptions([...communitySet]);
-    setExpertiseOptions([...expertiseSet]);
   }, [resources]);
 
   const toggleSelection = (value, selected, setSelected) => {
@@ -98,9 +87,7 @@ const FilterComponent = ({ resources, onFilterChange }) => {
   const handleApplyFilters = () => {
     onFilterChange({
       searchQuery,
-      professions: selectedProfessions,
       community: selectedCommunity,
-      expertise: selectedExpertise,
     });
     setOpen(false);
   };
@@ -115,7 +102,6 @@ const FilterComponent = ({ resources, onFilterChange }) => {
         <span>Filter By Categories</span>
         <Button
           type="default"
-          // size="small"
           className="save-button"
           onClick={handleApplyFilters}
         >
@@ -141,52 +127,11 @@ const FilterComponent = ({ resources, onFilterChange }) => {
           ))}
         </div>
       </div>
-
-      <div className="filter-section">
-        <div className="filter-label">User</div>
-        <div className="pill-container">
-          {professionsOptions.map((item) => (
-            <div
-              key={item}
-              className={`pill ${
-                selectedProfessions.includes(item) ? "pill-selected" : ""
-              }`}
-              onClick={() =>
-                toggleSelection(
-                  item,
-                  selectedProfessions,
-                  setSelectedProfessions
-                )
-              }
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="filter-section">
-        <div className="filter-label">Expertise</div>
-        <div className="pill-container">
-          {expertiseOptions.map((item) => (
-            <div
-              key={item}
-              className={`pill ${
-                selectedExpertise.includes(item) ? "pill-selected" : ""
-              }`}
-              onClick={() =>
-                toggleSelection(item, selectedExpertise, setSelectedExpertise)
-              }
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 
   return (
-    <div style={{ width: "100%", maxWidth: "900px", marginTop: "250px" }}>
+    <div style={{ width: "100%", maxWidth: "900px", marginTop: "-350px" }}>
       <Row gutter={[10, 12]} align="middle" justify="center">
         {/* Search Input */}
         <Col span={14}>
@@ -235,24 +180,39 @@ const FilterComponent = ({ resources, onFilterChange }) => {
   );
 };
 
-const TextResource = ({ title, content }) => {
-  const [expanded, setExpanded] = useState(true);
+const TextResource = ({ title, content, searchQuery }) => {
+  const highlightText = (node, query) => {
+    if (!query) return node;
+    // If the node is a string, perform highlighting
+    if (typeof node === "string") {
+      const parts = node.split(new RegExp(`(${query})`, "gi"));
+      return parts.map((part, index) =>
+        part.toLowerCase() === query.toLowerCase() ? (
+          <span key={index} style={{ backgroundColor: "yellow" }}>
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      );
+    }
+    if (Array.isArray(node)) {
+      return node.map((child, index) => highlightText(child, query));
+    }
+    if (React.isValidElement(node)) {
+      return React.cloneElement(node, {
+        children: React.Children.map(node.props.children, (child) =>
+          highlightText(child, query)
+        ),
+      });
+    }
+    return node;
+  };
 
   return (
     <div style={{ marginBottom: "20px" }}>
-      <Title
-        level={3}
-        // style={{ cursor: "pointer", color: "#1890ff", paddingLeft: "50px" }}
-        // onClick={() => setExpanded(!expanded)}
-        style={{ color: "#1890ff", paddingLeft: "20px" }}
-      >
-        {title}
-      </Title>
-      {expanded && (
-        <div style={{ paddingLeft: "40px" }}>
-          <Paragraph>{content}</Paragraph>
-        </div>
-      )}
+      <Title level={3}>{highlightText(title, searchQuery)}</Title>
+      <Paragraph>{highlightText(content, searchQuery)}</Paragraph>
     </div>
   );
 };
@@ -260,227 +220,237 @@ const TextResource = ({ title, content }) => {
 const Resources = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const getActiveTabFromURL = () => {
+  const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(location.search);
     return params.get("tab") || "tutorials";
-  };
-  const [activeTab, setActiveTab] = useState(getActiveTabFromURL);
+  });
+
   const [filters, setFilters] = useState({
     searchQuery: "",
-    professions: [],
     community: [],
-    expertise: [],
   });
+
   useEffect(() => {
-    setActiveTab(getActiveTabFromURL);
+    const params = new URLSearchParams(location.search);
+    setActiveTab(params.get("tab") || "tutorials");
   }, [location]);
+
   const handleTabChange = (key) => {
     setActiveTab(key);
     navigate(`?tab=${key}`, { replace: true });
   };
 
-  const printableResources = link_resources.filter(
-    (resource) => resource.tab === "printable"
-  );
+  // Filter for link-based resources
   const filteredResources = (tab, filters) => {
-    return link_resources
-      .filter((resource) => resource.tab === tab)
-      .filter((resource) => {
-        if (filters.searchQuery.length === 0) return true;
-        return resource.title
-          .toLowerCase()
-          .includes(filters.searchQuery.toLowerCase());
-      })
-      .filter((resource) => {
-        if (filters.professions.length === 0) return true;
-        return resource.tags.user?.some((tag) =>
-          filters.professions.includes(tag)
-        );
-      })
-      .filter((resource) => {
-        if (filters.community.length === 0) return true;
-        return resource.tags.community.some((tag) =>
-          filters.community.includes(tag)
-        );
-      })
-      .filter((resource) => {
-        if (filters.expertise.length === 0) return true;
-        return resource.tags.expertise.some((tag) =>
-          filters.expertise.includes(tag)
+    const resources = link_resources
+      .filter((res) => res.tab === tab)
+      // Filter by search
+      .filter((res) =>
+        filters.searchQuery
+          ? res.title.toLowerCase().includes(filters.searchQuery.toLowerCase())
+          : true
+      )
+      // Filter by selected community tags
+      .filter((res) => {
+        if (!filters.community.length) return true;
+        return (
+          res.tags.community &&
+          res.tags.community.some((tag) => filters.community.includes(tag))
         );
       });
+
+    return { resources, count: resources.length };
+  };
+  function extractTextFromReact(node) {
+    if (typeof node === "string") {
+      return node;
+    }
+    if (Array.isArray(node)) {
+      return node.map(extractTextFromReact).join(" ");
+    }
+    if (React.isValidElement(node)) {
+      return extractTextFromReact(node.props.children);
+    }
+    return "";
+  }
+
+  const countTextMatches = (tab, filters) => {
+    const items = text_resources.filter((item) => item.tab === tab);
+    if (!filters.searchQuery) {
+      return items.length;
+    }
+    const regex = new RegExp(filters.searchQuery, "gi");
+    return items.reduce((matchedCount, textItem) => {
+      const titleHasMatch = regex.test(String(textItem.title));
+      regex.lastIndex = 0;
+      const contentString = extractTextFromReact(textItem.content);
+      const contentHasMatch = regex.test(contentString);
+      regex.lastIndex = 0;
+      return matchedCount + (titleHasMatch || contentHasMatch ? 1 : 0);
+    }, 0);
   };
 
-  const getTagClass = (tag, category, selectedTags) => {
-    let classes = "tag-base";
+  const [resourceCounts, setResourceCounts] = useState({
+    tutorials: 0,
+    research: 0,
+    terms: 0,
+    repositories: 0,
+  });
 
-    if (category === "profession") classes += " tag-profession";
-    if (category === "community") classes += " tag-community";
-    if (category === "expertise") classes += " tag-expertise";
+  useEffect(() => {
+    const tutorialsCount = filteredResources("tutorials", filters).count;
+    const researchCount = filteredResources("research", filters).count;
+    const termsCount = countTextMatches("terms", filters);
+    const repositoriesCount = countTextMatches("repo", filters);
 
+    setResourceCounts({
+      tutorials: tutorialsCount,
+      research: researchCount,
+      terms: termsCount,
+      repositories: repositoriesCount,
+    });
+  }, [filters]);
+
+  const getTagClass = (tag, selectedTags) => {
+    let classes = "tag-base tag-community";
     if (selectedTags.includes(tag)) {
       classes += " tag-selected";
     }
-
     return classes;
   };
 
   const renderLinkResources = (tab) => {
-    const resources = filteredResources(tab, filters);
+    const { resources } = filteredResources(tab, filters);
 
     return (
-      <>
-        <div className="resources-container">
-          <Row gutter={[16, 16]} justify="left" style={{ padding: "0 8px" }}>
-            {resources.map((resource, index) => (
-              <Col
-                xs={24}
-                sm={12}
-                md={8}
-                style={{ minWidth: "300px" }}
-                key={index}
+      <div className="resources-container" style={{ marginTop: "20px" }}>
+        <Row gutter={[16, 16]} justify="left" style={{ padding: "0 8px" }}>
+          {resources.map((resource, index) => (
+            <Col
+              xs={24}
+              sm={12}
+              md={8}
+              style={{ minWidth: "300px" }}
+              key={index}
+            >
+              <Card
+                hoverable
+                style={{
+                  textAlign: "left",
+                  borderRadius: "2px",
+                  boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                  cursor: "default",
+                  minHeight: resource.tab === "research" ? "320px" : "275px",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+                bodyStyle={{
+                  padding: "12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  flexGrow: 1,
+                }}
               >
-                <Card
-                  hoverable
+                <div
                   style={{
-                    textAlign: "left",
-                    borderRadius: "2px",
-                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                    cursor: "default",
-                    minHeight: resource.tab === "research" ? "370px" : "325px",
-                    position: "relative",
+                    marginBottom: "16px",
                     display: "flex",
-                    flexDirection: "column",
-                  }}
-                  bodyStyle={{
-                    padding: "12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    flexGrow: 1,
+                    justifyContent: "center",
                   }}
                 >
-                  <div
-                    style={{
-                      marginBottom: "16px",
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {resource.category === "video" ? (
-                      <iframe
-                        width="100%"
-                        height="130px"
-                        src={resource.link}
-                        title={resource.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        style={{ borderRadius: "8px" }}
-                      ></iframe>
-                    ) : (
-                      <img
-                        src={resource.thumbnail}
-                        alt={resource.title}
-                        style={{
-                          width: "100%",
-                          height: "130px",
-                          objectFit: "cover",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    )}
-                  </div>
-                  <Text style={{ fontSize: "14px", color: "#A6A6A6" }}>
-                    {resource.type}
-                  </Text>
-                  <Title level={5} style={{ margin: "6px 0" }}>
-                    {resource.title}
-                  </Title>
-                  {/* Tags Section */}
-                  <div
+                  {resource.category === "video" ? (
+                    <iframe
+                      width="100%"
+                      height="130px"
+                      src={resource.link}
+                      title={resource.title}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ borderRadius: "8px" }}
+                    ></iframe>
+                  ) : (
+                    <img
+                      src={resource.thumbnail}
+                      alt={resource.title}
+                      style={{
+                        width: "100%",
+                        height: "130px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  )}
+                </div>
+                <Text style={{ fontSize: "14px", color: "#A6A6A6" }}>
+                  {resource.type}
+                </Text>
+                <Title level={5} style={{ margin: "6px 0" }}>
+                  {resource.title}
+                </Title>
+                {/* Tags Section */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: resource.tab === "research" ? "285px" : "235px",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "4px",
+                  }}
+                >
+                  {resource.tags.community?.map((tag) => (
+                    <span
+                      key={tag}
+                      className={getTagClass(tag, filters.community)}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {resource.category !== "video" && (
+                  <a
+                    href={resource.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     style={{
                       position: "absolute",
-                      top: resource.tab === "research" ? "285px" : "235px",
-                      // marginTop: "8px",
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: "4px",
+                      top: "155px",
+                      right: "10px",
                     }}
                   >
-                    {resource.tags.community?.map((tag) => (
-                      <span
-                        key={tag}
-                        className={getTagClass(
-                          tag,
-                          "community",
-                          filters.community
-                        )}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {resource.tags.user?.map((tag) => (
-                      <span
-                        key={tag}
-                        className={getTagClass(
-                          tag,
-                          "profession",
-                          filters.professions
-                        )}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {resource.tags.expertise?.map((tag) => (
-                      <span
-                        key={tag}
-                        className={getTagClass(
-                          tag,
-                          "expertise",
-                          filters.expertise
-                        )}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {resource.category !== "video" && (
-                    <a
-                      href={resource.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        position: "absolute",
-                        top: "155px",
-                        right: "10px",
-                      }}
-                    >
-                      <img
-                        src={download_icon}
-                        alt="Download"
-                        style={{ width: "34px", height: "34px" }}
-                      />
-                    </a>
-                  )}
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </div>
-      </>
+                    <img
+                      src={download_icon}
+                      alt="Download"
+                      style={{ width: "34px", height: "34px" }}
+                    />
+                  </a>
+                )}
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </div>
     );
   };
 
-  const renderTextResources = (tab) => (
-    <div style={{ padding: "5px" }}>
-      {text_resources
-        .filter((text) => text.tab === tab)
-        .map((text, index) => (
-          <TextResource key={index} title={text.title} content={text.content} />
-        ))}
-    </div>
-  );
+  const renderTextResources = (tab) => {
+    return (
+      <div style={{ padding: "5px", marginTop: "20px" }}>
+        {text_resources
+          .filter((text) => text.tab === tab)
+          .map((text, index) => (
+            <TextResource
+              key={index}
+              title={text.title}
+              content={text.content}
+              searchQuery={filters.searchQuery}
+            />
+          ))}
+      </div>
+    );
+  };
 
   return (
     <div
@@ -491,93 +461,88 @@ const Resources = () => {
         <title>IODA | Resources</title>
         <meta name="description" content="Resource hub for IODA users." />
       </Helmet>
-      <div className="mb-24">
+
+      {/* Top banner and heading */}
+      <div
+        className="ioda-container"
+        style={{
+          position: "relative",
+          textAlign: "center",
+          marginBottom: "50px",
+        }}
+      >
         <div
-          className="ioda-container"
-          style={{ position: "relative", textAlign: "center" }}
-        >
-          <div
-            className="overlay-text"
-            style={{
-              position: "absolute",
-              top: "30%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              textAlign: "center",
-              // width: "580px",
-              width: "100%",
-              maxWidth: "580px",
-            }}
-          >
-            <Title
-              level={1}
-              style={{
-                fontSize: "24px",
-                fontWeight: 500,
-                textAlign: "center",
-                fontFamily: "Inter, sans-serif",
-                color: "#1F2937",
-                marginBottom: "30px",
-                marginTop: "-50px",
-              }}
-            >
-              IODA User Resource Hub
-            </Title>
-            <Paragraph
-              style={{
-                fontSize: "16px",
-                fontWeight: 400,
-                textAlign: "center",
-                fontFamily: "Inter, sans-serif",
-                color: "#494545",
-                margin: 0,
-              }}
-            >
-              View and download our guides, tutorials, and presentations to
-              learn about IODA's signals and how to use IODA data to monitor
-              Internet connectivity and disruptions.
-            </Paragraph>
-          </div>
-          <FilterComponent
-            resources={link_resources}
-            onFilterChange={setFilters}
-          />
-        </div>
-        <div
+          className="overlay-text"
           style={{
+            position: "absolute",
+            top: "30%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
             width: "100%",
-            maxWidth: "900px",
-            minWidth: "300px",
-            margin: "0 auto",
+            maxWidth: "580px",
           }}
         >
-          <Tabs
-            activeKey={activeTab}
-            // onChange={(key) => setActiveTab(key)}
-            onChange={handleTabChange}
-            centered
+          <Title
+            level={1}
             style={{
-              // marginBottom: "40px",
-              marginTop: "-250px",
-              maxWidth: "900px",
-              // textAlign: "left",
-              width: "100%",
+              fontSize: "24px",
+              fontWeight: 500,
+              textAlign: "center",
+              fontFamily: "Inter, sans-serif",
+              color: "#1F2937",
+              marginBottom: "30px",
+              marginTop: "-50px",
             }}
           >
-            <Tabs.TabPane tab="Tutorials" key="tutorials">
-              {renderLinkResources("tutorials")}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Research" key="research">
-              {renderLinkResources("research")}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Glossary" key="terms">
-              {renderTextResources("technical")}
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Repositories and Data Access" key="repositories">
-              {renderTextResources("repo")}
-            </Tabs.TabPane>
-          </Tabs>
+            IODA User Resource Hub
+          </Title>
+          <Paragraph
+            style={{
+              fontSize: "16px",
+              fontWeight: 400,
+              textAlign: "center",
+              fontFamily: "Inter, sans-serif",
+              color: "#494545",
+              margin: 0,
+            }}
+          >
+            View and download our guides, tutorials, and presentations to learn
+            about IODA's signals and how to use IODA data to monitor Internet
+            connectivity and disruptions.
+          </Paragraph>
         </div>
+      </div>
+
+      <FilterComponent resources={link_resources} onFilterChange={setFilters} />
+
+      <div style={{ width: "100%", maxWidth: "900px", margin: "30px auto" }}>
+        <Tabs activeKey={activeTab} onChange={handleTabChange} centered>
+          <Tabs.TabPane
+            tab={`Tutorials (${resourceCounts.tutorials})`}
+            key="tutorials"
+          >
+            {renderLinkResources("tutorials")}
+          </Tabs.TabPane>
+
+          <Tabs.TabPane
+            tab={`Research (${resourceCounts.research})`}
+            key="research"
+          >
+            {renderLinkResources("research")}
+          </Tabs.TabPane>
+
+          <Tabs.TabPane tab={`Glossary (${resourceCounts.terms})`} key="terms">
+            {renderTextResources("terms")}
+          </Tabs.TabPane>
+
+          <Tabs.TabPane
+            tab={`Repositories and Data Access (${resourceCounts.repositories})`}
+            key="repositories"
+          >
+            {renderTextResources("repo")}
+          </Tabs.TabPane>
+        </Tabs>
       </div>
     </div>
   );

@@ -43,7 +43,9 @@ const text_resources = [
     title: "Data Sources",
     content: (
       <>
-        <h4>BGP:</h4>
+        <h4 id="bgp" style={{ scrollMarginTop: "80px" }}>
+          BGP:
+        </h4>{" "}
         <ul>
           <li>
             Data is obtained by processing <em>all updates</em> from{" "}
@@ -61,7 +63,9 @@ const text_resources = [
             region, and ASN.
           </li>
         </ul>
-        <h4>Active Probing:</h4>
+        <h4 id="active-probing" style={{ scrollMarginTop: "80px" }}>
+          Active Probing:
+        </h4>{" "}
         <ul>
           <li>
             We use a custom implementation of the{" "}
@@ -85,7 +89,9 @@ const text_resources = [
             and ASN statistics.
           </li>
         </ul>
-        <h4> Network Telescope:</h4>{" "}
+        <h4 id="network-telescope" style={{ scrollMarginTop: "80px" }}>
+          Network Telescope:
+        </h4>{" "}
         <ul>
           <li>
             We analyze traffic data from the{" "}
@@ -108,7 +114,9 @@ const text_resources = [
             country, region, and ASN.
           </li>
         </ul>
-        <h4> Google Product Signals:</h4>{" "}
+        <h4 id="google-signals" style={{ scrollMarginTop: "80px" }}>
+          Google Product Signals:
+        </h4>{" "}
         <ul>
           <li>
             Google product signals are sourced from the{" "}
@@ -135,7 +143,7 @@ const text_resources = [
         </ul>
       </>
     ),
-    tab: "technical",
+    tab: "terms",
   },
   {
     title: "Outage Detection",
@@ -177,7 +185,7 @@ const text_resources = [
         </p>
       </>
     ),
-    tab: "technical",
+    tab: "terms",
   },
   {
     title: "Repositories",
