@@ -46,7 +46,11 @@ import {
   Button,
   Dropdown,
 } from "antd";
-import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  FilterOutlined,
+  CloseCircleFilled,
+} from "@ant-design/icons";
 import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
@@ -134,14 +138,42 @@ const FilterComponent = ({ resources, onFilterChange }) => {
     <div style={{ width: "100%", maxWidth: "900px", marginTop: "-350px" }}>
       <Row gutter={[10, 12]} align="middle" justify="center">
         {/* Search Input */}
-        <Col span={14}>
+        {/* <Col span={14}>
           <Input
             placeholder="Search by Keywords"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{ height: "35px", borderRadius: "8px" }}
           />
+        </Col> */}
+        <Col span={14}>
+          <div style={{ position: "relative" }}>
+            <Input
+              placeholder="Search by Keywords"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                height: "35px",
+                borderRadius: "8px",
+                paddingRight: "30px",
+              }}
+            />
+            {searchQuery && (
+              <CloseCircleFilled
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  cursor: "pointer",
+                  color: "#999",
+                }}
+                onClick={() => setSearchQuery("")}
+              />
+            )}
+          </div>
         </Col>
+
         <Col span={3}>
           <Dropdown
             open={open}
@@ -532,12 +564,19 @@ const Resources = () => {
             {renderLinkResources("research")}
           </Tabs.TabPane>
 
-          <Tabs.TabPane tab={`Glossary (${resourceCounts.terms})`} key="terms">
+          <Tabs.TabPane
+            tab={`Glossary${
+              filters.searchQuery ? ` (${resourceCounts.terms})` : ""
+            }`}
+            key="terms"
+          >
             {renderTextResources("terms")}
           </Tabs.TabPane>
 
           <Tabs.TabPane
-            tab={`Repositories and Data Access (${resourceCounts.repositories})`}
+            tab={`Repositories and Data Access${
+              filters.searchQuery ? ` (${resourceCounts.repositories})` : ""
+            }`}
             key="repositories"
           >
             {renderTextResources("repo")}
