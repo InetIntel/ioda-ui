@@ -61,6 +61,10 @@ export const GET_RAW_ASN_SIGNALS_BGP = "GET_RAW_REGIONAL_SIGNALS_BGP";
 export const GET_RAW_ASN_SIGNALS_UCSDNT = "GET_RAW_REGIONAL_SIGNALS_UCSDNT";
 export const GET_RAW_ASN_SIGNALS_MERITNT = "GET_RAW_REGIONAL_SIGNALS_MERITNT";
 export const GET_ADDITIONAL_RAW_SIGNAL = "GET_ADDITIONAL_RAW_SIGNAL";
+export const GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY = "GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY";
+export const GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT = "GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT";
+export const GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY = "GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY";
+export const GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS = "GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS";
 
 export const fetchData = (config) => {
     const baseURL = 'https://api.ioda.inetintel.cc.gatech.edu/v2';
@@ -73,7 +77,6 @@ export const fetchData = (config) => {
         },
         url: concatURL
     });
-
     return axios(configHeader)
         .then(response => {
             return Promise.resolve(response);

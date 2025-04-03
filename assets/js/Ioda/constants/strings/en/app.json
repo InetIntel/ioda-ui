@@ -163,7 +163,12 @@
     "selectedSignal": "Selected Signal",
     "eventTab": "Event",
     "alertTab": "Alert",
-    "upstreamChartTitle": "Upstream Delay Connectivity for "
+    "upstreamChartTitle": "Upstream Delay Connectivity ",
+    "upstreamChartSubTitle": "This graph maps latency from traceroute pings, making it easier to spot where network delays occur.",
+    "activeProbingChartTitle": "Active Probing Latency and Loss Rate",
+    "activeProbingChartSubTitle": "This graph uses active probing to calculate latency based on Round-Trip Time (RTT) and packet loss based on Percentage Loss Rate.",
+    "apChartLatencyLabel": "Latency",
+    "apChartPctLossLabel": "Package Loss"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",

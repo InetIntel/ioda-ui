@@ -44,6 +44,7 @@ import TopoMap from "../../components/map/Map";
 import Table from "../../components/table/Table";
 import { Button } from "antd";
 import LatencyComponent from "./components/LatencyComponent";
+import ApPacketLossComponent from "./components/ApPacketLossComponent";
 
 const EntityRelated = (props) => {
 
@@ -100,6 +101,11 @@ const EntityRelated = (props) => {
     relatedToTableSummaryProcessed,
     handleGlobalAsnSignals,
     handleGlobalRegionalAsnSignals,
+    rawAsnSignalsUpstreamDelayLatency,
+    rawAsnSignalsUpstreamDelayPenultAsnCount,
+    rawAsnSignalsApPacketLoss,
+    rawAsnSignalsApPacketDelay,
+    showApPacketGraph
   } = props;
 
 
@@ -454,7 +460,19 @@ const EntityRelated = (props) => {
           </div>
         </div>
       </div>
-          {entityType && entityType === 'asn' && <LatencyComponent />}
+          {
+              showApPacketGraph &&
+              <ApPacketLossComponent
+                  rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                  rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
+                  entityName={entityName}
+              />}
+          {entityType && entityType === 'asn' && <LatencyComponent
+              rawAsnSignalsUpstreamDelayLatency={rawAsnSignalsUpstreamDelayLatency}
+              rawAsnSignalsUpstreamDelayPenultAsnCount={rawAsnSignalsUpstreamDelayPenultAsnCount}
+              entityName={entityName}
+          />}
+
     </div>
     );
 }

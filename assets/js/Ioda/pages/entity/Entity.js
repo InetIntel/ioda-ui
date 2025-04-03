@@ -67,6 +67,8 @@ import {
   getRawAsnSignalsUcsdNtAction,
   getRawAsnSignalsMeritNtAction,
   getAdditionalRawSignalAction,
+  getRawAsnSignalsUpstreamDelayLatency,
+  getRawAsnSignalsUpstreamDelayPenultAsnCount, getRawAsnSignalsApPacketLoss, getRawAsnSignalsApPacketDelay,
 } from "../../data/ActionSignals";
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
@@ -146,6 +148,18 @@ const getSignalTimeRange = (fromDateSeconds, untilDateSeconds) => {
   };
 };
 
+const getUpstreamDelayTimeRange = (fromDateSeconds, untilDateSeconds) => {
+  const MAX_DAYS_AS_SEC = controlPanelTimeRangeLimit;
+  const diff = untilDateSeconds - fromDateSeconds;
+
+  const cappedDiff = Math.min(90 * diff, MAX_DAYS_AS_SEC);
+  const newFrom = untilDateSeconds - cappedDiff;
+  return {
+    timeUpstreamDelayFrom: newFrom,
+    timeUpstreamDelayUntil: untilDateSeconds,
+  };
+};
+
 const formatLocaleNumber = (value, precision) => {
   return Intl.NumberFormat("en-US", {
     notation: "compact",
@@ -194,7 +208,11 @@ const Entity = (props) => {
     rawAsnSignalsMeritNt,
     additionalRawSignal,
     navigate,
-    searchParams
+    searchParams,
+    rawAsnSignalsUpstreamDelayPenultAsnCount,
+    rawAsnSignalsUpstreamDelayLatency,
+    rawAsnSignalsApPacketLoss,
+    rawAsnSignalsApPacketDelay
   } = props;
   const timeSeriesChartRef = useRef();
 
@@ -396,8 +414,8 @@ const Entity = (props) => {
         entityCodeState
     );
     props.searchAlertsAction(
-        fromDate,
-        untilDate,
+        timeSignalFrom,
+        timeSignalUntil,
         entityTypeState,
         entityCodeState,
         null,
@@ -424,6 +442,57 @@ const Entity = (props) => {
           null,
           3000,
           sourceParams
+      );
+    }
+
+    if(entityTypeState === "asn") {
+      console.log("Populating data for upstream delay", entityTypeState, entityCodeState);
+      // const { timeUpstreamDelayFrom, timeUpstreamDelayUntil } = getUpstreamDelayTimeRange(
+      //     fromDate,
+      //     untilDate
+      // );
+      const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1727740800, 1727827200]
+      const asnCode = entityCodeState.includes("-") ? entityCodeState.split("-")[0] : entityCodeState;
+      props.getRawAsnSignalsUpstreamDelayLatency(
+          entityTypeState,
+          [asnCode],
+          timeUpstreamDelayFrom,
+          timeUpstreamDelayUntil,
+          null,
+          "desc",
+          "upstream-delay-penult-e2e-latency"
+      );
+      props.getRawAsnSignalsUpstreamDelayPenultAsnCount(
+          entityTypeState,
+          [asnCode],
+          timeUpstreamDelayFrom,
+          timeUpstreamDelayUntil,
+          null,
+          "desc",
+          "upstream-delay-penult-asns"
+      );
+    }
+
+    if(!entityTypeState.includes("-")) {
+      const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1742964120, 1742968120]
+      console.log("Calling API")
+      props.getRawAsnSignalsApPacketLoss(
+          entityTypeState,
+          [entityCodeState],
+          timeUpstreamDelayFrom,
+          timeUpstreamDelayUntil,
+          null,
+          "desc",
+          "ping-slash24-loss"
+      );
+      props.getRawAsnSignalsApPacketDelay(
+          entityTypeState,
+          [entityCodeState],
+          timeUpstreamDelayFrom,
+          timeUpstreamDelayUntil,
+          null,
+          "desc",
+          "ping-slash24-latency"
       );
     }
 
@@ -2990,6 +3059,11 @@ const Entity = (props) => {
             }
             handleGlobalAsnSignals={handleGlobalAsnSignals}
             handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
+            rawAsnSignalsUpstreamDelayPenultAsnCount={rawAsnSignalsUpstreamDelayPenultAsnCount}
+            rawAsnSignalsUpstreamDelayLatency={rawAsnSignalsUpstreamDelayLatency}
+            rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+            rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
+            showApPacketGraph={!entityCode.includes("-")}
           />
         </React.Fragment>
       ) : (
@@ -3030,6 +3104,10 @@ const mapStateToProps = (state) => {
     rawAsnSignalsUcsdNt: state.iodaApi.rawRegionalSignalsUcsdNt,
     rawAsnSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
     additionalRawSignal: state.iodaApi.additionalRawSignal,
+    rawAsnSignalsUpstreamDelayPenultAsnCount: state.iodaApi.rawAsnSignalsUpstreamDelayPenultAsnCount,
+    rawAsnSignalsUpstreamDelayLatency: state.iodaApi.rawAsnSignalsUpstreamDelayLatency,
+    rawAsnSignalsApPacketLoss: state.iodaApi.rawAsnSignalsApPacketLoss,
+    rawAsnSignalsApPacketDelay: state.iodaApi.rawAsnSignalsApPacketDelay
   };
 };
 
@@ -3374,6 +3452,94 @@ const mapDispatchToProps = (dispatch) => {
         order,
         dataSource,
         maxPoints
+      );
+    },
+    getRawAsnSignalsUpstreamDelayLatency: (
+      entityType,
+      entities,
+      from,
+      until,
+      attr,
+      order,
+      dataSource,
+      maxPoints
+    ) => {
+      getRawAsnSignalsUpstreamDelayLatency(
+        dispatch,
+        entityType,
+        entities,
+        from,
+        until,
+        attr,
+        order,
+        dataSource,
+        maxPoints
+      );
+    },
+    getRawAsnSignalsUpstreamDelayPenultAsnCount: (
+        entityType,
+        entities,
+        from,
+        until,
+        attr,
+        order,
+        dataSource,
+        maxPoints
+    ) => {
+      getRawAsnSignalsUpstreamDelayPenultAsnCount(
+          dispatch,
+          entityType,
+          entities,
+          from,
+          until,
+          attr,
+          order,
+          dataSource,
+          maxPoints
+      );
+    },
+    getRawAsnSignalsApPacketLoss: (
+        entityType,
+        entities,
+        from,
+        until,
+        attr,
+        order,
+        dataSource,
+        maxPoints
+    ) => {
+      getRawAsnSignalsApPacketLoss(
+          dispatch,
+          entityType,
+          entities,
+          from,
+          until,
+          attr,
+          order,
+          dataSource,
+          maxPoints
+      );
+    },
+    getRawAsnSignalsApPacketDelay: (
+        entityType,
+        entities,
+        from,
+        until,
+        attr,
+        order,
+        dataSource,
+        maxPoints
+    ) => {
+      getRawAsnSignalsApPacketDelay(
+          dispatch,
+          entityType,
+          entities,
+          from,
+          until,
+          attr,
+          order,
+          dataSource,
+          maxPoints
       );
     },
   };

@@ -574,10 +574,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           }
           else {
             const countryNames = await getCountryNamesFromAsn(entityCode);
-            if(countryNames.length === 1) {
-              setCountrySearchText("All Countries");
-            }
-            else {
+            if(countryNames.length > 1) {
               notification.info({
                 message: 'Multiple Countries Found',
                 description: (
@@ -593,6 +590,8 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 // duration: 5,
               });
             }
+            setCountrySearchText("All Countries");
+            setCountrySelectedCode("all_countries")
             const asn = await asnOptions.find((asn) => asn.entity.code == entityCode);
             setAsnSearchText(asn ? asn.entity.name : "");
             setAsnSelectedCode(asn ? asn.entity.code : null);

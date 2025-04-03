@@ -94,7 +94,11 @@ import {
     GET_RAW_ASN_SIGNALS_BGP,
     GET_RAW_ASN_SIGNALS_UCSDNT,
     GET_RAW_ASN_SIGNALS_MERITNT,
-    GET_ADDITIONAL_RAW_SIGNAL
+    GET_ADDITIONAL_RAW_SIGNAL,
+    GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT,
+    GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY,
+    GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS,
+    GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY
 } from './ActionCommons';
 
 const initialState = {
@@ -123,8 +127,12 @@ const initialState = {
     rawAsnSignalsBgp: null,
     rawAsnSignalsUcsdNt: null,
     rawAsnSignalsMeritNt: null,
-    additionalRawSignal: null
-
+    additionalRawSignal: null,
+    // Entity ASN UpStream Delay
+    rawAsnSignalsUpstreamDelayPenultAsnCount: null,
+    rawAsnSignalsUpstreamDelayLatency: null,
+    rawAsnSignalsApPacketLoss: null,
+    rawAsnSignalsApPacketDelay: null
 }
 
 export function iodaApiReducer(state = initialState, action) {
@@ -231,6 +239,22 @@ export function iodaApiReducer(state = initialState, action) {
             return Object.assign({}, state, {
                 additionalRawSignal: action.payload
             });
+        case GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT:
+            return Object.assign({}, state, {
+                rawAsnSignalsUpstreamDelayPenultAsnCount: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY:
+            return Object.assign({}, state, {
+                rawAsnSignalsUpstreamDelayLatency: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS:
+            return Object.assign({}, state, {
+                rawAsnSignalsApPacketLoss: action.payload
+            })
+        case GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY:
+            return Object.assign({}, state, {
+                rawAsnSignalsApPacketDelay: action.payload
+            })
         default:
             return state;
     }
