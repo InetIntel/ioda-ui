@@ -1706,6 +1706,7 @@ const Entity = (props) => {
       summaryDataMapRaw.map((outage) => {
         let topoItemIndex = topoData.features.findIndex(
           (topoItem) => topoItem.properties.name === outage.entity.name
+              && topoItem.properties.iso2cc === outage.entity.attrs.country_code
         );
 
         if (topoItemIndex > 0) {
