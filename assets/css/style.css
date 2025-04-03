@@ -6166,6 +6166,11 @@ button[class*=searchButton] {
   flex-grow: 1;
 }
 
+/* Antd tabs flickering issue fix */
+.ant-tabs-nav-operations {
+  display: none !important;
+}
+
 .project-info {
   padding-top: 5rem;
 }

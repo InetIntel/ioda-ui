@@ -5,8 +5,7 @@ import {Tabs, Input, List, Tooltip, Button, Popover, Checkbox} from 'antd';
 import {DownloadOutlined, EditOutlined, SettingOutlined, ShareAltOutlined,} from "@ant-design/icons";
 // Internationalization
 import T from "i18n-react";
-import jsonLatencyImport from './latency.json';
-import jsonTraceImport from './penult.json';
+
 import Loading from "../../../components/loading/Loading";
 
 const LatencyChart = ( { rawAsnSignalsUpstreamDelayLatency, rawAsnSignalsUpstreamDelayPenultAsnCount, entityName } ) => {
