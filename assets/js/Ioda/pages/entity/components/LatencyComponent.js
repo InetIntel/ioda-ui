@@ -470,43 +470,7 @@ const LatencyChart = ( { rawAsnSignalsUpstreamDelayLatency, rawAsnSignalsUpstrea
                     </div>
                     {jsonData &&
                         <div className="upstream__chart">
-                            {/*<div className="card">*/}
-                            {/*<Tabs*/}
-                                {/*    defaultActiveKey="1"*/}
-                                {/*    // style={{marginLeft: '15px'}}*/}
-                                {/*    animated={false}*/}
-                                {/*    items={[*/}
-                                {/*        {*/}
-                                {/*            key: "1",*/}
-                                {/*            label: "Combined",*/}
-                                {/*            children: (*/}
 
-                                {/*                    <div*/}
-                                {/*                        className="px-0"*/}
-                                {/*                    >*/}
-                                {/*                        <ASNLegend asnList={asnList}/>*/}
-                                {/*                        <HighchartsReact highcharts={Highcharts} options={latencyCombined}/>*/}
-                                {/*                    </div>*/}
-
-                                {/*            )*/}
-                                {/*        },*/}
-                                {/*        {*/}
-                                {/*            key: "2",*/}
-                                {/*            label: "Individual",*/}
-                                {/*            children: (*/}
-
-                                {/*                    <div*/}
-                                {/*                        className="px-0"*/}
-                                {/*                    >*/}
-                                {/*                        <ASNLegend asnList={asnList}/>*/}
-                                {/*                        <HighchartsReact highcharts={Highcharts} options={latencyIndividual}/>*/}
-                                {/*                    </div>*/}
-
-                                {/*            )*/}
-                                {/*        }*/}
-                                {/*    ]}*/}
-                                {/*/>*/}
-                                {/*</div>*/}
                                 <div className="card">
                                     <div className="header-row" style={{
                                         display: 'flex',

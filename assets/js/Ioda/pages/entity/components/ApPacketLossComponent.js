@@ -10,8 +10,11 @@ if (typeof Highcharts === "object") {
 // Internationalization
 import T from "i18n-react";
 
+import Loading from "../../../components/loading/Loading";
+
 import {Button, Checkbox, Popover, Tooltip} from "antd";
 import {DownloadOutlined, SettingOutlined, ShareAltOutlined} from "@ant-design/icons";
+
 
 
 const ApPacketLossComponent = ({
@@ -376,7 +379,7 @@ const ApPacketLossComponent = ({
                     </div>
                 </div>
 
-                <div className="flex entity__chart-layout card">
+                {lossData && <div className="flex entity__chart-layout card">
                     <div className="flex-grow p-4" style={{width: "85%"}}>
                         {
                             delayData &&
@@ -408,7 +411,8 @@ const ApPacketLossComponent = ({
                             </Checkbox>
                         </div>
                     </div>
-                </div>
+                </div> }
+                {!lossData && <Loading/>}
             </div>
             );
             };
