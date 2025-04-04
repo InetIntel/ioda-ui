@@ -123,7 +123,7 @@ const AppFooter = () => {
 
                         <Col xs={12} sm={8} md={10}>
                             <div style={{display: 'flex', alignItems: 'center'}}>
-                                <a href="http://inetintel.cc.gatech.edu/" style={{
+                                <a href="https://inetintel.cc.gatech.edu/" style={{
                                     display: 'flex',
                                     justifyContent: 'flex-end',
                                     alignItems: 'center',
