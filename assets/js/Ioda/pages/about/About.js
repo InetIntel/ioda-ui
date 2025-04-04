@@ -97,7 +97,7 @@ const About = () => {
                             Georgia Tech's{" "}
                             <a
                                 className="a-fake text-color-link"
-                                href="https://inetintel.notion.site/Internet-Intelligence-Research-Lab-d186184563d345bab51901129d812ed6"
+                                href="http://inetintel.cc.gatech.edu/"
                                 target="_blank"
                             >
                                 Internet Intelligence Lab
