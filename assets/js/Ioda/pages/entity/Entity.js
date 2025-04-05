@@ -475,7 +475,6 @@ const Entity = (props) => {
 
     if(!entityTypeState.includes("-")) {
       const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1742964120, 1742968120]
-      console.log("Calling API")
       props.getRawAsnSignalsApPacketLoss(
           entityTypeState,
           [entityCodeState],
@@ -645,12 +644,6 @@ const Entity = (props) => {
       convertValuesForHtsViz("ping-slash24", "region", null, rawRegionalSignals);
     }
   }, [rawRegionalSignalsPingSlash24, showMapModal, showGlobalRegionalAsnSignals]);
-
-  useEffect(() => {
-    if(rawRegionalSignalsRawPingSlash24) {
-      convertValuesForHtsViz("ping-slash24", "region");
-    }
-  }, [rawRegionalSignalsRawPingSlash24, showGlobalRegionalAsnSignals]);
 
   // data for regional signals table BGP Source
   useEffect(() => {

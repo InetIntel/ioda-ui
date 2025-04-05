@@ -15,11 +15,9 @@ import Loading from "../../../components/loading/Loading";
 import {Button, Checkbox, Popover, Tooltip} from "antd";
 import {DownloadOutlined, SettingOutlined, ShareAltOutlined} from "@ant-design/icons";
 
-
-
 const ApPacketLossComponent = ({
                                    rawAsnSignalsApPacketLoss, rawAsnSignalsApPacketDelay,
-    entityName,
+                                    entityName,
                                }) => {
 
     const [lossData, setLossData] = useState(null);
@@ -30,7 +28,15 @@ const ApPacketLossComponent = ({
             return;
         }
         const { values, ...rest } = rawAsnSignalsApPacketLoss[0][0];
-        const newValues = values.map(item => item.slice(0, 5))
+
+        const newValues = values?.map(item => {
+
+            if (item && typeof item.slice === 'function') {
+                return item.slice(0, 5);
+            }
+            return null;
+        }).filter(item => item !== null) || [];
+
         setLossData({
             ...rest,
             values: newValues
@@ -42,7 +48,13 @@ const ApPacketLossComponent = ({
             return;
         }
         const { values, ...rest } = rawAsnSignalsApPacketDelay[0][0];
-        const newValues = values.map(item => item.slice(0, 5))
+        const newValues = values?.map(item => {
+
+            if (item && typeof item.slice === 'function') {
+                return item.slice(0, 5);
+            }
+            return null;
+        }).filter(item => item !== null) || [];
         setDelayData({
             ...rest,
             values: newValues
@@ -98,26 +110,25 @@ const ApPacketLossComponent = ({
     };
 
     const lossPackage = lossData?.values?.map(obj => {
-        return obj[0].agg_values.loss_pct
+        return obj && obj[0]?.agg_values.loss_pct
     }) || [];
 
 
     const lossRanges = delayData?.values?.map(obj => {
-        return {
+        return obj && obj[0]?.agg_values ? {
             low: obj[0].agg_values.p10_latency,
             high: obj[0].agg_values.p90_latency
-        }
-    }) || [];
+        } : null;
+    }).filter(range => range !== null) || [];
 
 
     const lossMedians = delayData?.values?.map(obj => {
-        return obj[0].agg_values.median_latency;
+        return obj && obj[0].agg_values.median_latency;
     }) || [];
 
+    const rightPartitionMin = lossPackage?.length > 0 ? Math.min(...lossPackage) : null;
+    const rightPartitionMax = lossPackage?.length > 0 ? Math.max(...lossPackage) : null;
 
-
-    const rightPartitionMin = Math.min(...lossPackage);
-    const rightPartitionMax = Math.max(...lossPackage);
 
     const options = {
         chart: {
@@ -379,7 +390,7 @@ const ApPacketLossComponent = ({
                     </div>
                 </div>
 
-                {lossData && <div className="flex entity__chart-layout card">
+                {rightPartitionMin && <div className="flex entity__chart-layout card">
                     <div className="flex-grow p-4" style={{width: "85%"}}>
                         {
                             delayData &&
@@ -412,7 +423,7 @@ const ApPacketLossComponent = ({
                         </div>
                     </div>
                 </div> }
-                {!lossData && <Loading/>}
+                {!rightPartitionMin && <Loading/>}
             </div>
             );
             };

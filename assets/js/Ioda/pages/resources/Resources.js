@@ -61,7 +61,6 @@ import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import "./Resources.css";
 import { tabOptions } from "../dashboard/DashboardConstants";
 
 const FilterComponent = ({ resources, onFilterChange }) => {

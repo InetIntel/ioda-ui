@@ -21,9 +21,6 @@ const LatencyChart = ( { rawAsnSignalsUpstreamDelayLatency, rawAsnSignalsUpstrea
     const upstreamChartTitle = T.translate("entity.upstreamChartTitle");
     const upstreamChartSubTitle = T.translate("entity.upstreamChartSubTitle");
 
-    // console.log(rawAsnSignalsUpstreamDelayLatency)
-    // console.log(rawAsnSignalsUpstreamDelayPenultAsnCount)
-
 
     const [jsonData, setJsonData] = useState(null);
     const [traceData, setTraceData] = useState(null);
@@ -31,7 +28,13 @@ const LatencyChart = ( { rawAsnSignalsUpstreamDelayLatency, rawAsnSignalsUpstrea
     useEffect(() => {
         if (!rawAsnSignalsUpstreamDelayLatency?.[0]?.[0]) return;
         const { values, ...rest } = rawAsnSignalsUpstreamDelayLatency[0][0];
-        const newValues = values.map(item => item.slice(0, 5))
+        const newValues = values?.map(item => {
+
+            if (item && typeof item.slice === 'function') {
+                return item.slice(0, 5);
+            }
+            return null;
+        }).filter(item => item !== null) || [];
         setJsonData({
             ...rest,
             values: newValues
@@ -41,7 +44,13 @@ const LatencyChart = ( { rawAsnSignalsUpstreamDelayLatency, rawAsnSignalsUpstrea
     useEffect(() => {
         if (!rawAsnSignalsUpstreamDelayPenultAsnCount?.[0]?.[0]) return;
         const { values, ...rest } = rawAsnSignalsUpstreamDelayPenultAsnCount[0][0];
-        const newValues = values.map(item => item.slice(0, 5))
+        const newValues = values?.map(item => {
+
+            if (item && typeof item.slice === 'function') {
+                return item.slice(0, 5);
+            }
+            return null;
+        }).filter(item => item !== null) || [];
         setTraceData({
             ...rest,
             values: newValues
