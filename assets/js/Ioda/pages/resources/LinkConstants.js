@@ -263,7 +263,7 @@ const link_resources = [
   },
   {
     title:
-      "Destination Unreachable: Characterizing Internet Outages and Shutdowns (SIGCOMM'23 S10)",
+      "Destination Unreachable: Characterizing Internet Outages and Shutdowns",
     type: "Video",
     link: "https://www.youtube.com/embed/8m8ibnJsdTc",
     category: "video",
@@ -290,7 +290,7 @@ const link_resources = [
   },
   {
     title:
-      "Destination Unreachable: Characterizing Internet Outages and Shutdowns",
+      "Destination Unreachable: Characterizing Internet Outages and Shutdowns (SIGCOMM'23)",
     type: "PDF",
     link: "https://dl.acm.org/doi/10.1145/3603269.3604883",
     thumbnail: tutorial_2,
@@ -303,7 +303,7 @@ const link_resources = [
     },
   },
   {
-    title: "How to Operate a Meta-Telescope in your Spare Time",
+    title: "How to Operate a Meta-Telescope in your Spare Time (IMC'23)",
     type: "PDF",
     link: "https://dl.acm.org/doi/10.1145/3618257.3624831",
     thumbnail: tutorial_3,
@@ -317,7 +317,7 @@ const link_resources = [
   },
   {
     title:
-      "Aggressive Internet-Wide Scanners: Network Impact and Longitudinal Characterization",
+      "Aggressive Internet-Wide Scanners: Network Impact and Longitudinal Characterization (CoNEXT'23)",
     type: "PDF",
     link: "https://dl.acm.org/doi/10.1145/3624354.3630583",
     thumbnail: tutorial_4,
@@ -330,7 +330,8 @@ const link_resources = [
     },
   },
   {
-    title: "Towards Improving Outage Detection with Multiple Probing Protocols",
+    title:
+      "Towards Improving Outage Detection with Multiple Probing Protocols (PAM'24)",
     type: "PDF",
     link: "https://inetintel.github.io/IODA-site-files/files/UserResources/Research/TowardsImprovingOutageDetection.pdf",
     thumbnail: tutorial_5,
@@ -343,7 +344,8 @@ const link_resources = [
     },
   },
   {
-    title: "Attack or Block? Repertoires of Digital Censorship in Autocracies",
+    title:
+      "Attack or Block? Repertoires of Digital Censorship in Autocracies (Journal of Information Technology & Politics '23)",
     type: "PDF",
     link: "https://inetintel.github.io/IODA-site-files/files/UserResources/Research/AttackorBlock.pdf",
     thumbnail: tutorial_6,
@@ -357,7 +359,7 @@ const link_resources = [
   },
   {
     title:
-      "Spoki: Unveiling a New Wave of Scanners through a Reactive Network Telescope",
+      "Spoki: Unveiling a New Wave of Scanners through a Reactive Network Telescope (USINEX Security '22)",
     type: "PDF",
     link: "https://faculty.cc.gatech.edu/~adainotti6/pubs/spoki.pdf",
     thumbnail: tutorial_7,
@@ -371,7 +373,7 @@ const link_resources = [
   },
   {
     title:
-      "Quantifying Nations' Exposure to Traffic Observation and Selective Tampering",
+      "Quantifying Nations' Exposure to Traffic Observation and Selective Tampering (PAM'22)",
     type: "PDF",
     link: "https://faculty.cc.gatech.edu/~adainotti6/pubs/CTI-pam2022.pdf",
     thumbnail: tutorial_8,
@@ -384,7 +386,7 @@ const link_resources = [
     },
   },
   {
-    title: "Identifying ASes of State-owned Internet operators",
+    title: "Identifying ASes of State-owned Internet operators (IMC'21)",
     type: "PDF",
     link: "https://www.cc.gatech.edu/~adainotti6/pubs/imc2021-64.state_owned.pdf",
     thumbnail: tutorial_9,
@@ -397,7 +399,8 @@ const link_resources = [
     },
   },
   {
-    title: "The parallel lives of Autonomous Systems: ASN Allocations vs. BGP",
+    title:
+      "The parallel lives of Autonomous Systems: ASN Allocations vs. BGP (IMC'21)",
     type: "PDF",
     link: "https://www.cc.gatech.edu/~adainotti6/pubs/imc2021-231.parallel_lives.pdf",
     thumbnail: tutorial_10,
@@ -410,7 +413,8 @@ const link_resources = [
     },
   },
   {
-    title: "A multi-perspective view of Internet censorship in Myanmar",
+    title:
+      "A multi-perspective view of Internet censorship in Myanmar (FOCI'21)",
     type: "PDF",
     link: "https://www.cc.gatech.edu/~adainotti6/pubs/myanmar_foci21_cr.pdf",
     thumbnail: tutorial_11,
@@ -424,7 +428,7 @@ const link_resources = [
   },
   {
     title:
-      "Estimating Internet Address Space Usage through Passive Measurements",
+      "Estimating Internet Address Space Usage through Passive Measurements (SIGCOMM'14)",
     type: "PDF",
     link: "https://inetintel.github.io/IODA-site-files/files/UserResources/Research/passive_ip_space_usage_estimation.pdf",
     thumbnail: tutorial_12,
@@ -443,7 +447,7 @@ const link_resources = [
     category: "video",
     tab: "tutorials",
     tags: {
-      community: ["Internet Freedom"],
+      community: ["Internet Freedom", "Internet Measurement"],
       user: ["Activist", "Lawyer", "Advocate", "Researcher", "Journalist"],
       expertise: [],
     },

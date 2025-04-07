@@ -361,7 +361,6 @@ const Resources = () => {
     //update 0407
     // navigate(`?tab=${key}`, { replace: true });
     const params = new URLSearchParams(location.search);
-    // preserve the current search term (if any)
     if (filters.searchQuery) {
       params.set("search", filters.searchQuery);
     } else {
