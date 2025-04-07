@@ -75,13 +75,9 @@ const ChartLegendCard = ({
       ? false
       : null;
 
-  const tooltipGoogleLegendText = T.translate(
-      "tooltip.googleLegend.text"
-  );
+  const tooltipGoogleLegendText = T.translate("tooltip.googleLegend.text");
 
-  const tooltipGoogleLegendTitle = T.translate(
-      "tooltip.googleLegend.title"
-  );
+  const tooltipGoogleLegendTitle = T.translate("tooltip.googleLegend.title");
 
   return (
     <>
@@ -90,7 +86,7 @@ const ChartLegendCard = ({
           (item) => !item.key.includes(".") && checkedMap[item.key] != null
         )
         .map((item) => (
-          <div key={item.key} style={{ display: 'flex', alignItems: 'center' }}>
+          <div key={item.key} style={{ display: "flex", alignItems: "center" }}>
             <Checkbox
               className="ioda-checkbox mb-2"
               checked={checkedMap[item.key]}
@@ -103,27 +99,27 @@ const ChartLegendCard = ({
             >
               {item.title}
             </Checkbox>
-              <Tooltip
-                  title={item.tooltip.title}
-                  customCode={
-                    <>
-                      {item.tooltip.text}{" "}
-                        <a
-                            href={item.tooltip.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{color: '#fa8c16'}}
-                        >
-                          Learn More.
-                        </a>
-                      </>
-                    }
-              />
+            <Tooltip
+              title={item.tooltip.title}
+              customCode={
+                <>
+                  {item.tooltip.text}{" "}
+                  <a
+                    href={item.tooltip.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#fa8c16" }}
+                  >
+                    Learn More.
+                  </a>
+                </>
+              }
+            />
           </div>
         ))}
 
       {simplifiedView && !isCountryView && (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <Checkbox
             key="gtr.WEB_SEARCH"
             className="ioda-checkbox mb-2"
@@ -136,9 +132,25 @@ const ChartLegendCard = ({
           >
             Google (Search)
           </Checkbox>
+          {/* <Tooltip
+            title={tooltipGoogleLegendTitle}
+            text={tooltipGoogleLegendText}
+          /> */}
           <Tooltip
-              title={tooltipGoogleLegendTitle}
-              text={tooltipGoogleLegendText}
+            title={tooltipGoogleLegendTitle}
+            customCode={
+              <>
+                {tooltipGoogleLegendText}{" "}
+                <a
+                  href={"/resources?search=google"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#fa8c16" }}
+                >
+                  Learn More.
+                </a>
+              </>
+            }
           />
         </div>
       )}
@@ -147,26 +159,25 @@ const ChartLegendCard = ({
         <Collapse rootClassName="mt-4" expandIconPosition="end">
           <Collapse.Panel
             header={
-              <div style={{display: 'flex', alignItems: 'center'}}>
+              <div style={{ display: "flex", alignItems: "center" }}>
                 <Checkbox
-                    indeterminate={googleExpandableChecked === null}
-                    onChange={() => {
-                    }}
-                    checked={googleExpandableChecked}
+                  indeterminate={googleExpandableChecked === null}
+                  onChange={() => {}}
+                  checked={googleExpandableChecked}
                 >
                   Google ({selectedGoogleSeries.length})
                 </Checkbox>
                 <Tooltip
-                    title={tooltipGoogleLegendTitle}
-                    text={tooltipGoogleLegendText}
+                  title={tooltipGoogleLegendTitle}
+                  text={tooltipGoogleLegendText}
                 />
-            </div>
-              }
-              key="1"
-            >
+              </div>
+            }
+            key="1"
+          >
             {googleSeries.map((item) => (
               <div key={item.key}>
-              <Checkbox
+                <Checkbox
                   className="ioda-checkbox mb-2"
                   checked={!!checkedMap[item.key]}
                   onChange={() => handleChangeDebounced(item.key)}
@@ -174,9 +185,9 @@ const ChartLegendCard = ({
                     "--background-color": item.color,
                     "--border-color": item.color,
                   }}
-              >
-              {item.title}
-            </Checkbox>
+                >
+                  {item.title}
+                </Checkbox>
               </div>
             ))}
           </Collapse.Panel>
