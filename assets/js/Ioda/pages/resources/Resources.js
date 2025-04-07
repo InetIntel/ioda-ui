@@ -59,12 +59,21 @@ const { Option } = Select;
 import download_icon from "images/resources/download-icon.png";
 import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { tabOptions } from "../dashboard/DashboardConstants";
 
-const FilterComponent = ({ resources, onFilterChange }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+const FilterComponent = ({
+  resources,
+  onFilterChange,
+  initialSearchQuery = "",
+}) => {
+  //update 0407
+  //const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "");
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery);
+  }, [initialSearchQuery]);
   const [open, setOpen] = useState(false);
 
   const [selectedCommunity, setSelectedCommunity] = useState([]);
@@ -255,69 +264,101 @@ const Resources = () => {
     const params = new URLSearchParams(location.search);
     return params.get("tab") || "tutorials";
   });
-  const [searchParamTerm, setSearchParamTerm] = useState(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get("search") || "";
-  });
+  // const [searchParamTerm, setSearchParamTerm] = useState(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   return params.get("search") || "";
+  // });
+
+  // const [filters, setFilters] = useState({
+  //   searchQuery: "",
+  //   community: [],
+  // });
+  //update 0407
+  const params = new URLSearchParams(location.search);
+  const initialSearch = params.get("search") || "";
 
   const [filters, setFilters] = useState({
-    searchQuery: "",
+    searchQuery: initialSearch,
     community: [],
   });
 
+  // useEffect(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   setActiveTab(params.get("tab") || "tutorials");
+  // }, [location]);
+  //update 0407
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    setActiveTab(params.get("tab") || "tutorials");
-  }, [location]);
+    const newQuery = params.get("search") || "";
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if(activeTab !== "terms") {
-      return;
+    // setFilters((prev) => ({
+    //   ...prev,
+    //   searchQuery: newQuery,
+    // }));
+    if (newQuery !== null) {
+      setFilters((prev) => ({
+        ...prev,
+        searchQuery: newQuery,
+      }));
     }
-    setSearchParamTerm(params.get("search") || null);
-  }, [location]);
+  }, [location.search]);
 
-  useEffect(() => {
-    if(!searchParamTerm || searchParamTerm === "")
-      return;
-    if(searchParamTerm === 'active_probing') {
-      scrollToElementById("active-probing");
-      return;
-    }
-    if(searchParamTerm === "bgp") {
-      scrollToElementById("bgp");
-      return;
-    }
-    if(searchParamTerm === "network_telescope") {
-      scrollToElementById("network-telescope")
-    }
-  }, [searchParamTerm]);
+  // useEffect(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   if(activeTab !== "terms") {
+  //     return;
+  //   }
+  //   setSearchParamTerm(params.get("search") || null);
+  // }, [location]);
 
-  function scrollToElementById(elementId, highlight = true, highlightColor = 'yellow', highlightDuration = 15000) {
-    const element = document.getElementById(elementId);
-    if (!element) {
-      console.error(`Element with ID "${elementId}" not found`);
-      return false;
-    }
-    // Scroll the element into view
-    element.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center'
-    });
-    if (highlight) {
-      const originalBackground = element.style.backgroundColor;
-      element.style.backgroundColor = highlightColor;
-      setTimeout(() => {
-        element.style.backgroundColor = originalBackground;
-      }, highlightDuration);
-    }
-    return true;
-  }
+  // useEffect(() => {
+  //   if(!searchParamTerm || searchParamTerm === "")
+  //     return;
+  //   if(searchParamTerm === 'active_probing') {
+  //     scrollToElementById("active-probing");
+  //     return;
+  //   }
+  //   if(searchParamTerm === "bgp") {
+  //     scrollToElementById("bgp");
+  //     return;
+  //   }
+  //   if(searchParamTerm === "network_telescope") {
+  //     scrollToElementById("network-telescope")
+  //   }
+  // }, [searchParamTerm]);
+
+  // function scrollToElementById(elementId, highlight = true, highlightColor = 'yellow', highlightDuration = 15000) {
+  //   const element = document.getElementById(elementId);
+  //   if (!element) {
+  //     console.error(`Element with ID "${elementId}" not found`);
+  //     return false;
+  //   }
+  //   // Scroll the element into view
+  //   element.scrollIntoView({
+  //     behavior: 'smooth',
+  //     block: 'center'
+  //   });
+  //   if (highlight) {
+  //     const originalBackground = element.style.backgroundColor;
+  //     element.style.backgroundColor = highlightColor;
+  //     setTimeout(() => {
+  //       element.style.backgroundColor = originalBackground;
+  //     }, highlightDuration);
+  //   }
+  //   return true;
+  // }
 
   const handleTabChange = (key) => {
     setActiveTab(key);
-    navigate(`?tab=${key}`, { replace: true });
+    //update 0407
+    // navigate(`?tab=${key}`, { replace: true });
+    const params = new URLSearchParams(location.search);
+    // preserve the current search term (if any)
+    if (filters.searchQuery) {
+      params.set("search", filters.searchQuery);
+    }
+    params.set("tab", key);
+    navigate(`?${params.toString()}`, { replace: true });
   };
 
   // Filter for link-based resources
@@ -354,20 +395,38 @@ const Resources = () => {
     return "";
   }
 
+  // const countTextMatches = (tab, filters) => {
+  //   const items = text_resources.filter((item) => item.tab === tab);
+  //   if (!filters.searchQuery) {
+  //     return items.length;
+  //   }
+  //   const regex = new RegExp(filters.searchQuery, "gi");
+  //   return items.reduce((matchedCount, textItem) => {
+  //     const titleHasMatch = regex.test(String(textItem.title));
+  //     regex.lastIndex = 0;
+  //     const contentString = extractTextFromReact(textItem.content);
+  //     const contentHasMatch = regex.test(contentString);
+  //     regex.lastIndex = 0;
+  //     return matchedCount + (titleHasMatch || contentHasMatch ? 1 : 0);
+  //   }, 0);
+  // };
+
+  // 1) Get the entire text from nested React nodes
+  // Filter for text-based resources
   const countTextMatches = (tab, filters) => {
-    const items = text_resources.filter((item) => item.tab === tab);
-    if (!filters.searchQuery) {
-      return items.length;
-    }
-    const regex = new RegExp(filters.searchQuery, "gi");
-    return items.reduce((matchedCount, textItem) => {
-      const titleHasMatch = regex.test(String(textItem.title));
-      regex.lastIndex = 0;
-      const contentString = extractTextFromReact(textItem.content);
-      const contentHasMatch = regex.test(contentString);
-      regex.lastIndex = 0;
-      return matchedCount + (titleHasMatch || contentHasMatch ? 1 : 0);
-    }, 0);
+    return text_resources
+      .filter((text) => text.tab === tab)
+      .reduce((count, text) => {
+        const regex = new RegExp(filters.searchQuery, "gi");
+        // Title matches
+        const titleMatches = (String(text.title).match(regex) || []).length;
+        // Content as string
+        const contentString = extractTextFromReact(text.content);
+
+        // 2) Perform your regex match
+        const contentMatches = (contentString.match(regex) || []).length;
+        return count + titleMatches + contentMatches;
+      }, 0);
   };
 
   const [resourceCounts, setResourceCounts] = useState({
@@ -420,7 +479,7 @@ const Resources = () => {
                   borderRadius: "2px",
                   boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
                   cursor: "default",
-                  minHeight: resource.tab === "research" ? "320px" : "275px",
+                  minHeight: resource.tab === "research" ? "320px" : "320px",
                   position: "relative",
                   display: "flex",
                   flexDirection: "column",
@@ -473,7 +532,7 @@ const Resources = () => {
                 <div
                   style={{
                     position: "absolute",
-                    top: resource.tab === "research" ? "285px" : "235px",
+                    top: resource.tab === "research" ? "285px" : "285px",
                     display: "flex",
                     flexWrap: "wrap",
                     gap: "4px",
@@ -594,7 +653,12 @@ const Resources = () => {
         </div>
       </div>
 
-      <FilterComponent resources={link_resources} onFilterChange={setFilters} />
+      <FilterComponent
+        resources={link_resources}
+        onFilterChange={setFilters}
+        //update0407
+        initialSearchQuery={filters.searchQuery}
+      />
 
       <div style={{ width: "100%", maxWidth: "900px", margin: "30px auto" }}>
         <Tabs activeKey={activeTab} onChange={handleTabChange} centered>

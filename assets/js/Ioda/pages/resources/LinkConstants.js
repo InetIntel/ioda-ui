@@ -124,7 +124,8 @@ const link_resources = [
     },
   },
   {
-    title: "Introduction to IODA's measurements",
+    title:
+      "Introduction to IODA’s measurements: Active Probing, Routing Announcements (BGP), and Telescope",
     type: "Video",
     link: "https://www.youtube.com/embed/xvV9kTOb4J8",
     category: "video",
