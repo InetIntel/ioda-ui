@@ -82,7 +82,7 @@ export const legend = [
     tooltip: {
       title: T.translate("tooltip.darknetChartLegend.title"),
       text: T.translate("tooltip.darknetChartLegend.text"),
-      link: "/resources?search=network%20telescope",
+      link: "/resources?search=telescope",
     },
   },
   {
