@@ -103,10 +103,22 @@ const ChartLegendCard = ({
             >
               {item.title}
             </Checkbox>
-            <Tooltip
-                title={item.tooltip.title}
-                text={item.tooltip.text}
-            />
+              <Tooltip
+                  title={item.tooltip.title}
+                  customCode={
+                    <>
+                      {item.tooltip.text}{" "}
+                        <a
+                            href={item.tooltip.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{color: '#fa8c16'}}
+                        >
+                          Learn More.
+                        </a>
+                      </>
+                    }
+              />
           </div>
         ))}
 

@@ -62,6 +62,7 @@ export const legend = [
       tooltip: {
           title: T.translate("tooltip.tooltipActiveProbingChartLegend.title"),
           text: T.translate("tooltip.tooltipActiveProbingChartLegend.text"),
+          link: "/resources?tab=terms&search=active_probing"
       }
     },
     {
@@ -71,6 +72,7 @@ export const legend = [
       tooltip: {
         title: T.translate("tooltip.tooltipBgpChartLegend.title"),
         text: T.translate("tooltip.tooltipBgpChartLegend.text"),
+        link: "/resources?tab=terms&search=bgp"
       }
     },
     {
@@ -80,6 +82,7 @@ export const legend = [
       tooltip: {
         title: T.translate("tooltip.darknetChartLegend.title"),
         text: T.translate("tooltip.darknetChartLegend.text"),
+        link: "/resources?tab=terms&search=network_telescope"
       }
     },
       {

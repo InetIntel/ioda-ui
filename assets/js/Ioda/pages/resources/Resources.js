@@ -255,6 +255,10 @@ const Resources = () => {
     const params = new URLSearchParams(location.search);
     return params.get("tab") || "tutorials";
   });
+  const [searchParamTerm, setSearchParamTerm] = useState(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get("search") || "";
+  });
 
   const [filters, setFilters] = useState({
     searchQuery: "",
@@ -265,6 +269,51 @@ const Resources = () => {
     const params = new URLSearchParams(location.search);
     setActiveTab(params.get("tab") || "tutorials");
   }, [location]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if(activeTab !== "terms") {
+      return;
+    }
+    setSearchParamTerm(params.get("search") || null);
+  }, [location]);
+
+  useEffect(() => {
+    if(!searchParamTerm || searchParamTerm === "")
+      return;
+    if(searchParamTerm === 'active_probing') {
+      scrollToElementById("active-probing");
+      return;
+    }
+    if(searchParamTerm === "bgp") {
+      scrollToElementById("bgp");
+      return;
+    }
+    if(searchParamTerm === "network_telescope") {
+      scrollToElementById("network-telescope")
+    }
+  }, [searchParamTerm]);
+
+  function scrollToElementById(elementId, highlight = true, highlightColor = 'yellow', highlightDuration = 15000) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+      console.error(`Element with ID "${elementId}" not found`);
+      return false;
+    }
+    // Scroll the element into view
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+    if (highlight) {
+      const originalBackground = element.style.backgroundColor;
+      element.style.backgroundColor = highlightColor;
+      setTimeout(() => {
+        element.style.backgroundColor = originalBackground;
+      }, highlightDuration);
+    }
+    return true;
+  }
 
   const handleTabChange = (key) => {
     setActiveTab(key);
