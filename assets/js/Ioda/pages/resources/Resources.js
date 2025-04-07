@@ -101,6 +101,13 @@ const FilterComponent = ({
       searchQuery,
       community: selectedCommunity,
     });
+    const params = new URLSearchParams(location.search);
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    } else {
+      params.delete("search");
+    }
+    navigate(`?${params.toString()}`, { replace: true });
     setOpen(false);
   };
 
@@ -295,12 +302,13 @@ const Resources = () => {
     //   ...prev,
     //   searchQuery: newQuery,
     // }));
-    if (newQuery !== null) {
-      setFilters((prev) => ({
-        ...prev,
-        searchQuery: newQuery,
-      }));
-    }
+
+    // if (newQuery !== null) {
+    setFilters((prev) => ({
+      ...prev,
+      searchQuery: newQuery,
+    }));
+    // }
   }, [location.search]);
 
   // useEffect(() => {
@@ -356,6 +364,8 @@ const Resources = () => {
     // preserve the current search term (if any)
     if (filters.searchQuery) {
       params.set("search", filters.searchQuery);
+    } else {
+      params.delete("search");
     }
     params.set("tab", key);
     navigate(`?${params.toString()}`, { replace: true });
