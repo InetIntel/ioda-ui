@@ -262,6 +262,7 @@ const FilterComponent = ({
       searchQuery,
       community: selectedCommunity,
     });
+    setOpen(false);
   };
 
   const handleSearch = () => {
@@ -281,6 +282,43 @@ const FilterComponent = ({
       handleSearch();
     }
   };
+  const filterMenu = (
+    <div
+      className="filter-menu-box"
+      style={{ marginTop: "6px" }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="filter-header">
+        <span>Filter By Categories</span>
+        <Button
+          type="default"
+          className="save-button"
+          onClick={handleApplyFilters}
+        >
+          Save
+        </Button>
+      </div>
+
+      <div className="filter-section">
+        <div className="filter-label">Community</div>
+        <div className="pill-container">
+          {communityOptions.map((item) => (
+            <div
+              key={item}
+              className={`pill ${
+                selectedCommunity.includes(item) ? "pill-selected" : ""
+              }`}
+              onClick={() =>
+                toggleSelection(item, selectedCommunity, setSelectedCommunity)
+              }
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ width: "100%", maxWidth: "900px", marginTop: "-350px" }}>
