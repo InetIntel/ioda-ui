@@ -21,9 +21,9 @@
     }
 
     &-layout {
-      @include respond(tab-port) {
-        flex-direction: column;
-      }
+      // @include respond(tab-port) {
+      flex-direction: column;
+      // }
     }
 
     &-map {
@@ -54,4 +54,12 @@
       }
     }
   }
+}
+.mt-container,
+.mt-container * {
+  font-size: 14px !important;
+}
+.mastodon-embed-container {
+  height: 52.9rem; // match map’s height
+  overflow-y: auto; // enable scroll within this box
 }
