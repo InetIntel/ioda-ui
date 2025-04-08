@@ -63,28 +63,189 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { tabOptions } from "../dashboard/DashboardConstants";
 
+// const FilterComponent = ({
+//   resources,
+//   onFilterChange,
+//   initialSearchQuery = "",
+// }) => {
+//   //update 0407
+//   //const [searchQuery, setSearchQuery] = useState("");
+//   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "");
+//   useEffect(() => {
+//     setSearchQuery(initialSearchQuery);
+//   }, [initialSearchQuery]);
+//   const [open, setOpen] = useState(false);
+
+//   const [selectedCommunity, setSelectedCommunity] = useState([]);
+//   const [communityOptions, setCommunityOptions] = useState([]);
+
+//   useEffect(() => {
+//     const communitySet = new Set();
+//     resources.forEach((resource) => {
+//       resource.tags?.community?.forEach((tag) => communitySet.add(tag));
+//     });
+
+//     setCommunityOptions([...communitySet]);
+//   }, [resources]);
+
+//   const toggleSelection = (value, selected, setSelected) => {
+//     if (selected.includes(value)) {
+//       setSelected(selected.filter((v) => v !== value));
+//     } else {
+//       setSelected([...selected, value]);
+//     }
+//   };
+
+//   const handleApplyFilters = () => {
+//     onFilterChange({
+//       searchQuery,
+//       community: selectedCommunity,
+//     });
+//     const params = new URLSearchParams(location.search);
+//     if (searchQuery) {
+//       params.set("search", searchQuery);
+//     } else {
+//       params.delete("search");
+//     }
+//     navigate(`?${params.toString()}`, { replace: true });
+//     setOpen(false);
+//   };
+
+//   const filterMenu = (
+//     <div
+//       className="filter-menu-box"
+//       style={{ marginTop: "6px" }}
+//       onClick={(e) => e.stopPropagation()}
+//     >
+//       <div className="filter-header">
+//         <span>Filter By Categories</span>
+//         <Button
+//           type="default"
+//           className="save-button"
+//           onClick={handleApplyFilters}
+//         >
+//           Save
+//         </Button>
+//       </div>
+
+//       <div className="filter-section">
+//         <div className="filter-label">Community</div>
+//         <div className="pill-container">
+//           {communityOptions.map((item) => (
+//             <div
+//               key={item}
+//               className={`pill ${
+//                 selectedCommunity.includes(item) ? "pill-selected" : ""
+//               }`}
+//               onClick={() =>
+//                 toggleSelection(item, selectedCommunity, setSelectedCommunity)
+//               }
+//             >
+//               {item}
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+
+//   return (
+//     <div style={{ width: "100%", maxWidth: "900px", marginTop: "-350px" }}>
+//       <Row gutter={[10, 12]} align="middle" justify="center">
+//         {/* Search Input */}
+//         {/* <Col span={14}>
+//           <Input
+//             placeholder="Search by Keywords"
+//             value={searchQuery}
+//             onChange={(e) => setSearchQuery(e.target.value)}
+//             style={{ height: "35px", borderRadius: "8px" }}
+//           />
+//         </Col> */}
+//         <Col span={14}>
+//           <div style={{ position: "relative" }}>
+//             <Input
+//               placeholder="Search by Keywords"
+//               value={searchQuery}
+//               onChange={(e) => setSearchQuery(e.target.value)}
+//               onKeyDown={handleKeyDown}
+//               style={{
+//                 height: "35px",
+//                 borderRadius: "8px",
+//                 paddingRight: "30px",
+//               }}
+//             />
+//             {searchQuery && (
+//               <CloseCircleFilled
+//                 style={{
+//                   position: "absolute",
+//                   right: "10px",
+//                   top: "50%",
+//                   transform: "translateY(-50%)",
+//                   cursor: "pointer",
+//                   color: "#999",
+//                 }}
+//                 onClick={() => setSearchQuery("")}
+//               />
+//             )}
+//           </div>
+//         </Col>
+
+//         <Col span={3}>
+//           <Dropdown
+//             open={open}
+//             onOpenChange={setOpen}
+//             dropdownRender={() => filterMenu}
+//             trigger={["click"]}
+//             placement="bottomRight"
+//           >
+//             <Button
+//               icon={<FilterOutlined />}
+//               onClick={() => setOpen(!open)}
+//               style={{
+//                 height: "35px",
+//                 borderRadius: "8px",
+//                 width: "100%",
+//                 border: "1px solid #2e76ff",
+//                 color: "#2e76ff",
+//               }}
+//             >
+//               Filter
+//             </Button>
+//           </Dropdown>
+//         </Col>
+//         <Col span={3}>
+//           <Button
+//             type="primary"
+//             icon={<SearchOutlined />}
+//             onClick={handleApplyFilters}
+//             style={{ height: "35px", borderRadius: "8px", width: "100%" }}
+//           >
+//             Search
+//           </Button>
+//         </Col>
+//       </Row>
+//     </div>
+//   );
+// };
 const FilterComponent = ({
   resources,
   onFilterChange,
   initialSearchQuery = "",
 }) => {
-  //update 0407
-  //const [searchQuery, setSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "");
+  const [open, setOpen] = useState(false);
+  const [selectedCommunity, setSelectedCommunity] = useState([]);
+  const [communityOptions, setCommunityOptions] = useState([]);
+
   useEffect(() => {
     setSearchQuery(initialSearchQuery);
   }, [initialSearchQuery]);
-  const [open, setOpen] = useState(false);
-
-  const [selectedCommunity, setSelectedCommunity] = useState([]);
-  const [communityOptions, setCommunityOptions] = useState([]);
 
   useEffect(() => {
     const communitySet = new Set();
     resources.forEach((resource) => {
       resource.tags?.community?.forEach((tag) => communitySet.add(tag));
     });
-
     setCommunityOptions([...communitySet]);
   }, [resources]);
 
@@ -101,72 +262,36 @@ const FilterComponent = ({
       searchQuery,
       community: selectedCommunity,
     });
-    const params = new URLSearchParams(location.search);
-    if (searchQuery) {
-      params.set("search", searchQuery);
-    } else {
-      params.delete("search");
-    }
-    navigate(`?${params.toString()}`, { replace: true });
-    setOpen(false);
   };
 
-  const filterMenu = (
-    <div
-      className="filter-menu-box"
-      style={{ marginTop: "6px" }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="filter-header">
-        <span>Filter By Categories</span>
-        <Button
-          type="default"
-          className="save-button"
-          onClick={handleApplyFilters}
-        >
-          Save
-        </Button>
-      </div>
+  const handleSearch = () => {
+    handleApplyFilters();
+  };
 
-      <div className="filter-section">
-        <div className="filter-label">Community</div>
-        <div className="pill-container">
-          {communityOptions.map((item) => (
-            <div
-              key={item}
-              className={`pill ${
-                selectedCommunity.includes(item) ? "pill-selected" : ""
-              }`}
-              onClick={() =>
-                toggleSelection(item, selectedCommunity, setSelectedCommunity)
-              }
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    onFilterChange({
+      searchQuery: "",
+      community: selectedCommunity,
+    });
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   return (
     <div style={{ width: "100%", maxWidth: "900px", marginTop: "-350px" }}>
       <Row gutter={[10, 12]} align="middle" justify="center">
-        {/* Search Input */}
-        {/* <Col span={14}>
-          <Input
-            placeholder="Search by Keywords"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ height: "35px", borderRadius: "8px" }}
-          />
-        </Col> */}
         <Col span={14}>
           <div style={{ position: "relative" }}>
             <Input
               placeholder="Search by Keywords"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown} // Update on Enter key press
               style={{
                 height: "35px",
                 borderRadius: "8px",
@@ -183,7 +308,7 @@ const FilterComponent = ({
                   cursor: "pointer",
                   color: "#999",
                 }}
-                onClick={() => setSearchQuery("")}
+                onClick={handleClearSearch}
               />
             )}
           </div>
@@ -212,11 +337,12 @@ const FilterComponent = ({
             </Button>
           </Dropdown>
         </Col>
+
         <Col span={3}>
           <Button
             type="primary"
             icon={<SearchOutlined />}
-            onClick={handleApplyFilters}
+            onClick={handleSearch}
             style={{ height: "35px", borderRadius: "8px", width: "100%" }}
           >
             Search
