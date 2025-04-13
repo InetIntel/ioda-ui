@@ -39,11 +39,10 @@ import React, { PureComponent } from "react";
 import PropTypes from "prop-types";
 import T from "i18n-react";
 import Loading from "../../components/loading/Loading";
-import LoadingIcon from "images/icons/icon-loading.png";
 import Tooltip from "../tooltip/Tooltip";
 import TopoMap from "../map/Map";
 import Table from "../table/Table";
-import * as d3 from "d3-shape";
+import { curveStepAfter } from "d3-shape";
 import {
   horizonChartSeriesColor,
   humanizeNumber,
@@ -284,7 +283,7 @@ class RawSignalsModal extends PureComponent {
           .height(360)
           .enableZoom(false)
           .showRuler(true)
-          .interpolationCurve(d3.curveStepAfter)
+          .interpolationCurve(curveStepAfter)
           .positiveColors(["white", color]).toolTipContent = ({
           series,
           ts,
