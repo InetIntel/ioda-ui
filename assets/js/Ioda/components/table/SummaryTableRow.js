@@ -41,6 +41,13 @@ import { humanizeNumber } from "../../utils";
 import { Link } from "react-router-dom";
 import T from "i18n-react";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
+import countryData from "../../constants/countries.json";
+
+/* ---------- helper: emoji flag map ---------- */
+const countryFlagMap = countryData.reduce((acc, country) => {
+  acc[country.code] = country.emoji;
+  return acc;
+}, {});
 
 // Each row of the summary table needs it's own component to manage the
 // hover state, which controls the table that displays score breakdowns.
@@ -69,23 +76,23 @@ class SummaryTableRow extends Component {
     // set states for outage source indicator in score cell
 
     this.props.data.scores.map((score) => {
-      let source = score.source.split('.')[0];
+      let source = score.source.split(".")[0];
       switch (source) {
         case "ping-slash24":
-          this.setState({pingSlash24ScoreAvailable: true});
+          this.setState({ pingSlash24ScoreAvailable: true });
           break;
         case "bgp":
-          this.setState({bgpScoreAvailable: true});
+          this.setState({ bgpScoreAvailable: true });
           break;
         case "ucsd-nt":
-          this.setState({ucsdNtScoreAvailable: true});
+          this.setState({ ucsdNtScoreAvailable: true });
           break;
         case "merit-nt":
-          this.setState({meritNtScoreAvailable: true});
+          this.setState({ meritNtScoreAvailable: true });
           break;
       }
     });
-  }
+  };
 
   componentWillUnmount = () => {
     document.removeEventListener("click", this.handleRowScoreHide, true);
@@ -160,6 +167,8 @@ class SummaryTableRow extends Component {
     const linkPath = dateRangeInUrl
       ? `/${entityType}/${entityCode}?from=${urlFromDate}&until=${urlUntilDate}`
       : `/${entityType}/${entityCode}`;
+    const emoji =
+      entityType === "country" ? countryFlagMap[entityCode] || "" : "";
 
     return (
       <tr
@@ -188,7 +197,9 @@ class SummaryTableRow extends Component {
             //   )
             // }
           >
-            <span>{this.props.data.name}</span>
+            <span>
+              {emoji} {this.props.data.name}
+            </span>
           </Link>
         </td>
         {this.props.entityType === "asn" ? (
