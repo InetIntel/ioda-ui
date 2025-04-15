@@ -10,6 +10,7 @@ import { scaleOrdinal } from "d3-scale";
 import countryData from "../../constants/countries.json";
 import { UpOutlined, DownOutlined } from "@ant-design/icons";
 // import { Button } from "antd";
+import { getEntityScaleColor } from "../../utils/mapColors";
 
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
@@ -103,6 +104,7 @@ const styles = {
     padding: "10px 20px",
     textAlign: "center",
     fontWeight: "bold",
+    fontSize: "10px",
   },
   xAxisContainer: {
     height: "30px",
@@ -231,73 +233,116 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
       d.timeSeries.map((ts) => ts.ts)
     );
     const xExtent = extent(allTimestamps);
+    const totalRangeDays = (xExtent[1] - xExtent[0]) / (1000 * 60 * 60 * 24);
     const xScale = scaleTime().domain(xExtent).range([0, width]);
     // Create separate x-axis SVG
     const xAxisSvg = select(xAxisRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", "30px")
-      .style("overflow", "hidden") // Prevent container scrolling
-      .style("bottom", "0") // Stick to bottom
+      .style("overflow", "visible") // Change to visible
       .append("g")
-      .attr("transform", `translate(${margin.left}, 30)`); // Adjust vertical position
+      .attr("transform", `translate(${margin.left}, 30)`); // Changed y position to 0
 
     const yScale = scaleBand()
       .domain(sortedData.map((d) => d.name))
       .range([0, height])
       .padding(0.2);
 
-    // Custom axis formatter - show day at midnight, time otherwise
     const formatTime = (date) => {
-      const utcDate = new Date(
-        date.getTime() + date.getTimezoneOffset() * 60000
-      );
-      const isMidnight =
-        utcDate.getUTCHours() === 0 && utcDate.getUTCMinutes() === 0;
-      return isMidnight
-        ? timeFormat("%a %-m/%-d")(utcDate)
-        : timeFormat("%-I %p")(utcDate);
+      const utcDate = new Date(date.getTime());
+      const hours = utcDate.getUTCHours();
+      console.log("hours:", hours);
+      if (totalRangeDays > 4) {
+        // Only label 12 AM
+        if (hours === 0) {
+          return timeFormat("%a %-m/%-d")(utcDate); // e.g., "Mon 4/15"
+        }
+        return null;
+      }
+      // Midnight gets date format
+      if (hours === 0) {
+        return timeFormat("%a %-m/%-d")(utcDate); // "Mon 4/15"
+      }
+      // 6AM/6PM get simple time format
+      else if (hours === 6 || hours === 18) {
+        return timeFormat("6 %p")(utcDate); // "6 AM" or "6 PM"
+      }
+      // Noon gets special format
+      else if (hours === 12) {
+        return "12 PM";
+      }
+
+      return null; // All other hours get no label
     };
 
     // Custom function to generate ticks at reasonable intervals
+    // const generateTicks = (scale) => {
+    //   const [start, end] = scale.domain();
+    //   const ticks = [];
+
+    //   // Round to nearest 6-hour interval
+    //   let current = new Date(start);
+    //   current.setUTCHours(Math.ceil(current.getUTCHours() / 6) * 6, 0, 0, 0);
+
+    //   while (current <= end) {
+    //     ticks.push(new Date(current));
+    //     current = new Date(current.getTime() + 6 * 60 * 60 * 1000);
+    //   }
+
+    //   return ticks;
+    // };
     const generateTicks = (scale) => {
       const [start, end] = scale.domain();
-      const range = end - start;
-      const dayInMs = 24 * 60 * 60 * 1000;
+      const ticks = [];
 
-      // If time range is less than 2 days, show every 6 hours
-      if (range <= 2 * dayInMs) {
-        return scale.ticks(8); // Approximately every 6 hours
+      let current = new Date(start);
+      if (totalRangeDays > 4) {
+        // Align to next 12AM UTC
+        current.setUTCHours(0, 0, 0, 0);
+        while (current <= end) {
+          ticks.push(new Date(current));
+          current.setUTCDate(current.getUTCDate() + 1); // 1-day steps
+        }
+      } else {
+        // 6-hour intervals for shorter ranges
+        current.setUTCHours(Math.ceil(current.getUTCHours() / 6) * 6, 0, 0, 0);
+        while (current <= end) {
+          ticks.push(new Date(current));
+          current = new Date(current.getTime() + 6 * 60 * 60 * 1000);
+        }
       }
-      // If time range is less than 7 days, show daily
-      else if (range <= 7 * dayInMs) {
-        return scale.ticks(7); // Daily ticks
-      }
-      // For longer ranges, show every other day
-      else {
-        return scale.ticks(Math.ceil(range / (2 * dayInMs)));
-      }
+
+      return ticks;
     };
 
     const xAxis = axisTop(xScale)
-      .tickFormat(formatTime)
-      .tickValues(generateTicks(xScale))
+      .tickFormat((d) => {
+        console.log("unformatted time:", d);
+        const formatted = formatTime(d);
+        console.log("formatted time:", formatted);
+        return formatted === null ? "" : formatted;
+      })
+      .tickValues(generateTicks(xScale)) // Use our custom ticks
       .tickSizeOuter(0)
-      .tickSize(4); // Shorten tick lines
+      .tickSize(4);
+
     // Calculate approximate tick spacing for wrapping
     const tickPositions = generateTicks(xScale);
     const tickSpacing =
       tickPositions.length > 1
         ? xScale(tickPositions[1]) - xScale(tickPositions[0])
         : width;
+
     xAxisSvg
       .append("g")
       .attr("class", "x-axis")
       .call(xAxis)
       .selectAll(".tick text")
       .style("font-size", "10px")
-      .style("text-anchor", "middle") // Center labels
-      .call(wrap, tickSpacing * 0.8); // Use 80% of tick spacing for wrapping
+      .style("text-anchor", "middle")
+      .filter((d) => formatTime(d) !== null) // Only keep ticks we want to show
+      .call(wrap, tickSpacing * 0.95); // Wrap labels
 
     // Remove y-axis ticks
     svg
@@ -305,7 +350,7 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
       .attr("class", "y-axis")
       .call(axisLeft(yScale).tickSizeOuter(0).tickSize(0).tickFormat(""));
 
-    const color = scaleOrdinal(schemeCategory10);
+    // const color = scaleOrdinal(schemeCategory10);
 
     // Add name and score labels
     svg
@@ -320,17 +365,54 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
       .attr("text-anchor", "left")
       .text((d) => d.name);
 
+    // svg
+    //   .selectAll(".score-label")
+    //   .data(sortedData)
+    //   .enter()
+    //   .append("text")
+    //   .attr("class", "score-label")
+    //   .attr("x", -30)
+    //   .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 2)
+    //   .attr("dy", "0.35em")
+    //   .attr("text-anchor", "right")
+    //   .text((d) => humanizeNumber(d.score, 2));
     svg
       .selectAll(".score-label")
       .data(sortedData)
       .enter()
-      .append("text")
-      .attr("class", "score-label")
-      .attr("x", -30)
-      .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 2)
-      .attr("dy", "0.35em")
-      .attr("text-anchor", "right")
-      .text((d) => humanizeNumber(d.score, 2));
+      .append("g")
+      .attr(
+        "transform",
+        (d) => `translate(-30,${yScale(d.name) + yScale.bandwidth() / 2})`
+      )
+      .each(function (d) {
+        const group = select(this);
+        const color = getEntityScaleColor(d.score, "country") || "#d0d0d0";
+
+        // Add rectangle background
+        group
+          .append("rect")
+          .attr("width", 50) // Adjust width as needed
+          .attr("height", 20) // Adjust height as needed
+          .attr("x", -25) // Center the rectangle
+          .attr("y", -10) // Center the rectangle
+          .attr("rx", 4) // Rounded corners
+          .attr("fill", color)
+          .attr("opacity", 0.5) // Add transparency
+          .attr("stroke", color) // Border color (black)
+          .attr("stroke-width", 0.7) // Thin border
+          .attr("stroke-opacity", 1); // Fully opaque border
+
+        // Add text on top
+        group
+          .append("text")
+          .attr("dy", "0.35em")
+          .attr("text-anchor", "middle")
+          .style("font-size", "10px") // Smaller font size
+          .style("fill", "#000") // Black text
+          .text(humanizeNumber(d.score, 2));
+      });
+
     svg
       .selectAll("line.grid-line")
       .data(tickPositions)
@@ -354,9 +436,12 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
         .attr("class", `bar bar-${country.entityCode}`)
         .attr("x", (d) => xScale(d.ts) - 3)
         .attr("y", () => yScale(country.name))
-        .attr("width", 4)
+        .attr("width", 6)
         .attr("height", yScale.bandwidth() / 1.5)
-        .attr("fill", color(country.name))
+        .attr(
+          "fill",
+          getEntityScaleColor(country.score, "country") || "#d0d0d0"
+        )
         .on("mouseover", function (event, d) {
           select(this).attr("fill", "#d6d6d6");
           const tooltip = tooltipRef.current;
@@ -373,7 +458,10 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
           tooltip.style.top = event.pageY + 10 + "px";
         })
         .on("mouseout", function () {
-          select(this).attr("fill", color(country.name)); // Restore original color
+          select(this).attr(
+            "fill",
+            getEntityScaleColor(country.score, "country") || "#d0d0d0"
+          ); // Restore original color
           const tooltip = tooltipRef.current;
           tooltip.style.visibility = "hidden";
         });
@@ -382,6 +470,17 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
 
   return (
     <div>
+      <h3
+        style={{
+          fontSize: "20px",
+          fontWeight: "600",
+          marginBottom: "8px",
+          marginTop: "16px",
+          paddingLeft: "4px",
+        }}
+      >
+        All countries outage timeline
+      </h3>
       <div style={styles.container}>
         {/* Header row - stays fixed during scrolling */}
         <div style={styles.header}>
@@ -392,6 +491,7 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
                 style={{
                   width: "160px",
                   fontWeight: "bold",
+                  fontSize: "10px",
                   display: "flex",
                   alignItems: "center",
                 }}
@@ -440,6 +540,7 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
                 style={{
                   width: "50px",
                   fontWeight: "bold",
+                  fontSize: "10px",
                   display: "flex",
                   alignItems: "right",
                 }}
@@ -520,14 +621,62 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
           <div style={styles.countryScoreList}>
             {sortedData.map((d) => (
               <div key={d.entityCode} style={styles.countryScoreRow}>
-                <div style={{ width: "160px" }}>
+                <div style={{ width: "160px", fontSize: "10px" }}>
                   {d.entityType === "country"
                     ? countryFlagMap[d.entityCode] || ""
                     : ""}{" "}
                   {d.name}
                 </div>
-                <div style={{ width: "50px", textAlign: "right" }}>
+                {/* <div style={{ width: "50px", textAlign: "right" }}>
                   {humanizeNumber(d.score, 2)}
+                </div> */}
+                <div style={{ width: "50px", textAlign: "right" }}>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      width: "50px",
+                      height: "20px",
+                      position: "relative",
+                    }}
+                  >
+                    {/* Background rectangle with opacity */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor:
+                          getEntityScaleColor(d.score, "country") || "#d0d0d0",
+                        opacity: 0.5,
+                        // borderRadius: "4px",
+                        zIndex: 1,
+                        border: "0.7px solid", // Thin opaque black border
+                        // borderColor:
+                        //   getEntityScaleColor(d.score, "country") || "#d0d0d0",
+                        boxSizing: "border-box", // Ensures border is drawn inside
+                      }}
+                    ></div>
+
+                    {/* Text (fully opaque) */}
+                    <span
+                      style={{
+                        position: "relative",
+                        display: "inline-block",
+                        padding: "2px 6px",
+                        fontSize: "10px",
+                        color: "#000",
+                        zIndex: 2,
+                        textAlign: "center",
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {humanizeNumber(d.score, 2)}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}

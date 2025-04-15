@@ -159,8 +159,8 @@ const DashboardTab = (props) => {
                     <div className="text-lg mr-4">
                       {/* {tabCurrentView === "timeSeries"
                             ? viewTitleChart
-                            : viewTitleMap} */}
-                      {viewTitleMap}
+                            : viewTitleMap}
+                      {viewTitleMap} */}
                     </div>
                     {/* <Button
                           type="primary"
@@ -208,7 +208,7 @@ const DashboardTab = (props) => {
                       ) : null}
                     </div>
                   ) : null}
-                  <div
+                  {/* <div
                     id="horizon-chart"
                     style={
                       tabCurrentView === "timeSeries" ||
@@ -223,16 +223,15 @@ const DashboardTab = (props) => {
                     eventDataProcessed.length > 0
                       ? genChart()
                       : null}
-                  </div>
+                  </div> */}
                   <TimeStamp className="mt-4" from={from} until={until} />
                 </div>
                 {/* RIGHT side: Mastodon timeline */}
                 {/* <div className="mastodon-embed-container"> */}
                 <div className="col-1 mw-0">
-                  <div className="text-5xl font-semibold mb-6">
-                    {/* Some heading if desired, e.g. "Mastodon Feed" */}
+                  {/* <div className="text-5xl font-semibold mb-6">
                     {T.translate("home.twitterWidgetTitle")}
-                  </div>
+                  </div> */}
                   <div className="mastodon-embed-container">
                     {/* 
                     The container for Mastodon embed 
@@ -251,7 +250,7 @@ const DashboardTab = (props) => {
               </div>
 
               {/* <div className="col-1 mw-0"> */}
-              <div className="dashboard__tab-table mt-4">
+              {/* <div className="dashboard__tab-table mt-4">
                 {activeTabType &&
                 totalOutages &&
                 genSummaryTableDataProcessed ? (
@@ -264,7 +263,7 @@ const DashboardTab = (props) => {
                   />
                 ) : // <></>
                 null}
-              </div>
+              </div> */}
               {/* 0414added */}
               <div>{summaryDataWithTS ? genSummaryWithTS() : null}</div>
               {/* </div> */}
