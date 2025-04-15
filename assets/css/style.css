@@ -4956,6 +4956,10 @@ body {
     }
   }
 }
+.table__cell--tsBar {
+  padding: 2px 2px;
+}
+
 /* required styles */
 .leaflet-map-pane,
 .leaflet-tile,

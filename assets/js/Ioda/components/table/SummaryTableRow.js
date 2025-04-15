@@ -42,8 +42,9 @@ import { Link } from "react-router-dom";
 import T from "i18n-react";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import countryData from "../../constants/countries.json";
+import TimeSeriesBar from "./TimeSeriesBar"; // adjust the path if needed
 
-/* ---------- helper: emoji flag map ---------- */
+//helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
   acc[country.code] = country.emoji;
   return acc;
@@ -277,6 +278,9 @@ class SummaryTableRow extends Component {
               {this.handlePopulateScores(this.props.data.scores)}
             </tbody>
           </table>
+        </td>
+        <td className="table__cell--tsBar">
+          <TimeSeriesBar data={this.props.data.timeSeries || []} />
         </td>
       </tr>
     );

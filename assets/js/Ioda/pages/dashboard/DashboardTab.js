@@ -17,6 +17,7 @@ import { AreaChartOutlined, GlobalOutlined } from "@ant-design/icons";
 import { getSecondsAsErrorDurationString } from "../../utils/timeUtils";
 import "@idotj/mastodon-embed-timeline/dist/mastodon-timeline.min.css";
 import * as MastodonTimeline from "@idotj/mastodon-embed-timeline";
+import SummaryWithTSChart from "../../components/table/SummaryWithTSChart";
 
 const DashboardTab = (props) => {
   const {
@@ -34,6 +35,7 @@ const DashboardTab = (props) => {
     summaryDataRaw,
     genSummaryTableDataProcessed,
     summaryDataProcessed,
+    summaryDataWithTS,
   } = props;
 
   const config = React.createRef();
@@ -82,6 +84,22 @@ const DashboardTab = (props) => {
         val,
       }) => `${series}<br>${ts}: ${humanizeNumber(val)}`;
     }
+  }
+
+  // //0414added
+  // useEffect(() => {
+  //   if (summaryDataWithTS != null && config.current) {
+  //     genSummaryWithTS();
+  //   }
+  // }, [summaryDataWithTS]);
+
+  function genSummaryWithTS() {
+    return (
+      <SummaryWithTSChart
+        data={summaryDataWithTS}
+        // width={config.current ? config.current.offsetWidth : 1000}
+      />
+    );
   }
 
   const countryOutages = T.translate("dashboard.countryOutages");
@@ -193,7 +211,9 @@ const DashboardTab = (props) => {
                   <div
                     id="horizon-chart"
                     style={
-                      tabCurrentView === "timeSeries" || type === "asn"
+                      tabCurrentView === "timeSeries" ||
+                      type === "asn" ||
+                      type === "country" //0414added
                         ? { display: "block" }
                         : { display: "none" }
                     }
@@ -237,13 +257,16 @@ const DashboardTab = (props) => {
                 genSummaryTableDataProcessed ? (
                   <Table
                     type={"summary"}
-                    data={summaryDataProcessed}
+                    //data={summaryDataProcessed} //0414
+                    data={summaryDataWithTS}
                     totalCount={totalOutages}
                     entityType={activeTabType}
                   />
                 ) : // <></>
                 null}
               </div>
+              {/* 0414added */}
+              <div>{summaryDataWithTS ? genSummaryWithTS() : null}</div>
               {/* </div> */}
               {/* </div> */}
             </React.Fragment>
