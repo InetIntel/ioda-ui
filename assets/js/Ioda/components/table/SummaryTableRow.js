@@ -41,8 +41,8 @@ import { humanizeNumber } from "../../utils";
 import { Link } from "react-router-dom";
 import T from "i18n-react";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
-import countryData from "../../constants/countries.json";
 import TimeSeriesBar from "./TimeSeriesBar"; // adjust the path if needed
+import countryData from "../../constants/countries.json";
 
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
