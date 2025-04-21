@@ -192,6 +192,7 @@ const Dashboard = (props) => {
           .filter(
             (event) =>
               event.entityCode === summaryItem.entityCode && event.val !== 0
+            // event.entityCode === summaryItem.entityCode
           )
           .map((event) => ({
             ts: event.ts,
@@ -208,7 +209,7 @@ const Dashboard = (props) => {
       setSummaryDataWithTS(mergedData);
       console.log("SummaryDataWithTS", mergedData);
     }
-  }, [summaryDataProcessed, eventDataProcessed]);
+  }, [summaryDataProcessed, eventDataProcessed, from, until]);
   // Control Panel
   // manage the date selected in the input
   function handleTimeFrame({ _from, _until }) {

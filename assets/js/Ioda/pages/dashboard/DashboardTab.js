@@ -98,6 +98,8 @@ const DashboardTab = (props) => {
       <SummaryWithTSChart
         data={summaryDataWithTS}
         // width={config.current ? config.current.offsetWidth : 1000}
+        from={from}
+        until={until}
       />
     );
   }

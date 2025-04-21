@@ -165,6 +165,20 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
   },
+  scoreTooltipStyles: {
+    position: "absolute",
+    pointerEvents: "none",
+    backgroundColor: "white",
+    border: "1px solid #ccc",
+    padding: "8px 12px",
+    fontSize: "12px",
+    borderRadius: "4px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+    visibility: "hidden",
+    zIndex: 999,
+    maxWidth: "300px",
+    whiteSpace: "pre-wrap", // Preserve formatting
+  },
 };
 
 function humanizeNumber(value, precisionDigits = 2) {
@@ -174,7 +188,12 @@ function humanizeNumber(value, precisionDigits = 2) {
   )(value);
 }
 
-const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
+const SummaryWithTSChart = ({
+  data,
+  width: containerWidth = 1000,
+  from,
+  until,
+}) => {
   const chartRef = useRef(null);
   const scrollContainerRef = useRef(null); // Add this line
   // const [sortCriterion, setSortCriterion] = useState("score");
@@ -232,7 +251,8 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
     const allTimestamps = sortedData.flatMap((d) =>
       d.timeSeries.map((ts) => ts.ts)
     );
-    const xExtent = extent(allTimestamps);
+    // const xExtent = extent(allTimestamps);
+    const xExtent = [new Date(from * 1000), new Date(until * 1000)];
     const totalRangeDays = (xExtent[1] - xExtent[0]) / (1000 * 60 * 60 * 24);
     const xScale = scaleTime().domain(xExtent).range([0, width]);
     // Create separate x-axis SVG
@@ -443,7 +463,7 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
           getEntityScaleColor(country.score, "country") || "#d0d0d0"
         )
         .on("mouseover", function (event, d) {
-          select(this).attr("fill", "#d6d6d6");
+          select(this).attr("fill", "#e8e9eb");
           const tooltip = tooltipRef.current;
           tooltip.style.visibility = "visible";
           tooltip.innerHTML = `
@@ -479,7 +499,7 @@ const SummaryWithTSChart = ({ data, width: containerWidth = 1000 }) => {
           paddingLeft: "4px",
         }}
       >
-        All countries outage timeline
+        All Countries Outage Timeline
       </h3>
       <div style={styles.container}>
         {/* Header row - stays fixed during scrolling */}
