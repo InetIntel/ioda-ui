@@ -11,7 +11,8 @@ import countryData from "../../constants/countries.json";
 import { UpOutlined, DownOutlined } from "@ant-design/icons";
 // import { Button } from "antd";
 import { getEntityScaleColor } from "../../utils/mapColors";
-
+import { Link } from "react-router-dom";
+import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
   acc[country.code] = country.emoji;
@@ -214,6 +215,8 @@ const SummaryWithTSChart = ({
   from,
   until,
 }) => {
+  const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
+  const dateRangeInUrl = hasDateRangeInUrl();
   const chartRef = useRef(null);
   const scrollContainerRef = useRef(null); // Add this line
   // const [sortCriterion, setSortCriterion] = useState("score");
@@ -742,12 +745,23 @@ const SummaryWithTSChart = ({
           <div style={styles.countryScoreList}>
             {sortedData.map((d) => (
               <div key={d.entityCode} style={styles.countryScoreRow}>
-                <div style={{ width: "160px", fontSize: "11px" }}>
-                  {d.entityType === "country"
-                    ? countryFlagMap[d.entityCode] || ""
-                    : ""}{" "}
-                  {d.name}
-                </div>
+                {/*     const linkPath = dateRangeInUrl
+      ? `/${d.entityType}/${d.entityCode}?from=${urlFromDate}&until=${urlUntilDate}`
+      : `/${d.entityType}/${d.entityCode}`; */}
+                <Link
+                  to={`/${d.entityType}/${d.entityCode}${
+                    dateRangeInUrl
+                      ? `?from=${urlFromDate}&until=${urlUntilDate}`
+                      : ""
+                  }`}
+                >
+                  <div style={{ width: "140px", fontSize: "11px" }}>
+                    {d.entityType === "country"
+                      ? countryFlagMap[d.entityCode] || ""
+                      : ""}{" "}
+                    {d.name}
+                  </div>
+                </Link>
                 {/* <div style={{ width: "50px", textAlign: "right" }}>
                   {humanizeNumber(d.score, 2)}
                 </div> */}
@@ -773,12 +787,10 @@ const SummaryWithTSChart = ({
                         .join("\n");
 
                       tooltip.innerHTML = `
-                        <strong>${d.name}</strong><br/>
-                        <strong>Overall score:</strong> ${humanizeNumber(
+                        <strong>Overall score: </strong> ${humanizeNumber(
                           d.score,
                           2
                         )}<br/>
-                        <strong>Score components:</strong><br/>
                         ${scoresDetails}
                       `;
                       tooltip.style.left = `${e.pageX + 10}px`;
