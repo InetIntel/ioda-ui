@@ -17,6 +17,26 @@ const countryFlagMap = countryData.reduce((acc, country) => {
   acc[country.code] = country.emoji;
   return acc;
 }, {});
+//helper: color conversion
+function convertHexToRgba(hex, alpha = 1) {
+  let r = 0,
+    g = 0,
+    b = 0;
+  hex = hex.replace("#", "");
+
+  if (hex.length === 3) {
+    r = parseInt(hex[0] + hex[0], 16);
+    g = parseInt(hex[1] + hex[1], 16);
+    b = parseInt(hex[2] + hex[2], 16);
+  } else if (hex.length === 6) {
+    r = parseInt(hex.substring(0, 2), 16);
+    g = parseInt(hex.substring(2, 4), 16);
+    b = parseInt(hex.substring(4, 6), 16);
+  }
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function wrap(text, width) {
   text.each(function () {
     const textElement = select(this);
@@ -205,6 +225,38 @@ const SummaryWithTSChart = ({
     },
   });
   const tooltipRef = useRef(null);
+  // Add near your existing tooltipRef
+  const scoreTooltipRef = useRef(null);
+
+  // Add these styles to your styles object
+  const tooltipStyles = {
+    timeseries: {
+      position: "absolute",
+      pointerEvents: "none",
+      backgroundColor: "white",
+      border: "1px solid #ccc",
+      padding: "5px 8px",
+      fontSize: "12px",
+      borderRadius: "4px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+      visibility: "hidden",
+      zIndex: 999,
+    },
+    score: {
+      position: "absolute",
+      pointerEvents: "none",
+      backgroundColor: "white",
+      border: "1px solid #ccc",
+      padding: "8px 12px",
+      fontSize: "12px",
+      borderRadius: "4px",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+      visibility: "hidden",
+      zIndex: 999,
+      maxWidth: "300px",
+      whiteSpace: "pre-wrap",
+    },
+  };
 
   const xAxisRef = useRef(null);
 
@@ -412,24 +464,52 @@ const SummaryWithTSChart = ({
         // Add rectangle background
         group
           .append("rect")
-          .attr("width", 50) // Adjust width as needed
-          .attr("height", 20) // Adjust height as needed
-          .attr("x", -25) // Center the rectangle
-          .attr("y", -10) // Center the rectangle
-          .attr("rx", 4) // Rounded corners
+          .attr("width", 50)
+          .attr("height", 20)
+          .attr("x", -25)
+          .attr("y", -10)
+          .attr("rx", 4)
           .attr("fill", color)
-          .attr("opacity", 0.5) // Add transparency
-          .attr("stroke", color) // Border color (black)
-          .attr("stroke-width", 0.7) // Thin border
-          .attr("stroke-opacity", 1); // Fully opaque border
+          .attr("opacity", 0.5)
+          .attr("stroke", color)
+          .attr("stroke-width", 0.7)
+          .attr("stroke-opacity", 1)
+          .on("mouseover", function (event) {
+            const tooltip = scoreTooltipRef.current;
+            tooltip.style.visibility = "visible";
+
+            const scoresDetails = d.scores
+              .map(
+                (score) => `${score.source}: ${humanizeNumber(score.score, 2)}`
+              )
+              .join("\n");
+
+            tooltip.innerHTML = `
+            <strong>${d.name}</strong><br/>
+            <strong>Overall score:</strong> ${humanizeNumber(d.score, 2)}<br/>
+            <strong>Score components:</strong><br/>
+            ${scoresDetails}
+          `;
+            tooltip.style.left = `${event.pageX + 10}px`;
+            tooltip.style.top = `${event.pageY + 10}px`;
+          })
+          .on("mousemove", function (event) {
+            const tooltip = scoreTooltipRef.current;
+            tooltip.style.left = `${event.pageX + 10}px`;
+            tooltip.style.top = `${event.pageY + 10}px`;
+          })
+          .on("mouseout", function () {
+            const tooltip = scoreTooltipRef.current;
+            tooltip.style.visibility = "hidden";
+          });
 
         // Add text on top
         group
           .append("text")
           .attr("dy", "0.35em")
           .attr("text-anchor", "middle")
-          .style("font-size", "10px") // Smaller font size
-          .style("fill", "#000") // Black text
+          .style("font-size", "10px")
+          .style("fill", "#000")
           .text(humanizeNumber(d.score, 2));
       });
 
@@ -455,6 +535,7 @@ const SummaryWithTSChart = ({
         .append("rect")
         .attr("class", `bar bar-${country.entityCode}`)
         .attr("x", (d) => xScale(d.ts) - 3)
+        // .attr("x", (d) => xScale(new Date(d.ts * 1000)) - 3)
         .attr("y", () => yScale(country.name))
         .attr("width", 6)
         .attr("height", yScale.bandwidth() / 1.5)
@@ -619,21 +700,8 @@ const SummaryWithTSChart = ({
             ></div>
           </div>
         </div>
-        <div
-          ref={tooltipRef}
-          style={{
-            position: "absolute",
-            pointerEvents: "none",
-            backgroundColor: "white",
-            border: "1px solid #ccc",
-            padding: "5px 8px",
-            fontSize: "12px",
-            borderRadius: "4px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-            visibility: "hidden",
-            zIndex: 999,
-          }}
-        />
+        <div ref={tooltipRef} style={tooltipStyles.timeseries} />
+        <div ref={scoreTooltipRef} style={tooltipStyles.score} />
 
         {/* Scrollable content - both sections scroll together */}
         <div style={styles.scrollContainer} ref={scrollContainerRef}>
@@ -641,7 +709,7 @@ const SummaryWithTSChart = ({
           <div style={styles.countryScoreList}>
             {sortedData.map((d) => (
               <div key={d.entityCode} style={styles.countryScoreRow}>
-                <div style={{ width: "160px", fontSize: "10px" }}>
+                <div style={{ width: "160px", fontSize: "11px" }}>
                   {d.entityType === "country"
                     ? countryFlagMap[d.entityCode] || ""
                     : ""}{" "}
@@ -660,6 +728,38 @@ const SummaryWithTSChart = ({
                       height: "20px",
                       position: "relative",
                     }}
+                    onMouseOver={(e) => {
+                      const tooltip = scoreTooltipRef.current;
+                      tooltip.style.visibility = "visible";
+
+                      const scoresDetails = d.scores
+                        .map(
+                          (score) =>
+                            `${score.source}: ${humanizeNumber(score.score, 2)}`
+                        )
+                        .join("\n");
+
+                      tooltip.innerHTML = `
+                        <strong>${d.name}</strong><br/>
+                        <strong>Overall score:</strong> ${humanizeNumber(
+                          d.score,
+                          2
+                        )}<br/>
+                        <strong>Score components:</strong><br/>
+                        ${scoresDetails}
+                      `;
+                      tooltip.style.left = `${e.pageX + 10}px`;
+                      tooltip.style.top = `${e.pageY + 10}px`;
+                    }}
+                    onMouseMove={(e) => {
+                      const tooltip = scoreTooltipRef.current;
+                      tooltip.style.left = `${e.pageX + 10}px`;
+                      tooltip.style.top = `${e.pageY + 10}px`;
+                    }}
+                    onMouseOut={() => {
+                      const tooltip = scoreTooltipRef.current;
+                      tooltip.style.visibility = "hidden";
+                    }}
                   >
                     {/* Background rectangle with opacity */}
                     <div
@@ -669,13 +769,15 @@ const SummaryWithTSChart = ({
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor:
+                        backgroundColor: convertHexToRgba(
                           getEntityScaleColor(d.score, "country") || "#d0d0d0",
-                        opacity: 0.5,
-                        // borderRadius: "4px",
+                          0.5
+                        ),
+                        borderRadius: "2px",
                         zIndex: 1,
-                        border: "0.7px solid", // Thin opaque black border
-                        // borderColor:
+                        border: "1.5px solid", // Thin opaque black border
+                        borderColor:
+                          getEntityScaleColor(d.score, "country") || "#d0d0d0",
                         //   getEntityScaleColor(d.score, "country") || "#d0d0d0",
                         boxSizing: "border-box", // Ensures border is drawn inside
                       }}
