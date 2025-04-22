@@ -605,20 +605,20 @@ const Resources = () => {
   const [resourceCounts, setResourceCounts] = useState({
     tutorials: 0,
     research: 0,
-    terms: 0,
+    glossary: 0,
     repositories: 0,
   });
 
   useEffect(() => {
     const tutorialsCount = filteredResources("tutorials", filters).count;
     const researchCount = filteredResources("research", filters).count;
-    const termsCount = countTextMatches("terms", filters);
+    const glossaryCount = countTextMatches("glossary", filters);
     const repositoriesCount = countTextMatches("repo", filters);
 
     setResourceCounts({
       tutorials: tutorialsCount,
       research: researchCount,
-      terms: termsCount,
+      glossary: glossaryCount,
       repositories: repositoriesCount,
     });
   }, [filters]);
@@ -851,11 +851,11 @@ const Resources = () => {
 
           <Tabs.TabPane
             tab={`Glossary${
-              filters.searchQuery ? ` (${resourceCounts.terms})` : ""
+              filters.searchQuery ? ` (${resourceCounts.glossary})` : ""
             }`}
-            key="terms"
+            key="glossary"
           >
-            {renderTextResources("terms")}
+            {renderTextResources("glossary")}
           </Tabs.TabPane>
 
           <Tabs.TabPane

@@ -143,7 +143,7 @@ const text_resources = [
         </ul>
       </>
     ),
-    tab: "terms",
+    tab: "glossary",
   },
   {
     title: "Outage Detection",
@@ -275,7 +275,7 @@ const text_resources = [
         </p>
       </>
     ),
-    tab: "terms",
+    tab: "glossary",
   },
   {
     title: "Repositories",

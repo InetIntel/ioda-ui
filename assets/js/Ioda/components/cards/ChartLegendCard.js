@@ -142,7 +142,7 @@ const ChartLegendCard = ({
               <>
                 {tooltipGoogleLegendText}{" "}
                 <a
-                  href={"/resources?search=google"}
+                  href={"/resources?search=google&tab=glossary"}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: "#fa8c16" }}
