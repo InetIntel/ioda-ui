@@ -54,179 +54,12 @@ import {
 import { Helmet } from "react-helmet";
 
 const { Title, Paragraph, Text } = Typography;
-const { Option } = Select;
 
 import download_icon from "images/resources/download-icon.png";
 import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { tabOptions } from "../dashboard/DashboardConstants";
-
-// const FilterComponent = ({
-//   resources,
-//   onFilterChange,
-//   initialSearchQuery = "",
-// }) => {
-//   //update 0407
-//   //const [searchQuery, setSearchQuery] = useState("");
-//   const [searchQuery, setSearchQuery] = useState(initialSearchQuery || "");
-//   useEffect(() => {
-//     setSearchQuery(initialSearchQuery);
-//   }, [initialSearchQuery]);
-//   const [open, setOpen] = useState(false);
-
-//   const [selectedCommunity, setSelectedCommunity] = useState([]);
-//   const [communityOptions, setCommunityOptions] = useState([]);
-
-//   useEffect(() => {
-//     const communitySet = new Set();
-//     resources.forEach((resource) => {
-//       resource.tags?.community?.forEach((tag) => communitySet.add(tag));
-//     });
-
-//     setCommunityOptions([...communitySet]);
-//   }, [resources]);
-
-//   const toggleSelection = (value, selected, setSelected) => {
-//     if (selected.includes(value)) {
-//       setSelected(selected.filter((v) => v !== value));
-//     } else {
-//       setSelected([...selected, value]);
-//     }
-//   };
-
-//   const handleApplyFilters = () => {
-//     onFilterChange({
-//       searchQuery,
-//       community: selectedCommunity,
-//     });
-//     const params = new URLSearchParams(location.search);
-//     if (searchQuery) {
-//       params.set("search", searchQuery);
-//     } else {
-//       params.delete("search");
-//     }
-//     navigate(`?${params.toString()}`, { replace: true });
-//     setOpen(false);
-//   };
-
-//   const filterMenu = (
-//     <div
-//       className="filter-menu-box"
-//       style={{ marginTop: "6px" }}
-//       onClick={(e) => e.stopPropagation()}
-//     >
-//       <div className="filter-header">
-//         <span>Filter By Categories</span>
-//         <Button
-//           type="default"
-//           className="save-button"
-//           onClick={handleApplyFilters}
-//         >
-//           Save
-//         </Button>
-//       </div>
-
-//       <div className="filter-section">
-//         <div className="filter-label">Community</div>
-//         <div className="pill-container">
-//           {communityOptions.map((item) => (
-//             <div
-//               key={item}
-//               className={`pill ${
-//                 selectedCommunity.includes(item) ? "pill-selected" : ""
-//               }`}
-//               onClick={() =>
-//                 toggleSelection(item, selectedCommunity, setSelectedCommunity)
-//               }
-//             >
-//               {item}
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-
-//   return (
-//     <div style={{ width: "100%", maxWidth: "900px", marginTop: "-350px" }}>
-//       <Row gutter={[10, 12]} align="middle" justify="center">
-//         {/* Search Input */}
-//         {/* <Col span={14}>
-//           <Input
-//             placeholder="Search by Keywords"
-//             value={searchQuery}
-//             onChange={(e) => setSearchQuery(e.target.value)}
-//             style={{ height: "35px", borderRadius: "8px" }}
-//           />
-//         </Col> */}
-//         <Col span={14}>
-//           <div style={{ position: "relative" }}>
-//             <Input
-//               placeholder="Search by Keywords"
-//               value={searchQuery}
-//               onChange={(e) => setSearchQuery(e.target.value)}
-//               onKeyDown={handleKeyDown}
-//               style={{
-//                 height: "35px",
-//                 borderRadius: "8px",
-//                 paddingRight: "30px",
-//               }}
-//             />
-//             {searchQuery && (
-//               <CloseCircleFilled
-//                 style={{
-//                   position: "absolute",
-//                   right: "10px",
-//                   top: "50%",
-//                   transform: "translateY(-50%)",
-//                   cursor: "pointer",
-//                   color: "#999",
-//                 }}
-//                 onClick={() => setSearchQuery("")}
-//               />
-//             )}
-//           </div>
-//         </Col>
-
-//         <Col span={3}>
-//           <Dropdown
-//             open={open}
-//             onOpenChange={setOpen}
-//             dropdownRender={() => filterMenu}
-//             trigger={["click"]}
-//             placement="bottomRight"
-//           >
-//             <Button
-//               icon={<FilterOutlined />}
-//               onClick={() => setOpen(!open)}
-//               style={{
-//                 height: "35px",
-//                 borderRadius: "8px",
-//                 width: "100%",
-//                 border: "1px solid #2e76ff",
-//                 color: "#2e76ff",
-//               }}
-//             >
-//               Filter
-//             </Button>
-//           </Dropdown>
-//         </Col>
-//         <Col span={3}>
-//           <Button
-//             type="primary"
-//             icon={<SearchOutlined />}
-//             onClick={handleApplyFilters}
-//             style={{ height: "35px", borderRadius: "8px", width: "100%" }}
-//           >
-//             Search
-//           </Button>
-//         </Col>
-//       </Row>
-//     </div>
-//   );
-// };
 const FilterComponent = ({
   resources,
   onFilterChange,
@@ -394,7 +227,7 @@ const FilterComponent = ({
 const TextResource = ({ title, content, searchQuery }) => {
   const highlightText = (node, query) => {
     if (!query) return node;
-    // If the node is a string, perform highlighting
+    // perform highlighting
     if (typeof node === "string") {
       const parts = node.split(new RegExp(`(${query})`, "gi"));
       return parts.map((part, index) =>
@@ -435,16 +268,6 @@ const Resources = () => {
     const params = new URLSearchParams(location.search);
     return params.get("tab") || "tutorials";
   });
-  // const [searchParamTerm, setSearchParamTerm] = useState(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   return params.get("search") || "";
-  // });
-
-  // const [filters, setFilters] = useState({
-  //   searchQuery: "",
-  //   community: [],
-  // });
-  //update 0407
   const params = new URLSearchParams(location.search);
   const initialSearch = params.get("search") || "";
 
@@ -453,21 +276,10 @@ const Resources = () => {
     community: [],
   });
 
-  // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   setActiveTab(params.get("tab") || "tutorials");
-  // }, [location]);
-  //update 0407
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const newQuery = params.get("search") || "";
 
-    // setFilters((prev) => ({
-    //   ...prev,
-    //   searchQuery: newQuery,
-    // }));
-
-    // if (newQuery !== null) {
     setFilters((prev) => ({
       ...prev,
       searchQuery: newQuery,
@@ -475,55 +287,8 @@ const Resources = () => {
     // }
   }, [location.search]);
 
-  // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   if(activeTab !== "terms") {
-  //     return;
-  //   }
-  //   setSearchParamTerm(params.get("search") || null);
-  // }, [location]);
-
-  // useEffect(() => {
-  //   if(!searchParamTerm || searchParamTerm === "")
-  //     return;
-  //   if(searchParamTerm === 'active_probing') {
-  //     scrollToElementById("active-probing");
-  //     return;
-  //   }
-  //   if(searchParamTerm === "bgp") {
-  //     scrollToElementById("bgp");
-  //     return;
-  //   }
-  //   if(searchParamTerm === "network_telescope") {
-  //     scrollToElementById("network-telescope")
-  //   }
-  // }, [searchParamTerm]);
-
-  // function scrollToElementById(elementId, highlight = true, highlightColor = 'yellow', highlightDuration = 15000) {
-  //   const element = document.getElementById(elementId);
-  //   if (!element) {
-  //     console.error(`Element with ID "${elementId}" not found`);
-  //     return false;
-  //   }
-  //   // Scroll the element into view
-  //   element.scrollIntoView({
-  //     behavior: 'smooth',
-  //     block: 'center'
-  //   });
-  //   if (highlight) {
-  //     const originalBackground = element.style.backgroundColor;
-  //     element.style.backgroundColor = highlightColor;
-  //     setTimeout(() => {
-  //       element.style.backgroundColor = originalBackground;
-  //     }, highlightDuration);
-  //   }
-  //   return true;
-  // }
-
   const handleTabChange = (key) => {
     setActiveTab(key);
-    //update 0407
-    // navigate(`?tab=${key}`, { replace: true });
     const params = new URLSearchParams(location.search);
     if (filters.searchQuery) {
       params.set("search", filters.searchQuery);
@@ -568,35 +333,13 @@ const Resources = () => {
     return "";
   }
 
-  // const countTextMatches = (tab, filters) => {
-  //   const items = text_resources.filter((item) => item.tab === tab);
-  //   if (!filters.searchQuery) {
-  //     return items.length;
-  //   }
-  //   const regex = new RegExp(filters.searchQuery, "gi");
-  //   return items.reduce((matchedCount, textItem) => {
-  //     const titleHasMatch = regex.test(String(textItem.title));
-  //     regex.lastIndex = 0;
-  //     const contentString = extractTextFromReact(textItem.content);
-  //     const contentHasMatch = regex.test(contentString);
-  //     regex.lastIndex = 0;
-  //     return matchedCount + (titleHasMatch || contentHasMatch ? 1 : 0);
-  //   }, 0);
-  // };
-
-  // 1) Get the entire text from nested React nodes
-  // Filter for text-based resources
   const countTextMatches = (tab, filters) => {
     return text_resources
       .filter((text) => text.tab === tab)
       .reduce((count, text) => {
         const regex = new RegExp(filters.searchQuery, "gi");
-        // Title matches
         const titleMatches = (String(text.title).match(regex) || []).length;
-        // Content as string
         const contentString = extractTextFromReact(text.content);
-
-        // 2) Perform your regex match
         const contentMatches = (contentString.match(regex) || []).length;
         return count + titleMatches + contentMatches;
       }, 0);
@@ -633,7 +376,6 @@ const Resources = () => {
 
   const renderLinkResources = (tab) => {
     const { resources } = filteredResources(tab, filters);
-
     return (
       <div className="resources-container" style={{ marginTop: "20px" }}>
         <Row gutter={[16, 16]} justify="left" style={{ padding: "0 8px" }}>
@@ -829,7 +571,6 @@ const Resources = () => {
       <FilterComponent
         resources={link_resources}
         onFilterChange={setFilters}
-        //update0407
         initialSearchQuery={filters.searchQuery}
       />
 
