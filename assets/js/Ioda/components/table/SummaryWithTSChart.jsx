@@ -191,14 +191,14 @@ const styles = {
     pointerEvents: "none",
     backgroundColor: "white",
     border: "1px solid #ccc",
-    padding: "8px 12px",
+    padding: "4px 4px",
     fontSize: "12px",
     borderRadius: "4px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
     visibility: "hidden",
     zIndex: 999,
     maxWidth: "300px",
-    whiteSpace: "pre-wrap", // Preserve formatting
+    whiteSpace: "flex-wrap",
   },
 };
 
@@ -250,14 +250,14 @@ const SummaryWithTSChart = ({
       pointerEvents: "none",
       backgroundColor: "white",
       border: "1px solid #ccc",
-      padding: "8px 12px",
+      padding: "4px 4px",
       fontSize: "12px",
       borderRadius: "4px",
       boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
       visibility: "hidden",
       zIndex: 999,
       maxWidth: "300px",
-      whiteSpace: "pre-wrap",
+      whiteSpace: "normal",
     },
   };
 
@@ -512,18 +512,54 @@ const SummaryWithTSChart = ({
             const tooltip = scoreTooltipRef.current;
             tooltip.style.visibility = "visible";
 
+            // Create table rows for score components
             const scoresDetails = d.scores
               .map(
-                (score) => `${score.source}: ${humanizeNumber(score.score, 2)}`
+                (score) => `
+                <tr>
+                  <td style="text-align: left; padding-right: 10px;">${
+                    score.source
+                  }</td>
+                  <td style="text-align: right;">${humanizeNumber(
+                    score.score,
+                    2
+                  )}</td>
+                </tr>
+              `
               )
-              .join("\n");
+              .join("");
 
             tooltip.innerHTML = `
-            <strong>${d.name}</strong><br/>
-            <strong>Overall score:</strong> ${humanizeNumber(d.score, 2)}<br/>
-            <strong>Score components:</strong><br/>
-            ${scoresDetails}
-          `;
+              <div style="font-size: 12px; margin: 0; padding: 0;">
+                <table style="width: auto; border-collapse: collapse; margin: 0; padding: 0;">
+                  <tbody>
+                    <tr>
+                      <td style="text-align: left; padding: 0 6px 0 0;"><strong>Overall score</strong></td>
+                      <td style="text-align: right; padding: 0;">${humanizeNumber(
+                        d.score,
+                        2
+                      )}</td>
+                    </tr>
+                    ${d.scores
+                      .map(
+                        (score) => `
+                      <tr>
+                        <td style="text-align: left; padding: 0 6px 0 0;">${
+                          score.source
+                        }</td>
+                        <td style="text-align: right; padding: 0;">${humanizeNumber(
+                          score.score,
+                          2
+                        )}</td>
+                      </tr>
+                    `
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              </div>
+            `;
+
             tooltip.style.left = `${event.pageX + 10}px`;
             tooltip.style.top = `${event.pageY + 10}px`;
           })
@@ -779,20 +815,54 @@ const SummaryWithTSChart = ({
                       const tooltip = scoreTooltipRef.current;
                       tooltip.style.visibility = "visible";
 
+                      // Create table rows for score components
                       const scoresDetails = d.scores
                         .map(
-                          (score) =>
-                            `${score.source}: ${humanizeNumber(score.score, 2)}`
+                          (score) => `
+                          <tr>
+                            <td style="text-align: left; padding-right: 10px;">${
+                              score.source
+                            }</td>
+                            <td style="text-align: right;">${humanizeNumber(
+                              score.score,
+                              2
+                            )}</td>
+                          </tr>
+                        `
                         )
-                        .join("\n");
+                        .join("");
 
                       tooltip.innerHTML = `
-                        <strong>Overall score: </strong> ${humanizeNumber(
-                          d.score,
-                          2
-                        )}<br/>
-                        ${scoresDetails}
+                        <div style="font-size: 12px; margin: 0; padding: 0;">
+                          <table style="width: auto; border-collapse: collapse; margin: 0; padding: 0;">
+                            <tbody>
+                              <tr>
+                                <td style="text-align: left; padding: 0 6px 0 0;"><strong>Overall score</strong></td>
+                                <td style="text-align: right; padding: 0;">${humanizeNumber(
+                                  d.score,
+                                  2
+                                )}</td>
+                              </tr>
+                              ${d.scores
+                                .map(
+                                  (score) => `
+                                <tr>
+                                  <td style="text-align: left; padding: 0 6px 0 0;">${
+                                    score.source
+                                  }</td>
+                                  <td style="text-align: right; padding: 0;">${humanizeNumber(
+                                    score.score,
+                                    2
+                                  )}</td>
+                                </tr>
+                              `
+                                )
+                                .join("")}
+                            </tbody>
+                          </table>
+                        </div>
                       `;
+
                       tooltip.style.left = `${e.pageX + 10}px`;
                       tooltip.style.top = `${e.pageY + 10}px`;
                     }}
