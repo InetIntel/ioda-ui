@@ -5,7 +5,7 @@ import { scaleTime, scaleBand } from "d3-scale";
 import { extent, ascending, descending } from "d3-array";
 import { axisTop, axisLeft } from "d3-axis";
 import { format } from "d3-format";
-import { timeFormat } from "d3-time-format";
+import { timeFormat, utcFormat } from "d3-time-format";
 import { scaleOrdinal } from "d3-scale";
 import countryData from "../../constants/countries.json";
 import { UpOutlined, DownOutlined } from "@ant-design/icons";
@@ -304,7 +304,10 @@ const SummaryWithTSChart = ({
       d.timeSeries.map((ts) => ts.ts)
     );
     // const xExtent = extent(allTimestamps);
-    const xExtent = [new Date(from * 1000), new Date(until * 1000)];
+    const xExtent = [
+      new Date(from * 1000).setUTCHours(0, 0, 0, 0),
+      new Date(until * 1000).setUTCHours(23, 59, 59, 999),
+    ];
     const totalRangeDays = (xExtent[1] - xExtent[0]) / (1000 * 60 * 60 * 24);
     const xScale = scaleTime().domain(xExtent).range([0, width]);
     // Create separate x-axis SVG
@@ -321,31 +324,59 @@ const SummaryWithTSChart = ({
       .range([0, height])
       .padding(0.2);
 
+    // const formatTime = (date) => {
+    //   const utcDate = new Date(date.getTime());
+    //   const hours = utcDate.getUTCHours();
+    //   console.log("hours:", hours);
+    //   if (totalRangeDays > 4) {
+    //     // Only label 12 AM
+    //     if (hours === 0) {
+    //       return timeFormat.utc("%a %-m/%-d")(utcDate); // e.g., "Mon 4/15"
+    //     }
+    //     return null;
+    //   }
+    //   // Midnight gets date format
+    //   if (hours === 0) {
+    //     return timeFormat.utc("%a %-m/%-d")(utcDate); // "Mon 4/15"
+    //   }
+    //   // 6AM/6PM get simple time format
+    //   else if (hours === 6 || hours === 18) {
+    //     return timeFormat.utc("6 %p")(utcDate); // "6 AM" or "6 PM"
+    //   }
+    //   // Noon gets special format
+    //   else if (hours === 12) {
+    //     return "12 PM";
+    //   }
+
+    //   return null; // All other hours get no label
+    // };
     const formatTime = (date) => {
-      const utcDate = new Date(date.getTime());
-      const hours = utcDate.getUTCHours();
-      console.log("hours:", hours);
+      // Create UTC formatters
+      const utcDayFormat = utcFormat("%a %-m/%-d"); // For day labels
+      const utcTimeFormat = utcFormat("%-I %p"); // For time labels
+
+      const hours = date.getUTCHours();
+
       if (totalRangeDays > 4) {
-        // Only label 12 AM
+        // Only label 12 AM UTC
         if (hours === 0) {
-          return timeFormat("%a %-m/%-d")(utcDate); // e.g., "Mon 4/15"
+          return utcDayFormat(date);
         }
         return null;
       }
       // Midnight gets date format
       if (hours === 0) {
-        return timeFormat("%a %-m/%-d")(utcDate); // "Mon 4/15"
+        return utcDayFormat(date);
       }
       // 6AM/6PM get simple time format
       else if (hours === 6 || hours === 18) {
-        return timeFormat("6 %p")(utcDate); // "6 AM" or "6 PM"
+        return utcTimeFormat(date);
       }
       // Noon gets special format
       else if (hours === 12) {
         return "12 PM";
       }
-
-      return null; // All other hours get no label
+      return null;
     };
 
     // Custom function to generate ticks at reasonable intervals
@@ -547,10 +578,12 @@ const SummaryWithTSChart = ({
           select(this).attr("fill", "#e8e9eb");
           const tooltip = tooltipRef.current;
           tooltip.style.visibility = "visible";
+          // Use UTC date formatting here too
+          const utcTooltipFormat = utcFormat("%b %d, %H:%M UTC");
           tooltip.innerHTML = `
             <strong> ${country.name}</strong><br/>
             Score: ${country.score}<br/>
-            Time: ${new Date(d.ts).toUTCString()}
+            Time: ${utcTooltipFormat(new Date(d.ts))}
           `;
         })
         .on("mousemove", function (event) {
