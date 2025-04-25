@@ -106,6 +106,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       return regionCountryCacheRef.current[regionCode];
     }
     try {
+      regionCode = regionCode.includes("-") ? regionCode.split("-")[0] : regionCode;
       const url = `/entities/query?entityType=country&relatedTo=region/${regionCode}`
       const fetched = await fetchData({url});
       const countries = (fetched?.data?.data ?? []);
@@ -402,16 +403,14 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
             if ((entityType === "country")) {
               url = urlString + `&relatedTo=country/${entityCode}`;
             } else if (entityType === "region") {
-              const countryCode = await getCountryCodeFromRegion(entityCode);
-              url = urlString + `&relatedTo=country/${countryCode}`;
+              url = urlString + `&relatedTo=region/${entityCode}`;
             } else if(entityType === "asn") {
               if (entityCode.includes("-")) {
                 const geoCode = entityCode.split("-")[1];
                 if (isNaN(geoCode)) { // country
                   url = urlString + `&relatedTo=country/${geoCode}`;
                 } else { // region
-                  const countryCode = await getCountryCodeFromRegion(geoCode);
-                  url = urlString + `&relatedTo=country/${countryCode}`;
+                  url = urlString + `&relatedTo=region/${geoCode}`;
                 }
               }
             }
@@ -562,7 +561,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
               setRegionSearchText("All Regions")
             }
             else { // region
-              const selectedRegion = await regionOptions.find((region) => region.entity.code === geoCode);
+              const selectedRegion = await regionOptions.find((region) => region.entity.code == geoCode);
               setRegionSearchText(selectedRegion ? selectedRegion.label : "");
               const countryCode = await getCountryCodeFromRegion(geoCode);
               setCountrySearchText(_countryNameMap[countryCode]);
@@ -603,7 +602,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       };
       fetchAsnData();
     }
-  }, [entityType, entityCode, asnOptions]);
+  }, [entityType, entityCode, asnOptions, regionOptions]);
 
   useEffect(() => {
     if(entityCode === undefined && entityType) {
@@ -1214,4 +1213,4 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
   );
 }
 
-export default ControlPanel;
+export default React.memo(ControlPanel);

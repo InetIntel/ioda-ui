@@ -101,101 +101,90 @@ const RawSignalsModal = (props) => {
     entityName,
     rawAsnSignalsRawBgpLength,
     uncheckAllButtonLoading,
-    parentEntityName
+    parentEntityName,
+      isLoading,
+      globalSwitch,
+    globalRegionalAsnConnectivity
   } = props;
 
-  // const [mounted, setMounted] = useState(false);
   const [additionalEntitiesLoading, setAdditionalEntitiesLoading] = useState(false);
   const [renderingDataPingSlash24, setRenderingDataPingSlash24] = useState(false);
   const [renderingDataBgp, setRenderingDataBgp] = useState(false);
-  const [renderingDataUcsdNt, setRenderingDataUcsdNt] = useState(false);
   const [renderingDataMeritNt, setRenderingDataMeritNt] = useState(false);
   const [chartWidth, setChartWidth] = useState(null);
-  const [globalSwitch, setGlobalSwitch] = useState(false);
-  const [globalRegionalAsnConnectivity, setGlobalRegionalAsnConnectivity] = useState(false);
 
   let configPingSlash24 = useRef(null);
   let configBgp = useRef(null);
-  let configUcsdNt = useRef(null);
   let configMeritNt =useRef(null);
 
 
   let titlePingSlash24 = useRef(null);
   let titleBgp = useRef(null);
-  let titleUcsdNt = useRef(null);
   let titleMeritNt = useRef(null);
 
-
+  const [isDisabled, setIsDisabled] = useState(false);
   const updatedAsnSignalsTableSummaryDataProcessed = (asnSignalsTableSummaryDataProcessed ?? []).map(summary => ({
     ...summary,
     ipCount: (summary.ipCount === "NaN" || summary.ipCount === "") ? "Unknown" : summary.ipCount,
   }));
 
   useEffect(() => {
-    if(configBgp.current) {
-      try{
-        genChart("bgp", "region");
-      } catch(error) {
-        console.log("Error rendering chart")
-      }
-
-    }
-  }, [rawRegionalSignalsProcessedBgp]);
-
-  useEffect(() => {
-    if(configBgp.current) {
-      try {
-        genChart("bgp", "asn");
-      } catch(error) {
-        console.log("Error rendering chart")
-      }
-
-    }
-  }, [rawAsnSignalsProcessedBgp]);
-
-  useEffect(() => {
-    if(configPingSlash24.current) {
-      try {
-        genChart("ping-slash24", "asn");
-      } catch(error) {
-        console.log("Error rendering chart")
-      }
-    }
-  }, [rawAsnSignalsProcessedPingSlash24]);
-
-  useEffect(() => {
-    if(configPingSlash24.current) {
+    if(configPingSlash24.current && rawRegionalSignalsProcessedPingSlash24) {
       try {
         genChart("ping-slash24", "region");
       } catch(error) {
-        console.log("Error rendering chart")
+        console.log("Error rendering ping-slash4 region chart")
       }
     }
-  }, [rawRegionalSignalsProcessedPingSlash24]);
+    if(configPingSlash24.current && rawAsnSignalsProcessedPingSlash24) {
+      try {
+        genChart("ping-slash24", "asn");
+      } catch(error) {
+        console.log("Error rendering ping-slash4 asn chart")
+      }
+    }
+  }, [rawRegionalSignalsProcessedPingSlash24, rawAsnSignalsProcessedPingSlash24, configPingSlash24])
 
+  // BGP
   useEffect(() => {
-    if(configMeritNt.current) {
+    if(configBgp.current && rawRegionalSignalsProcessedBgp) {
+      try{
+        genChart("bgp", "region");''
+      } catch (error) {
+        console.log("Error rendering bgp region chart", error);
+      }
+    }
+    if(configBgp.current && rawAsnSignalsProcessedBgp) {
+      try {
+        genChart("bgp", "asn");
+      } catch(error) {
+        console.log("Error rendering bgp asn chart", error)
+      }
+    }
+  }, [rawRegionalSignalsProcessedBgp, rawAsnSignalsProcessedBgp, configBgp]);
+
+  // Merit-nt
+  useEffect(() => {
+    if(configMeritNt.current && rawAsnSignalsProcessedMeritNt) {
       try {
         genChart("merit-nt", "asn");
       } catch(error) {
-        console.log("Error rendering chart")
+        console.log("Error rendering merit-nt region chart")
       }
     }
-  }, [rawAsnSignalsProcessedMeritNt]);
 
-  useEffect(() => {
-    if(configMeritNt.current) {
+    if(configMeritNt.current && rawRegionalSignalsProcessedMeritNt) {
       try {
         genChart("merit-nt", "region");
-      } catch(error) {
-        console.log("Error rendering chart")
+      } catch (error) {
+        console.log("Error rendering merit-nt region chart")
       }
     }
-  }, [rawRegionalSignalsProcessedMeritNt]);
-
+  }, [rawAsnSignalsProcessedMeritNt, rawRegionalSignalsProcessedMeritNt, configMeritNt]);
 
   const genChart = (dataSource, entityType) => {
     // set variables
+    console.log("Generating chart with datasource and entityType", dataSource, entityType);
     let dataSourceForCSS, rawSignalsProcessedArray;
     switch (entityType) {
       case "region":
@@ -217,16 +206,6 @@ const RawSignalsModal = (props) => {
               dataSourceForCSS = "bgp";
               rawSignalsProcessedArray =
                   rawRegionalSignalsProcessedBgp;
-            }
-            break;
-          case "ucsd-nt":
-            if (
-                rawRegionalSignalsProcessedUcsdNt &&
-                rawRegionalSignalsProcessedUcsdNt.length > 0
-            ) {
-              dataSourceForCSS = "ucsdNt";
-              rawSignalsProcessedArray =
-                  rawRegionalSignalsProcessedUcsdNt;
             }
             break;
           case "merit-nt":
@@ -260,16 +239,6 @@ const RawSignalsModal = (props) => {
             ) {
               dataSourceForCSS = "bgp";
               rawSignalsProcessedArray = rawAsnSignalsProcessedBgp;
-            }
-            break;
-          case "ucsd-nt":
-            if (
-                rawAsnSignalsProcessedUcsdNt &&
-                rawAsnSignalsProcessedUcsdNt.length > 0
-            ) {
-              dataSourceForCSS = "ucsdNt";
-              rawSignalsProcessedArray =
-                  rawAsnSignalsProcessedUcsdNt;
             }
             break;
           case "merit-nt":
@@ -340,17 +309,6 @@ const RawSignalsModal = (props) => {
       }
 
       if (
-          dataSource === "ucsd-nt" &&
-          (configUcsdNt.current || chartWidth)
-      ) {
-        chart(
-            configUcsdNt.current
-                ? configUcsdNt.current.offsetWidth
-                : chartWidth
-        );
-      }
-
-      if (
           dataSource === "merit-nt" &&
           (configMeritNt.current || chartWidth)
       ) {
@@ -372,13 +330,8 @@ const RawSignalsModal = (props) => {
     }, 600);
   }
 
-  const handleGlobalSwitch = () => {
-    setGlobalSwitch(globalSwitch => !globalSwitch);
-    handleGlobalAsnSignals();
-  }
-
   const handleRegionalAsnConnectivity = () => {
-    setGlobalRegionalAsnConnectivity(connectivity => !connectivity);
+    // setGlobalRegionalAsnConnectivity(connectivity => !connectivity);
     handleGlobalRegionalAsnSignals();
   }
 
@@ -386,6 +339,7 @@ const RawSignalsModal = (props) => {
 
   const regionTitle = T.translate("entityModal.regionTitle");
   const asnTitle = T.translate("entityModal.asnTitle");
+  const countryTitle = T.translate("entityModal.countryTitle");
   const regionalTableTitle = T.translate("entityModal.regionalTableTitle");
   const asnTableTitle = T.translate("entityModal.asnTableTitle");
   const regionalMapTitle = T.translate("entityModal.regionalMapTitle");
@@ -394,7 +348,6 @@ const RawSignalsModal = (props) => {
   );
   const pingSlash24HtsLabel = T.translate("entityModal.pingSlash24HtsLabel");
   const bgpHtsLabel = T.translate("entityModal.bgpHtsLabel");
-  const ucsdNtHtsLabel = T.translate("entityModal.ucsdNtHtsLabel");
   const meritNtHtsLabel = T.translate("entityModal.meritNtHtsLabel");
   const checkMaxButton = T.translate("entityModal.checkMaxButton");
   const checkMaxButtonBelow150_1 = T.translate(
@@ -474,13 +427,6 @@ const RawSignalsModal = (props) => {
                     .renderingDataBgp {
                         ${renderingDataBgp ? activeCSS : inactiveCSS}
                     }
-                    .renderingDataUcsdNt {
-                        ${
-            renderingDataUcsdNt
-                ? activeCSS
-                : inactiveCSS
-        }
-                    }
                     .renderingDataMeritNt {
                         ${
             renderingDataMeritNt
@@ -497,11 +443,20 @@ const RawSignalsModal = (props) => {
                   <h2 className="text-2xl">
                     {regionTitle} {parentEntityName}
                   </h2>
-              ) : modalLocation === "table" ? (
-                  <h2 className="text-2xl">
-                    {asnTitle} {parentEntityName}
-                  </h2>
-              ) : null}
+              ) : modalLocation === "table" ?
+                  (entityType === "region" ?
+                      <h2 className="text-2xl">
+                        {asnTitle} {entityName}
+                      </h2>
+                   : entityType === 'asn' ?
+                              <h2 className="text-2xl">
+                                {countryTitle} {entityName}
+                              </h2>
+                              :
+                              <h2 className="text-2xl">
+                                {asnTitle} {parentEntityName}
+                              </h2>
+                      ) : null}
               <Tooltip
                   title={tooltipEntityRawSignalsHeadingTitle}
                   text={tooltipEntityRawSignalsHeadingText}
@@ -559,7 +514,8 @@ const RawSignalsModal = (props) => {
                 <Switch
                     className="mr-3"
                     checked={globalSwitch}
-                    onChange={handleGlobalSwitch}
+                    onChange={handleGlobalAsnSignals}
+                    disabled={isDisabled}
                 />
                 <span className="text-lg">{modeStatus}</span>
                 <Tooltip
@@ -615,12 +571,10 @@ const RawSignalsModal = (props) => {
                         loading={checkMaxButtonLoading}
                     >
                       {modalLocation === "map"
-                          ? regionalSignalsTableSummaryDataProcessed
-                              .length < maxHtsLimit
+                          ? regionalSignalsTableSummaryDataProcessed?.length < maxHtsLimit
                               ? `${checkMaxButtonBelow150_1}${regionalSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
                               : checkMaxButton
-                          : asnSignalsTableSummaryDataProcessed
-                              .length < maxHtsLimit
+                          : asnSignalsTableSummaryDataProcessed?.length < maxHtsLimit
                               ? `${checkMaxButtonBelow150_1}${asnSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
                               : checkMaxButton}
                     </Button>
@@ -683,8 +637,7 @@ const RawSignalsModal = (props) => {
                                 regionalSignalsTableSummaryDataProcessed
                               }
                               totalCount={
-                                regionalSignalsTableSummaryDataProcessed
-                                    .length
+                                regionalSignalsTableSummaryDataProcessed?.length
                               }
                               toggleEntityVisibilityInHtsViz={(event) =>
                                   toggleEntityVisibilityInHtsViz(
@@ -763,9 +716,16 @@ const RawSignalsModal = (props) => {
                   <>
 
                   {(() => {
+                    if(isLoading) {
+                      return <div className="dataSwitchingState">
+                        <Loading text="Retrieving Data..."/>
+                      </div>
+                    }
+
                     if (rawRegionalSignalsRawPingSlash24Length === undefined ||
                         rawRegionalSignalsRawPingSlash24Length === 0 ||
-                        rawRegionalSignalsProcessedPingSlash24 === undefined) {
+                        rawRegionalSignalsProcessedPingSlash24 === undefined
+                    ) {
                       return (
                           <div className="dataInitState">
                             <Loading text="Retrieving Data..." />
@@ -847,7 +807,7 @@ const RawSignalsModal = (props) => {
                             ref={configPingSlash24}
                             className="modal__chart"
                         >
-                          {genChart("ping-slash24", "region")}
+                          {/*{genChart("ping-slash24", "region")}*/}
                         </div>
                     ) : null}
                   </>
@@ -860,7 +820,7 @@ const RawSignalsModal = (props) => {
                             ref={configPingSlash24}
                             className="modal__chart"
                         >
-                          {genChart("ping-slash24", "asn")}
+                          {/*{genChart("ping-slash24", "asn")}*/}
                         </div>
                     ) : null}
                   </>
@@ -871,6 +831,11 @@ const RawSignalsModal = (props) => {
               {modalLocation === "map" ? (
                   <>
                     {(() => {
+                      if(isLoading) {
+                        return <div className="dataSwitchingState">
+                          <Loading text="Retrieving Data..."/>
+                        </div>
+                      }
                       if (rawRegionalSignalsRawBgpLength === undefined ||
                           rawRegionalSignalsRawBgpLength === 0 ||
                           rawRegionalSignalsProcessedBgp === undefined) {
@@ -908,6 +873,11 @@ const RawSignalsModal = (props) => {
               ) : (
                   <>
                     {(() => {
+                      if(isLoading) {
+                        return <div className="dataSwitchingState">
+                          <Loading text="Retrieving Data..."/>
+                        </div>
+                      }
                       if (rawAsnSignalsRawBgpLength === undefined || rawAsnSignalsRawBgpLength === 0 || rawAsnSignalsProcessedBgp === undefined) {
                         return (
                             <div className="dataInitState">
@@ -966,7 +936,7 @@ const RawSignalsModal = (props) => {
                             ref={configBgp}
                             className="modal__chart"
                         >
-                          {genChart("bgp", "asn")}
+                          {/*{genChart("bgp", "asn")}*/}
                         </div>
                     ) : null}
                   </>
@@ -977,6 +947,11 @@ const RawSignalsModal = (props) => {
               {modalLocation === "map" ? (
                   <>
                     {(() => {
+                      if(isLoading) {
+                        return <div className="dataSwitchingState">
+                          <Loading text="Retrieving Data..."/>
+                        </div>
+                      }
                       if (rawRegionalSignalsRawMeritNtLength === undefined ||
                           rawRegionalSignalsRawMeritNtLength === 0 ||
                           rawRegionalSignalsProcessedMeritNt === undefined) {
@@ -1014,6 +989,11 @@ const RawSignalsModal = (props) => {
               ) : (
                   <>
                     {(() => {
+                      if(isLoading) {
+                        return <div className="dataSwitchingState">
+                          <Loading text="Retrieving Data..."/>
+                        </div>
+                      }
                       if (rawAsnSignalsRawMeritNtLength === undefined || rawAsnSignalsRawMeritNtLength === 0 || rawAsnSignalsProcessedMeritNt === undefined) {
                         return (
                             <div className="dataInitState">
@@ -1072,7 +1052,7 @@ const RawSignalsModal = (props) => {
                             ref={configMeritNt}
                             className="modal__chart"
                         >
-                          {genChart("merit-nt", "asn")}
+                          {/*{genChart("merit-nt", "asn")}*/}
                         </div>
                     ) : null}
                   </>

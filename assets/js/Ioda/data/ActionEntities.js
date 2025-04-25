@@ -76,7 +76,9 @@ import {
     GET_RELATED_ENTITIES,
     fetchData,
     GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA,
-    GET_ASN_SIGNALS_TABLE_SUMMARY_DATA
+    GET_ASN_SIGNALS_TABLE_SUMMARY_DATA,
+    SET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA,
+    SET_ASN_SIGNALS_TABLE_SUMMARY_DATA
 } from "./ActionCommons";
 
 const buildSearchConfig = (searchQueryText, limit) => {
@@ -145,6 +147,14 @@ export const regionalSignalsTableSummaryDataAction = (dispatch, entityType, rela
     });
 }
 
+// Action for setting data used on signals table in map modal on entities page
+export const setRegionalSignalsTableSummaryDataAction = (dispatch) => {
+    dispatch({
+        type: SET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA,
+        payload: null,
+    })
+}
+
 // Action for getting data used on signals table in map modal on entities page
 export const asnSignalsTableSummaryDataAction = (dispatch, entityType, relatedToEntityType, relatedToEntityCode) => {
     let config = summaryDataForSignalsTableConfig(entityType, relatedToEntityType, relatedToEntityCode);
@@ -154,4 +164,12 @@ export const asnSignalsTableSummaryDataAction = (dispatch, entityType, relatedTo
             payload: data.data.data,
         })
     });
+}
+
+// Action for getting data used on signals table in map modal on entities page
+export const setAsnSignalsTableSummaryDataAction = (dispatch) => {
+    dispatch({
+        type: SET_ASN_SIGNALS_TABLE_SUMMARY_DATA,
+        payload: null,
+    })
 }

@@ -111,8 +111,8 @@ const AppFooter = () => {
                         <Col xs={12} sm={6}>
                             <Text  style={{ color: 'white', display: 'block', marginBottom: '24px', fontSize: '12px' }}>Connect</Text>
                             <Space direction="vertical" size={12}>
-                                <Link href="https://bsky.app/profile/IODA.mastodon.social.ap.brid.gy" style={{ color: 'white' }}>Bluesky</Link>
-                                <Link href="https://mastodon.social/@IODA" style={{ color: 'white' }}>Mastodon</Link>
+                                <Link href="https://bsky.app/profile/ioda.live" style={{ color: 'white' }}>Bluesky</Link>
+                                <Link href="https://bsky.app/profile/ioda.live" style={{ color: 'white' }}>Mastodon</Link>
                             </Space>
                         </Col>
                     </Row>

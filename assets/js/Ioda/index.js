@@ -61,6 +61,7 @@ import Resources from "./pages/resources/Resources";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import { initializeAnalytics } from "./utils/analytics";
+import {timeRangeReducer} from "./data/TimeRangeReducer";
 
 initializeAnalytics();
 
@@ -94,10 +95,11 @@ class App extends Component {
         <Routes>
           <Route path="/dashboard/:entityType?" element={<Dashboard />} />
           <Route exact path="/about" element={<About />} />
-          <Route exact path="/help" element={<Help />} />
+          {/*<Route exact path="/help" element={<Help />} />*/}
           <Route exact path="/resources" element={<Resources />} />
           <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
           <Route exact path="/:entityType/:entityCode?" element={<Entity />} />
+            {/*<Route exact path="/:entityType/:entityCode?" element={<OptimizedEntity />} />*/}
           <Route path="/" element={<Home />} />
         </Routes>
         <Footer />
@@ -108,12 +110,14 @@ class App extends Component {
 
 const reducers = {
   iodaApi: iodaApiReducer,
+  timeRange: timeRangeReducer
 };
 
 const store = configureStore({
   reducer: reducers,
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({
         immutableStateInvariant: false,
+        serializableCheck: false
     })
 })
 const container = document.getElementById("root");

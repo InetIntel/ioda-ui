@@ -168,7 +168,7 @@
     "activeProbingChartTitle": "Active Probing Latency and Loss Rate",
     "activeProbingChartSubTitle": "This graph uses active probing to calculate latency based on Round-Trip Time (RTT) and packet loss based on Percentage Loss Rate.",
     "apChartLatencyLabel": "Latency",
-    "apChartPctLossLabel": "Package Loss"
+    "apChartPctLossLabel": "Packet Loss"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",
@@ -211,7 +211,8 @@
     "pingSlash24HtsLabel": "Active Probing",
     "bgpHtsLabel": "BGP",
     "ucsdNtHtsLabel": "Network Telescope",
-    "meritNtHtsLabel": "Network Telescope"
+    "meritNtHtsLabel": "Network Telescope",
+    "countryTitle": "Country Raw Signals related to "
   },
   "table": {
     "alertHeaders": {

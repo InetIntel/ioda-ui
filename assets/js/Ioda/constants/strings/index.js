@@ -69,3 +69,5 @@ export const changeLanguage = (language) => {
   });
 };
 changeLanguage(localStorage.getItem("lang") != null ? localStorage.getItem("lang") :"en")
+
+export const CUSTOM_FONT_FAMILY = "Inter, sans-serif";

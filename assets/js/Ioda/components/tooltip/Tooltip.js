@@ -27,4 +27,4 @@ const Tooltip = ({ title, text, customCode, className }) => {
   );
 };
 
-export default Tooltip;
+export default React.memo(Tooltip);

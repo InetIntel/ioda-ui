@@ -77,7 +77,7 @@ const ApPacketLossComponent = ({
             color: "#7cb5ec"
         },
         {
-            name: "Package Loss",
+            name: "Packet Loss",
             color: "#52c41a"
         }
     ]
@@ -335,35 +335,6 @@ const ApPacketLossComponent = ({
                             {activeProbingChartTitle}
                         </h3>
                         <div className="flex ml-auto">
-                            <Popover
-                                open={displaySettingsPopOver}
-                                onOpenChange={(val) => setDisplaySettingsPopOver(val)}
-                                trigger="click"
-                                placement="bottomRight"
-                                overlayStyle={{
-                                    width: 180,
-                                }}
-                                content={
-                                    <div onClick={() =>
-                                        setDisplaySettingsPopOver(false)
-                                    }>
-                                        <>
-                                            <Checkbox
-                                                checked={setting}
-                                                onChange={(e) =>
-                                                    setSetting(e.target)
-                                                }
-                                            >
-                                                "Setting 1"
-                                            </Checkbox>
-                                        </>
-                                    </div>
-                                }
-                            >
-                                <Tooltip title="Chart Settings">
-                                    <Button className="mr-3" icon={<SettingOutlined/>}/>
-                                </Tooltip>
-                            </Popover>
                             <Tooltip
                                 title="Download"
                                 mouseEnterDelay={0}

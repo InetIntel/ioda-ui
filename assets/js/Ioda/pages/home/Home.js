@@ -68,6 +68,8 @@ import dosLogo from "images/logos/dos.png";
 import PartnerCard from "./PartnerCard";
 import EntitySearchTypeahead from "../../components/entitySearchTypeahead/EntitySearchTypeahead";
 import { getDateRangeFromUrl } from "../../utils/urlUtils";
+import BlueskyIodaFeed from "../../components/widget/BlueskyIodaFeed";
+
 
 class Home extends Component {
   constructor(props) {
@@ -87,17 +89,6 @@ class Home extends Component {
       // Get topo and outage data to populate map
       this.getDataTopo();
       this.getDataOutageSummary();
-    });
-    window.addEventListener("load", () => {
-      const myTimeline = new MastodonTimeline.Init(
-          {
-            instanceUrl: "https://mastodon.social",
-            timelineType: "profile",
-            userId: "110576638411461442",
-            profileName: "@IODA",
-            maxNbPostShow: "10"
-          }
-      );
     });
   }
 
@@ -269,11 +260,13 @@ class Home extends Component {
               {/*  lang={getSavedLanguagePreference()}*/}
               {/*  noBorders={true}*/}
               {/*/>*/}
-              <div id="mt-container" className="mt-container mt-container-seamless">
-                <div className="mt-body" role="feed">
-                  <div className="mt-loading-spinner"></div>
-                </div>
-              </div>
+              {/*<div id="mt-container" className="mt-container mt-container-seamless">*/}
+              {/*<div className="mt-body" role="feed">*/}
+              {/*  <div className="mt-loading-spinner"></div>*/}
+              {/*</div>*/}
+              {/*</div>*/}
+                <BlueskyIodaFeed did='did:plc:3xessr3vu336mxean6zvfyjq' />
+
             </div>
           </div>
         </div>

@@ -35,7 +35,7 @@
  * MODIFICATIONS.
  */
 
-import React, {Component, useRef, useState} from "react";
+import React, {useRef} from "react";
 import RawSignalsModal from "../../components/modal/RawSignalsModal";
 import T from "i18n-react";
 import Loading from "../../components/loading/Loading";
@@ -45,6 +45,8 @@ import Table from "../../components/table/Table";
 import { Button } from "antd";
 import LatencyComponent from "./components/LatencyComponent";
 import ApPacketLossComponent from "./components/ApPacketLossComponent";
+import {openModal} from "../../data/ModalSlice";
+import {useDispatch} from "react-redux";
 
 const EntityRelated = (props) => {
 
@@ -67,7 +69,6 @@ const EntityRelated = (props) => {
     regionalSignalsTableEntitiesChecked,
     rawRegionalSignalsProcessedPingSlash24,
     rawRegionalSignalsProcessedBgp,
-    rawRegionalSignalsProcessedUcsdNt,
     rawRegionalSignalsProcessedMeritNt,
     rawSignalsMaxEntitiesHtsError,
     initialTableLimit,
@@ -78,25 +79,21 @@ const EntityRelated = (props) => {
     handleAdditionalEntitiesLoading,
     additionalRawSignalRequestedPingSlash24,
     additionalRawSignalRequestedBgp,
-    additionalRawSignalRequestedUcsdNt,
     additionalRawSignalRequestedMeritNt,
     checkMaxButtonLoading,
     uncheckAllButtonLoading,
     rawRegionalSignalsRawBgpLength,
     rawRegionalSignalsRawPingSlash24Length,
-    rawRegionalSignalsRawUcsdNtLength,
     rawRegionalSignalsRawMeritNtLength,
     showTableModal,
     rawAsnSignalsProcessedPingSlash24,
     rawAsnSignalsProcessedBgp,
-    rawAsnSignalsProcessedUcsdNt,
     rawAsnSignalsProcessedMeritNt,
     asnSignalsTableEntitiesChecked,
     asnSignalsTableTotalCount,
     asnRawSignalsLoadAllButtonClicked,
     rawAsnSignalsRawBgpLength,
     rawAsnSignalsRawPingSlash24Length,
-    rawAsnSignalsRawUcsdNtLength,
     rawAsnSignalsRawMeritNtLength,
     relatedToTableSummaryProcessed,
     handleGlobalAsnSignals,
@@ -105,7 +102,10 @@ const EntityRelated = (props) => {
     rawAsnSignalsUpstreamDelayPenultAsnCount,
     rawAsnSignalsApPacketLoss,
     rawAsnSignalsApPacketDelay,
-    showApPacketGraph
+    showApPacketGraph,
+    globalRegionalAsnConnectivity,
+      globalSwitch,
+      isLoading
   } = props;
 
 
@@ -194,7 +194,7 @@ const EntityRelated = (props) => {
               }
               // render function that populates the ui
               totalCount={
-                regionalSignalsTableSummaryDataProcessed.length
+                regionalSignalsTableSummaryDataProcessed?.length
               }
               toggleEntityVisibilityInHtsViz={(event) =>
                 toggleEntityVisibilityInHtsViz(event, "region")
@@ -222,9 +222,6 @@ const EntityRelated = (props) => {
               }
               rawRegionalSignalsProcessedBgp={
                 rawRegionalSignalsProcessedBgp
-              }
-              rawRegionalSignalsProcessedUcsdNt={
-                rawRegionalSignalsProcessedUcsdNt
               }
               rawRegionalSignalsProcessedMeritNt={
                 rawRegionalSignalsProcessedMeritNt
@@ -262,9 +259,6 @@ const EntityRelated = (props) => {
               additionalRawSignalRequestedBgp={
                 additionalRawSignalRequestedBgp
               }
-              additionalRawSignalRequestedUcsdNt={
-                additionalRawSignalRequestedUcsdNt
-              }
               additionalRawSignalRequestedMeritNt={
                 additionalRawSignalRequestedMeritNt
               }
@@ -278,15 +272,14 @@ const EntityRelated = (props) => {
               rawRegionalSignalsRawPingSlash24Length={
                 rawRegionalSignalsRawPingSlash24Length
               }
-              rawRegionalSignalsRawUcsdNtLength={
-                rawRegionalSignalsRawUcsdNtLength
-              }
               rawRegionalSignalsRawMeritNtLength={
                 rawRegionalSignalsRawMeritNtLength
               }
               handleGlobalAsnSignals={handleGlobalAsnSignals}
               handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
               parentEntityName={parentEntityName}
+              globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
+                isLoading={isLoading}
             />}
           </div>
           <div className="map" style={{ display: "block", height: "40.5rem" }}>
@@ -330,7 +323,7 @@ const EntityRelated = (props) => {
                   {entityType === "country"
                     ? `Outages of ASNs/ISPs operating in ${entityName}`
                     : entityType === "region"
-                    ? `Outages of ASNs/ISPs operating in ${parentEntityName}`
+                    ? `Outages of ASNs/ISPs related to ${entityName}`
                     : entityType === "asn"
                     ? `Countries where ${entityName} operates that experienced outages`
                     : null}
@@ -376,9 +369,6 @@ const EntityRelated = (props) => {
                 rawAsnSignalsProcessedPingSlash24
               }
               rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
-              rawAsnSignalsProcessedUcsdNt={
-                rawAsnSignalsProcessedUcsdNt
-              }
               rawAsnSignalsProcessedMeritNt={
                 rawAsnSignalsProcessedMeritNt
               }
@@ -421,9 +411,6 @@ const EntityRelated = (props) => {
               additionalRawSignalRequestedBgp={
                 additionalRawSignalRequestedBgp
               }
-              additionalRawSignalRequestedUcsdNt={
-                additionalRawSignalRequestedUcsdNt
-              }
               additionalRawSignalRequestedMeritNt={
                 additionalRawSignalRequestedMeritNt
               }
@@ -435,15 +422,14 @@ const EntityRelated = (props) => {
               rawAsnSignalsRawPingSlash24Length={
                 rawAsnSignalsRawPingSlash24Length
               }
-              rawAsnSignalsRawUcsdNtLength={
-                rawAsnSignalsRawUcsdNtLength
-              }
               rawAsnSignalsRawMeritNtLength={
                 rawAsnSignalsRawMeritNtLength
               }
               handleGlobalAsnSignals={handleGlobalAsnSignals}
               handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
               parentEntityName={parentEntityName}
+              globalSwitch={globalSwitch}
+              isLoading={isLoading}
             />}
           </div>
           <div className="tab__table" ref={relatedTableConfig}>
@@ -452,7 +438,7 @@ const EntityRelated = (props) => {
                 type="summary"
                 data={updatedRelatedToTableSummaryProcessed}
                 totalCount={updatedRelatedToTableSummaryProcessed.length}
-                entityType={entityType === ("asn" || "geoasn") ? "country" : "asn"}
+                entityType={entityType === "asn" ? "country" : "asn"}
               />
             ) : (
               <Loading />
@@ -477,4 +463,4 @@ const EntityRelated = (props) => {
     );
 }
 
-export default EntityRelated;
+export default React.memo(EntityRelated);

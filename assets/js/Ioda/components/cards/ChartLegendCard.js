@@ -197,4 +197,4 @@ const ChartLegendCard = ({
   );
 };
 
-export default ChartLegendCard;
+export default React.memo(ChartLegendCard);

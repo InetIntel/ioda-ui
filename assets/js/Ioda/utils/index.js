@@ -166,11 +166,12 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
 
     // If entity type has ip_count/is an ASN
     let summaryItem;
+    console.log(summary)
     summary.entity.type === "asn" || summary.entity.type === "geoasn"
       ? (summaryItem = {
           entityType: "asn",
           entityCode: summary["entity"].code,
-          name: summary["entity"].name,
+          name: summary["entity"].name.replace(/--/g, "|"),
           score: overallScore,
           scores: summaryScores,
           ipCount: humanizeNumber(summary["entity"]["attrs"]["ip_count"], 2),
@@ -179,7 +180,7 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
       : (summaryItem = {
           entityType: summary["entity"].type,
           entityCode: summary["entity"].code,
-          name: summary["entity"].name,
+          name: summary["entity"].name.replace(/--/g, "|"),
           score: overallScore,
           scores: summaryScores,
           color: `${getEntityScaleColor(
@@ -222,12 +223,13 @@ export function combineValuesForSignalsTable(
 
     // Display entity with outage on signal table, if asn add ip count property
     let summaryItem;
+    console.log(entity)
     entity.entity.type === "asn" || entity.entity.type === "geoasn"
       ? (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity["entity"].type,
+          entityType: entity.type === "geoasn" ? "asn" : entity.type,
           entityCode: entity["entity"].code,
-          name: entity["entity"].name,
+          name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
           scores: summaryScores,
           ipCount: humanizeNumber(entity["entity"]["attrs"]["ip_count"], 2),
@@ -235,9 +237,9 @@ export function combineValuesForSignalsTable(
         })
       : (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity["entity"].type,
+          entityType: entity.type === "geoasn" ? "asn" : entity.type,
           entityCode: entity["entity"].code,
-          name: entity["entity"].name,
+          name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
           scores: summaryScores,
           initiallyLoaded: index < 300,
@@ -252,9 +254,9 @@ export function combineValuesForSignalsTable(
     entity.type === "asn" || entity.type === "geoasn"
       ? (entityItem = {
           visibility: index < initialLimit - outageCount,
-          entityType: entity.type,
+          entityType: entity.type === "geoasn" ? "asn" : entity.type,
           entityCode: entity.code,
-          name: entity.name,
+          name: entity.name.replace(/--/g, "|"),
           score: 0,
           scores: [{ source: "Overall Score", score: 0 }],
           ipCount: humanizeNumber(entity.attrs.ip_count, 2),
@@ -262,9 +264,9 @@ export function combineValuesForSignalsTable(
         })
       : (entityItem = {
           visibility: index < initialLimit - outageCount,
-          entityType: entity.type,
+          entityType: entity.type === "geoasn" ? "asn" : entity.type,
           entityCode: entity.code,
-          name: entity.name,
+          name: entity.name.replace(/--/g, "|"),
           score: 0,
           scores: [{ source: "Overall Score", score: 0 }],
           initiallyLoaded: index < 300,
@@ -284,7 +286,7 @@ export function convertTsDataForHtsViz(tsData) {
       values.push(value);
       const plotPoint = {
         entityCode: signal.entityCode,
-        entityName: signal.entityName,
+        entityName: signal.entityName.replace(/--/g, "|"),
         datasource: signal.datasource,
         ts: secondsToUTC(signal.from + signal.step * index).toDate(),
         val: value,

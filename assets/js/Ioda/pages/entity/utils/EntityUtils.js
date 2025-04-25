@@ -1,7 +1,9 @@
 import {registerAnalyticsEvent} from "../../../utils/analytics";
 import {secondsToUTC} from "../../../utils/timeUtils";
+import T from "i18n-react";
+import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
 
-export function handleCSVDownload(timeSeriesChartRef){
+export function handleCSVDownload(timeSeriesChartRef, isNormalized){
     if (!timeSeriesChartRef.current) {
         return;
     }
@@ -24,7 +26,6 @@ export function handleCSVDownload(timeSeriesChartRef){
         })
         .join("\n");
 
-    const isNormalized = !!tsDataNormalized;
     const fileName =
         getChartExportFileName() + (isNormalized ? "-normalized" : "-raw");
 
@@ -48,4 +49,79 @@ export function getChartExportFileName(from, entityName) {
     const exportFileNameBase =
         `ioda-${entityName}-${fromDayjs.format(formatCompact)}`;
     return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
+}
+
+export const getChartExportTitle = (entityName)  => {
+    return `${T.translate(
+        "entity.xyChartTitle"
+    )} ${entityName?.trim()}`;
+}
+
+export const getChartExportSubtitle = (from, until) => {
+    const fromDayjs = secondsToUTC(from);
+    const untilDayjs = secondsToUTC(until);
+
+    const formatExpanded = "MMMM D, YYYY h:mma";
+
+    return `${fromDayjs.format(formatExpanded)} - ${untilDayjs.format(
+        formatExpanded
+    )} UTC`;
+}
+
+export const tooltipContentFormatter = (isNormalized, ctx) => {
+    const seriesName = ctx.series.name;
+    const yValue = ctx.y;
+    const formattedYValue = formatLocaleNumber(yValue, 2);
+    if (isNormalized) {
+        return `${seriesName}: ${formattedYValue}%`;
+    } else {
+        return `${seriesName}: ${formattedYValue}`;
+    }
+};
+
+export const formatLocaleNumber = (value, precision) => {
+    return Intl.NumberFormat("en-US", {
+        notation: "compact",
+        maximumFractionDigits: precision,
+    }).format(value);
+};
+
+export const manuallyDownloadChart = (timeSeriesChartRef, imageType) => {
+    if (!timeSeriesChartRef.current?.chart) {
+        return;
+    }
+
+    // Append watermark to image on download:
+    // https://www.highcharts.com/forum/viewtopic.php?t=47368
+    timeSeriesChartRef.current.chart.exportChartLocal(
+        {
+            type: imageType,
+        },
+        {
+            chart: {
+                events: {
+                    load: function () {
+                        const chart = this;
+                        const watermarkAspectRatio = 0.184615;
+                        const watermarkWidth = Math.floor(chart.chartWidth / 6);
+                        const watermarkHeight = Math.floor(
+                            watermarkWidth * watermarkAspectRatio
+                        );
+                        const padding = 12;
+
+                        chart.watermarkImage = chart.renderer
+                            .image(
+                                iodaWatermark,
+                                chart.chartWidth - watermarkWidth - padding,
+                                padding,
+                                watermarkWidth,
+                                watermarkHeight
+                            )
+                            .add()
+                            .toFront();
+                    },
+                },
+            },
+        }
+    );
 }
