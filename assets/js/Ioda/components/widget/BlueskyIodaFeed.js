@@ -1,10 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// Optional: Import PostThread for enhanced post rendering
-import { PostThread } from 'react-bluesky-embed';
-import {Post} from "bsky-react-post";
-
-// import './../../../../css/ioda/sass/components/widget/_bluesky.scss';
-
 import PostCard from "./PostCard";
 
 const BlueskyIodaFeed = ({ did }) => {
