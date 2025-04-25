@@ -45,8 +45,6 @@ import Table from "../../components/table/Table";
 import { Button } from "antd";
 import LatencyComponent from "./components/LatencyComponent";
 import ApPacketLossComponent from "./components/ApPacketLossComponent";
-import {openModal} from "../../data/ModalSlice";
-import {useDispatch} from "react-redux";
 
 const EntityRelated = (props) => {
 
