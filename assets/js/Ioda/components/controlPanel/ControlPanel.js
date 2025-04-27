@@ -172,7 +172,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       if(asnEntity.length > 0) {
         const entity = asnEntity[0];
         return {
-          label: entity.name,
+          label: entity.name.replace(/--/g, "|"),
           id: uuidv4(),
           entity: {
             name: entity.name,
@@ -245,7 +245,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
         let url = `/entities/query?entityType=country`
         const fetched = await fetchData({url});
         let results = (fetched?.data?.data ?? []).map((entity) => ({
-          label: entity.name,
+          label: entity.name.replace(/--/g, "|"),
           id: uuidv4(),
           entity: {
             name: entity.name,
@@ -330,7 +330,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
         const fetched = await fetchData({url});
         let results = (fetched?.data?.data ?? []).map((entity) => {
           return {
-            label: entity.name,
+            label: entity.name.replace(/--/g, "|"),
             id: uuidv4(),
             entity: {
               name: entity.name,
@@ -421,7 +421,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
         const results = await Promise.all(
             (fetched?.data?.data ?? []).map(async (entity) => {
               return {
-                label: entity.name,
+                label: entity.name.replace(/--/g, "|"),
                 id: uuidv4(),
                 entity: {
                   name: entity.name,
@@ -855,7 +855,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           resultsArray.map(async (entity) => {
             let asnUrl = `asn/${entity.code}`;
             return {
-              label: entity.name,
+              label: entity.name.replace(/--/g, "|"),
               id: uuidv4(),
               entity: {
                 name: entity.name,
@@ -914,7 +914,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           resultsArray.map(async (entity) => {
             let asnUrl = `region/${entity.code}`;
             return {
-              label: entity.name,
+              label: entity.name.replace(/--/g, "|"),
               id: uuidv4(),
               entity: {
                 name: entity.name,

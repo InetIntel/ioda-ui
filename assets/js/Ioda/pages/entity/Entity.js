@@ -450,11 +450,6 @@ const Entity = (props) => {
     }
 
     if(entityTypeState === "asn") {
-      console.log("Populating data for upstream delay", entityTypeState, entityCodeState);
-      // const { timeUpstreamDelayFrom, timeUpstreamDelayUntil } = getUpstreamDelayTimeRange(
-      //     fromDate,
-      //     untilDate
-      // );
       const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1727740800, 1727827200]
       const asnCode = entityCodeState.includes("-") ? entityCodeState.split("-")[0] : entityCodeState;
       props.getRawAsnSignalsUpstreamDelayLatency(
@@ -572,13 +567,14 @@ const Entity = (props) => {
         setSummaryDataMapRaw(relatedToMapSummary);
       }
       else {
-        if(showGlobalRegionalAsnSignals) {
+        // if(showGlobalRegionalAsnSignals) {
+        //   setSummaryDataMapRaw(relatedToMapSummary);
+        // }
+        // else {
+        //   const filteredRegionData = relatedToMapSummary.filter(item => item.entity?.subnames?.region !== undefined);
+        //   console.log(filteredRegionData)
           setSummaryDataMapRaw(relatedToMapSummary);
-        }
-        else {
-          const filteredRegionData = relatedToMapSummary.filter(item => item.entity?.subnames?.region !== undefined);
-          setSummaryDataMapRaw(filteredRegionData);
-        }
+        // }
       }
       getMapScores();
     }
@@ -1724,7 +1720,8 @@ const Entity = (props) => {
         relatedToEntityType = "asn";
         relatedToEntityCode =
           entityMetadata[0]["attrs"]["fqid"].split(".")[1];
-        entityTypeProp = (showGlobalRegionalAsnSignals) ? "region" : "geoasn";
+        // entityTypeProp = (showGlobalRegionalAsnSignals) ? "region" : "geoasn";
+        entityTypeProp = "region";
         break;
     }
     props.searchRelatedToMapSummary(
@@ -1814,8 +1811,6 @@ const Entity = (props) => {
   // RawSignalsModal Windows
   // Make API call that gets raw signals for a group of entities
   function getSignalsHtsDataEvents(entityType, dataSource, signalsData) {
-    // console.log("Getting Raw Signals for summary entityType {} dataSource {} signalsData {}",
-    //     entityType, dataSource, signalsData);
     let attr = null;
     let order = "desc";
     let entities;
@@ -1829,6 +1824,7 @@ const Entity = (props) => {
               return entity.entityCode;
             }
           })
+            .slice(0, initialTableLimit)
           .toString();
         if(entities.length === 0){
           return;
@@ -1843,7 +1839,8 @@ const Entity = (props) => {
               until,
               attr,
               order,
-              dataSource
+              dataSource,
+                initialTableLimit
             );
             break;
           case "bgp":
@@ -1854,7 +1851,8 @@ const Entity = (props) => {
               until,
               attr,
               order,
-              dataSource
+              dataSource,
+                initialTableLimit
             );
             break;
           case "merit-nt":
@@ -1865,7 +1863,8 @@ const Entity = (props) => {
               until,
               attr,
               order,
-              dataSource
+              dataSource,
+                initialTableLimit
             );
             break;
         }
@@ -1878,6 +1877,7 @@ const Entity = (props) => {
               return entity.entityCode;
             }
           })
+              .slice(0, initialTableLimit)
           .toString();
         if(entities.length === 0){
           return;
@@ -1892,7 +1892,8 @@ const Entity = (props) => {
                 until,
                 attr,
                 order,
-                dataSource
+                dataSource,
+                initialTableLimit
             );
             break;
           case "bgp":
@@ -1903,7 +1904,8 @@ const Entity = (props) => {
                 until,
                 attr,
                 order,
-                dataSource
+                dataSource,
+                initialTableLimit
             );
             break;
           case "merit-nt":
@@ -1914,7 +1916,8 @@ const Entity = (props) => {
                 until,
                 attr,
                 order,
-                dataSource
+                dataSource,
+                initialTableLimit
             );
             break;
         }
@@ -1927,6 +1930,7 @@ const Entity = (props) => {
                 return entity.entityCode;
               }
             })
+            .slice(0, initialTableLimit)
             .toString();
         if(entities.length === 0){
           return;
@@ -1941,7 +1945,8 @@ const Entity = (props) => {
               until,
               attr,
               order,
-              dataSource
+              dataSource,
+                initialTableLimit
             );
             break;
           case "bgp":
@@ -1952,7 +1957,8 @@ const Entity = (props) => {
               until,
               attr,
               order,
-              dataSource
+              dataSource,
+                initialTableLimit
             );
             break;
           case "merit-nt":
@@ -1963,7 +1969,8 @@ const Entity = (props) => {
               until,
               attr,
               order,
-              dataSource
+              dataSource,
+                initialTableLimit
             );
             break;
         }
