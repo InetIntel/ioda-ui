@@ -175,7 +175,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
           label: entity.name.replace(/--/g, "|"),
           id: uuidv4(),
           entity: {
-            name: entity.name,
+            name: entity.name.replace(/--/g, "|"),
             code: entity.code,
             type: entity.type,
             url: `asn/${entity.code}`,
@@ -424,7 +424,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
                 label: entity.name.replace(/--/g, "|"),
                 id: uuidv4(),
                 entity: {
-                  name: entity.name,
+                  name: entity.name.replace(/--/g, "|"),
                   code: entity.code,
                   type: entity.type,
                   url: `asn/${entity.code}`,
@@ -471,7 +471,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
         }
         const asnOptions = (updatedResults || []).map((d) => ({
           value: d.id,
-          label: d.label,
+          label: d.label.replace(/--/g, "|"),
           entity: d.entity
         }));
         setAsnOptions(asnOptions);
@@ -568,7 +568,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
               setCountrySelectedCode(countryCode);
             }
             const asn = await asnOptions.find((asn) => entityCode === asn.entity.code);
-            setAsnSearchText(asn ? asn.entity.name : "");
+            setAsnSearchText(asn ? asn.entity.name.replace(/--/g, "|") : "");
             setAsnSelectedCode(asn ? asn.entity.code : null)
           }
           else {
@@ -592,7 +592,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
             setCountrySearchText("All Countries");
             setCountrySelectedCode("all_countries")
             const asn = await asnOptions.find((asn) => asn.entity.code == entityCode);
-            setAsnSearchText(asn ? asn.entity.name : "");
+            setAsnSearchText(asn ? asn.entity.name.replace(/--/g, "|") : "");
             setAsnSelectedCode(asn ? asn.entity.code : null);
             setRegionSearchText("All Networks");
           }
@@ -638,7 +638,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
   const handleAsnSelect = (id) => {
     const entity = asnOptions.find((d) => d.value === id)?.entity ?? null;
     if (!entity) return;
-    setAsnSearchText(entity.name);
+    setAsnSearchText(entity.name.replace(/--/g, "|"));
     setAsnSelectedCode(entity.code);
     onSelect(entity);
     // handleAsnChange();
@@ -858,7 +858,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
               label: entity.name.replace(/--/g, "|"),
               id: uuidv4(),
               entity: {
-                name: entity.name,
+                name: entity.name.replace(/--/g, "|"),
                 code: entity.code,
                 type: entity.type,
                 url: asnUrl,
@@ -870,7 +870,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       const updatedResults = [...asnOptions, ...results];
       const options = (updatedResults || []).map((d) => ({
         value: d.id,
-        label: d.label,
+        label: d.label.replace(/--/g, "|"),
         entity: d.entity
       }));
       setAsnOptions(options);
@@ -929,7 +929,7 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
       const updatedResults = [...regionOptions, ...results];
       const options = (updatedResults || []).map((d) => ({
         value: d.id,
-        label: d.label,
+        label: d.label.replace(/--/g, "|"),
         entity: d.entity
       }));
       setRegionOptions(options);

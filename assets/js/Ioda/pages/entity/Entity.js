@@ -69,6 +69,9 @@ import {
   getAdditionalRawSignalAction,
   getRawAsnSignalsUpstreamDelayLatency,
   getRawAsnSignalsUpstreamDelayPenultAsnCount, getRawAsnSignalsApPacketLoss, getRawAsnSignalsApPacketDelay,
+  setRawAsnSignalsPingSlash24Action,
+  setRawAsnSignalsMeritNtAction,
+  setRawAsnSignalsBgpAction
 } from "../../data/ActionSignals";
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
@@ -726,7 +729,7 @@ const Entity = (props) => {
       setRawAsnSignalsRawPingSlash24(rawAsnSignals);
       convertValuesForHtsViz("ping-slash24", "asn", null, rawAsnSignals);
     }
-  }, [rawAsnSignalsPingSlash24, showTableModal, showGlobalSignals]);
+  }, [rawAsnSignalsPingSlash24, showTableModal]);
 
   // data for asn signals table BGP Source
   useEffect(() => {
@@ -737,7 +740,7 @@ const Entity = (props) => {
       setRawAsnSignalsRawBgp(rawAsnSignals);
       convertValuesForHtsViz("bgp", "asn", null, rawAsnSignals);
     }
-  }, [rawAsnSignalsBgp, showTableModal, showGlobalSignals]);
+  }, [rawAsnSignalsBgp, showTableModal]);
 
 
   // data for asn signals table Merit-NT Source
@@ -749,7 +752,7 @@ const Entity = (props) => {
       setRawAsnSignalsRawMeritNt(rawAsnSignals);
       convertValuesForHtsViz("merit-nt", "asn", null, rawAsnSignals);
     }
-  }, [rawAsnSignalsMeritNt, showTableModal, showGlobalSignals]);
+  }, [rawAsnSignalsMeritNt, showTableModal]);
 
   // data for additional raw feed signals to use after load all button is clicked
   useEffect(() => {
@@ -2571,13 +2574,17 @@ const Entity = (props) => {
   const handleGlobalAsnSignals =  useCallback(() => {
     setRawAsnSignalsLoaded(prev => !prev);
     setGlobalSwitch(globalSwitch => !globalSwitch);
+    props.setAsnSignalsTableSummaryData(null);
     setRawAsnSignalsProcessedBgp(null);
     setRawAsnSignalsProcessedPingSlash24(null);
     setRawAsnSignalsProcessedMeritNt(null);
     setRawAsnSignalsRawPingSlash24(null);
     setRawAsnSignalsRawMeritNt(null);
     setRawAsnSignalsRawBgp(null);
-    props.setAsnSignalsTableSummaryData();
+    props.setRawAsnSignalsPingSlash24Action(null);
+    props.setRawAsnSignalsMeritNtAction(null);
+    props.setRawAsnSignalsBgpAction(null);
+    props.setAsnSignalsTableSummaryData(null);
     setShowGlobalSignals(showGlobalSignals => !showGlobalSignals);
   }, []);
 
@@ -3399,6 +3406,15 @@ const mapDispatchToProps = (dispatch) => {
     setSearchRelatedToMapSummary: () => {
       setRelatedToMapSummary(dispatch);
     },
+    setRawAsnSignalsPingSlash24Action: () => {
+      setRawAsnSignalsPingSlash24Action(dispatch);
+    },
+    setRawAsnSignalsMeritNtAction: () => {
+      setRawAsnSignalsMeritNtAction(dispatch);
+    },
+    setRawAsnSignalsBgpAction: () => {
+      setRawAsnSignalsBgpAction(dispatch);
+    }
   };
 };
 

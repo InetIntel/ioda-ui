@@ -102,8 +102,8 @@ const RawSignalsModal = (props) => {
     rawAsnSignalsRawBgpLength,
     uncheckAllButtonLoading,
     parentEntityName,
-      isLoading,
-      globalSwitch,
+    isLoading,
+    globalSwitch,
     globalRegionalAsnConnectivity
   } = props;
 
@@ -192,7 +192,7 @@ const RawSignalsModal = (props) => {
           case "ping-slash24":
             if (
                 rawRegionalSignalsProcessedPingSlash24 &&
-                rawRegionalSignalsProcessedPingSlash24.length > 0
+                rawRegionalSignalsProcessedPingSlash24?.length > 0
             ) {
               dataSourceForCSS = "pingSlash24";
               rawSignalsProcessedArray = rawRegionalSignalsProcessedPingSlash24;
@@ -201,7 +201,7 @@ const RawSignalsModal = (props) => {
           case "bgp":
             if (
                 rawRegionalSignalsProcessedBgp &&
-                rawRegionalSignalsProcessedBgp.length > 0
+                rawRegionalSignalsProcessedBgp?.length > 0
             ) {
               dataSourceForCSS = "bgp";
               rawSignalsProcessedArray =
@@ -211,7 +211,7 @@ const RawSignalsModal = (props) => {
           case "merit-nt":
             if (
                 rawRegionalSignalsProcessedMeritNt &&
-                rawRegionalSignalsProcessedMeritNt.length > 0
+                rawRegionalSignalsProcessedMeritNt?.length > 0
             ) {
               dataSourceForCSS = "meritNt";
               rawSignalsProcessedArray =
@@ -923,7 +923,7 @@ const RawSignalsModal = (props) => {
                             ref={configBgp}
                             className="modal__chart"
                         >
-                          {genChart("bgp", "region")}
+                          {/*{genChart("bgp", "region")}*/}
                         </div>
                     ) : null}
                   </>

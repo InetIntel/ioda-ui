@@ -89,7 +89,10 @@ import {
     GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY,
     GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT,
     GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS,
-    GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY
+    GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY,
+    SET_RAW_ASN_SIGNALS_MERITNT,
+    SET_RAW_ASN_SIGNALS_BGP,
+    SET_RAW_ASN_SIGNALS_PINGSLASH24
 } from "./ActionCommons";
 
 const buildSignalsConfig = (entityType, entityCode, from, until, datasource, maxPoints, sourceParams) => {
@@ -185,6 +188,14 @@ export const getRawAsnSignalsPingSlash24Action = (dispatch, entityType, entityCo
     });
 };
 
+export const setRawAsnSignalsPingSlash24Action = (dispatch) => {
+    // let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    dispatch({
+        type: SET_RAW_ASN_SIGNALS_PINGSLASH24,
+        payload: null,
+    });
+};
+
 export const getRawAsnSignalsBgpAction = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
     let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
     fetchData(config).then(data => {
@@ -195,6 +206,14 @@ export const getRawAsnSignalsBgpAction = (dispatch, entityType, entityCode, from
     });
 };
 
+export const setRawAsnSignalsBgpAction = (dispatch) => {
+    // let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    dispatch({
+        type: SET_RAW_ASN_SIGNALS_BGP,
+        payload: null,
+    });
+};
+
 export const getRawAsnSignalsMeritNtAction = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
     let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
     fetchData(config).then(data => {
@@ -202,6 +221,14 @@ export const getRawAsnSignalsMeritNtAction = (dispatch, entityType, entityCode, 
             type: GET_RAW_ASN_SIGNALS_MERITNT,
             payload: data.data.data,
         })
+    });
+};
+
+export const setRawAsnSignalsMeritNtAction = (dispatch) => {
+    // let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    dispatch({
+        type: SET_RAW_ASN_SIGNALS_MERITNT,
+        payload: null,
     });
 };
 
