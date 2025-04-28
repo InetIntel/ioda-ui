@@ -444,18 +444,18 @@ const EntityRelated = (props) => {
           </div>
         </div>
       </div>
-          {
-              showApPacketGraph &&
-              <ApPacketLossComponent
-                  rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
-                  rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
-                  entityName={entityName}
-              />}
-          {entityType && entityType === 'asn' && <LatencyComponent
-              rawAsnSignalsUpstreamDelayLatency={rawAsnSignalsUpstreamDelayLatency}
-              rawAsnSignalsUpstreamDelayPenultAsnCount={rawAsnSignalsUpstreamDelayPenultAsnCount}
-              entityName={entityName}
-          />}
+          {/*{*/}
+          {/*    showApPacketGraph &&*/}
+          {/*    <ApPacketLossComponent*/}
+          {/*        rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}*/}
+          {/*        rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}*/}
+          {/*        entityName={entityName}*/}
+          {/*    />}*/}
+          {/*{entityType && entityType === 'asn' && <LatencyComponent*/}
+          {/*    rawAsnSignalsUpstreamDelayLatency={rawAsnSignalsUpstreamDelayLatency}*/}
+          {/*    rawAsnSignalsUpstreamDelayPenultAsnCount={rawAsnSignalsUpstreamDelayPenultAsnCount}*/}
+          {/*    entityName={entityName}*/}
+          {/*/>}*/}
 
     </div>
     );
