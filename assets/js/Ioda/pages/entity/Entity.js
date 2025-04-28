@@ -424,21 +424,7 @@ const Entity = (props) => {
     // Overview Panel
     // Pull events from the same range as time series signal to show all
     // alerts in the navigator range
-    props.searchEventsAction(
-        timeSignalFrom,
-        timeSignalUntil,
-        entityTypeState,
-        entityCodeState
-    );
-    props.searchAlertsAction(
-        timeSignalFrom,
-        timeSignalUntil,
-        entityTypeState,
-        entityCodeState,
-        null,
-        null,
-        null
-    );
+
     if(entityTypeState === "asn" && entityCodeState && entityCodeState.includes("-")) {
       props.getSignalsAction(
           "geoasn",
@@ -448,6 +434,21 @@ const Entity = (props) => {
           null,
           3000,
           sourceParams
+      );
+      props.searchEventsAction(
+          timeSignalFrom,
+          timeSignalUntil,
+          "geoasn",
+          entityCodeState
+      );
+      props.searchAlertsAction(
+          timeSignalFrom,
+          timeSignalUntil,
+          "geoasn",
+          entityCodeState,
+          null,
+          null,
+          null
       );
     }
     else {
@@ -459,6 +460,21 @@ const Entity = (props) => {
           null,
           3000,
           sourceParams
+      );
+      props.searchEventsAction(
+          timeSignalFrom,
+          timeSignalUntil,
+          entityTypeState,
+          entityCodeState
+      );
+      props.searchAlertsAction(
+          timeSignalFrom,
+          timeSignalUntil,
+          entityTypeState,
+          entityCodeState,
+          null,
+          null,
+          null
       );
     }
 
