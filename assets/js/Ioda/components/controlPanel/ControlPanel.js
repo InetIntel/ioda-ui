@@ -656,23 +656,13 @@ const ControlPanel = ({from, until, onTimeFrameChange, onClose, title, onSelect,
     setCustomDuration(val);
   }
 
-  function handleRangeChange([fromDayjs, untilDayjs]) {
-
-    const fromInTimezone = fromDayjs.tz(selectedTimezone, true);
-    const untilInTimezone = untilDayjs.tz(selectedTimezone, true);
-
-
-    const fromInUTC = fromInTimezone.tz("UTC");
-    const untilInUTC = untilInTimezone.tz("UTC");
-
-    // Update the displayed range
+  const handleRangeChange = ([fromDayjs, untilDayjs]) => {
     setRange([fromDayjs, untilDayjs]);
-
     onTimeFrameChange({
-      _from: getSeconds(fromInUTC),
-      _until: getSeconds(untilInUTC),
+      _from: getSeconds(fromDayjs.add(fromDayjs.utcOffset(), "minute")),
+      _until: getSeconds(untilDayjs.add(untilDayjs.utcOffset(), "minute")),
     });
-  }
+  };
 
   const handleCustomRange = ()=>  {
     const from = getNowAsUTC().subtract(customDuration, customUnit);

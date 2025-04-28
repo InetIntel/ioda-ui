@@ -1,5 +1,5 @@
 // React Imports
-import React, { useEffect, useState, useMemo } from "react";
+import React, {useEffect, useState, useMemo, useRef} from "react";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
@@ -490,6 +490,16 @@ const Dashboard = (props) => {
 const DashboardFn = (props) => {
   const { entityType, tab } = useParams();
   const navigate = useNavigate();
+
+  const previousFullPath = useRef(window.location.href);
+
+  useEffect(() => {
+    if (previousFullPath.current !== window.location.href) {
+      previousFullPath.current = window.location.href;
+
+      window.location.reload();
+    }
+  }, [window.location.href]);
 
   return (
     <Dashboard

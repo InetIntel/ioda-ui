@@ -342,10 +342,20 @@ const Entity = (props) => {
 
   const dispatch = useDispatch();
 
-  function updateEntityMetaData (entityName, entityCode) {
-    getEntityMetadata(entityName, entityCode).then((data) => {
+  const getEntityName = (entityType, data) => {
+    let entityName = data[0]["name"];
+    console.log(entityName)
+    if(entityType === "geoasn") {
+      entityName = data[0]?.subnames?.asn + ' ' + entityName;
+    }
+    return entityName.replace(/--/g, "|");
+  }
+
+  function updateEntityMetaData (entityType, entityCode) {
+    getEntityMetadata(entityType, entityCode).then((data) => {
+      console.log(data)
       setEntityMetadata(data);
-      setEntityName(data[0]["name"]);
+      setEntityName(getEntityName(entityType, data));
       setParentEntityName(data[0]["attrs"]["country_name"] || data[0]["name"] || parentEntityName);
       setParentEntityCode(data[0]["attrs"]["country_code"] || data[0]["code"] || parentEntityCode);
     });
@@ -498,7 +508,12 @@ const Entity = (props) => {
     }
 
     // Get entity name from code provided in url
-    updateEntityMetaData(entityTypeState, entityCodeState);
+    if(entityCodeState.includes("-")) {
+      updateEntityMetaData("geoasn", entityCodeState);
+    }
+    else {
+      updateEntityMetaData(entityTypeState, entityCodeState);
+    }
   }, [untilDate, fromDate, entityType, entityCode]);
 
   useEffect(() => {
