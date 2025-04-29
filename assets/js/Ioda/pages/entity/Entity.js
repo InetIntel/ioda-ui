@@ -1809,8 +1809,7 @@ const Entity = (props) => {
       case "region":
         entityType = showGlobalSignals ? "asn" : "geoasn";
         relatedToEntityType = "region";
-        relatedToEntityCode =
-          entityMetadata[0]["attrs"]["fqid"].split(".")[3];
+        relatedToEntityCode = entityCodeState;
         break;
       case "asn":
         entityType = "country";
