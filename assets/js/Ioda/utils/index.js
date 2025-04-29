@@ -223,11 +223,10 @@ export function combineValuesForSignalsTable(
 
     // Display entity with outage on signal table, if asn add ip count property
     let summaryItem;
-    console.log(entity)
     entity.entity.type === "asn" || entity.entity.type === "geoasn"
       ? (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity.type === "geoasn" ? "asn" : entity.type,
+          entityType: entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
           entityCode: entity["entity"].code,
           name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
@@ -237,7 +236,7 @@ export function combineValuesForSignalsTable(
         })
       : (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity.type === "geoasn" ? "asn" : entity.type,
+          entityType: entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
           entityCode: entity["entity"].code,
           name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
@@ -247,6 +246,7 @@ export function combineValuesForSignalsTable(
     summaryData.push(summaryItem);
   });
   outageCount = summaryData.length;
+
 
   // Display scoreless entities on signal table, if asn add ip count property
   duplicatesRemoved.map((entity, index) => {
