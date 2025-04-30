@@ -1,4 +1,5 @@
-import * as React from "react";
+import React from "react";
+import {useEffect} from "react";
 import { Button, Input, Modal } from "antd";
 import {
   CheckOutlined,
@@ -9,13 +10,16 @@ import ShareButtons from "./ShareButtons";
 
 export default function ShareLinkModal(props) {
   const [showMessage, setShowMessage] = React.useState(false);
+  const {
+    link
+  } = props;
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(props.link);
+    navigator.clipboard.writeText(link);
     setShowMessage(true);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     let timeout;
     if (showMessage) {
       timeout = setTimeout(() => setShowMessage(false), 2000);
@@ -26,38 +30,38 @@ export default function ShareLinkModal(props) {
   const copyIcon = showMessage ? <CheckOutlined /> : <CopyOutlined />;
 
   return (
-    <Modal
-      className="linkShareModal"
-      open={props.open}
-      onOk={props.hideModal}
-      onCancel={props.hideModal}
-      title="Share Link"
-      footer={null}
-    >
-      <Button
-        className="mb-3"
-        type="link"
-        onClick={props.handleDownload}
-        icon={<DownloadOutlined />}
+      <Modal
+          className="linkShareModal"
+          open={props.open}
+          onOk={props.hideModal}
+          onCancel={props.hideModal}
+          title="Share Link"
+          footer={null}
       >
-        Download an image to share
-      </Button>
-
-      <div className="flex items-stretch">
-        <Input value={props.link} className="mr-3 col" />
         <Button
-          aria-label="copy link"
-          type="primary"
-          size="large"
-          onClick={handleCopyLink}
-          icon={copyIcon}
-        />
-      </div>
-      <div className="mt-6 flex items-center justify-center">
-        <div>
-          <ShareButtons entityName={props.entityName} link={props.link} />
+            className="mb-3"
+            type="link"
+            onClick={props.handleDownload}
+            icon={<DownloadOutlined />}
+        >
+          Download an image to share
+        </Button>
+
+        <div className="flex items-stretch">
+          <Input value={props.link} className="mr-3 col" />
+          <Button
+              aria-label="copy link"
+              type="primary"
+              size="large"
+              onClick={handleCopyLink}
+              icon={copyIcon}
+          />
         </div>
-      </div>
-    </Modal>
+        <div className="mt-6 flex items-center justify-center">
+          <div>
+            <ShareButtons entityName={props.entityName} link={props.link} />
+          </div>
+        </div>
+      </Modal>
   );
 }

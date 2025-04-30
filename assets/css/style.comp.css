@@ -4417,36 +4417,37 @@ body {
   width: min-content;
 }
 
-@media only screen and (max-width: 40em) {
-  .control-panel {
-    flex-direction: column-reverse;
-  }
-}
-.control-panel__controls {
-  min-width: 46rem;
-}
-@media only screen and (max-width: 30em) {
-  .control-panel__controls {
-    min-width: unset;
-  }
-}
-.control-panel__controls .searchbar {
-  margin-bottom: 1rem;
-}
-.control-panel__controls .searchbar__heading {
+.control-panel {
   display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  justify-content: space-between;
+}
+
+.control-panel__controls {
+  flex: 1 1 15rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
-.control-panel__controls .searchbar__label {
-  padding-left: 1rem;
-  font-style: italic;
-  font-size: 1.1rem;
-  margin-right: 0.5rem;
+
+.control-panel__label {
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: flex-start;
 }
-@media only screen and (max-width: 40em) {
-  .control-panel__title {
-    justify-content: space-between;
-  }
+
+.control-panel .ant-picker {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .error {
@@ -6180,6 +6181,74 @@ button[class*=searchButton] {
   }
 }
 
+.ioda-container {
+  position: relative;
+  height: 565px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.background-image {
+  width: 840px;
+  height: 525px;
+  object-fit: cover;
+}
+
+.overlay-text {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.overlay-text h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.overlay-text p {
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ioda-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.ioda-mission {
+  margin-bottom: 32px;
+}
+
+.ioda-cards {
+  margin-top: 20px;
+}
+
+.ioda-card {
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ioda-card .icon {
+  font-size: 3em;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .ioda-header {
+    text-align: left;
+  }
+}
 .reports {
   padding-top: 5rem;
   margin: 4rem 0;

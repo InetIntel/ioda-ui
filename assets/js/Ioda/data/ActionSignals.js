@@ -85,7 +85,14 @@ import {
     GET_RAW_ASN_SIGNALS_BGP,
     GET_RAW_ASN_SIGNALS_MERITNT,
     GET_RAW_ASN_SIGNALS_UCSDNT,
-    GET_ADDITIONAL_RAW_SIGNAL
+    GET_ADDITIONAL_RAW_SIGNAL,
+    GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY,
+    GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT,
+    GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS,
+    GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY,
+    SET_RAW_ASN_SIGNALS_MERITNT,
+    SET_RAW_ASN_SIGNALS_BGP,
+    SET_RAW_ASN_SIGNALS_PINGSLASH24
 } from "./ActionCommons";
 
 const buildSignalsConfig = (entityType, entityCode, from, until, datasource, maxPoints, sourceParams) => {
@@ -181,6 +188,14 @@ export const getRawAsnSignalsPingSlash24Action = (dispatch, entityType, entityCo
     });
 };
 
+export const setRawAsnSignalsPingSlash24Action = (dispatch) => {
+    // let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    dispatch({
+        type: SET_RAW_ASN_SIGNALS_PINGSLASH24,
+        payload: null,
+    });
+};
+
 export const getRawAsnSignalsBgpAction = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
     let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
     fetchData(config).then(data => {
@@ -191,6 +206,14 @@ export const getRawAsnSignalsBgpAction = (dispatch, entityType, entityCode, from
     });
 };
 
+export const setRawAsnSignalsBgpAction = (dispatch) => {
+    // let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    dispatch({
+        type: SET_RAW_ASN_SIGNALS_BGP,
+        payload: null,
+    });
+};
+
 export const getRawAsnSignalsMeritNtAction = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
     let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
     fetchData(config).then(data => {
@@ -198,6 +221,14 @@ export const getRawAsnSignalsMeritNtAction = (dispatch, entityType, entityCode, 
             type: GET_RAW_ASN_SIGNALS_MERITNT,
             payload: data.data.data,
         })
+    });
+};
+
+export const setRawAsnSignalsMeritNtAction = (dispatch) => {
+    // let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    dispatch({
+        type: SET_RAW_ASN_SIGNALS_MERITNT,
+        payload: null,
     });
 };
 
@@ -216,6 +247,46 @@ export const getAdditionalRawSignalAction = (dispatch, entityType, entityCode, f
     fetchData(config).then(data => {
         dispatch({
             type: GET_ADDITIONAL_RAW_SIGNAL,
+            payload: data.data.data,
+        })
+    });
+};
+
+export const getRawAsnSignalsUpstreamDelayLatency = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+    let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    fetchData(config).then(data => {
+        dispatch({
+            type: GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY,
+            payload: data.data.data,
+        })
+    });
+};
+
+export const getRawAsnSignalsUpstreamDelayPenultAsnCount = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+    let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    fetchData(config).then(data => {
+        dispatch({
+            type: GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT,
+            payload: data.data.data,
+        })
+    });
+};
+
+export const getRawAsnSignalsApPacketLoss = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+    let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    fetchData(config).then(data => {
+        dispatch({
+            type: GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS,
+            payload: data.data.data,
+        })
+    });
+};
+
+export const getRawAsnSignalsApPacketDelay = (dispatch, entityType, entityCode, from, until, attr=null, order=null, dataSource, maxPoints=null) => {
+    let config = buildSignalsConfig(entityType, entityCode, from, until, dataSource, maxPoints);
+    fetchData(config).then(data => {
+        dispatch({
+            type: GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY,
             payload: data.data.data,
         })
     });

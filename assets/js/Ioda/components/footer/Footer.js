@@ -41,7 +41,7 @@
  * three paragraphs appear in all copies. Permission to make use of this
  * software for other than academic research and education purposes may be
  * obtained by contacting:
-*
+ *
  *  Office of Technology Licensing
  *  Georgia Institute of Technology
  *  926 Dalney Street, NW
@@ -67,37 +67,199 @@
  * HEREUNDER IS ON AN "AS IS" BASIS, AND  GEORGIA TECH RESEARCH CORPORATION HAS
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
-*/
+ */
 
+import React, { memo } from "react";
+import { Layout, Row, Col, Typography, Space } from "antd";
 
-import React, { PureComponent } from 'react';
-import PreloadImage from "react-preload-image";
-// images
-//import caidaLogo from 'images/logos/caida.png';
-//import sdscLogo from 'images/logos/sdsc.jpg';
-//import ucsdLogo from 'images/logos/ucsd-logo.png';
-import gatechLogo from 'images/logos/gatech_white.svg';
+const { Footer } = Layout;
+const { Link, Text } = Typography;
+import gatechLogo from "images/logos/gatech_white.svg";
+import labLogo from "images/logos/iil_logo.png";
 
+const AppFooter = () => {
+  return (
+    <Footer style={{ background: "#1e2430", padding: "40px", color: "white" }}>
+      <Row gutter={[0, 24]}>
+        <Col xs={24} md={16}>
+          <Row gutter={[48, 24]}>
+            <Col xs={12} sm={6}>
+              <Text
+                style={{
+                  color: "white",
+                  display: "block",
+                  marginBottom: "24px",
+                  fontSize: "12px",
+                }}
+              >
+                Support
+              </Text>
+              <Space direction="vertical" size={12}>
+                <Link href="/resources" style={{ color: "white" }}>
+                  Resources
+                </Link>
+                <Link href="/about" style={{ color: "white" }}>
+                  About
+                </Link>
+                <Link
+                  href="mailto:ioda-info@cc.gatech.edu"
+                  style={{ color: "white" }}
+                >
+                  Email Us
+                </Link>
+              </Space>
+            </Col>
 
+            <Col xs={12} sm={6}>
+              <Text
+                style={{
+                  color: "white",
+                  display: "block",
+                  marginBottom: "24px",
+                  fontSize: "12px",
+                }}
+              >
+                Researchers
+              </Text>
+              <Space direction="vertical" size={12}>
+                <Link href="/resources?tab=research" style={{ color: "white" }}>
+                  Research
+                </Link>
+                <Link href="/reports" style={{ color: "white" }}>
+                  Reports
+                </Link>
+                <Link href="/resources?tab=terms" style={{ color: "white" }}>
+                  Data Sources
+                </Link>
+              </Space>
+            </Col>
 
-class Footer extends PureComponent {
-    render() {
-        return (
-            <div className="footer">
-                <div className="footer__content">
-                    <div className="row">
-                        <div className="col-1-of-1">
-                            <div className="footer__logos">
-                                <div className="footer__logos-item footer__logos-item--gatech">
-                                    <PreloadImage className="footer__logos-item-container" src={gatechLogo} lazy/>
-                                </div>
-                            </div>
-                        </div>
+            <Col xs={12} sm={6}>
+              <Text
+                style={{
+                  color: "white",
+                  display: "block",
+                  marginBottom: "24px",
+                  fontSize: "12px",
+                }}
+              >
+                Developers
+              </Text>
+              <Space direction="vertical" size={12}>
+                <Link
+                  href="https://api.ioda.inetintel.cc.gatech.edu/v2/"
+                  style={{ color: "white" }}
+                >
+                  API
+                </Link>
+              </Space>
+            </Col>
+
+            <Col xs={12} sm={6}>
+              <Text
+                style={{
+                  color: "white",
+                  display: "block",
+                  marginBottom: "24px",
+                  fontSize: "12px",
+                }}
+              >
+                Connect
+              </Text>
+              <Space direction="vertical" size={12}>
+                <Link
+                  href="https://bsky.app/profile/ioda.live"
+                  style={{ color: "white" }}
+                >
+                  Bluesky
+                </Link>
+                <Link
+                  href="https://mastodon.social/@IODA"
+                  style={{ color: "white" }}
+                >
+                  Mastodon
+                </Link>
+              </Space>
+            </Col>
+          </Row>
+        </Col>
+
+        <Col xs={24} md={8} style={{ alignContent: "center" }}>
+          <Row justify="center" gutter={[24, 16]} align="middle">
+            <Col xs={12} sm={8} md={10}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <a
+                  href="https://inetintel.cc.gatech.edu/"
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <img
+                      src={labLogo}
+                      alt="Internet Intelligence Lab Logo"
+                      style={{
+                        height: "64px",
+                        width: "auto",
+                        marginRight: "15px",
+                      }}
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        color: "white",
+                      }}
+                    >
+                      <span style={{ fontSize: "20px", lineHeight: "1.5" }}>
+                        Internet
+                      </span>
+                      <span style={{ fontSize: "20px", lineHeight: "1.5" }}>
+                        Intelligence
+                      </span>
+                      <span style={{ fontSize: "20px", lineHeight: "1.5" }}>
+                        Lab
+                      </span>
                     </div>
-                </div>
-            </div>
-        );
-    }
-}
+                  </div>
+                </a>
+              </div>
+            </Col>
 
-export default Footer;
+            <Col xs={12} sm={8} md={10} style={{ alignItems: "center" }}>
+              <a
+                href="https://www.gatech.edu"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <img
+                  src={gatechLogo}
+                  alt="Georgia Institute of Technology"
+                  style={{
+                    height: "64px",
+                    maxWidth: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </a>
+              <div style={{ textAlign: "center", marginTop: "8px" }}>
+                <Text style={{ color: "white", fontSize: "8px" }}>
+                  © 2025 Georgia Institute of Technology
+                </Text>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </Footer>
+  );
+};
+
+export default memo(AppFooter);

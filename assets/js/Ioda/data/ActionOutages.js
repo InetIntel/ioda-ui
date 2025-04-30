@@ -77,7 +77,7 @@ import {
     OUTAGE_SUMMARY_SEARCH,
     OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH,
     OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH,
-    OUTAGE_TOTAL_COUNT
+    OUTAGE_TOTAL_COUNT, SET_OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH
 } from "./ActionCommons";
 
 /*
@@ -225,6 +225,14 @@ export const searchRelatedToMapSummary = (dispatch, from, until, entityType, rel
             payload: data.data.data,
         })
     });
+}
+
+// Getting outage information to use for populating topoJSON data
+export const setRelatedToMapSummary = (dispatch) => {
+    dispatch({
+        type: SET_OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH,
+        payload: null,
+    })
 }
 
 // Getting outage information to use for populating related to summary table

@@ -56,11 +56,13 @@ import GlobalAlert from "./components/alert/GlobalAlert";
 import Home from "./pages/home/Home";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Entity from "./pages/entity/Entity";
-import ProjectInfo from "./pages/projectinfo/ProjectInfo";
+import About from "./pages/about/About";
 import Help from "./pages/help/Help";
+import Resources from "./pages/resources/Resources";
 import Error from "./pages/error/Error";
 import { ASNVizV2 } from "./pages/tmpViz/ASNVizV2";
 import { initializeAnalytics } from "./utils/analytics";
+import {timeRangeReducer} from "./data/TimeRangeReducer";
 import { AlertStatus } from "./constants/types/status";
 
 initializeAnalytics();
@@ -107,19 +109,14 @@ class App extends Component {
                   description={alert.description}
                   type={alert.type}
                 />
-                <Routes>
-                  <Route path="/dashboard/:entityType?"
-		    element={<Dashboard />} />
-                  <Route exact path="/project" element={<ProjectInfo />} />
-                  <Route exact path="/help" element={<Help />} />
-                  <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
-                  <Route
-                    exact
-                    path="/:entityType/:entityCode"
-                    element={<Entity />}
-                  />
-                  <Route path="/" element={<Home />} />
-                </Routes>
+                  <Routes>
+                      <Route path="/dashboard/:entityType?" element={<Dashboard />} />
+                      <Route exact path="/about" element={<About />} />
+                      <Route exact path="/resources" element={<Resources />} />
+                      <Route exact path="/_tmp/asn" element={<ASNVizV2 />} />
+                      <Route exact path="/:entityType/:entityCode?" element={<Entity />} />
+                      <Route path="/" element={<Home />} />
+                  </Routes>
               </>
             )}
             <Footer />
@@ -132,10 +129,15 @@ class App extends Component {
 
 const reducers = {
   iodaApi: iodaApiReducer,
+  timeRange: timeRangeReducer
 };
 
 const store = configureStore({
-  reducer: reducers
+  reducer: reducers,
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        immutableStateInvariant: false,
+        serializableCheck: false
+    })
 })
 const container = document.getElementById("root");
 const root = createRoot(container);

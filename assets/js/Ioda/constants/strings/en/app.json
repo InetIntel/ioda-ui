@@ -4,11 +4,12 @@
     "reports": "Reports",
     "iodaLogoAltText": "IODA Logo",
     "help": "Help",
-    "projectInfo": "Project Info",
+    "about": "About",
+    "resources": "Resources",
     "explorer": "Explorer",
     "acknowledgements": "Acknowledgements",
     "api": "API",
-    "viewToggleHelp":"This Toggle is used to switch between Simplified and Advanced view of the dashboard."
+    "viewToggleHelp": "This Toggle is used to switch between Simplified and Advanced view of the dashboard."
   },
   "home": {
     "title": "IODA",
@@ -161,7 +162,13 @@
     "regionalSectionTitleAsnType": "Regions where {asn} operates that experienced outages",
     "selectedSignal": "Selected Signal",
     "eventTab": "Event",
-    "alertTab": "Alert"
+    "alertTab": "Alert",
+    "upstreamChartTitle": "Upstream Delay Connectivity ",
+    "upstreamChartSubTitle": "This graph maps latency from traceroute pings, making it easier to spot where network delays occur.",
+    "activeProbingChartTitle": "Active Probing Latency and Loss Rate",
+    "activeProbingChartSubTitle": "This graph uses active probing to calculate latency based on Round-Trip Time (RTT) and packet loss based on Percentage Loss Rate.",
+    "apChartLatencyLabel": "Latency",
+    "apChartPctLossLabel": "Packet Loss"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",
@@ -204,7 +211,8 @@
     "pingSlash24HtsLabel": "Active Probing",
     "bgpHtsLabel": "BGP",
     "ucsdNtHtsLabel": "Network Telescope",
-    "meritNtHtsLabel": "Network Telescope"
+    "meritNtHtsLabel": "Network Telescope",
+    "countryTitle": "Country Raw Signals related to "
   },
   "table": {
     "alertHeaders": {
@@ -287,6 +295,26 @@
     "entityRawSignalsHeading": {
       "title": "Raw IODA Signals",
       "text": "This visualization shows IODA's signals over time. The \"Stacked Horizon Graph\" turns from dark green to white as a signal decreases."
+    },
+    "tooltipEntityAsnConnectivity": {
+      "title": "ASN Connectivity",
+      "text": "Use the toggle to switch between local and global view. Global view will show ASN signals anywhere that ASN operates. Local view will show ASN connectivity localized to this location."
+    },
+    "tooltipActiveProbingChartLegend": {
+      "title": "Active Probing (#/24s Up)",
+      "text": "Active Probing is an active measurement that checks if a network at a known location is responsive. An abnormal drop can indicate a loss in Internet connectivity."
+    },
+    "tooltipBgpChartLegend": {
+      "title": "BGP (#Visible /24s)",
+      "text": "Routing Announcements are made using Border Gateway Protocol (BGP) to direct traffic on the Internet. If these announcements stop, the signal will decrease, and networks will essentially disappear from the global Internet."
+    },
+    "darknetChartLegend": {
+      "title": "Telescope (# Unique Source IPs)",
+      "text": "Telescope signal is a measure of unsolicited Internet traffic. Think of it as an Internet Pollution. We generally see a normal amount of Internet Pollution but If this signal abnormally drops it could indicate an Internet outage."
+    },
+    "googleLegend": {
+      "title": "Google",
+      "text": "Google signals provide user statistics of various google products like search, youtube, gmail, maps, sheets, etc."
     }
   },
   "timestamp": {
@@ -302,10 +330,13 @@
     "link4": "Apr 2019 Benin",
     "link5": "Jan 2019 Gabon"
   },
-  "projectinfo": {
-    "title": "Project Information",
+  "about": {
+    "title": "About",
     "text": "IODA (Internet Outage Detection and Analysis) is a project that originally began at CAIDA at the University of California San Diego (see also the Acknowledgements page). Since 2022 the project continues at the Georgia Institute of Technology.",
     "link1": "Original CAIDA project page"
+  },
+  "resources": {
+    "title": "Resources"
   },
   "iranReport2020": {
     "title": "An analysis of large Internet outages affecting Iranian networks in early 2020",

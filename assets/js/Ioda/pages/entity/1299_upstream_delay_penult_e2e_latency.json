@@ -1,0 +1,713 @@
+{
+  "type": "signals",
+  "metadata": {
+    "requestTime": "2025-01-29T04:20:37+00:00",
+    "responseTime": "2025-01-29T04:20:37+00:00"
+  },
+  "requestParameters": {
+    "from": 1727740800,
+    "until": 1727827200,
+    "datasource": "upstream-delay-penult-e2e-latency",
+    "sourceParams": null,
+    "maxPoints": 3000
+  },
+  "error": null,
+  "perf": [
+    {
+      "datasource": "upstream-delay-penult-e2e-latency",
+      "backend": "influxv2",
+      "timeUsed": 0.20061111450195312
+    }
+  ],
+  "data": [
+    [
+      {
+        "entityType": "asn",
+        "entityCode": "1299",
+        "entityName": "AS1299 (TWELVE99)",
+        "entityFqid": "asn.1299",
+        "datasource": "upstream-delay-penult-e2e-latency",
+        "subtype": "",
+        "from": 1727740800,
+        "until": 1727827200,
+        "step": 3600,
+        "nativeStep": 3600,
+        "values": [
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": null,
+                "max_e2e_latency": null,
+                "mean_e2e_latency": null,
+                "median_e2e_latency": null,
+                "min_e2e_latency": null,
+                "p10_e2e_latency": null,
+                "p90_e2e_latency": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124845,
+                "max_e2e_latency": 124845,
+                "mean_e2e_latency": 124845,
+                "median_e2e_latency": 124845,
+                "min_e2e_latency": 124845,
+                "p10_e2e_latency": 124845,
+                "p90_e2e_latency": 124845
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 3170,
+                "max_e2e_latency": 4287,
+                "mean_e2e_latency": 3273,
+                "median_e2e_latency": 3519,
+                "min_e2e_latency": 1896,
+                "p10_e2e_latency": 2300,
+                "p90_e2e_latency": 4278
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124728,
+                "max_e2e_latency": 124729,
+                "mean_e2e_latency": 124729,
+                "median_e2e_latency": 124729,
+                "min_e2e_latency": 124729,
+                "p10_e2e_latency": 124729,
+                "p90_e2e_latency": 124729
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2498,
+                "max_e2e_latency": 4274,
+                "mean_e2e_latency": 2601,
+                "median_e2e_latency": 2618,
+                "min_e2e_latency": 1407,
+                "p10_e2e_latency": 1776,
+                "p90_e2e_latency": 3531
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124744,
+                "max_e2e_latency": 124744,
+                "mean_e2e_latency": 124744,
+                "median_e2e_latency": 124744,
+                "min_e2e_latency": 124744,
+                "p10_e2e_latency": 124744,
+                "p90_e2e_latency": 124744
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2506,
+                "max_e2e_latency": 4189,
+                "mean_e2e_latency": 2642,
+                "median_e2e_latency": 2283,
+                "min_e2e_latency": 1430,
+                "p10_e2e_latency": 1672,
+                "p90_e2e_latency": 3810
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124786,
+                "max_e2e_latency": 124786,
+                "mean_e2e_latency": 124786,
+                "median_e2e_latency": 124786,
+                "min_e2e_latency": 124786,
+                "p10_e2e_latency": 124786,
+                "p90_e2e_latency": 124786
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 3084,
+                "max_e2e_latency": 4093,
+                "mean_e2e_latency": 3131,
+                "median_e2e_latency": 3026,
+                "min_e2e_latency": 2327,
+                "p10_e2e_latency": 2388,
+                "p90_e2e_latency": 3953
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124708,
+                "max_e2e_latency": 124709,
+                "mean_e2e_latency": 124709,
+                "median_e2e_latency": 124709,
+                "min_e2e_latency": 124709,
+                "p10_e2e_latency": 124709,
+                "p90_e2e_latency": 124709
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2793,
+                "max_e2e_latency": 4510,
+                "mean_e2e_latency": 2895,
+                "median_e2e_latency": 2835,
+                "min_e2e_latency": 1795,
+                "p10_e2e_latency": 1987,
+                "p90_e2e_latency": 4106
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124727,
+                "max_e2e_latency": 124727,
+                "mean_e2e_latency": 124727,
+                "median_e2e_latency": 124727,
+                "min_e2e_latency": 124727,
+                "p10_e2e_latency": 124727,
+                "p90_e2e_latency": 124727
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2945,
+                "max_e2e_latency": 4589,
+                "mean_e2e_latency": 3057,
+                "median_e2e_latency": 3046,
+                "min_e2e_latency": 1699,
+                "p10_e2e_latency": 1894,
+                "p90_e2e_latency": 4367
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124750,
+                "max_e2e_latency": 124751,
+                "mean_e2e_latency": 124751,
+                "median_e2e_latency": 124751,
+                "min_e2e_latency": 124751,
+                "p10_e2e_latency": 124751,
+                "p90_e2e_latency": 124751
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2822,
+                "max_e2e_latency": 4089,
+                "mean_e2e_latency": 2932,
+                "median_e2e_latency": 2768,
+                "min_e2e_latency": 1450,
+                "p10_e2e_latency": 2032,
+                "p90_e2e_latency": 3991
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124743,
+                "max_e2e_latency": 124743,
+                "mean_e2e_latency": 124743,
+                "median_e2e_latency": 124743,
+                "min_e2e_latency": 124743,
+                "p10_e2e_latency": 124743,
+                "p90_e2e_latency": 124743
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2519,
+                "max_e2e_latency": 4133,
+                "mean_e2e_latency": 2595,
+                "median_e2e_latency": 2457,
+                "min_e2e_latency": 1779,
+                "p10_e2e_latency": 1888,
+                "p90_e2e_latency": 3437
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124769,
+                "max_e2e_latency": 124770,
+                "mean_e2e_latency": 124770,
+                "median_e2e_latency": 124770,
+                "min_e2e_latency": 124770,
+                "p10_e2e_latency": 124770,
+                "p90_e2e_latency": 124770
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2761,
+                "max_e2e_latency": 4338,
+                "mean_e2e_latency": 2873,
+                "median_e2e_latency": 2800,
+                "min_e2e_latency": 1681,
+                "p10_e2e_latency": 2016,
+                "p90_e2e_latency": 3920
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124772,
+                "max_e2e_latency": 124772,
+                "mean_e2e_latency": 124772,
+                "median_e2e_latency": 124772,
+                "min_e2e_latency": 124772,
+                "p10_e2e_latency": 124772,
+                "p90_e2e_latency": 124772
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2988,
+                "max_e2e_latency": 4563,
+                "mean_e2e_latency": 3078,
+                "median_e2e_latency": 3279,
+                "min_e2e_latency": 1520,
+                "p10_e2e_latency": 2325,
+                "p90_e2e_latency": 3731
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124805,
+                "max_e2e_latency": 124805,
+                "mean_e2e_latency": 124805,
+                "median_e2e_latency": 124805,
+                "min_e2e_latency": 124805,
+                "p10_e2e_latency": 124805,
+                "p90_e2e_latency": 124805
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 3069,
+                "max_e2e_latency": 4544,
+                "mean_e2e_latency": 3171,
+                "median_e2e_latency": 3058,
+                "min_e2e_latency": 1899,
+                "p10_e2e_latency": 2308,
+                "p90_e2e_latency": 4146
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124748,
+                "max_e2e_latency": 124748,
+                "mean_e2e_latency": 124748,
+                "median_e2e_latency": 124748,
+                "min_e2e_latency": 124748,
+                "p10_e2e_latency": 124748,
+                "p90_e2e_latency": 124748
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2714,
+                "max_e2e_latency": 4132,
+                "mean_e2e_latency": 2795,
+                "median_e2e_latency": 2784,
+                "min_e2e_latency": 1539,
+                "p10_e2e_latency": 1874,
+                "p90_e2e_latency": 3422
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124771,
+                "max_e2e_latency": 124771,
+                "mean_e2e_latency": 124771,
+                "median_e2e_latency": 124771,
+                "min_e2e_latency": 124771,
+                "p10_e2e_latency": 124771,
+                "p90_e2e_latency": 124771
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2428,
+                "max_e2e_latency": 4489,
+                "mean_e2e_latency": 2568,
+                "median_e2e_latency": 2640,
+                "min_e2e_latency": 1119,
+                "p10_e2e_latency": 1556,
+                "p90_e2e_latency": 3379
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124829,
+                "max_e2e_latency": 124829,
+                "mean_e2e_latency": 124829,
+                "median_e2e_latency": 124829,
+                "min_e2e_latency": 124829,
+                "p10_e2e_latency": 124829,
+                "p90_e2e_latency": 124829
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2853,
+                "max_e2e_latency": 4060,
+                "mean_e2e_latency": 2926,
+                "median_e2e_latency": 2786,
+                "min_e2e_latency": 1807,
+                "p10_e2e_latency": 2064,
+                "p90_e2e_latency": 3787
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124744,
+                "max_e2e_latency": 124745,
+                "mean_e2e_latency": 124745,
+                "median_e2e_latency": 124745,
+                "min_e2e_latency": 124745,
+                "p10_e2e_latency": 124745,
+                "p90_e2e_latency": 124745
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2490,
+                "max_e2e_latency": 4253,
+                "mean_e2e_latency": 2652,
+                "median_e2e_latency": 2477,
+                "min_e2e_latency": 1410,
+                "p10_e2e_latency": 1549,
+                "p90_e2e_latency": 3857
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124760,
+                "max_e2e_latency": 124761,
+                "mean_e2e_latency": 124761,
+                "median_e2e_latency": 124761,
+                "min_e2e_latency": 124761,
+                "p10_e2e_latency": 124761,
+                "p90_e2e_latency": 124761
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 3064,
+                "max_e2e_latency": 4083,
+                "mean_e2e_latency": 3124,
+                "median_e2e_latency": 3151,
+                "min_e2e_latency": 2058,
+                "p10_e2e_latency": 2268,
+                "p90_e2e_latency": 3885
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124777,
+                "max_e2e_latency": 124778,
+                "mean_e2e_latency": 124778,
+                "median_e2e_latency": 124778,
+                "min_e2e_latency": 124778,
+                "p10_e2e_latency": 124778,
+                "p90_e2e_latency": 124778
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2560,
+                "max_e2e_latency": 4406,
+                "mean_e2e_latency": 2747,
+                "median_e2e_latency": 2929,
+                "min_e2e_latency": 1201,
+                "p10_e2e_latency": 1388,
+                "p90_e2e_latency": 3726
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124836,
+                "max_e2e_latency": 124836,
+                "mean_e2e_latency": 124836,
+                "median_e2e_latency": 124836,
+                "min_e2e_latency": 124836,
+                "p10_e2e_latency": 124836,
+                "p90_e2e_latency": 124836
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2686,
+                "max_e2e_latency": 4067,
+                "mean_e2e_latency": 2782,
+                "median_e2e_latency": 2697,
+                "min_e2e_latency": 1722,
+                "p10_e2e_latency": 1835,
+                "p90_e2e_latency": 3888
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124791,
+                "max_e2e_latency": 124791,
+                "mean_e2e_latency": 124791,
+                "median_e2e_latency": 124791,
+                "min_e2e_latency": 124791,
+                "p10_e2e_latency": 124791,
+                "p90_e2e_latency": 124791
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2557,
+                "max_e2e_latency": 4191,
+                "mean_e2e_latency": 2673,
+                "median_e2e_latency": 2632,
+                "min_e2e_latency": 1283,
+                "p10_e2e_latency": 1651,
+                "p90_e2e_latency": 3594
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 124857,
+                "max_e2e_latency": 124857,
+                "mean_e2e_latency": 124857,
+                "median_e2e_latency": 124857,
+                "min_e2e_latency": 124857,
+                "p10_e2e_latency": 124857,
+                "p90_e2e_latency": 124857
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "geometric_mean_e2e_latency": 2728,
+                "max_e2e_latency": 4302,
+                "mean_e2e_latency": 2867,
+                "median_e2e_latency": 2769,
+                "min_e2e_latency": 1419,
+                "p10_e2e_latency": 1985,
+                "p90_e2e_latency": 3826
+              }
+            }
+          ]
+        ]
+      }
+    ]
+  ],
+  "copyright": "This data is Copyright (c) 2021-2024 Georgia Tech Research Corporation. All Rights Reserved."
+}

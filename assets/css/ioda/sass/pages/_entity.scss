@@ -30,3 +30,13 @@
     max-height: 34rem;
   }
 }
+
+.upstream__chart {
+  min-width: 0;
+  flex-grow: 1;
+}
+
+/* Antd tabs flickering issue fix */
+.ant-tabs-nav-operations {
+  display: none !important;
+}

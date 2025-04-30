@@ -39,6 +39,8 @@ import { Checkbox, Collapse } from "antd";
 import { gtrColor, legend } from "../../utils";
 import { debounce } from "lodash";
 import { useParams } from "react-router-dom";
+import Tooltip from "../tooltip/Tooltip";
+import T from "i18n-react";
 
 const ChartLegendCard = ({
   legendHandler,
@@ -73,6 +75,10 @@ const ChartLegendCard = ({
       ? false
       : null;
 
+  const tooltipGoogleLegendText = T.translate("tooltip.googleLegend.text");
+
+  const tooltipGoogleLegendTitle = T.translate("tooltip.googleLegend.title");
+
   return (
     <>
       {legend
@@ -80,7 +86,7 @@ const ChartLegendCard = ({
           (item) => !item.key.includes(".") && checkedMap[item.key] != null
         )
         .map((item) => (
-          <div key={item.key}>
+          <div key={item.key} style={{ display: "flex", alignItems: "center" }}>
             <Checkbox
               className="ioda-checkbox mb-2"
               checked={checkedMap[item.key]}
@@ -93,11 +99,27 @@ const ChartLegendCard = ({
             >
               {item.title}
             </Checkbox>
+            <Tooltip
+              title={item.tooltip.title}
+              customCode={
+                <>
+                  {item.tooltip.text}{" "}
+                  <a
+                    href={item.tooltip.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "#fa8c16" }}
+                  >
+                    Learn More.
+                  </a>
+                </>
+              }
+            />
           </div>
         ))}
 
       {simplifiedView && !isCountryView && (
-        <div>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <Checkbox
             key="gtr.WEB_SEARCH"
             className="ioda-checkbox mb-2"
@@ -110,6 +132,26 @@ const ChartLegendCard = ({
           >
             Google (Search)
           </Checkbox>
+          {/* <Tooltip
+            title={tooltipGoogleLegendTitle}
+            text={tooltipGoogleLegendText}
+          /> */}
+          <Tooltip
+            title={tooltipGoogleLegendTitle}
+            customCode={
+              <>
+                {tooltipGoogleLegendText}{" "}
+                <a
+                  href={"/resources?search=google&tab=glossary"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#fa8c16" }}
+                >
+                  Learn More.
+                </a>
+              </>
+            }
+          />
         </div>
       )}
 
@@ -117,13 +159,19 @@ const ChartLegendCard = ({
         <Collapse rootClassName="mt-4" expandIconPosition="end">
           <Collapse.Panel
             header={
-              <Checkbox
-                indeterminate={googleExpandableChecked === null}
-                onChange={() => {}}
-                checked={googleExpandableChecked}
-              >
-                Google ({selectedGoogleSeries.length})
-              </Checkbox>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Checkbox
+                  indeterminate={googleExpandableChecked === null}
+                  onChange={() => {}}
+                  checked={googleExpandableChecked}
+                >
+                  Google ({selectedGoogleSeries.length})
+                </Checkbox>
+                <Tooltip
+                  title={tooltipGoogleLegendTitle}
+                  text={tooltipGoogleLegendText}
+                />
+              </div>
             }
             key="1"
           >
@@ -149,4 +197,4 @@ const ChartLegendCard = ({
   );
 };
 
-export default ChartLegendCard;
+export default React.memo(ChartLegendCard);

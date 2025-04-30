@@ -1,0 +1,129 @@
+.ant-tabs-nav {
+  width: 100% !important;
+}
+
+.ant-tabs-tab {
+  display: block !important;
+  flex: 1 !important;
+  text-align: center !important;
+}
+
+.ant-tabs-nav > div:nth-of-type(1) {
+  display: unset !important;
+  width: 100% !important;
+}
+
+.resources-container {
+  width: 900px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .resources-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .resources-container {
+    width: 100%;
+  }
+}
+
+.tag-base {
+  padding: 1px 3px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+  margin: 0.5px;
+  border: 1px solid transparent;
+}
+
+.tag-community {
+  color: #1890ff;
+  background-color: rgba(24, 144, 255, 0.1);
+  border-color: #1890ff;
+  opacity: 0.6;
+}
+
+.tag-profession {
+  color: #52c41a;
+  background-color: rgba(82, 196, 26, 0.1);
+  border-color: #52c41a;
+  opacity: 0.6;
+}
+
+.tag-expertise {
+  color: #fa8c16;
+  background-color: rgba(250, 140, 22, 0.1);
+  border-color: #fa8c16;
+  opacity: 0.6;
+}
+
+.tag-selected {
+  opacity: 1;
+  border-width: 1.5px;
+  font-weight: bold;
+}
+
+.filter-menu-box {
+  border: 1px solid #2e76ff;
+  border-radius: 4px;
+  padding: 16px;
+  background: #fff;
+  /* box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); */
+  width: 280px;
+  font-family: "Inter", sans-serif;
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #111827;
+}
+
+.save-button {
+  border: 1px solid #2e76ff;
+  color: #2e76ff;
+  border-radius: 5px;
+  background-color: white;
+  font-size: 14px;
+}
+
+.filter-section {
+  margin-bottom: 16px;
+}
+
+.filter-label {
+  font-size: 14px;
+  color: #2e76ff;
+  margin-bottom: 8px;
+}
+
+.pill-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #9ca3af;
+  padding: 1px 3px;
+  border-radius: 5px;
+  font-size: 12px;
+  display: inline-block;
+  margin: 0.5px;
+  border: 1px solid #d1d5db;
+}
+
+.pill-selected {
+  border-color: #2e76ff;
+  color: #2e76ff;
+}
