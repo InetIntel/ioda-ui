@@ -1,7 +1,6 @@
 # ioda-ui
 Web application UI for the IODA project (https://ioda.live)
 
-
 ## Install
 1. Ensure PHP 7.2 or higher is running on your machine.
     1. TODO: As of 4/30/2024 php 7.3.33 is the highest known working version

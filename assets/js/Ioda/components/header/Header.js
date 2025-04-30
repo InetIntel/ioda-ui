@@ -161,12 +161,6 @@ const Header = () => {
           </a>
         </div>
 
-        {/*<div className="header__item">*/}
-        {/*  <Link to="/help" className="a-fake">*/}
-        {/*    {help}*/}
-        {/*  </Link>*/}
-        {/*</div>*/}
-
         <div className="header__item">
           <Link to="/resources" className="a-fake">
             {resources}
