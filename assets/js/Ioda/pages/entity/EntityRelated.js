@@ -43,8 +43,9 @@ import Tooltip from "../../components/tooltip/Tooltip";
 import TopoMap from "../../components/map/Map";
 import Table from "../../components/table/Table";
 import { Button } from "antd";
-import LatencyComponent from "./components/LatencyComponent";
-import ApPacketLossComponent from "./components/ApPacketLossComponent";
+import ApPacketLatencyAndLossRateComponent from "./components/ApPacketLatencyAndLossRateComponent";
+import UpstreamDelayComponent from "./components/UpstreamDelayComponent";
+
 
 const EntityRelated = (props) => {
 
@@ -57,6 +58,8 @@ const EntityRelated = (props) => {
     toggleModal,
     topoData,
     topoScores,
+      from,
+      until,
     handleEntityShapeClick,
     regionalSignalsTableSummaryDataProcessed,
     asnSignalsTableSummaryDataProcessed,
@@ -109,8 +112,8 @@ const EntityRelated = (props) => {
   console.log(showApPacketGraph)
   console.log(rawAsnSignalsUpstreamDelayLatency)
   console.log(rawAsnSignalsUpstreamDelayPenultAsnCount)
-  console.log(rawAsnSignalsApPacketLoss)
-  console.log(rawAsnSignalsApPacketDelay)
+  // console.log(rawAsnSignalsApPacketLoss)
+  // console.log(rawAsnSignalsApPacketDelay)
 
 
   const updatedRelatedToTableSummaryProcessed = (relatedToTableSummaryProcessed ?? []).map(summary => ({
@@ -452,12 +455,16 @@ const EntityRelated = (props) => {
       </div>
           {
               showApPacketGraph &&
-              <ApPacketLossComponent
+              <ApPacketLatencyAndLossRateComponent
                   rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
                   rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
                   entityName={entityName}
+                  from={from}
+                  until={until}
               />}
-          {entityType && entityType === 'asn' && <LatencyComponent
+          {entityType && entityType === 'asn' && <UpstreamDelayComponent
+              from={from}
+              until={until}
               rawAsnSignalsUpstreamDelayLatency={rawAsnSignalsUpstreamDelayLatency}
               rawAsnSignalsUpstreamDelayPenultAsnCount={rawAsnSignalsUpstreamDelayPenultAsnCount}
               entityName={entityName}

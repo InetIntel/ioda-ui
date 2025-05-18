@@ -483,7 +483,9 @@ const Entity = (props) => {
           entityTypeState,
           [asnCode],
           timeUpstreamDelayFrom,
+          // timeSignalFrom,
           timeUpstreamDelayUntil,
+          // timeSignalUntil,
           null,
           "desc",
           "upstream-delay-penult-e2e-latency"
@@ -492,7 +494,9 @@ const Entity = (props) => {
           entityTypeState,
           [asnCode],
           timeUpstreamDelayFrom,
+          // timeSignalFrom,
           timeUpstreamDelayUntil,
+          // timeSignalUntil,
           null,
           "desc",
           "upstream-delay-penult-asns"
@@ -500,12 +504,13 @@ const Entity = (props) => {
     }
 
     if(entityCodeState && !entityCodeState.includes("-")) {
-      const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1742964120, 1742968120]
+      // const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1742964120, 1742968120]
+
       props.getRawAsnSignalsApPacketLoss(
           entityTypeState,
           [entityCodeState],
-          timeUpstreamDelayFrom,
-          timeUpstreamDelayUntil,
+          timeSignalFrom,
+          timeSignalUntil,
           null,
           "desc",
           "ping-slash24-loss"
@@ -513,8 +518,8 @@ const Entity = (props) => {
       props.getRawAsnSignalsApPacketDelay(
           entityTypeState,
           [entityCodeState],
-          timeUpstreamDelayFrom,
-          timeUpstreamDelayUntil,
+          timeSignalFrom,
+          timeSignalUntil,
           null,
           "desc",
           "ping-slash24-latency"
@@ -2875,6 +2880,8 @@ const Entity = (props) => {
             toggleModal={toggleModal}
             showMapModal={showMapModal}
             showTableModal={showTableModal}
+            from={from}
+            until={until}
             // to populate map
             topoData={topoData}
             topoScores={topoScores}

@@ -51,6 +51,27 @@ export function getChartExportFileName(from, entityName) {
     return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
 }
 
+export function getApLatencyChartExportFileName(from, entityName) {
+    const fromDayjs = secondsToUTC(from);
+
+    const formatCompact = "YY-MM-DD-HH-mm";
+
+    const exportFileNameBase =
+        `ioda-latency-${entityName}-${fromDayjs.format(formatCompact)}`;
+    return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
+}
+
+export function getUpstreamChartExportFileName(from, entityName) {
+    const fromDayjs = secondsToUTC(from);
+
+    const formatCompact = "YY-MM-DD-HH-mm";
+
+    const exportFileNameBase =
+        `ioda-upstream-${entityName}-${fromDayjs.format(formatCompact)}`;
+    return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
+}
+
+
 export const getChartExportTitle = (entityName)  => {
     return `${T.translate(
         "entity.xyChartTitle"
@@ -87,9 +108,11 @@ export const formatLocaleNumber = (value, precision) => {
 };
 
 export const manuallyDownloadChart = (timeSeriesChartRef, imageType) => {
+    console.log("Downloading", timeSeriesChartRef, imageType , "format")
     if (!timeSeriesChartRef.current?.chart) {
         return;
     }
+    console.log("Downloading", timeSeriesChartRef, imageType , "format")
 
     // Append watermark to image on download:
     // https://www.highcharts.com/forum/viewtopic.php?t=47368
