@@ -12,7 +12,17 @@ import { UpOutlined, DownOutlined } from "@ant-design/icons";
 // import { Button } from "antd";
 import { getEntityScaleColor } from "../../utils/mapColors";
 import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
+import iconAsc from "images/icons/icon-asc.png";
+import iconDesc from "images/icons/icon-desc.png";
+import iconSortUnsort from "images/icons/icon-sortUnsort.png";
+const FONT_SIZE = 14; // default text
+const SCORE_FONT_SIZE = 12; // the little score badge
+const HEADER_HEIGHT = 50; // same height you get from 10 px + 14 px + 10 px
+const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
+const ROW_HEIGHT = 58;
+
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
   acc[country.code] = country.emoji;
@@ -93,7 +103,7 @@ const styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    border: "1px solid #ddd",
+    border: "2px solid #ddd",
     maxHeight: "500px",
     overflow: "hidden",
   },
@@ -103,35 +113,24 @@ const styles = {
     top: 0,
     backgroundColor: "white",
     zIndex: 100,
-    borderBottom: "1px solid #ddd",
+    borderBottom: "2px solid #ddd",
   },
   countryScoreHeader: {
-    width: "220px",
-    padding: "10px",
-    borderRight: "1px solid #ddd",
+    width: "240px",
+    // padding: "10px",
+    padding: `${HEADER_BASELINE - FONT_SIZE}px 10px 0 10px`,
+    borderRight: "2px solid #ddd",
     flexShrink: 0,
     display: "flex",
     flexDirection: "column",
     // justifyContent: "space-between",
     justifyContent: "flex-end", // Vertically center content
   },
-  timeseriesHeaderContainer: {
-    flex: 1,
-    minWidth: "600px",
-    display: "flex",
-    flexDirection: "column",
-  },
   timeseriesHeader: {
     padding: "10px 20px",
     textAlign: "center",
-    fontWeight: "bold",
-    fontSize: "10px",
-  },
-  xAxisContainer: {
-    height: "30px",
-    overflow: "visible",
-    backgroundColor: "white",
-    paddingBottom: 0, // Remove any padding
+    // fontWeight: "bold",
+    // fontSize: "10px",
   },
   scrollContainer: {
     display: "flex",
@@ -139,17 +138,18 @@ const styles = {
     flex: 1,
   },
   countryScoreList: {
-    width: "220px",
-    borderRight: "1px solid #ddd",
+    width: "240px",
+    // borderRight: "2px solid #ddd",
     flexShrink: 0,
   },
   countryScoreRow: {
     display: "flex",
     justifyContent: "space-between",
     padding: "10px",
-    height: "40px",
+    height: `${ROW_HEIGHT}px`,
     alignItems: "center",
-    borderBottom: "1px solid #eee",
+    borderBottom: "2px solid #eee",
+    borderRight: "2px solid #ddd",
   },
   timeseriesWrapper: {
     flex: 1,
@@ -180,25 +180,11 @@ const styles = {
   iconButtonStyle: {
     background: "none",
     border: "none",
-    padding: 0,
+    padding: 2,
     marginLeft: "4px",
     cursor: "pointer",
     display: "inline-flex",
     alignItems: "center",
-  },
-  scoreTooltipStyles: {
-    position: "absolute",
-    pointerEvents: "none",
-    backgroundColor: "white",
-    border: "1px solid #ccc",
-    padding: "4px 4px",
-    fontSize: "12px",
-    borderRadius: "4px",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-    visibility: "hidden",
-    zIndex: 999,
-    maxWidth: "300px",
-    whiteSpace: "flex-wrap",
   },
 };
 
@@ -208,6 +194,32 @@ function humanizeNumber(value, precisionDigits = 2) {
       (Math.abs(value) < 1 ? "r" : "s")
   )(value);
 }
+
+/** Returns the right icon element for a column */
+const getSortIcon = (column, sortConfig) => {
+  const isActive = sortConfig.criterion === column;
+  const dir = sortConfig.directions[column]; // "asc" | "desc"
+  let src,
+    alt,
+    extraStyle = {};
+
+  if (isActive) {
+    src = dir === "asc" ? iconAsc : iconDesc;
+    alt = dir === "asc" ? "ascending" : "descending";
+  } else {
+    src = iconSortUnsort;
+    alt = "unsorted";
+    extraStyle.opacity = 0.35;
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      style={{ width: 22, height: 22, pointerEvents: "none", ...extraStyle }}
+    />
+  );
+};
 
 const SummaryWithTSChart = ({
   data,
@@ -289,11 +301,11 @@ const SummaryWithTSChart = ({
     if (!sortedData?.length || !scrollContainerRef.current) return;
 
     // Calculate available width for timeseries
-    const timeseriesWidth = scrollContainerRef.current.offsetWidth - 220; // minus left column
-    const rowHeight = 40;
+    const timeseriesWidth = scrollContainerRef.current.offsetWidth - 240; // minus left column
+    const rowHeight = ROW_HEIGHT;
     const height = sortedData.length * rowHeight;
 
-    const margin = { top: 0, right: 20, bottom: 10, left: 0 };
+    const margin = { top: 0, right: 10, bottom: 10, left: 40 };
     const width = timeseriesWidth - margin.left - margin.right;
 
     const svg = select(chartRef.current)
@@ -308,8 +320,10 @@ const SummaryWithTSChart = ({
     );
     // const xExtent = extent(allTimestamps);
     const xExtent = [
-      new Date(from * 1000).setUTCHours(0, 0, 0, 0),
-      new Date(until * 1000).setUTCHours(23, 59, 59, 999),
+      // new Date(from * 1000).setUTCHours(0, 0, 0, 0),
+      // new Date(until * 1000).setUTCHours(23, 59, 59, 999),
+      new Date(from * 1000),
+      new Date(until * 1000),
     ];
     const totalRangeDays = (xExtent[1] - xExtent[0]) / (1000 * 60 * 60 * 24);
     const xScale = scaleTime().domain(xExtent).range([0, width]);
@@ -317,10 +331,12 @@ const SummaryWithTSChart = ({
     const xAxisSvg = select(xAxisRef.current)
       .append("svg")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", "30px")
+      // .attr("height", "30px")
+      .attr("height", HEADER_HEIGHT)
       .style("overflow", "visible") // Change to visible
       .append("g")
-      .attr("transform", `translate(${margin.left}, 30)`); // Changed y position to 0
+      // .attr("transform", `translate(${margin.left}, 30)`); // Changed y position to 0
+      .attr("transform", `translate(${margin.left}, ${HEADER_BASELINE})`);
 
     const yScale = scaleBand()
       .domain(sortedData.map((d) => d.name))
@@ -431,7 +447,8 @@ const SummaryWithTSChart = ({
       })
       .tickValues(generateTicks(xScale)) // Use our custom ticks
       .tickSizeOuter(0)
-      .tickSize(4);
+      // .tickSize(4);
+      .tickSize(0);
 
     // Calculate approximate tick spacing for wrapping
     const tickPositions = generateTicks(xScale);
@@ -440,148 +457,38 @@ const SummaryWithTSChart = ({
         ? xScale(tickPositions[1]) - xScale(tickPositions[0])
         : width;
 
+    // xAxisSvg
+    //   .append("g")
+    //   .attr("class", "x-axis")
+    //   .call(xAxis)
+    //   .selectAll(".tick text")
+    //   .style("font-size", "10px")
+    //   .style("text-anchor", "middle")
+    //   .filter((d) => formatTime(d) !== null) // Only keep ticks we want to show
+    //   .call(wrap, tickSpacing * 0.95); // Wrap labels
     xAxisSvg
       .append("g")
       .attr("class", "x-axis")
-      .call(xAxis)
-      .selectAll(".tick text")
-      .style("font-size", "10px")
-      .style("text-anchor", "middle")
-      .filter((d) => formatTime(d) !== null) // Only keep ticks we want to show
-      .call(wrap, tickSpacing * 0.95); // Wrap labels
-
-    // Remove y-axis ticks
-    svg
-      .append("g")
-      .attr("class", "y-axis")
-      .call(axisLeft(yScale).tickSizeOuter(0).tickSize(0).tickFormat(""));
-
-    // const color = scaleOrdinal(schemeCategory10);
-
-    // Add name and score labels
-    svg
-      .selectAll(".name-label")
-      .data(sortedData)
-      .enter()
-      .append("text")
-      .attr("class", "name-label")
-      .attr("x", -180)
-      .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 2)
-      .attr("dy", "0.35em")
-      .attr("text-anchor", "left")
-      .text((d) => d.name);
-
-    // svg
-    //   .selectAll(".score-label")
-    //   .data(sortedData)
-    //   .enter()
-    //   .append("text")
-    //   .attr("class", "score-label")
-    //   .attr("x", -30)
-    //   .attr("y", (d) => yScale(d.name) + yScale.bandwidth() / 2)
-    //   .attr("dy", "0.35em")
-    //   .attr("text-anchor", "right")
-    //   .text((d) => humanizeNumber(d.score, 2));
-    svg
-      .selectAll(".score-label")
-      .data(sortedData)
-      .enter()
-      .append("g")
-      .attr(
-        "transform",
-        (d) => `translate(-30,${yScale(d.name) + yScale.bandwidth() / 2})`
+      .call(xAxis.tickSize(0).tickSizeOuter(0))
+      .call((g) => g.select(".domain").remove())
+      .call((g) => g.selectAll(".tick line").remove())
+      .call(
+        (g) =>
+          g
+            .selectAll(".tick text")
+            .attr("dy", "0") // baseline-align text
+            .style("font-size", `${FONT_SIZE}px`) // keep the 14 px size
       )
-      .each(function (d) {
-        const group = select(this);
-        const color = getEntityScaleColor(d.score, "country") || "#d0d0d0";
-
-        // Add rectangle background
-        group
-          .append("rect")
-          .attr("width", 50)
-          .attr("height", 20)
-          .attr("x", -25)
-          .attr("y", -10)
-          .attr("rx", 4)
-          .attr("fill", color)
-          .attr("opacity", 0.5)
-          .attr("stroke", color)
-          .attr("stroke-width", 0.7)
-          .attr("stroke-opacity", 1)
-          .on("mouseover", function (event) {
-            const tooltip = scoreTooltipRef.current;
-            tooltip.style.visibility = "visible";
-
-            // Create table rows for score components
-            const scoresDetails = d.scores
-              .map(
-                (score) => `
-                <tr>
-                  <td style="text-align: left; padding-right: 10px;">${
-                    score.source
-                  }</td>
-                  <td style="text-align: right;">${humanizeNumber(
-                    score.score,
-                    2
-                  )}</td>
-                </tr>
-              `
-              )
-              .join("");
-
-            tooltip.innerHTML = `
-              <div style="font-size: 12px; margin: 0; padding: 0;">
-                <table style="width: auto; border-collapse: collapse; margin: 0; padding: 0;">
-                  <tbody>
-                    <tr>
-                      <td style="text-align: left; padding: 0 6px 0 0;"><strong>Overall score</strong></td>
-                      <td style="text-align: right; padding: 0;">${humanizeNumber(
-                        d.score,
-                        2
-                      )}</td>
-                    </tr>
-                    ${d.scores
-                      .map(
-                        (score) => `
-                      <tr>
-                        <td style="text-align: left; padding: 0 6px 0 0;">${
-                          score.source
-                        }</td>
-                        <td style="text-align: right; padding: 0;">${humanizeNumber(
-                          score.score,
-                          2
-                        )}</td>
-                      </tr>
-                    `
-                      )
-                      .join("")}
-                  </tbody>
-                </table>
-              </div>
-            `;
-
-            tooltip.style.left = `${event.pageX + 10}px`;
-            tooltip.style.top = `${event.pageY + 10}px`;
-          })
-          .on("mousemove", function (event) {
-            const tooltip = scoreTooltipRef.current;
-            tooltip.style.left = `${event.pageX + 10}px`;
-            tooltip.style.top = `${event.pageY + 10}px`;
-          })
-          .on("mouseout", function () {
-            const tooltip = scoreTooltipRef.current;
-            tooltip.style.visibility = "hidden";
-          });
-
-        // Add text on top
-        group
-          .append("text")
-          .attr("dy", "0.35em")
-          .attr("text-anchor", "middle")
-          .style("font-size", "10px")
-          .style("fill", "#000")
-          .text(humanizeNumber(d.score, 2));
-      });
+      .attr("font-size", `${FONT_SIZE}px`)
+      .call((g) =>
+        g.selectAll(".tick").each(function (d) {
+          const isDay = d.getUTCHours() === 0; // midnight UTC
+          select(this)
+            .selectAll("text")
+            .style("font-size", `${FONT_SIZE}px`)
+            .style("fill", isDay ? "#000000" : "#8c8c8c");
+        })
+      );
 
     svg
       .selectAll("line.grid-line")
@@ -608,7 +515,7 @@ const SummaryWithTSChart = ({
         // .attr("x", (d) => xScale(new Date(d.ts * 1000)) - 3)
         .attr("y", () => yScale(country.name))
         .attr("width", 6)
-        .attr("height", yScale.bandwidth() / 1.5)
+        .attr("height", yScale.bandwidth() / 2)
         .attr(
           "fill",
           getEntityScaleColor(country.score, "country") || "#d0d0d0"
@@ -620,9 +527,11 @@ const SummaryWithTSChart = ({
           // Use UTC date formatting here too
           const utcTooltipFormat = utcFormat("%b %d, %H:%M UTC");
           tooltip.innerHTML = `
+                                  <div style="font-size: ${FONT_SIZE}px;">
             <strong> ${country.name}</strong><br/>
             Score: ${country.score}<br/>
             Time: ${utcTooltipFormat(new Date(d.ts))}
+                                    </div>
           `;
         })
         .on("mousemove", function (event) {
@@ -642,7 +551,8 @@ const SummaryWithTSChart = ({
   }, [sortedData, containerWidth]);
 
   return (
-    <div>
+    <div style={{ fontSize: `${FONT_SIZE}px` }}>
+      {/* all existing markup stays the same */}
       <h3
         style={{
           fontSize: "20px",
@@ -663,14 +573,15 @@ const SummaryWithTSChart = ({
               <div
                 style={{
                   width: "160px",
-                  fontWeight: "bold",
-                  fontSize: "10px",
+                  // fontWeight: "bold",
+                  // fontSize: "10px",
+                  fontSize: `${FONT_SIZE}px`,
                   display: "flex",
                   alignItems: "center",
                 }}
               >
                 <span>NAME</span>
-                <button
+                {/* <button
                   onClick={() =>
                     setSortConfig((prev) => {
                       const newDirection =
@@ -707,19 +618,40 @@ const SummaryWithTSChart = ({
                       }}
                     />
                   )}
+                </button> */}
+                <button
+                  onClick={() =>
+                    setSortConfig((prev) => {
+                      // If we clicked the column that is already active, just flip the direction
+                      if (prev.criterion === "name") {
+                        const newDir =
+                          prev.directions.name === "asc" ? "desc" : "asc";
+                        return {
+                          ...prev,
+                          directions: { ...prev.directions, name: newDir },
+                        };
+                      }
+                      // Otherwise activate this column, keep its last direction or default to asc
+                      return { ...prev, criterion: "name" };
+                    })
+                  }
+                  style={styles.iconButtonStyle}
+                >
+                  {getSortIcon("name", sortConfig)}
                 </button>
               </div>
               <div
                 style={{
-                  width: "50px",
-                  fontWeight: "bold",
-                  fontSize: "10px",
+                  width: "80px",
+                  // fontWeight: "bold",
+                  // fontSize: "10px",
+                  fontSize: `${FONT_SIZE}px`,
                   display: "flex",
-                  alignItems: "right",
+                  alignItems: "center",
                 }}
               >
                 <span>SCORE</span>
-                <button
+                {/* <button
                   onClick={() =>
                     setSortConfig((prev) => {
                       const newDirection =
@@ -756,6 +688,26 @@ const SummaryWithTSChart = ({
                       }}
                     />
                   )}
+                </button> */}
+                <button
+                  onClick={() =>
+                    setSortConfig((prev) => {
+                      // If we clicked the column that is already active, just flip the direction
+                      if (prev.criterion === "score") {
+                        const newDir =
+                          prev.directions.score === "asc" ? "desc" : "asc";
+                        return {
+                          ...prev,
+                          directions: { ...prev.directions, score: newDir },
+                        };
+                      }
+                      // Otherwise activate this column, keep its last direction or default to asc
+                      return { ...prev, criterion: "score" };
+                    })
+                  }
+                  style={styles.iconButtonStyle}
+                >
+                  {getSortIcon("score", sortConfig)}
                 </button>
               </div>
             </div>
@@ -784,31 +736,39 @@ const SummaryWithTSChart = ({
                 {/*     const linkPath = dateRangeInUrl
       ? `/${d.entityType}/${d.entityCode}?from=${urlFromDate}&until=${urlUntilDate}`
       : `/${d.entityType}/${d.entityCode}`; */}
-                <Link
-                  to={`/${d.entityType}/${d.entityCode}${
-                    dateRangeInUrl
-                      ? `?from=${urlFromDate}&until=${urlUntilDate}`
-                      : ""
-                  }`}
-                >
-                  <div style={{ width: "140px", fontSize: "11px" }}>
+                <div style={{ width: "140px" }}>
+                  <Link
+                    to={`/${d.entityType}/${d.entityCode}${
+                      dateRangeInUrl
+                        ? `?from=${urlFromDate}&until=${urlUntilDate}`
+                        : ""
+                    }`}
+                    style={{ textDecoration: "none" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.textDecoration = "underline")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.textDecoration = "none")
+                    }
+                  >
                     {d.entityType === "country"
                       ? countryFlagMap[d.entityCode] || ""
                       : ""}{" "}
                     {d.name}
-                  </div>
-                </Link>
+                  </Link>
+                </div>
                 {/* <div style={{ width: "50px", textAlign: "right" }}>
                   {humanizeNumber(d.score, 2)}
                 </div> */}
-                <div style={{ width: "50px", textAlign: "right" }}>
+                <div style={{ width: "70px", textAlign: "center" }}>
                   <div
                     style={{
                       display: "inline-flex",
                       justifyContent: "center",
                       alignItems: "center",
                       width: "50px",
-                      height: "20px",
+                      height: "30px",
+                      // padding: "6px 8px",
                       position: "relative",
                     }}
                     onMouseOver={(e) => {
@@ -833,7 +793,7 @@ const SummaryWithTSChart = ({
                         .join("");
 
                       tooltip.innerHTML = `
-                        <div style="font-size: 12px; margin: 0; padding: 0;">
+                        <div style="font-size: ${FONT_SIZE}px; margin: 0; padding: 0;">
                           <table style="width: auto; border-collapse: collapse; margin: 0; padding: 0;">
                             <tbody>
                               <tr>
@@ -862,7 +822,6 @@ const SummaryWithTSChart = ({
                           </table>
                         </div>
                       `;
-
                       tooltip.style.left = `${e.pageX + 10}px`;
                       tooltip.style.top = `${e.pageY + 10}px`;
                     }}
@@ -880,13 +839,14 @@ const SummaryWithTSChart = ({
                     <div
                       style={{
                         position: "absolute",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
+                        // width: "55px",
+                        // height: "16px",
+                        // top: "2px",
+                        // left: "7px",
+                        inset: 0,
                         backgroundColor: convertHexToRgba(
                           getEntityScaleColor(d.score, "country") || "#d0d0d0",
-                          0.5
+                          0.2
                         ),
                         borderRadius: "2px",
                         zIndex: 1,
@@ -903,8 +863,9 @@ const SummaryWithTSChart = ({
                       style={{
                         position: "relative",
                         display: "inline-block",
-                        padding: "2px 6px",
-                        fontSize: "10px",
+                        // padding: "4px 8px",
+                        // fontSize: "10px",
+                        fontSize: `${SCORE_FONT_SIZE}px`,
                         color: "#000",
                         zIndex: 2,
                         textAlign: "center",
@@ -923,7 +884,7 @@ const SummaryWithTSChart = ({
           <div style={styles.timeseriesWrapper}>
             <div
               ref={chartRef}
-              style={{ height: `${sortedData.length * 40}px` }}
+              style={{ height: `${sortedData.length * ROW_HEIGHT}px` }}
             />
           </div>
         </div>
