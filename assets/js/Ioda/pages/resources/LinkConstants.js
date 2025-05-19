@@ -57,6 +57,7 @@ import tutorial_9 from "images/resources/tutorial-9.png";
 import tutorial_10 from "images/resources/tutorial-10.png";
 import tutorial_11 from "images/resources/tutorial-11.png";
 import tutorial_12 from "images/resources/tutorial-12.png";
+import tutorial_13 from "images/resources/tutorial-13.png";
 
 const link_resources = [
   {
@@ -450,6 +451,17 @@ const link_resources = [
       community: ["Internet Freedom", "Internet Measurement"],
       user: ["Activist", "Lawyer", "Advocate", "Researcher", "Journalist"],
       expertise: [],
+    },
+  },
+  {
+    title: "IODA Journalist Infographic",
+    type: "PNG",
+    link: "https://inetintel.github.io/IODA-site-files/files/UserResources/Tutorials/IODAJournalistInfographic.png",
+    category: "file",
+    tab: "tutorials",
+    thumbnail: tutorial_13,
+    tags: {
+      community: ["Internet Measurement"],
     },
   },
 ];
