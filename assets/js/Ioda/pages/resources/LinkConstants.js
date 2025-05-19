@@ -99,6 +99,17 @@ const link_resources = [
       expertise: ["beginner"],
     },
   },
+  {
+    title: "IODA Journalist Infographic",
+    type: "PNG",
+    link: "https://inetintel.github.io/IODA-site-files/files/UserResources/Tutorials/IODAJournalistInfographic.png",
+    category: "file",
+    tab: "tutorials",
+    thumbnail: tutorial_13,
+    tags: {
+      community: ["Internet Measurement"],
+    },
+  },
 
   {
     title: "Why IODA is important in the Internet Freedom Community",
@@ -451,17 +462,6 @@ const link_resources = [
       community: ["Internet Freedom", "Internet Measurement"],
       user: ["Activist", "Lawyer", "Advocate", "Researcher", "Journalist"],
       expertise: [],
-    },
-  },
-  {
-    title: "IODA Journalist Infographic",
-    type: "PNG",
-    link: "https://inetintel.github.io/IODA-site-files/files/UserResources/Tutorials/IODAJournalistInfographic.png",
-    category: "file",
-    tab: "tutorials",
-    thumbnail: tutorial_13,
-    tags: {
-      community: ["Internet Measurement"],
     },
   },
 ];
