@@ -326,7 +326,9 @@ const SummaryWithTSChart = ({
       new Date(until * 1000),
     ];
     const totalRangeDays = (xExtent[1] - xExtent[0]) / (1000 * 60 * 60 * 24);
-    const xScale = scaleTime().domain(xExtent).range([0, width]);
+    const xScale = scaleTime()
+      .domain(xExtent)
+      .range([FONT_SIZE * 2, width - FONT_SIZE * 2]);
     // Create separate x-axis SVG
     const xAxisSvg = select(xAxisRef.current)
       .append("svg")
@@ -553,7 +555,7 @@ const SummaryWithTSChart = ({
   return (
     <div style={{ fontSize: `${FONT_SIZE}px` }}>
       {/* all existing markup stays the same */}
-      <h3
+      {/* <h3
         style={{
           fontSize: "20px",
           fontWeight: "600",
@@ -563,7 +565,7 @@ const SummaryWithTSChart = ({
         }}
       >
         All Countries Outage Timeline
-      </h3>
+      </h3> */}
       <div style={styles.container}>
         {/* Header row - stays fixed during scrolling */}
         <div style={styles.header}>

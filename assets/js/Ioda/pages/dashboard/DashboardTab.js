@@ -126,45 +126,48 @@ const DashboardTab = (props) => {
     "tooltip.dashboardHeading.text"
   );
 
+  const mapCardRef = useRef(null);
+  const [mapHeight, setMapHeight] = useState(null);
+
+  useEffect(() => {
+    if (mapCardRef.current) {
+      setMapHeight(mapCardRef.current.offsetHeight);
+    }
+  }, [tabCurrentView, topoData]); // re-measure if layout can change
+
   return (
-    <div className="card p-8 dashboard__tab">
+    <div className="w-full max-cont dashboard__tab">
       {until - from < dashboardTimeRangeLimit ? (
-        // <div className="flex items-stretch gap-4 dashboard__tab-layout">
-        //  <div className="flex flex-col items-stretch gap-4 dashboard__tab-layout"> //Last worked
-        // <div className="flex flex-col gap-4 dashboard__tab-layout">
-        <div className="flex flex-col gap-4 dashboard__tab-layout">
-          {/* LEFT COLUMN: Map (or Horizon chart) + Summary table below */}
-          {totalOutages === 0 ? (
-            <div className="col-1-of-1 tab__error tab__error--noOutagesFound">
-              No {activeTabType} Outages found
-            </div>
-          ) : (
-            <React.Fragment>
-              {/* <div className="col-2 mw-0"> */}
-              <div className="flex items-center mb-4" ref={config}>
-                <div className="font-medium text-3xl">
-                  {type === "country"
-                    ? countryOutages
-                    : type === "region"
-                    ? regionalOutages
-                    : type === "asn"
-                    ? asnOutages
-                    : null}
-                </div>
-                <Tooltip
-                  title={tooltipDashboardHeadingTitle}
-                  text={tooltipDashboardHeadingText}
-                />
-                <div className="col" />
-                {type !== asn.type && (
-                  <>
-                    <div className="text-lg mr-4">
-                      {/* {tabCurrentView === "timeSeries"
+        <>
+          {/* ───────────────────────── 1st ROW ───────────────────────── */}
+          <div className="flex items-stretch gap-6 mb-6">
+            {/* LEFT 2 / 3 – Map (or Horizon) */}
+            <div ref={mapCardRef} className="col-2 p-4 card flex flex-col">
+              <div className="col-2 mw-0">
+                <div className="flex items-center mb-4" ref={config}>
+                  <div className="font-medium text-3xl">
+                    {type === "country"
+                      ? countryOutages
+                      : type === "region"
+                      ? regionalOutages
+                      : type === "asn"
+                      ? asnOutages
+                      : null}
+                  </div>
+                  <Tooltip
+                    title={tooltipDashboardHeadingTitle}
+                    text={tooltipDashboardHeadingText}
+                  />
+                  <div className="col" />
+                  {type !== asn.type && (
+                    <>
+                      <div className="text-lg mr-4">
+                        {/* {tabCurrentView === "timeSeries"
                             ? viewTitleChart
                             : viewTitleMap}
                       {viewTitleMap} */}
-                    </div>
-                    {/* <Button
+                      </div>
+                      {/* <Button
                           type="primary"
                           onClick={handleTabChangeViewButton}
                           icon={
@@ -180,37 +183,34 @@ const DashboardTab = (props) => {
                               : viewChangeIconAltTextMap
                           }
                         /> */}
-                  </>
-                )}
-              </div>
-              <div className="flex gap-4">
-                {/* LEFT side: Map or Horizon Chart */}
-                <div className="col-2 mw-0">
-                  {type !== "asn" ? (
-                    <div
-                      className="dashboard__tab-map"
-                      style={
-                        tabCurrentView === "map"
-                          ? { display: "block" }
-                          : { display: "none" }
-                      }
-                    >
-                      {topoData &&
-                      summaryDataRaw &&
-                      totalOutages &&
-                      topoScores ? (
-                        <TopoMap
-                          topoData={topoData}
-                          scores={topoScores}
-                          handleEntityShapeClick={(entity) =>
-                            handleEntityShapeClick(entity)
-                          }
-                          entityType={activeTabType?.toLowerCase()}
-                        />
-                      ) : null}
-                    </div>
-                  ) : null}
-                  {/* <div
+                    </>
+                  )}
+                </div>
+                {type !== "asn" ? (
+                  <div
+                    className="dashboard__tab-map"
+                    style={
+                      tabCurrentView === "map"
+                        ? { display: "block" }
+                        : { display: "none" }
+                    }
+                  >
+                    {topoData &&
+                    summaryDataRaw &&
+                    totalOutages &&
+                    topoScores ? (
+                      <TopoMap
+                        topoData={topoData}
+                        scores={topoScores}
+                        handleEntityShapeClick={(entity) =>
+                          handleEntityShapeClick(entity)
+                        }
+                        entityType={activeTabType?.toLowerCase()}
+                      />
+                    ) : null}
+                  </div>
+                ) : null}
+                {/* <div
                     id="horizon-chart"
                     style={
                       tabCurrentView === "timeSeries" ||
@@ -226,59 +226,56 @@ const DashboardTab = (props) => {
                       ? genChart()
                       : null}
                   </div> */}
-                  <TimeStamp className="mt-4" from={from} until={until} />
-                </div>
-                {/* RIGHT side: Mastodon timeline */}
-                {/* <div className="mastodon-embed-container"> */}
-                <div className="col-1 mw-0">
-                  {/* <div className="text-5xl font-semibold mb-6">
-                    {T.translate("home.twitterWidgetTitle")}
-                  </div> */}
-                  <div className="mastodon-embed-container">
-                    {/* 
-                    The container for Mastodon embed 
-                    ( ID "mt-container" is used by the Mastodon Embed library)
-                  */}
-                    <div
-                      id="mt-dashboard-container"
-                      className="mt-container mt-container-seamless"
-                    >
-                      <div className="mt-body" role="feed">
-                        <div className="mt-loading-spinner"></div>
-                      </div>
-                    </div>
-                  </div>
+                <TimeStamp className="mt-4" from={from} until={until} />
+              </div>
+            </div>
+
+            {/* RIGHT 1 / 3 – Mastodon timeline */}
+            <div
+              className="col-1 card p-4 flex flex-col"
+              style={{ height: mapHeight ?? 570 }}
+            >
+              {/* <div className="mb-2">
+                <span className="font-medium text-3xl">Recent News</span>
+              </div> */}
+              <div
+                id="mt-dashboard-container"
+                className="mt-container mt-container-seamless flex-1 w-full overflow-y-auto"
+              >
+                <div className="mt-body" role="feed">
+                  <div className="mt-loading-spinner" />
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* <div className="col-1 mw-0"> */}
-              {/* <div className="dashboard__tab-table mt-4">
-                {activeTabType &&
-                totalOutages &&
-                genSummaryTableDataProcessed ? (
-                  <Table
-                    type={"summary"}
-                    //data={summaryDataProcessed} //0414
-                    data={summaryDataWithTS}
-                    totalCount={totalOutages}
-                    entityType={activeTabType}
-                  />
-                ) : // <></>
-                null}
-              </div> */}
-              {/* 0414added */}
-              <div>{summaryDataWithTS ? genSummaryWithTS() : null}</div>
-              {/* </div> */}
-              {/* </div> */}
-            </React.Fragment>
-          )}
-        </div>
+          {/* ───────────────────────── 2nd ROW ───────────────────────── */}
+          <div className="card p-4">
+            <div className="flex items-center mb-4" ref={config}>
+              <div className="font-medium text-3xl">
+                {type === "country"
+                  ? "All " + countryOutages + " Timeline"
+                  : type === "region"
+                  ? "All " + regionalOutages + " Timeline"
+                  : type === "asn"
+                  ? "All " + asnOutages + " Timeline"
+                  : null}
+              </div>
+            </div>
+            {summaryDataWithTS && (
+              <SummaryWithTSChart
+                data={summaryDataWithTS}
+                from={from}
+                until={until}
+              />
+            )}
+          </div>
+        </>
       ) : (
-        <div className="w-full">
-          <p className="dashboard__tab-error">
-            {timeDurationTooHighErrorMessage}
-            {getSecondsAsErrorDurationString(until - from)}.
-          </p>
+        /* Too-much-data error */
+        <div className="p-6 text-lg card">
+          {timeDurationTooHighErrorMessage}
+          {getSecondsAsErrorDurationString(until - from)}.
         </div>
       )}
     </div>

@@ -63,3 +63,19 @@
   height: 52.9rem; // match map’s height
   overflow-y: auto; // enable scroll within this box
 }
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
