@@ -22,7 +22,6 @@ const SCORE_FONT_SIZE = 12; // the little score badge
 const HEADER_HEIGHT = 50; // same height you get from 10 px + 14 px + 10 px
 const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
 const ROW_HEIGHT = 58;
-
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
   acc[country.code] = country.emoji;

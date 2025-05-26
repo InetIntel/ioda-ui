@@ -1,5 +1,11 @@
 // React Imports
-import React, { useEffect, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 // Internationalization
 import T from "i18n-react";
 // Data Hooks
@@ -33,6 +39,7 @@ import {
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { Radio } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
+import { fetchData } from "../../data/ActionCommons";
 
 const TAB_VIEW_MAP = "map";
 const TAB_VIEW_TIME_SERIES = "timeSeries";
@@ -122,10 +129,41 @@ const Dashboard = (props) => {
   const [eventOrderByOrder, setEventOrderByOrder] = useState("desc");
   const [eventEndpointCalled, setEventEndpointCalled] = useState(false);
   const [summaryDataWithTS, setSummaryDataWithTS] = useState([]);
+  const [regionCountryMap, setRegionCountryMap] = useState({}); //0523
+  // const fetchCountryCodeForRegion = async (regionCode) => {
+  //   try {
+  //     const resp = await fetch(
+  //       `/v2/entities/query?entityType=country&relatedTo=region/${regionCode}`
+  //     );
+  //     if (!resp.ok) throw new Error(resp.statusText);
+  //     const json = await resp.json();
+  //     // API returns an array; assume first hit is the parent country
+  //     return json?.results?.[0]?.entity?.code ?? null;
+  //   } catch (e) {
+  //     console.error("Failed to get country for region", regionCode, e);
+  //     return null;
+  //   }
+  // };
+  // keep this in Dashboard.jsx (or wherever the helper lives)
+  const fetchCountryCodeForRegion = async (regionCode) => {
+    if (!regionCode || regionCode === "??") return null;
 
+    try {
+      const url = `https://api.ioda.inetintel.cc.gatech.edu/v2/entities/query?entityType=country&relatedTo=region/${regionCode}`;
+
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(resp.statusText);
+
+      const json = await resp.json();
+      // API shape from screenshot: { data: [ { code: "ME", name: "Montenegro", type: "country" } ] }
+      return json?.data?.[0]?.code ?? null;
+    } catch (e) {
+      console.error("Failed to get country for region", regionCode, e);
+      return null;
+    }
+  };
   const [displayDashboardTimeRangeError, setDisplayDashboardTimeRangeError] =
     useState(false);
-
   useEffect(() => {
     const timeDiff = until - from;
     if (timeDiff <= 0) {
@@ -183,33 +221,97 @@ const Dashboard = (props) => {
     }
   }, [eventDataRaw]);
 
+  // useEffect(() => { //0523
+  //   // Only process if both summary and event data are available
+  //   if (summaryDataProcessed && eventDataProcessed) {
+  //     const mergedData = summaryDataProcessed.map((summaryItem) => {
+  //       // Filter events that match the entity code from the summary item
+  //       const timeSeries = eventDataProcessed
+  //         .filter(
+  //           (event) =>
+  //             event.entityCode === summaryItem.entityCode && event.val !== 0
+  //           // event.entityCode === summaryItem.entityCode
+  //         )
+  //         .map((event) => ({
+  //           ts: event.ts,
+  //           val: event.val,
+  //         }));
+  //       // Return new object with all summary properties plus the timeSeries field
+  //       return {
+  //         ...summaryItem,
+  //         timeSeries: timeSeries,
+  //       };
+  //     });
+
+  //     // Update the state with the new merged data
+  //     setSummaryDataWithTS(mergedData);
+  //     console.log("SummaryDataWithTS", mergedData);
+  //   }
+  // }, [summaryDataProcessed, eventDataProcessed, from, until]);
+
   useEffect(() => {
+    //0523
     // Only process if both summary and event data are available
     if (summaryDataProcessed && eventDataProcessed) {
       const mergedData = summaryDataProcessed.map((summaryItem) => {
-        // Filter events that match the entity code from the summary item
         const timeSeries = eventDataProcessed
           .filter(
             (event) =>
               event.entityCode === summaryItem.entityCode && event.val !== 0
-            // event.entityCode === summaryItem.entityCode
           )
-          .map((event) => ({
-            ts: event.ts,
-            val: event.val,
-          }));
-        // Return new object with all summary properties plus the timeSeries field
+          .map((event) => ({ ts: event.ts, val: event.val }));
+        // extra field for region tab
+        const countryCode =
+          activeTabType === region.type
+            ? regionCountryMap[summaryItem.entityCode] ?? null
+            : undefined;
+
         return {
           ...summaryItem,
-          timeSeries: timeSeries,
+          timeSeries,
+          ...(countryCode && { countryCode }), // only attach when defined
         };
       });
-
-      // Update the state with the new merged data
       setSummaryDataWithTS(mergedData);
-      console.log("SummaryDataWithTS", mergedData);
+      console.log("mergedData", mergedData);
     }
-  }, [summaryDataProcessed, eventDataProcessed, from, until]);
+  }, [
+    summaryDataProcessed,
+    eventDataProcessed,
+    regionCountryMap, // re-run once we learn new mappings
+    activeTabType,
+    from,
+    until,
+  ]);
+
+  useEffect(() => {
+    //0523
+    if (!summaryDataProcessed) return;
+    if (activeTabType !== region.type) return; // only run for regions
+
+    // collect region codes we haven't resolved yet
+    const missing = summaryDataProcessed
+      .map((s) => s.entityCode)
+      .filter((code) => regionCountryMap[code] === undefined);
+
+    if (missing.length === 0) return;
+
+    // fetch all in parallel, then merge into the map
+    Promise.all(
+      missing.map(async (code) => [code, await fetchCountryCodeForRegion(code)])
+    ).then((pairs) => {
+      setRegionCountryMap((prev) =>
+        pairs.reduce(
+          (acc, [code, country]) => {
+            acc[code] = country;
+            return acc;
+          },
+          { ...prev }
+        )
+      );
+    });
+  }, [summaryDataProcessed, activeTabType]);
+
   // Control Panel
   // manage the date selected in the input
   function handleTimeFrame({ _from, _until }) {
