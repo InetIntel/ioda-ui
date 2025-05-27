@@ -1,3 +1,61 @@
+// .dashboard {
+//   padding-top: $header-height;
+//   margin: $gutter-vertical auto;
+
+//   @include respond(phone-440) {
+//     margin: 3rem auto;
+//   }
+
+//   &__tab {
+//     height: auto;
+
+//     .horizon-series {
+//       border-bottom: 1px solid #ccc;
+//     }
+
+//     & .horizon-series .label {
+//       background-color: rgba(255, 255, 255, 0.4);
+//       padding: 0 0.4rem;
+//       border-radius: 0.3rem;
+//       max-height: 100%;
+//     }
+
+//     &-layout {
+//       @include respond(tab-port) {
+//         flex-direction: column;
+//       }
+//     }
+
+//     &-map {
+//       height: 52.9rem;
+//     }
+
+//     &-table {
+//       & .table {
+//         margin-bottom: 0;
+//         height: inherit;
+
+//         & tbody {
+//           max-height: 54.3rem;
+//         }
+//       }
+//     }
+
+//     &-error {
+//       font-size: 1.3rem;
+
+//       &--noOutagesFound {
+//         background-color: $color-error-background;
+//         color: $color-white;
+//         padding: 1rem;
+//         border-radius: 0.4rem;
+//         font-family: $font-lato-bold;
+//         text-transform: capitalize;
+//       }
+//     }
+//   }
+// }
+
 .dashboard {
   padding-top: $header-height;
   margin: $gutter-vertical auto;
@@ -21,9 +79,9 @@
     }
 
     &-layout {
-      @include respond(tab-port) {
-        flex-direction: column;
-      }
+      // @include respond(tab-port) {
+      flex-direction: column;
+      // }
     }
 
     &-map {
@@ -54,4 +112,43 @@
       }
     }
   }
+}
+.mt-container,
+.mt-container * {
+  font-size: 14px !important;
+}
+.mastodon-embed-container {
+  height: 52.9rem; // match map’s height
+  overflow-y: auto; // enable scroll within this box
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.table-cell--sticky-1 {
+  position: sticky;
+  left: 0;
+  background: white;
+  z-index: 2;
+  // box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); // optional for effect
+}
+
+.table-cell--sticky-2 {
+  position: sticky;
+  left: 150px; // width of first sticky column
+  background: white;
+  z-index: 2;
 }
