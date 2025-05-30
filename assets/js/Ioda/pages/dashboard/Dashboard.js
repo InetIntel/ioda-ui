@@ -33,7 +33,7 @@ import {
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import { Radio } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
-
+import pMap from "p-map"; // tiny util: npm i p-map
 const TAB_VIEW_MAP = "map";
 const TAB_VIEW_TIME_SERIES = "timeSeries";
 
@@ -65,7 +65,7 @@ const Dashboard = (props) => {
   );
   const regionTab = useMemo(() => T.translate("dashboard.regionTabTitle"), []);
   const asnTab = useMemo(() => T.translate("dashboard.asnTabTitle"), []);
-  const apiQueryLimit = 300;
+  const apiQueryLimit = 170;
 
   const { urlFromDate, urlUntilDate } = useMemo(
     () => getDateRangeFromUrl(),
@@ -137,8 +137,14 @@ const Dashboard = (props) => {
       if (!resp.ok) throw new Error(resp.statusText);
 
       const json = await resp.json();
-      // API shape from screenshot: { data: [ { code: "ME", name: "Montenegro", type: "country" } ] }
-      return json?.data?.[0]?.code ?? null;
+      // API : { data: [ { code: "ME", name: "Montenegro", type: "country" } ] }
+      // return json?.data?.[0]?.code ?? null;
+      return json?.data?.[0]
+        ? {
+            code: json.data[0].code,
+            name: json.data[0].name,
+          }
+        : null;
     } catch (e) {
       console.error("Failed to get country for region", regionCode, e);
       return null;
@@ -216,7 +222,17 @@ const Dashboard = (props) => {
           )
           .map((event) => ({ ts: event.ts, val: event.val }));
         // extra field for region tab
-        const countryCode =
+        // const countryCode =
+        //   activeTabType === region.type
+        //     ? (regionCountryMap[summaryItem.entityCode] ?? null)
+        //     : undefined;
+
+        // return {
+        //   ...summaryItem,
+        //   timeSeries,
+        //   ...(countryCode && { countryCode }), // only attach when defined
+        // };
+        const countryInfo =
           activeTabType === region.type
             ? (regionCountryMap[summaryItem.entityCode] ?? null)
             : undefined;
@@ -224,7 +240,10 @@ const Dashboard = (props) => {
         return {
           ...summaryItem,
           timeSeries,
-          ...(countryCode && { countryCode }), // only attach when defined
+          ...(countryInfo && {
+            countryCode: countryInfo.code,
+            countryName: countryInfo.name,
+          }), // attach both when defined
         };
       });
       setSummaryDataWithTS(mergedData);
@@ -238,33 +257,80 @@ const Dashboard = (props) => {
     from,
     until,
   ]);
-  useEffect(() => {
-    //0523
-    if (!summaryDataProcessed) return;
-    if (activeTabType !== region.type) return; // only run for regions
+  // useEffect(() => {
+  //   //0523
+  //   if (!summaryDataProcessed) return;
+  //   if (activeTabType !== region.type) return; // only run for regions
 
-    // collect region codes we haven't resolved yet
-    const missing = summaryDataProcessed
-      .map((s) => s.entityCode)
+  //   // collect region codes we haven't resolved yet
+  //   const missing = summaryDataProcessed
+  //     .map((s) => s.entityCode)
+  //     .filter((code) => regionCountryMap[code] === undefined);
+
+  //   if (missing.length === 0) return;
+
+  //   // fetch all in parallel, then merge into the map
+  //   Promise.all(
+  //     missing.map(async (code) => [code, await fetchCountryCodeForRegion(code)])
+  //   ).then((pairs) => {
+  //     setRegionCountryMap((prev) =>
+  //       pairs.reduce(
+  //         (acc, [code, country]) => {
+  //           acc[code] = country;
+  //           return acc;
+  //         },
+  //         { ...prev }
+  //       )
+  //     );
+  //   });
+  // }, [summaryDataProcessed, activeTabType]);
+  // useEffect(() => {
+  //   //0529
+  //   if (activeTabType !== region.type || !summaryDataProcessed?.length) return;
+
+  //   const unresolved = summaryDataProcessed
+  //     .map((r) => r.entityCode)
+  //     .filter((code) => regionCountryMap[code] === undefined);
+
+  //   unresolved.forEach((code) => {
+  //     fetchCountryCodeForRegion(code).then((country) => {
+  //       setRegionCountryMap((prev) => ({ ...prev, [code]: country }));
+  //     });
+  //   });
+  // }, [summaryDataProcessed, activeTabType]);
+
+  useEffect(() => {
+    if (activeTabType !== region.type || !summaryDataProcessed?.length) return;
+
+    const unresolved = summaryDataProcessed
+      .map((r) => r.entityCode)
       .filter((code) => regionCountryMap[code] === undefined);
 
-    if (missing.length === 0) return;
-
-    // fetch all in parallel, then merge into the map
-    Promise.all(
-      missing.map(async (code) => [code, await fetchCountryCodeForRegion(code)])
-    ).then((pairs) => {
-      setRegionCountryMap((prev) =>
-        pairs.reduce(
-          (acc, [code, country]) => {
-            acc[code] = country;
-            return acc;
-          },
-          { ...prev }
-        )
-      );
-    });
+    pMap(
+      unresolved,
+      async (code) => {
+        const country = await fetchCountryCodeForRegion(code);
+        setRegionCountryMap((prev) => ({ ...prev, [code]: country }));
+      },
+      { concurrency: 2 }
+    );
   }, [summaryDataProcessed, activeTabType]);
+
+  useEffect(() => {
+    if (activeTabType !== region.type) return;
+    if (
+      !Object.keys(regionCountryMap).some(
+        (c) => regionCountryMap[c] === undefined
+      )
+    )
+      return;
+
+    const id = setTimeout(
+      () => setRegionCountryMap((prev) => ({ ...prev })),
+      10000
+    );
+    return () => clearTimeout(id);
+  }, [regionCountryMap, activeTabType]);
 
   // Control Panel
   // manage the date selected in the input

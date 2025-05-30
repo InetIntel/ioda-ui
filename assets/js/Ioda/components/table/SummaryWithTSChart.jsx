@@ -108,7 +108,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     border: "2px solid #ddd",
-    maxHeight: "500px",
+    maxHeight: "800px",
     overflow: "hidden",
   },
   header: {
@@ -120,7 +120,7 @@ const styles = {
     borderBottom: "2px solid #ddd",
   },
   countryScoreHeader: {
-    width: "240px",
+    width: "260px",
     // padding: "10px",
     padding: `${HEADER_BASELINE - FONT_SIZE}px 10px 0 10px`,
     borderRight: "2px solid #ddd",
@@ -142,7 +142,7 @@ const styles = {
     flex: 1,
   },
   countryScoreList: {
-    width: "240px",
+    width: "260px",
     // borderRight: "2px solid #ddd",
     flexShrink: 0,
   },
@@ -189,6 +189,23 @@ const styles = {
     cursor: "pointer",
     display: "inline-flex",
     alignItems: "center",
+  },
+  // countryName: {
+  //   overflow: "hidden",
+  //   textOverflow: "ellipsis",
+  // },
+  countryNameContainer: {
+    width: "160px",
+    display: "inline-block",
+    verticalAlign: "middle",
+  },
+  countryNameLink: {
+    textDecoration: "none",
+    display: "block",
+    // width: "100%",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
   },
 };
 
@@ -305,7 +322,7 @@ const SummaryWithTSChart = ({
     if (!sortedData?.length || !scrollContainerRef.current) return;
 
     // Calculate available width for timeseries
-    const timeseriesWidth = scrollContainerRef.current.offsetWidth - 240; // minus left column
+    const timeseriesWidth = scrollContainerRef.current.offsetWidth - 260; // minus left column
     const rowHeight = ROW_HEIGHT;
     const height = sortedData.length * rowHeight;
 
@@ -578,7 +595,7 @@ const SummaryWithTSChart = ({
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <div
                 style={{
-                  width: "160px",
+                  width: "180px",
                   // fontWeight: "bold",
                   // fontSize: "10px",
                   fontSize: `${FONT_SIZE}px`,
@@ -742,7 +759,7 @@ const SummaryWithTSChart = ({
                 {/*     const linkPath = dateRangeInUrl
       ? `/${d.entityType}/${d.entityCode}?from=${urlFromDate}&until=${urlUntilDate}`
       : `/${d.entityType}/${d.entityCode}`; */}
-                <div style={{ width: "140px" }}>
+                {/* <div style={{ width: "140px" }}>
                   <Link
                     to={`/${d.entityType}/${d.entityCode}${
                       dateRangeInUrl
@@ -757,11 +774,44 @@ const SummaryWithTSChart = ({
                       (e.currentTarget.style.textDecoration = "none")
                     }
                   >
-                    {/* {d.entityType === "country"
-                      ? countryFlagMap[d.entityCode] || ""
-                      : ""}{" "}
-                    {d.name} */}
+                    <span style={styles.countryName}>
+                      {getFlagEmoji(d)} {d.name}
+                      {d.countryName ? `, ${d.countryName}` : null}
+                    </span>
+                  </Link>
+                </div> */}
+                <div style={styles.countryNameContainer}>
+                  <Link
+                    to={`/${d.entityType}/${d.entityCode}${
+                      dateRangeInUrl
+                        ? `?from=${urlFromDate}&until=${urlUntilDate}`
+                        : ""
+                    }`}
+                    style={styles.countryNameLink}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = "underline";
+                      const tooltip = nameTooltipRef.current;
+                      tooltip.style.visibility = "visible";
+                      tooltip.innerHTML = `
+        <div style="font-size: ${FONT_SIZE}px;">
+          ${getFlagEmoji(d)} ${d.name}${d.countryName ? `, ${d.countryName}` : ""}
+        </div>
+      `;
+                      tooltip.style.left = `${e.pageX + 10}px`;
+                      tooltip.style.top = `${e.pageY + 10}px`;
+                    }}
+                    onMouseMove={(e) => {
+                      const tooltip = nameTooltipRef.current;
+                      tooltip.style.left = `${e.pageX + 10}px`;
+                      tooltip.style.top = `${e.pageY + 10}px`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration = "none";
+                      nameTooltipRef.current.style.visibility = "hidden";
+                    }}
+                  >
                     {getFlagEmoji(d)} {d.name}
+                    {d.countryName ? `, ${d.countryName}` : null}
                   </Link>
                 </div>
                 {/* <div style={{ width: "50px", textAlign: "right" }}>
