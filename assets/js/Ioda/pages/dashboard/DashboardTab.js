@@ -22,6 +22,7 @@ import { getSecondsAsErrorDurationString } from "../../utils/timeUtils";
 import SummaryWithTSChart from "../../components/table/SummaryWithTSChart";
 import { country, region, asn } from "./DashboardConstants";
 import BlueskyIodaFeed from "../../components/widget/BlueskyIodaFeed";
+import iconBsky from "images/icons/icon-bsky.png";
 const DashboardTab = (props) => {
   const {
     eventDataProcessed,
@@ -177,22 +178,35 @@ const DashboardTab = (props) => {
                             />
                           )}
                         {/* <TimeStamp className="mt-4" from={from} until={until} /> */}
-                        <div className="flex mt-4">
-                          <TimeStamp from={from} until={until} />
-                        </div>
                       </div>
                     )}
+                    <div className="flex mt-4 justify-end">
+                      <TimeStamp from={from} until={until} />
+                    </div>
                   </div>
                 </div>
                 <div
                   className="col-1 card p-4 flex flex-col"
                   style={{
-                    height: mapHeight ?? 570,
+                    height: mapHeight,
                     overflow: "hidden",
                     display: "flex",
                     flexDirection: "column",
                   }}
                 >
+                  <div className="font-medium text-3xl flex items-center gap-2 mb-4">
+                    <img
+                      src={iconBsky}
+                      alt="Bluesky icon"
+                      style={{
+                        width: 20,
+                        height: 20,
+                        filter: "grayscale(1)",
+                        opacity: 0.8, // tweak until it visually matches #8c8c8c
+                      }}
+                    />
+                    <span className="text-black">News</span>
+                  </div>
                   <div style={{ overflowY: "auto", flex: 1 }}>
                     <BlueskyIodaFeed did="did:plc:3xessr3vu336mxean6zvfyjq" />
                   </div>
