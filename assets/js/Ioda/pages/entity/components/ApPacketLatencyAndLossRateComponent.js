@@ -6,7 +6,7 @@ import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
 import T from "i18n-react";
 
 // Chart Libraries
-import Highcharts from "highcharts";
+import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/export-data")(Highcharts);
@@ -21,7 +21,8 @@ import {Button, Checkbox, Popover, Tooltip} from "antd";
 import {DownloadOutlined, ShareAltOutlined} from "@ant-design/icons";
 import ShareLinkModal from "../../../components/modal/ShareLinkModal";
 import {getApLatencyChartExportFileName} from "../utils/EntityUtils";
-import {secondsToUTC} from "../../../utils/timeUtils";
+import {millisecondsToSeconds, secondsToMilliseconds, secondsToUTC} from "../../../utils/timeUtils";
+import TimeStamp from "../../../components/timeStamp/TimeStamp";
 
 if (typeof Highcharts === "object") {
     highchartsMore(Highcharts);
@@ -37,9 +38,6 @@ const ApPacketLatencyAndLossRateComponent = ({
                                     entityName,
                                }) => {
 
-    console.log(rawAsnSignalsApPacketLoss)
-    console.log(rawAsnSignalsApPacketDelay)
-
     const [lossData, setLossData] = useState(null);
     const [latencyData, setLatencyData] = useState(null);
     const [displayLatency, setDisplayLatency] = useState(true);
@@ -49,12 +47,15 @@ const ApPacketLatencyAndLossRateComponent = ({
     const leftYAxisTitleRef = useRef(null);
     const chartRef = useRef(null);
 
+    const [tsDataLegendRangeFrom, setTsDataLegendRangeFrom] = useState(from);
+    const [tsDataLegendRangeUntil, setTsDataLegendRangeUntil] = useState(until);
+    const [showResetZoomButton, setShowResetZoomButton] = useState(false);
     const [displayChartSharePopover, setDisplayChartSharePopover] = useState(false);
 
 
     useEffect(() => {
         if (!rawAsnSignalsApPacketLoss?.[0]?.[0]) {
-            console.log("null rawAsnSignalsApPacketLoss")
+            // console.log("null rawAsnSignalsApPacketLoss")
             return;
         }
         const { values, ...rest } = rawAsnSignalsApPacketLoss[0][0];
@@ -67,7 +68,7 @@ const ApPacketLatencyAndLossRateComponent = ({
             return null;
         }).filter(item => item !== null) || [];
 
-        console.log(newValues)
+        // console.log(newValues)
 
         setLossData({
             ...rest,
@@ -87,14 +88,47 @@ const ApPacketLatencyAndLossRateComponent = ({
             }
             return null;
         }).filter(item => item !== null) || [];
-        console.log(newValues)
         setLatencyData({
             ...rest,
             values: newValues
         });
     }, [rawAsnSignalsApPacketDelay]);
 
+    // function for when zoom/pan is used
+    function xyPlotRangeChanged (event) {
+        if (!event.target.series) {
+            return;
+        }
 
+        // Count the number of visible series in our chart
+        const hasVisibleSeries = event.target.series.some(
+            (series) => !!series.visible
+        );
+
+        // If we don't have any data on the chart, Highcharts will set an arbitrary
+        // erroring data range. We prevent this by terminating early
+        if (!hasVisibleSeries) {
+            return;
+        }
+
+        const axisMin = millisecondsToSeconds(event.min);
+        const axisMax = millisecondsToSeconds(event.max);
+
+        const isDefaultRange =
+            axisMin === from && axisMax === until;
+
+        setTsDataLegendRangeFrom(axisMin);
+        setTsDataLegendRangeUntil(axisMax);
+        setShowResetZoomButton(!isDefaultRange);
+    }
+
+    function setChartNavigatorTimeRange(fromMs, untilMs) {
+        if (!chartRef || !chartRef.current) {
+            return;
+        }
+        console.log(fromMs, untilMs)
+        chartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
+    }
 
     const asnListFull = [
         {
@@ -155,6 +189,10 @@ const ApPacketLatencyAndLossRateComponent = ({
         }
     }, [displayPctLoss, rightYAxisTitleRef]);
 
+    const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
+    const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
+    setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
+
     const activeProbingChartTitle = T.translate("entity.activeProbingChartTitle");
     const activeProbingChartSubTitle = T.translate("entity.activeProbingChartSubTitle");
 
@@ -169,25 +207,37 @@ const ApPacketLatencyAndLossRateComponent = ({
         year: "%Y",
     };
 
-    const lossPackage = lossData?.values?.map(obj => {
-        return obj && obj[0]?.agg_values.loss_pct
+    // all Data sources - lossPackage, lossRanges, lossMedians
+
+    const lossPackage = lossData?.values?.map((obj, index) => {
+        const x = secondsToMilliseconds(
+            latencyData?.from + latencyData?.step * index
+        );
+        return [x, obj[0]?.agg_values.loss_pct];
     }) || [];
 
-    console.log(lossPackage)
+    // console.log(lossPackage)
 
-    const lossRanges = latencyData?.values?.map(obj => {
-        return obj && obj[0]?.agg_values ? {
+    const lossRanges = latencyData?.values?.map((obj, index) => {
+        const x = secondsToMilliseconds(
+            latencyData?.from + latencyData?.step * index
+        );
+        return [x, obj[0]?.agg_values ? {
             low: obj[0].agg_values.p10_latency,
             high: obj[0].agg_values.p90_latency
-        } : null;
-    }).filter(range => range !== null) || [];
-    console.log(lossRanges)
+        } : null];
+    }).filter(point => point[1] != null) || [];
+    // console.log(lossRanges)
 
-    const lossMedians = latencyData?.values?.map(obj => {
-        return obj && obj[0].agg_values.median_latency;
-    }) || [];
+    const lossMedians = latencyData?.values?.map((obj, index) => {
+        const x = secondsToMilliseconds(
+            latencyData?.from + latencyData?.step * index
+        );
+        return [x, obj[0].agg_values.median_latency];
+    }).filter(point => point[1] != null && !isNaN(point[1]));
 
-    console.log(lossMedians)
+    // console.log(lossMedians)
+
 
     // const rightPartitionMin = lossPackage?.length > 0 ? Math.min(...lossPackage) : null;
     // console.log(rightPartitionMin)
@@ -218,13 +268,17 @@ const ApPacketLatencyAndLossRateComponent = ({
 
 
     const options = {
-        title: {
-            text: "",
-            useHTML: true
-        },
         chart: {
             type: "arearange",
-            height: 210,
+            zoomType: "x",
+            resetZoomButton: {
+                theme: { style: { display: "none" } },
+            },
+            panning: true,
+            panKey: "shift",
+            animation: false,
+            selectionMarkerFill: "rgba(50, 184, 237, 0.3)",
+            height: 300,
             backgroundColor: "#ffffff",
             events: {
                 load: function () {
@@ -278,6 +332,20 @@ const ApPacketLatencyAndLossRateComponent = ({
             spacingLeft: 5,
             spacingRight: 5,
             spacingTop: 50,
+            style: {
+                fontFamily: CUSTOM_FONT_FAMILY,
+            },
+        },
+        accessibility: {
+            enabled: false,
+        },
+        credits: {
+            enabled: false
+        },
+        navigation: {
+            buttonOptions: {
+                enabled: false,
+            },
         },
         exporting: {
             enabled: true,
@@ -309,8 +377,68 @@ const ApPacketLatencyAndLossRateComponent = ({
             sourceWidth: 960,
             sourceHeight: 540,
         },
+        title: {
+            text: "",
+            useHTML: true
+        },
+        tooltip: {
+            shared: true,
+            xDateFormat: "%a, %b %e %l:%M%p",
+            borderWidth: 1,
+            borderRadius: 0,
+            style: {
+                fontSize: "14px",
+                fontFamily: CUSTOM_FONT_FAMILY,
+            },
+        },
+        legend: {
+            margin: 10,
+            className: "ap-latency-loss-legend",
+            itemStyle: {
+                fontSize:  "10px",
+                fontFamily: CUSTOM_FONT_FAMILY,
+            },
+            alignColumns: true,
+        },
+        navigator: {
+            enabled: true,
+            time: {
+                useUTC: true,
+            },
+            margin: 10,
+            maskFill: "rgba(50, 184, 237, 0.3)",
+            outlineColor: "#aaa",
+            xAxis: {
+                gridLineColor: "#666",
+                gridLineDashStyle: "Dash",
+                tickPixelInterval: 100,
+                dateTimeLabelFormats: dateFormats,
+                labels: {
+                    zIndex: 100,
+                    align: "center",
+                    y: 12,
+                    style: {
+                        //textOutline: "2px solid #fff",
+                        color: "#666",
+                        fontSize: "10px",
+                        fontFamily: CUSTOM_FONT_FAMILY,
+                    },
+                },
+            },
+        },
+        time: {
+            useUTC: true,
+        },
+        plotOptions: {
+            series: {
+                marker: {
+                    enabled: false
+                },
+            },
+        },
         xAxis: {
             type: 'datetime',
+            minRange: secondsToMilliseconds(3 * 60),
             dateTimeLabelFormats: dateFormats,
             labels: {
                 zIndex: 100,
@@ -328,11 +456,17 @@ const ApPacketLatencyAndLossRateComponent = ({
             gridLineWidth: 1,
             gridLineColor: "#eeeeee",
             gridLineDashStyle: "dash",
+            // minRange: secondsToMilliseconds(5 * 60),
             title: {
                 text: "Time (UTC)",
                 style: {
                     fontSize: "12px",
                     fontFamily: CUSTOM_FONT_FAMILY,
+                },
+            },
+            events: {
+                afterSetExtremes: (e) => {
+                    xyPlotRangeChanged(e);
                 },
             },
         },
@@ -383,51 +517,15 @@ const ApPacketLatencyAndLossRateComponent = ({
                 visible: displayPctLoss
             }
         ],
-        // legend: {
-        //     enabled: false
-        // },
-        legend: {
-            margin: 10,
-            className: "ap-latency-loss-legend",
-            itemStyle: {
-                fontSize:  "10px",
-                fontFamily: CUSTOM_FONT_FAMILY,
-            },
-            alignColumns: true,
-        },
-        credits: {
-            enabled: false
-        },
-        tooltip: {
-            shared: true,
-            xDateFormat: "%a, %b %e %l:%M%p",
-            borderWidth: 1,
-            borderRadius: 0,
-            style: {
-                fontSize: "14px",
-                fontFamily: CUSTOM_FONT_FAMILY,
-            },
-        },
-        plotOptions: {
-            series: {
-                marker: {
-                    enabled: false
-                },
-                pointStart: latencyData?.from * 1000,
-                pointInterval: latencyData?.step  * 1000
-            },
-        },
-        accessibility: {
-            enabled: false,
-        },
         series: [
             {
                 name: "Range",
-                data: lossRanges?.map((range) => [range.low, range.high]),
+                data: lossRanges?.map((range) => [range[0], range[1].low, range[1].high]),
                 type: "arearange",
                 color: "#7cb5ec",
                 zIndex: 0,
-                visible: displayLatency
+                visible: displayLatency,
+                showInNavigator: false,
             },
             {
                 name: "Median",
@@ -444,7 +542,8 @@ const ApPacketLatencyAndLossRateComponent = ({
                     fillColor: 'rgba(67, 67, 72, 0.9)',
                     lineWidth: 1,
                     lineColor: '#FFFFFF'
-                }
+                },
+                showInNavigator: true,
             },
             {
                 name: "Loss",
@@ -460,8 +559,9 @@ const ApPacketLatencyAndLossRateComponent = ({
                     // symbol: 'circle',
                     enabled: false
                 },
-                visible: displayPctLoss
-            }
+                visible: displayPctLoss,
+                showInNavigator: false,
+            },
         ]
     };
 
@@ -479,7 +579,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     }
 
     function handleDisplayPctLoss(show) {
-        console.log(show)
+        // console.log(show)
         setDisplayPctLoss(show);
     }
 
@@ -707,6 +807,11 @@ const ApPacketLatencyAndLossRateComponent = ({
                             <div>
                                 <ASNLegend/>
                                 <HighchartsReact highcharts={Highcharts} options={options} ref={chartRef}/>
+                                <TimeStamp
+                                    className="mt-4"
+                                    from={tsDataLegendRangeFrom}
+                                    until={tsDataLegendRangeUntil}
+                                />
                             </div>
                         }
                     </div>

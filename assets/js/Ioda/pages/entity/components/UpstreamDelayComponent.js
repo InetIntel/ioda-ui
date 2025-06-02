@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // Chart Libraries
-import Highcharts from "highcharts";
+import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/export-data")(Highcharts);

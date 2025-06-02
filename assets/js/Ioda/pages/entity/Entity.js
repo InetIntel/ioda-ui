@@ -477,15 +477,12 @@ const Entity = (props) => {
     }
 
     if(entityTypeState === "asn") {
-      const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1727740800, 1727827200]
       const asnCode = entityCodeState.includes("-") ? entityCodeState.split("-")[0] : entityCodeState;
       props.getRawAsnSignalsUpstreamDelayLatency(
           entityTypeState,
           [asnCode],
-          timeUpstreamDelayFrom,
-          // timeSignalFrom,
-          timeUpstreamDelayUntil,
-          // timeSignalUntil,
+          timeSignalFrom,
+          timeSignalUntil,
           null,
           "desc",
           "upstream-delay-penult-e2e-latency"
@@ -493,10 +490,8 @@ const Entity = (props) => {
       props.getRawAsnSignalsUpstreamDelayPenultAsnCount(
           entityTypeState,
           [asnCode],
-          timeUpstreamDelayFrom,
-          // timeSignalFrom,
-          timeUpstreamDelayUntil,
-          // timeSignalUntil,
+          timeSignalFrom,
+          timeSignalUntil,
           null,
           "desc",
           "upstream-delay-penult-asns"
