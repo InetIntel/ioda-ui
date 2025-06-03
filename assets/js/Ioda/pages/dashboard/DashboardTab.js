@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import T from "i18n-react";
 import {
   dashboardTimeRangeLimit,
@@ -98,11 +98,41 @@ const DashboardTab = (props) => {
 
   const mapCardRef = useRef(null);
   const [mapHeight, setMapHeight] = useState(null);
-  useEffect(() => {
+  // useEffect(() => {
+  useLayoutEffect(() => {
+    if (!mapCardRef.current) return;
     if (mapCardRef.current) {
-      setMapHeight(mapCardRef.current.offsetHeight);
+      if (activeTabType !== "asn") {
+        setMapHeight(mapCardRef.current.offsetHeight);
+      }
+      if (activeTabType === "asn" && summaryDataWithTS) {
+        setMapHeight(mapCardRef.current.offsetHeight);
+      }
+      console.log("card height: ", mapHeight);
     }
-  }, [tabCurrentView, topoData]); // re-measure if layout can change
+  }, [tabCurrentView, topoData, summaryDataWithTS, activeTabType]); // re-measure if layout can change
+
+  // useEffect(() => {
+  //   if (!mapCardRef.current) return;
+
+  //   const resizeObserver = new ResizeObserver((entries) => {
+  //     const entry = entries[0];
+  //     setMapHeight(entry.contentRect.height);
+  //   });
+
+  //   resizeObserver.observe(mapCardRef.current);
+  //   return () => resizeObserver.disconnect();
+  // }, []);
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     if (mapCardRef.current) {
+  //       setMapHeight(mapCardRef.current.offsetHeight);
+  //       console.log("chart frame height:", mapHeight);
+  //     }
+  //   }, 1000); // Small delay to allow rendering
+  //   return () => clearTimeout(timer);
+  // }, [tabCurrentView, topoData, summaryDataRaw]);
 
   return (
     // <div className="card p-8 dashboard__tab">
@@ -117,8 +147,11 @@ const DashboardTab = (props) => {
             <React.Fragment>
               {/* ───────────────────────── 1st ROW ───────────────────────── */}
               <div className="flex items-stretch gap-6 mb-6">
-                {/* LEFT 2 / 3 – Map (or Horizon) */}
-                <div ref={mapCardRef} className="col-2 p-4 card flex flex-col">
+                {/* LEFT 2 / 3 – Map (or Timeseries) */}
+                <div
+                  ref={mapCardRef}
+                  className="col-2 p-4 pt-6 card flex flex-col "
+                >
                   <div className="col-2 mw-0">
                     <div className="flex items-center mb-4" ref={config}>
                       {/* <div className="font-medium text-3xl">
@@ -148,13 +181,20 @@ const DashboardTab = (props) => {
                         text={tooltipDashboardHeadingText}
                       />
                     </div>
+                    {/* <div
+                      className="dashboard__tab-map"
+                      style={
+                        tabCurrentView === "map"
+                          ? { display: "block" }
+                          : { display: "none" }
+                      }
+                    > */}
                     {activeTabType === asn.type ? (
                       summaryDataWithTS && (
                         <SummaryWithTSChart
                           data={summaryDataWithTS}
                           from={from}
                           until={until}
-                          style={{ height: mapHeight ?? 570 }}
                         />
                       )
                     ) : (
@@ -186,9 +226,9 @@ const DashboardTab = (props) => {
                   </div>
                 </div>
                 <div
-                  className="col-1 card p-4 flex flex-col"
+                  className="col-1 card p-4 pt-6 flex flex-col"
                   style={{
-                    height: mapHeight,
+                    height: mapHeight || "60rem",
                     overflow: "hidden",
                     display: "flex",
                     flexDirection: "column",
@@ -229,7 +269,7 @@ const DashboardTab = (props) => {
                 </div>
               </div> */}
               {activeTabType !== asn.type && (
-                <div className="card p-4">
+                <div className="card p-4 pt-6">
                   <div className="flex items-center mb-4" ref={config}>
                     {/* <div className="font-medium text-3xl">
                       {type === "country"

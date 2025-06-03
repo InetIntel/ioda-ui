@@ -18,10 +18,12 @@ import iconAsc from "images/icons/icon-asc.png";
 import iconDesc from "images/icons/icon-desc.png";
 import iconSortUnsort from "images/icons/icon-sortUnsort.png";
 const FONT_SIZE = 14; // default text
+const AXIS_FONT_SIZE = 10; // default text
 const SCORE_FONT_SIZE = 12; // the little score badge
-const HEADER_HEIGHT = 50; // same height you get from 10 px + 14 px + 10 px
+const HEADER_HEIGHT = 50;
 const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
-const ROW_HEIGHT = 58;
+//const ROW_HEIGHT = 58;
+const ROW_HEIGHT = 60;
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
   acc[country.code] = country.emoji;
@@ -108,7 +110,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     border: "2px solid #ddd",
-    maxHeight: "800px",
+    maxHeight: "60rem",
     overflow: "hidden",
   },
   header: {
@@ -140,20 +142,28 @@ const styles = {
     display: "flex",
     overflow: "auto",
     flex: 1,
+    overflowX: "auto",
+    overflowY: "auto", // or "auto" if needed
+    position: "relative",
   },
   countryScoreList: {
     width: "260px",
     // borderRight: "2px solid #ddd",
     flexShrink: 0,
+    position: "sticky",
+    left: 0,
+    zIndex: 10,
   },
   countryScoreRow: {
     display: "flex",
     justifyContent: "space-between",
     padding: "10px",
     height: `${ROW_HEIGHT}px`,
+    // height: `60px`,
     alignItems: "center",
     borderBottom: "2px solid #eee",
     borderRight: "2px solid #ddd",
+    backgroundColor: "white",
   },
   timeseriesWrapper: {
     flex: 1,
@@ -326,7 +336,7 @@ const SummaryWithTSChart = ({
     const rowHeight = ROW_HEIGHT;
     const height = sortedData.length * rowHeight;
 
-    const margin = { top: 0, right: 10, bottom: 10, left: 40 };
+    const margin = { top: 0, right: 10, bottom: 10, left: 20 };
     const width = timeseriesWidth - margin.left - margin.right;
 
     const svg = select(chartRef.current)
@@ -364,7 +374,8 @@ const SummaryWithTSChart = ({
     const yScale = scaleBand()
       .domain(sortedData.map((d) => d.name))
       .range([0, height])
-      .padding(0.2);
+      // .padding(0.2);
+      .padding(0);
 
     // const formatTime = (date) => {
     //   const utcDate = new Date(date.getTime());
@@ -508,7 +519,8 @@ const SummaryWithTSChart = ({
           const isDay = d.getUTCHours() === 0; // midnight UTC
           select(this)
             .selectAll("text")
-            .style("font-size", `${FONT_SIZE}px`)
+            //.style("font-size", `${FONT_SIZE}px`)
+            .style("font-size", `${AXIS_FONT_SIZE}px`)
             .style("fill", isDay ? "#000000" : "#8c8c8c");
         })
       );
@@ -527,6 +539,7 @@ const SummaryWithTSChart = ({
       .attr("stroke-width", 1);
 
     // Add bars only (remove axis and labels)
+    const BAR_HEIGHT = yScale.bandwidth() * 0.3; // 60 % of band height
     sortedData.forEach((country) => {
       svg
         .selectAll(`.bar-${country.entityCode}`)
@@ -535,10 +548,14 @@ const SummaryWithTSChart = ({
         .append("rect")
         .attr("class", `bar bar-${country.entityCode}`)
         .attr("x", (d) => xScale(d.ts) - 3)
-        // .attr("x", (d) => xScale(new Date(d.ts * 1000)) - 3)
-        .attr("y", () => yScale(country.name))
+        // .attr("y", () => yScale(country.name))
+        // .attr("height", yScale.bandwidth() / 2)
+        .attr(
+          "y",
+          () => yScale(country.name) + (yScale.bandwidth() - BAR_HEIGHT) / 2
+        )
+        .attr("height", BAR_HEIGHT)
         .attr("width", 6)
-        .attr("height", yScale.bandwidth() / 2)
         .attr(
           "fill",
           getEntityScaleColor(country.score, "country") || "#d0d0d0"
