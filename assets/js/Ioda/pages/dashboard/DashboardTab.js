@@ -108,7 +108,6 @@ const DashboardTab = (props) => {
       if (activeTabType === "asn" && summaryDataWithTS) {
         setMapHeight(mapCardRef.current.offsetHeight);
       }
-      console.log("card height: ", mapHeight);
     }
   }, [tabCurrentView, topoData, summaryDataWithTS, activeTabType]); // re-measure if layout can change
 

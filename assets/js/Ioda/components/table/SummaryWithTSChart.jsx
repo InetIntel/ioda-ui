@@ -17,6 +17,16 @@ import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import iconAsc from "images/icons/icon-asc.png";
 import iconDesc from "images/icons/icon-desc.png";
 import iconSortUnsort from "images/icons/icon-sortUnsort.png";
+import {
+  Popover,
+  Divider,
+  Typography,
+  Row,
+  Col,
+  Badge as AntBadge,
+} from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
+
 const FONT_SIZE = 14; // default text
 const AXIS_FONT_SIZE = 10; // default text
 const SCORE_FONT_SIZE = 12; // the little score badge
@@ -64,10 +74,8 @@ function wrap(text, width) {
     const y = textElement.attr("y") || 0;
     const dy = parseFloat(textElement.attr("dy")) || 0;
 
-    // Clear existing text
     textElement.text(null);
 
-    // Create first tspan
     let tspan = textElement
       .append("tspan")
       .attr("x", 0)
@@ -143,7 +151,7 @@ const styles = {
     overflow: "auto",
     flex: 1,
     overflowX: "auto",
-    overflowY: "auto", // or "auto" if needed
+    overflowY: "auto",
     position: "relative",
   },
   countryScoreList: {
@@ -175,20 +183,20 @@ const styles = {
     minWidth: "600px",
     display: "flex",
     flexDirection: "column",
-    position: "relative", // Add this
+    position: "relative",
   },
   xAxisContainer: {
     height: "30px",
-    overflow: "hidden", // Change from 'visible' to 'hidden'
+    overflow: "hidden",
     backgroundColor: "white",
     position: "relative",
-    marginTop: "auto", // This pushes it to bottom
+    marginTop: "auto",
   },
   xAxisSvg: {
     display: "block",
     overflow: "visible",
     position: "absolute",
-    bottom: 0, // Position at bottom of container
+    bottom: 0,
     left: 0,
   },
   iconButtonStyle: {
@@ -226,7 +234,6 @@ function humanizeNumber(value, precisionDigits = 2) {
   )(value);
 }
 
-/** Returns the right icon element for a column */
 const getSortIcon = (column, sortConfig) => {
   const isActive = sortConfig.criterion === column;
   const dir = sortConfig.directions[column]; // "asc" | "desc"
@@ -252,6 +259,156 @@ const getSortIcon = (column, sortConfig) => {
   );
 };
 
+const { Title, Text } = Typography;
+
+// You already have countryFlagMap and humanizeNumber in scope, so we reuse them.
+function ScorePopoverContent({ data }) {
+  const flagEmoji = getFlagEmoji(data);
+
+  return (
+    <div
+      style={{
+        width: 240,
+        backgroundColor: "#ffffff",
+        borderRadius: 4,
+        boxShadow: "0 3px 6px rgba(0,0,0,0.16)",
+        overflow: "hidden",
+        fontSize: `${FONT_SIZE}px`,
+      }}
+    >
+      {/* ───────────── HEADER ───────────── */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "8px 12px",
+          backgroundColor: "#f5f5f5",
+          borderBottom: "1px solid #e8e8e8",
+        }}
+      >
+        <span style={{ fontSize: "16px", marginRight: 8 }}>{flagEmoji}</span>
+        <Title
+          level={5}
+          style={{ margin: 0, fontSize: "14px", fontWeight: 600 }}
+        >
+          {data.name}
+          {data.countryName ? `, ${data.countryName}` : null}
+        </Title>
+      </div>
+
+      {/* ───────────── BODY (list of each source) ───────────── */}
+      <div style={{ padding: "8px 12px" }}>
+        {data.scores.map((row) => {
+          const isNoData = row.score == null || row.score === 0;
+          const displayValue = isNoData
+            ? "No Data"
+            : humanizeNumber(row.score, 2);
+          const baseColor =
+            getEntityScaleColor(row.score, "country") || "#d0d0d0";
+
+          const badgeBackground = isNoData
+            ? "#f5f5f5"
+            : convertHexToRgba(baseColor, 0.2);
+          const badgeBorder = isNoData ? "#d9d9d9" : baseColor;
+          const badgeColor = isNoData ? "#bfbfbf" : "#000000";
+
+          return (
+            <div
+              key={row.source}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 6,
+              }}
+            >
+              {/* Source name */}
+              <Text
+                style={{
+                  color: isNoData ? "#bfbfbf" : "#000000",
+                  fontSize: "12px",
+                }}
+              >
+                {row.source}
+              </Text>
+
+              {/* “Badge” with score number  */}
+              <span
+                style={{
+                  display: "inline-block",
+                  fontSize: "12px",
+                  minWidth: 36,
+                  textAlign: "center",
+                  lineHeight: "1.2",
+                  padding: "2px 6px",
+                  borderRadius: 2,
+                  backgroundColor: badgeBackground,
+                  border: `1px solid ${badgeBorder}`,
+                  color: badgeColor,
+                }}
+              >
+                {displayValue}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ───────────── DIVIDER ───────────── */}
+      <Divider style={{ margin: "0" }} />
+
+      {/* ───────────── FOOTER: Total score ───────────── */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "8px 12px",
+          backgroundColor: "#fafafa",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Text strong style={{ fontSize: "12px" }}>
+            Total Severity Score
+          </Text>
+          <InfoCircleOutlined
+            style={{
+              color: "rgba(0,0,0,0.45)",
+              fontSize: "12px",
+              marginLeft: 4,
+            }}
+          />
+        </div>
+        {(() => {
+          const totalBaseColor =
+            getEntityScaleColor(data.score, "country") || "#d0d0d0";
+          const totalBackground = convertHexToRgba(totalBaseColor, 0.2);
+          const totalBorder = totalBaseColor;
+          const totalColor = "#000000";
+          return (
+            <span
+              style={{
+                display: "inline-block",
+                fontSize: "12px",
+                minWidth: 36,
+                textAlign: "center",
+                lineHeight: "1.2",
+                padding: "2px 6px",
+                borderRadius: 2,
+                backgroundColor: totalBackground,
+                border: `1px solid ${totalBorder}`,
+                color: totalColor,
+              }}
+            >
+              {humanizeNumber(data.score, 2)}
+            </span>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}
+
 const SummaryWithTSChart = ({
   data,
   width: containerWidth = 1000,
@@ -261,7 +418,7 @@ const SummaryWithTSChart = ({
   const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
   const dateRangeInUrl = hasDateRangeInUrl();
   const chartRef = useRef(null);
-  const scrollContainerRef = useRef(null); // Add this line
+  const scrollContainerRef = useRef(null);
   // const [sortCriterion, setSortCriterion] = useState("score");
   const [sortConfig, setSortConfig] = useState({
     criterion: "score",
@@ -271,10 +428,8 @@ const SummaryWithTSChart = ({
     },
   });
   const tooltipRef = useRef(null);
-  // Add near your existing tooltipRef
   const scoreTooltipRef = useRef(null);
 
-  // Add these styles to your styles object
   const tooltipStyles = {
     timeseries: {
       position: "absolute",
@@ -306,17 +461,6 @@ const SummaryWithTSChart = ({
 
   const xAxisRef = useRef(null);
 
-  // const sortedData = [...data].sort((a, b) =>
-  //   sortCriterion === "name"
-  //     ? ascending(a.name, b.name)
-  //     : descending(a.score, b.score)
-  // );
-  // const sortedData = [...data].sort((a, b) => {
-  //   const { criterion, direction } = sortConfig;
-  //   const valA = criterion === "name" ? a.name : a.score;
-  //   const valB = criterion === "name" ? b.name : b.score;
-  //   return direction === "asc" ? ascending(valA, valB) : descending(valA, valB);
-  // });
   const sortedData = [...data].sort((a, b) => {
     const { criterion, directions } = sortConfig;
     const valA = criterion === "name" ? a.name : a.score;
@@ -345,17 +489,15 @@ const SummaryWithTSChart = ({
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-    const allTimestamps = sortedData.flatMap((d) =>
-      d.timeSeries.map((ts) => ts.ts)
-    );
-    // const xExtent = extent(allTimestamps);
-    const xExtent = [
-      // new Date(from * 1000).setUTCHours(0, 0, 0, 0),
-      // new Date(until * 1000).setUTCHours(23, 59, 59, 999),
-      new Date(from * 1000),
-      new Date(until * 1000),
-    ];
+    const crosshair = svg
+      .append("line")
+      .attr("y1", 0)
+      .attr("y2", height)
+      .attr("stroke", "#1890ff")
+      .attr("stroke-width", 1)
+      .style("pointer-events", "none")
+      .style("visibility", "hidden");
+    const xExtent = [new Date(from * 1000), new Date(until * 1000)];
     const totalRangeDays = (xExtent[1] - xExtent[0]) / (1000 * 60 * 60 * 24);
     const xScale = scaleTime()
       .domain(xExtent)
@@ -377,32 +519,6 @@ const SummaryWithTSChart = ({
       // .padding(0.2);
       .padding(0);
 
-    // const formatTime = (date) => {
-    //   const utcDate = new Date(date.getTime());
-    //   const hours = utcDate.getUTCHours();
-    //   console.log("hours:", hours);
-    //   if (totalRangeDays > 4) {
-    //     // Only label 12 AM
-    //     if (hours === 0) {
-    //       return timeFormat.utc("%a %-m/%-d")(utcDate); // e.g., "Mon 4/15"
-    //     }
-    //     return null;
-    //   }
-    //   // Midnight gets date format
-    //   if (hours === 0) {
-    //     return timeFormat.utc("%a %-m/%-d")(utcDate); // "Mon 4/15"
-    //   }
-    //   // 6AM/6PM get simple time format
-    //   else if (hours === 6 || hours === 18) {
-    //     return timeFormat.utc("6 %p")(utcDate); // "6 AM" or "6 PM"
-    //   }
-    //   // Noon gets special format
-    //   else if (hours === 12) {
-    //     return "12 PM";
-    //   }
-
-    //   return null; // All other hours get no label
-    // };
     const formatTime = (date) => {
       // Create UTC formatters
       const utcDayFormat = utcFormat("%a %-m/%-d"); // For day labels
@@ -432,22 +548,6 @@ const SummaryWithTSChart = ({
       return null;
     };
 
-    // Custom function to generate ticks at reasonable intervals
-    // const generateTicks = (scale) => {
-    //   const [start, end] = scale.domain();
-    //   const ticks = [];
-
-    //   // Round to nearest 6-hour interval
-    //   let current = new Date(start);
-    //   current.setUTCHours(Math.ceil(current.getUTCHours() / 6) * 6, 0, 0, 0);
-
-    //   while (current <= end) {
-    //     ticks.push(new Date(current));
-    //     current = new Date(current.getTime() + 6 * 60 * 60 * 1000);
-    //   }
-
-    //   return ticks;
-    // };
     const generateTicks = (scale) => {
       const [start, end] = scale.domain();
       const ticks = [];
@@ -474,9 +574,7 @@ const SummaryWithTSChart = ({
 
     const xAxis = axisTop(xScale)
       .tickFormat((d) => {
-        console.log("unformatted time:", d);
         const formatted = formatTime(d);
-        console.log("formatted time:", formatted);
         return formatted === null ? "" : formatted;
       })
       .tickValues(generateTicks(xScale)) // Use our custom ticks
@@ -561,7 +659,12 @@ const SummaryWithTSChart = ({
           getEntityScaleColor(country.score, "country") || "#d0d0d0"
         )
         .on("mouseover", function (event, d) {
-          select(this).attr("fill", "#e8e9eb");
+          // select(this).attr("fill", "#e8e9eb"); //0603
+          crosshair.raise();
+          crosshair
+            .attr("x1", xScale(d.ts))
+            .attr("x2", xScale(d.ts))
+            .style("visibility", "visible");
           const tooltip = tooltipRef.current;
           tooltip.style.visibility = "visible";
           // Use UTC date formatting here too
@@ -580,12 +683,13 @@ const SummaryWithTSChart = ({
           tooltip.style.top = event.pageY + 10 + "px";
         })
         .on("mouseout", function () {
-          select(this).attr(
-            "fill",
-            getEntityScaleColor(country.score, "country") || "#d0d0d0"
-          ); // Restore original color
+          // select(this).attr( //0603
+          //   "fill",
+          //   getEntityScaleColor(country.score, "country") || "#d0d0d0"
+          // ); // Restore original color
           const tooltip = tooltipRef.current;
           tooltip.style.visibility = "hidden";
+          crosshair.style("visibility", "hidden");
         });
     });
   }, [sortedData, containerWidth]);
@@ -621,44 +725,6 @@ const SummaryWithTSChart = ({
                 }}
               >
                 <span>NAME</span>
-                {/* <button
-                  onClick={() =>
-                    setSortConfig((prev) => {
-                      const newDirection =
-                        prev.directions.name === "asc" ? "desc" : "asc";
-                      return {
-                        criterion: "name",
-                        directions: {
-                          ...prev.directions,
-                          name: newDirection,
-                        },
-                      };
-                    })
-                  }
-                  style={styles.iconButtonStyle}
-                >
-                  {sortConfig.directions.name === "asc" ? (
-                    <UpOutlined
-                      style={{
-                        ...styles.iconStyle,
-                        color:
-                          sortConfig.criterion === "name"
-                            ? "#1890ff"
-                            : "#d9d9d9",
-                      }}
-                    />
-                  ) : (
-                    <DownOutlined
-                      style={{
-                        ...styles.iconStyle,
-                        color:
-                          sortConfig.criterion === "name"
-                            ? "#1890ff"
-                            : "#d9d9d9",
-                      }}
-                    />
-                  )}
-                </button> */}
                 <button
                   onClick={() =>
                     setSortConfig((prev) => {
@@ -691,44 +757,6 @@ const SummaryWithTSChart = ({
                 }}
               >
                 <span>SCORE</span>
-                {/* <button
-                  onClick={() =>
-                    setSortConfig((prev) => {
-                      const newDirection =
-                        prev.directions.score === "asc" ? "desc" : "asc";
-                      return {
-                        criterion: "score",
-                        directions: {
-                          ...prev.directions,
-                          score: newDirection,
-                        },
-                      };
-                    })
-                  }
-                  style={styles.iconButtonStyle}
-                >
-                  {sortConfig.directions.score === "asc" ? (
-                    <UpOutlined
-                      style={{
-                        ...styles.iconStyle,
-                        color:
-                          sortConfig.criterion === "score"
-                            ? "#1890ff"
-                            : "#d9d9d9",
-                      }}
-                    />
-                  ) : (
-                    <DownOutlined
-                      style={{
-                        ...styles.iconStyle,
-                        color:
-                          sortConfig.criterion === "score"
-                            ? "#1890ff"
-                            : "#d9d9d9",
-                      }}
-                    />
-                  )}
-                </button> */}
                 <button
                   onClick={() =>
                     setSortConfig((prev) => {
@@ -741,7 +769,6 @@ const SummaryWithTSChart = ({
                           directions: { ...prev.directions, score: newDir },
                         };
                       }
-                      // Otherwise activate this column, keep its last direction or default to asc
                       return { ...prev, criterion: "score" };
                     })
                   }
@@ -751,7 +778,6 @@ const SummaryWithTSChart = ({
                 </button>
               </div>
             </div>
-            {/* Empty space to match height */}
             {/* <div style={{ height: "30px" }}></div> */}
           </div>
 
@@ -773,30 +799,6 @@ const SummaryWithTSChart = ({
           <div style={styles.countryScoreList}>
             {sortedData.map((d) => (
               <div key={d.entityCode} style={styles.countryScoreRow}>
-                {/*     const linkPath = dateRangeInUrl
-      ? `/${d.entityType}/${d.entityCode}?from=${urlFromDate}&until=${urlUntilDate}`
-      : `/${d.entityType}/${d.entityCode}`; */}
-                {/* <div style={{ width: "140px" }}>
-                  <Link
-                    to={`/${d.entityType}/${d.entityCode}${
-                      dateRangeInUrl
-                        ? `?from=${urlFromDate}&until=${urlUntilDate}`
-                        : ""
-                    }`}
-                    style={{ textDecoration: "none" }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.textDecoration = "underline")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.textDecoration = "none")
-                    }
-                  >
-                    <span style={styles.countryName}>
-                      {getFlagEmoji(d)} {d.name}
-                      {d.countryName ? `, ${d.countryName}` : null}
-                    </span>
-                  </Link>
-                </div> */}
                 <div style={styles.countryNameContainer}>
                   <Link
                     to={`/${d.entityType}/${d.entityCode}${
@@ -831,124 +833,58 @@ const SummaryWithTSChart = ({
                     {d.countryName ? `, ${d.countryName}` : null}
                   </Link>
                 </div>
-                {/* <div style={{ width: "50px", textAlign: "right" }}>
-                  {humanizeNumber(d.score, 2)}
-                </div> */}
+
                 <div style={{ width: "70px", textAlign: "center" }}>
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      width: "50px",
-                      height: "30px",
-                      // padding: "6px 8px",
-                      position: "relative",
-                    }}
-                    onMouseOver={(e) => {
-                      const tooltip = scoreTooltipRef.current;
-                      tooltip.style.visibility = "visible";
-
-                      // Create table rows for score components
-                      const scoresDetails = d.scores
-                        .map(
-                          (score) => `
-                          <tr>
-                            <td style="text-align: left; padding-right: 10px;">${
-                              score.source
-                            }</td>
-                            <td style="text-align: right;">${humanizeNumber(
-                              score.score,
-                              2
-                            )}</td>
-                          </tr>
-                        `
-                        )
-                        .join("");
-
-                      tooltip.innerHTML = `
-                        <div style="font-size: ${FONT_SIZE}px; margin: 0; padding: 0;">
-                          <table style="width: auto; border-collapse: collapse; margin: 0; padding: 0;">
-                            <tbody>
-                              <tr>
-                                <td style="text-align: left; padding: 0 6px 0 0;"><strong>Overall score</strong></td>
-                                <td style="text-align: right; padding: 0;">${humanizeNumber(
-                                  d.score,
-                                  2
-                                )}</td>
-                              </tr>
-                              ${d.scores
-                                .map(
-                                  (score) => `
-                                <tr>
-                                  <td style="text-align: left; padding: 0 6px 0 0;">${
-                                    score.source
-                                  }</td>
-                                  <td style="text-align: right; padding: 0;">${humanizeNumber(
-                                    score.score,
-                                    2
-                                  )}</td>
-                                </tr>
-                              `
-                                )
-                                .join("")}
-                            </tbody>
-                          </table>
-                        </div>
-                      `;
-                      tooltip.style.left = `${e.pageX + 10}px`;
-                      tooltip.style.top = `${e.pageY + 10}px`;
-                    }}
-                    onMouseMove={(e) => {
-                      const tooltip = scoreTooltipRef.current;
-                      tooltip.style.left = `${e.pageX + 10}px`;
-                      tooltip.style.top = `${e.pageY + 10}px`;
-                    }}
-                    onMouseOut={() => {
-                      const tooltip = scoreTooltipRef.current;
-                      tooltip.style.visibility = "hidden";
-                    }}
+                  <Popover
+                    trigger="hover"
+                    placement="right"
+                    content={<ScorePopoverContent data={d} />}
+                    overlayClassName="score-popover"
                   >
-                    {/* Background rectangle with opacity */}
                     <div
                       style={{
-                        position: "absolute",
-                        // width: "55px",
-                        // height: "16px",
-                        // top: "2px",
-                        // left: "7px",
-                        inset: 0,
-                        backgroundColor: convertHexToRgba(
-                          getEntityScaleColor(d.score, "country") || "#d0d0d0",
-                          0.2
-                        ),
-                        borderRadius: "2px",
-                        zIndex: 1,
-                        border: "1.5px solid", // Thin opaque black border
-                        borderColor:
-                          getEntityScaleColor(d.score, "country") || "#d0d0d0",
-                        //   getEntityScaleColor(d.score, "country") || "#d0d0d0",
-                        boxSizing: "border-box", // Ensures border is drawn inside
-                      }}
-                    ></div>
-
-                    {/* Text (fully opaque) */}
-                    <span
-                      style={{
+                        display: "inline-flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "50px",
+                        height: "30px",
                         position: "relative",
-                        display: "inline-block",
-                        // padding: "4px 8px",
-                        // fontSize: "10px",
-                        fontSize: `${SCORE_FONT_SIZE}px`,
-                        color: "#000",
-                        zIndex: 2,
-                        textAlign: "center",
-                        fontVariantNumeric: "tabular-nums",
                       }}
                     >
-                      {humanizeNumber(d.score, 2)}
-                    </span>
-                  </div>
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          backgroundColor: convertHexToRgba(
+                            getEntityScaleColor(d.score, "country") ||
+                              "#d0d0d0",
+                            0.2
+                          ),
+                          borderRadius: "2px",
+                          zIndex: 1,
+                          border: "1.5px solid",
+                          borderColor:
+                            getEntityScaleColor(d.score, "country") ||
+                            "#d0d0d0",
+                          boxSizing: "border-box",
+                        }}
+                      ></div>
+
+                      <span
+                        style={{
+                          position: "relative",
+                          display: "inline-block",
+                          fontSize: `${SCORE_FONT_SIZE}px`,
+                          color: "#000",
+                          zIndex: 2,
+                          textAlign: "center",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {humanizeNumber(d.score, 2)}
+                      </span>
+                    </div>
+                  </Popover>
                 </div>
               </div>
             ))}

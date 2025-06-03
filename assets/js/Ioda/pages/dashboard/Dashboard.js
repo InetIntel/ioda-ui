@@ -247,7 +247,6 @@ const Dashboard = (props) => {
         };
       });
       setSummaryDataWithTS(mergedData);
-      console.log("mergedData", mergedData);
     }
   }, [
     summaryDataProcessed,
@@ -516,7 +515,6 @@ const Dashboard = (props) => {
   }
 
   function convertValuesForHtsViz() {
-    console.log("Event data raw!!!!!!", eventDataRaw);
     let eventDataProcessed = [];
     // Create visualization-friendly data objects
     eventDataRaw.map((entity) => {
@@ -525,7 +523,6 @@ const Dashboard = (props) => {
       eventDataProcessed = eventDataProcessed.concat(series);
     });
     setEventDataProcessed(eventDataProcessed);
-    console.log("Event data processed!!!!!!", eventDataProcessed);
     // Add data objects to state for each data source
   }
 
