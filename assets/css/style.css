@@ -6205,10 +6205,8 @@ button[class*=searchButton] {
   border-radius: 0.3rem;
   max-height: 100%;
 }
-@media only screen and (max-width: 64em) {
-  .dashboard__tab-layout {
-    flex-direction: column;
-  }
+.dashboard__tab-layout {
+  flex-direction: column;
 }
 .dashboard__tab-map {
   height: 52.9rem;
@@ -6230,6 +6228,49 @@ button[class*=searchButton] {
   border-radius: 0.4rem;
   font-family: "Lato-Bold", "Helvetica", "arial", sans-serif;
   text-transform: capitalize;
+}
+
+.mt-container,
+.mt-container * {
+  font-size: 14px !important;
+}
+
+.mastodon-embed-container {
+  height: 52.9rem;
+  overflow-y: auto;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.table-cell--sticky-1 {
+  position: sticky;
+  left: 0;
+  background: white;
+  z-index: 2;
+}
+
+.table-cell--sticky-2 {
+  position: sticky;
+  left: 150px;
+  background: white;
+  z-index: 2;
 }
 
 .entity {
