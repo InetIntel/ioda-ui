@@ -194,6 +194,7 @@ const DashboardTab = (props) => {
                           data={summaryDataWithTS}
                           from={from}
                           until={until}
+                          tabType={activeTabType}
                         />
                       )
                     ) : (
@@ -297,6 +298,7 @@ const DashboardTab = (props) => {
                       data={summaryDataWithTS}
                       from={from}
                       until={until}
+                      tabType={activeTabType}
                     />
                   )}
                 </div>

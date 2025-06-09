@@ -105,131 +105,6 @@ function wrap(text, width) {
     }
   });
 }
-const schemeCategory10 = [
-  "#1f77b4", // blue
-  "#ff7f0e", // orange
-  "#2ca02c", // green
-  "#d62728", // red
-  "#9467bd", // purple
-  "#8c564b", // brown
-  "#e377c2", // pink
-  "#7f7f7f", // gray
-  "#bcbd22", // olive
-  "#17becf", // cyan
-];
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    border: "2px solid #ddd",
-    maxHeight: "60rem",
-    overflow: "hidden",
-  },
-  header: {
-    display: "flex",
-    position: "sticky",
-    top: 0,
-    backgroundColor: "white",
-    zIndex: 100,
-    borderBottom: "2px solid #ddd",
-  },
-  countryScoreHeader: {
-    width: "260px",
-    // padding: "10px",
-    padding: `${HEADER_BASELINE - FONT_SIZE}px 10px 0 10px`,
-    borderRight: "2px solid #ddd",
-    flexShrink: 0,
-    display: "flex",
-    flexDirection: "column",
-    // justifyContent: "space-between",
-    justifyContent: "flex-end", // Vertically center content
-  },
-  timeseriesHeader: {
-    padding: "10px 20px",
-    textAlign: "center",
-    // fontWeight: "bold",
-    // fontSize: "10px",
-  },
-  scrollContainer: {
-    display: "flex",
-    overflow: "auto",
-    flex: 1,
-    overflowX: "auto",
-    overflowY: "auto",
-    position: "relative",
-  },
-  countryScoreList: {
-    width: "260px",
-    // borderRight: "2px solid #ddd",
-    flexShrink: 0,
-    position: "sticky",
-    left: 0,
-    zIndex: 10,
-  },
-  countryScoreRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "10px",
-    height: `${ROW_HEIGHT}px`,
-    // height: `60px`,
-    alignItems: "center",
-    borderBottom: "2px solid #eee",
-    borderRight: "2px solid #ddd",
-    backgroundColor: "white",
-  },
-  timeseriesWrapper: {
-    flex: 1,
-    position: "relative",
-    minWidth: "600px",
-  },
-  timeseriesHeaderContainer: {
-    flex: 1,
-    minWidth: "600px",
-    display: "flex",
-    flexDirection: "column",
-    position: "relative",
-  },
-  xAxisContainer: {
-    height: "30px",
-    overflow: "hidden",
-    backgroundColor: "white",
-    position: "relative",
-    marginTop: "auto",
-  },
-  xAxisSvg: {
-    display: "block",
-    overflow: "visible",
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-  },
-  iconButtonStyle: {
-    background: "none",
-    border: "none",
-    padding: 2,
-    marginLeft: "4px",
-    cursor: "pointer",
-    display: "inline-flex",
-    alignItems: "center",
-  },
-  // countryName: {
-  //   overflow: "hidden",
-  //   textOverflow: "ellipsis",
-  // },
-  countryNameContainer: {
-    width: "160px",
-    display: "inline-block",
-    verticalAlign: "middle",
-  },
-  countryNameLink: {
-    textDecoration: "none",
-    display: "block",
-    // width: "100%",
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-  },
-};
 
 function humanizeNumber(value, precisionDigits = 2) {
   return format(
@@ -426,6 +301,7 @@ const SummaryWithTSChart = ({
   width: containerWidth = 1000,
   from,
   until,
+  tabType,
 }) => {
   const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
   const dateRangeInUrl = hasDateRangeInUrl();
@@ -441,7 +317,126 @@ const SummaryWithTSChart = ({
   });
   const tooltipRef = useRef(null);
   const scoreTooltipRef = useRef(null);
-
+  const isASN = tabType === "asn";
+  const NAME_COL_WIDTH = isASN ? 120 : 160;
+  const SCORE_COL_WIDTH = isASN ? 60 : 80;
+  const LEFT_COL_TOTAL_WIDTH = NAME_COL_WIDTH + SCORE_COL_WIDTH;
+  const styles = {
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      border: "2px solid #ddd",
+      maxHeight: "60rem",
+      overflow: "hidden",
+    },
+    header: {
+      display: "flex",
+      position: "sticky",
+      top: 0,
+      backgroundColor: "white",
+      zIndex: 100,
+      borderBottom: "2px solid #ddd",
+    },
+    countryScoreHeader: {
+      // width: "260px",
+      width: `${LEFT_COL_TOTAL_WIDTH}`,
+      // padding: "10px",
+      padding: `${HEADER_BASELINE - FONT_SIZE}px 10px 0 10px`,
+      borderRight: "2px solid #ddd",
+      flexShrink: 0,
+      display: "flex",
+      flexDirection: "column",
+      // justifyContent: "space-between",
+      justifyContent: "flex-end", // Vertically center content
+    },
+    timeseriesHeader: {
+      padding: "10px 20px",
+      textAlign: "center",
+      // fontWeight: "bold",
+      // fontSize: "10px",
+    },
+    scrollContainer: {
+      display: "flex",
+      overflow: "auto",
+      flex: 1,
+      overflowX: "auto",
+      overflowY: "auto",
+      position: "relative",
+    },
+    countryScoreList: {
+      // width: "260px",
+      width: `${LEFT_COL_TOTAL_WIDTH}`,
+      // borderRight: "2px solid #ddd",
+      flexShrink: 0,
+      position: "sticky",
+      left: 0,
+      zIndex: 10,
+    },
+    countryScoreRow: {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "10px",
+      height: `${ROW_HEIGHT}px`,
+      // height: `60px`,
+      alignItems: "center",
+      borderBottom: "2px solid #eee",
+      borderRight: "2px solid #ddd",
+      backgroundColor: "white",
+    },
+    timeseriesWrapper: {
+      flex: 1,
+      position: "relative",
+      minWidth: "600px",
+    },
+    timeseriesHeaderContainer: {
+      flex: 1,
+      minWidth: "600px",
+      display: "flex",
+      flexDirection: "column",
+      position: "relative",
+    },
+    xAxisContainer: {
+      height: "30px",
+      overflow: "hidden",
+      backgroundColor: "white",
+      position: "relative",
+      marginTop: "auto",
+    },
+    xAxisSvg: {
+      display: "block",
+      overflow: "visible",
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+    },
+    iconButtonStyle: {
+      background: "none",
+      border: "none",
+      padding: 2,
+      marginLeft: "4px",
+      cursor: "pointer",
+      display: "inline-flex",
+      alignItems: "center",
+    },
+    // countryName: {
+    //   overflow: "hidden",
+    //   textOverflow: "ellipsis",
+    // },
+    countryNameContainer: {
+      // width: "160px",
+      width: `${NAME_COL_WIDTH}px`,
+      display: "inline-block",
+      verticalAlign: "middle",
+    },
+    countryNameLink: {
+      textDecoration: "none",
+      display: "block",
+      // width: "100%",
+      overflow: "hidden",
+      whiteSpace: "nowrap",
+      textOverflow: "ellipsis",
+    },
+  };
   const tooltipStyles = {
     timeseries: {
       position: "absolute",
@@ -488,7 +483,8 @@ const SummaryWithTSChart = ({
     if (!sortedData?.length || !scrollContainerRef.current) return;
 
     // Calculate available width for timeseries
-    const timeseriesWidth = scrollContainerRef.current.offsetWidth - 260; // minus left column
+    const timeseriesWidth =
+      scrollContainerRef.current.offsetWidth - LEFT_COL_TOTAL_WIDTH; // minus left column
     const rowHeight = ROW_HEIGHT;
     const height = sortedData.length * rowHeight;
 
@@ -534,7 +530,7 @@ const SummaryWithTSChart = ({
     const formatTime = (date) => {
       // Create UTC formatters
       const utcDayFormat = utcFormat("%a %-m/%-d"); // For day labels
-      const utcTimeFormat = utcFormat("%-I %p"); // For time labels
+      const utcTimeFormat = utcFormat("%-I:%M %p"); // For time labels
 
       const hours = date.getUTCHours();
 
@@ -555,7 +551,7 @@ const SummaryWithTSChart = ({
       }
       // Noon gets special format
       else if (hours === 12) {
-        return "12 PM";
+        return "12:00 PM";
       }
       return null;
     };
@@ -728,7 +724,8 @@ const SummaryWithTSChart = ({
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <div
                 style={{
-                  width: "180px",
+                  // width: "180px",
+                  width: `${NAME_COL_WIDTH}px`,
                   // fontWeight: "bold",
                   // fontSize: "10px",
                   fontSize: `${FONT_SIZE}px`,
@@ -760,7 +757,8 @@ const SummaryWithTSChart = ({
               </div>
               <div
                 style={{
-                  width: "80px",
+                  // width: "80px",
+                  width: `${SCORE_COL_WIDTH}px`,
                   // fontWeight: "bold",
                   // fontSize: "10px",
                   fontSize: `${FONT_SIZE}px`,
@@ -847,7 +845,13 @@ const SummaryWithTSChart = ({
                   </Link>
                 </div>
 
-                <div style={{ width: "70px", textAlign: "center" }}>
+                <div
+                  style={{
+                    // width: "70px",
+                    width: `${SCORE_COL_WIDTH}px`,
+                    textAlign: "center",
+                  }}
+                >
                   <Popover
                     trigger="hover"
                     placement="right"
