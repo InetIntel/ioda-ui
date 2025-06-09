@@ -11,13 +11,7 @@ import Table from "../../components/table/Table";
 import HorizonTSChart from "horizon-timeseries-chart";
 import * as d3 from "d3-shape";
 import TopoMap from "../../components/map/Map";
-import { Button } from "antd";
-import {
-  AreaChartOutlined,
-  GlobalOutlined,
-  EnvironmentFilled,
-  ClockCircleFilled,
-} from "@ant-design/icons";
+import { EnvironmentFilled, ClockCircleFilled } from "@ant-design/icons";
 import { getSecondsAsErrorDurationString } from "../../utils/timeUtils";
 import SummaryWithTSChart from "../../components/table/SummaryWithTSChart";
 import { country, region, asn } from "./DashboardConstants";
@@ -35,15 +29,11 @@ const DashboardTab = (props) => {
     totalOutages,
     type,
     tabCurrentView,
-    handleTabChangeViewButton,
     summaryDataRaw,
-    genSummaryTableDataProcessed,
-    summaryDataProcessed,
     summaryDataWithTS,
   } = props;
 
   const config = React.createRef();
-  // const mastodonInitializedRef = useRef(false);
 
   useEffect(() => {
     if (eventDataProcessed != null && config.current) {
@@ -111,33 +101,11 @@ const DashboardTab = (props) => {
     }
   }, [tabCurrentView, topoData, summaryDataWithTS, activeTabType]); // re-measure if layout can change
 
-  // useEffect(() => {
-  //   if (!mapCardRef.current) return;
-
-  //   const resizeObserver = new ResizeObserver((entries) => {
-  //     const entry = entries[0];
-  //     setMapHeight(entry.contentRect.height);
-  //   });
-
-  //   resizeObserver.observe(mapCardRef.current);
-  //   return () => resizeObserver.disconnect();
-  // }, []);
-
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     if (mapCardRef.current) {
-  //       setMapHeight(mapCardRef.current.offsetHeight);
-  //       console.log("chart frame height:", mapHeight);
-  //     }
-  //   }, 1000); // Small delay to allow rendering
-  //   return () => clearTimeout(timer);
-  // }, [tabCurrentView, topoData, summaryDataRaw]);
-
   return (
     // <div className="card p-8 dashboard__tab">
-    <div className="w-full max-cont dashboard__tab">
+    <div className="w-full dashboard__tab mt-6">
       {until - from < dashboardTimeRangeLimit ? (
-        <div className="flex items-stretch gap-4 dashboard__tab-layout">
+        <div className="flex items-stretch gap-6 dashboard__tab-layout">
           {totalOutages === 0 ? (
             <div className="col-1-of-1 tab__error tab__error--noOutagesFound">
               No {activeTabType} Outages found
@@ -145,7 +113,7 @@ const DashboardTab = (props) => {
           ) : (
             <React.Fragment>
               {/* ───────────────────────── 1st ROW ───────────────────────── */}
-              <div className="flex items-stretch gap-6 mb-6">
+              <div className="flex items-stretch gap-6">
                 {/* LEFT 2 / 3 – Map (or Timeseries) */}
                 <div
                   ref={mapCardRef}
@@ -153,15 +121,6 @@ const DashboardTab = (props) => {
                 >
                   <div className="col-2 mw-0">
                     <div className="flex items-center mb-4" ref={config}>
-                      {/* <div className="font-medium text-3xl">
-                        {type === "country"
-                          ? countryOutages
-                          : type === "region"
-                            ? regionalOutages
-                            : type === "asn"
-                              ? asnOutages
-                              : null}
-                      </div> */}
                       <div className="font-medium text-3xl flex items-center gap-2">
                         <EnvironmentFilled style={{ color: "#8c8c8c" }} />
                         <span className="text-black">
@@ -180,14 +139,6 @@ const DashboardTab = (props) => {
                         text={tooltipDashboardHeadingText}
                       />
                     </div>
-                    {/* <div
-                      className="dashboard__tab-map"
-                      style={
-                        tabCurrentView === "map"
-                          ? { display: "block" }
-                          : { display: "none" }
-                      }
-                    > */}
                     {activeTabType === asn.type ? (
                       summaryDataWithTS && (
                         <SummaryWithTSChart
@@ -217,7 +168,6 @@ const DashboardTab = (props) => {
                               entityType={activeTabType?.toLowerCase()}
                             />
                           )}
-                        {/* <TimeStamp className="mt-4" from={from} until={until} /> */}
                       </div>
                     )}
                     <div className="flex mt-4 justify-end">
@@ -228,7 +178,7 @@ const DashboardTab = (props) => {
                 <div
                   className="col-1 card p-4 pt-6 flex flex-col"
                   style={{
-                    height: mapHeight || "60rem",
+                    height: mapHeight || "55rem",
                     overflow: "hidden",
                     display: "flex",
                     flexDirection: "column",
@@ -252,22 +202,7 @@ const DashboardTab = (props) => {
                   </div>
                 </div>
               </div>
-
-              {/* <div className="col-1 mw-0">
-                <div className="dashboard__tab-table">
-                  {activeTabType &&
-                  totalOutages &&
-                  genSummaryTableDataProcessed ? (
-                    <Table
-                      type={"summary"}
-                      data={summaryDataProcessed}
-                      totalCount={totalOutages}
-                      entityType={activeTabType}
-                    />
-                  ) : // <></>
-                  null}
-                </div>
-              </div> */}
+              {/* ───────────────────────── 2nd ROW ───────────────────────── */}
               {activeTabType !== asn.type && (
                 <div className="card p-4 pt-6">
                   <div className="flex items-center mb-4" ref={config}>

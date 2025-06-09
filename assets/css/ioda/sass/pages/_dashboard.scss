@@ -57,7 +57,7 @@
 // }
 
 .dashboard {
-  padding-top: $header-height;
+  // padding-top: $header-height;
   margin: $gutter-vertical auto;
 
   @include respond(phone-440) {

@@ -2,41 +2,25 @@
 import React, { useRef, useEffect, useState } from "react";
 import { select } from "d3-selection";
 import { scaleTime, scaleBand } from "d3-scale";
-import { extent, ascending, descending } from "d3-array";
-import { axisTop, axisLeft } from "d3-axis";
+import { ascending, descending } from "d3-array";
+import { axisTop } from "d3-axis";
 import { format } from "d3-format";
-import { timeFormat, utcFormat } from "d3-time-format";
-import { scaleOrdinal } from "d3-scale";
+import { utcFormat } from "d3-time-format";
 import countryData from "../../constants/countries.json";
-import { UpOutlined, DownOutlined } from "@ant-design/icons";
-// import { Button } from "antd";
 import { getEntityScaleColor } from "../../utils/mapColors";
 import { Link } from "react-router-dom";
-import { NavLink } from "react-router-dom";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
 import iconAsc from "images/icons/icon-asc.png";
 import iconDesc from "images/icons/icon-desc.png";
 import iconSortUnsort from "images/icons/icon-sortUnsort.png";
-import {
-  Popover,
-  Divider,
-  Typography,
-  Row,
-  Col,
-  Badge as AntBadge,
-} from "antd";
+import { Popover, Divider, Typography } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
-// const FONT_SIZE = 14; // default text
 const FONT_SIZE = 12; // default text
-const AXIS_FONT_SIZE = 10; // default text
-// const SCORE_FONT_SIZE = 12; // the little score badge
+const AXIS_FONT_SIZE = 10; // axis label
 const SCORE_FONT_SIZE = 11; // the little score badge
-// const HEADER_HEIGHT = 50;
-// const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
 const HEADER_HEIGHT = 30;
 const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
-//const ROW_HEIGHT = 58;
 const ROW_HEIGHT = 36;
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
@@ -820,24 +804,9 @@ const SummaryWithTSChart = ({
                     title={`${getFlagEmoji(d)} ${d.name}${d.countryName ? `, ${d.countryName}` : ""}`}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.textDecoration = "underline";
-                      const tooltip = nameTooltipRef.current;
-                      tooltip.style.visibility = "visible";
-                      tooltip.innerHTML = `
-        <div style="font-size: ${FONT_SIZE}px;">
-          ${getFlagEmoji(d)} ${d.name}${d.countryName ? `, ${d.countryName}` : ""}
-        </div>
-      `;
-                      tooltip.style.left = `${e.pageX + 10}px`;
-                      tooltip.style.top = `${e.pageY + 10}px`;
-                    }}
-                    onMouseMove={(e) => {
-                      const tooltip = nameTooltipRef.current;
-                      tooltip.style.left = `${e.pageX + 10}px`;
-                      tooltip.style.top = `${e.pageY + 10}px`;
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.textDecoration = "none";
-                      nameTooltipRef.current.style.visibility = "hidden";
                     }}
                   >
                     {getFlagEmoji(d)} {d.name}
