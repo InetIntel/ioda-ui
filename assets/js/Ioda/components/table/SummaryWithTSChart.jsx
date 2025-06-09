@@ -27,13 +27,17 @@ import {
 } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
-const FONT_SIZE = 14; // default text
+// const FONT_SIZE = 14; // default text
+const FONT_SIZE = 12; // default text
 const AXIS_FONT_SIZE = 10; // default text
-const SCORE_FONT_SIZE = 12; // the little score badge
-const HEADER_HEIGHT = 50;
+// const SCORE_FONT_SIZE = 12; // the little score badge
+const SCORE_FONT_SIZE = 11; // the little score badge
+// const HEADER_HEIGHT = 50;
+// const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
+const HEADER_HEIGHT = 30;
 const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
 //const ROW_HEIGHT = 58;
-const ROW_HEIGHT = 60;
+const ROW_HEIGHT = 36;
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
   acc[country.code] = country.emoji;
@@ -270,7 +274,7 @@ function ScorePopoverContent({ data }) {
       style={{
         width: 240,
         backgroundColor: "#ffffff",
-        borderRadius: 4,
+        // borderRadius: 4,
         boxShadow: "0 3px 6px rgba(0,0,0,0.16)",
         overflow: "hidden",
         fontSize: `${FONT_SIZE}px`,
@@ -319,7 +323,9 @@ function ScorePopoverContent({ data }) {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 6,
+                // marginBottom: 6,
+                marginBottom:
+                  data.scores[data.scores.length - 1] === row ? 0 : 6,
               }}
             >
               {/* Source name */}
@@ -329,7 +335,13 @@ function ScorePopoverContent({ data }) {
                   fontSize: "12px",
                 }}
               >
-                {row.source}
+                {row.source === "merit-nt.median"
+                  ? "Telescope"
+                  : row.source === "ping-slash24.median"
+                    ? "Active Probing"
+                    : row.source === "bgp.median"
+                      ? "BGP"
+                      : row.source}
               </Text>
 
               {/* “Badge” with score number  */}
@@ -637,7 +649,7 @@ const SummaryWithTSChart = ({
       .attr("stroke-width", 1);
 
     // Add bars only (remove axis and labels)
-    const BAR_HEIGHT = yScale.bandwidth() * 0.3; // 60 % of band height
+    const BAR_HEIGHT = yScale.bandwidth() * 0.5; // 60 % of band height
     sortedData.forEach((country) => {
       svg
         .selectAll(`.bar-${country.entityCode}`)
@@ -807,6 +819,7 @@ const SummaryWithTSChart = ({
                         : ""
                     }`}
                     style={styles.countryNameLink}
+                    title={`${getFlagEmoji(d)} ${d.name}${d.countryName ? `, ${d.countryName}` : ""}`}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.textDecoration = "underline";
                       const tooltip = nameTooltipRef.current;
@@ -840,14 +853,21 @@ const SummaryWithTSChart = ({
                     placement="right"
                     content={<ScorePopoverContent data={d} />}
                     overlayClassName="score-popover"
+                    overlayInnerStyle={{
+                      padding: 0,
+                      boxShadow: "none",
+                      border: "none",
+                      borderRadius: 0,
+                      background: "transparent",
+                    }}
                   >
                     <div
                       style={{
                         display: "inline-flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        width: "50px",
-                        height: "30px",
+                        width: "45px",
+                        height: "20px",
                         position: "relative",
                       }}
                     >
@@ -862,14 +882,13 @@ const SummaryWithTSChart = ({
                           ),
                           borderRadius: "2px",
                           zIndex: 1,
-                          border: "1.5px solid",
+                          border: "1px solid",
                           borderColor:
                             getEntityScaleColor(d.score, "country") ||
                             "#d0d0d0",
                           boxSizing: "border-box",
                         }}
                       ></div>
-
                       <span
                         style={{
                           position: "relative",
