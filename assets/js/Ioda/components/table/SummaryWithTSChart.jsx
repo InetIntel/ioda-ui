@@ -124,161 +124,160 @@ const getSortIcon = (column, sortConfig) => {
 
 const { Title, Text } = Typography;
 
-// You already have countryFlagMap and humanizeNumber in scope, so we reuse them.
-function ScorePopoverContent({ data }) {
-  const flagEmoji = getFlagEmoji(data);
+// function ScorePopoverContent({ data }) {
+//   const flagEmoji = getFlagEmoji(data);
 
-  return (
-    <div
-      style={{
-        width: 240,
-        backgroundColor: "#ffffff",
-        // borderRadius: 4,
-        boxShadow: "0 3px 6px rgba(0,0,0,0.16)",
-        overflow: "hidden",
-        fontSize: `${FONT_SIZE}px`,
-      }}
-    >
-      {/* ───────────── HEADER ───────────── */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          padding: "8px 12px",
-          backgroundColor: "#f5f5f5",
-          borderBottom: "1px solid #e8e8e8",
-        }}
-      >
-        <span style={{ fontSize: "16px", marginRight: 8 }}>{flagEmoji}</span>
-        <Title
-          level={5}
-          style={{ margin: 0, fontSize: "14px", fontWeight: 600 }}
-        >
-          {data.name}
-          {data.countryName ? `, ${data.countryName}` : null}
-        </Title>
-      </div>
+//   return (
+//     <div
+//       style={{
+//         width: 240,
+//         backgroundColor: "#ffffff",
+//         // borderRadius: 4,
+//         boxShadow: "0 3px 6px rgba(0,0,0,0.16)",
+//         overflow: "hidden",
+//         fontSize: `${FONT_SIZE}px`,
+//       }}
+//     >
+//       {/* ───────────── HEADER ───────────── */}
+//       <div
+//         style={{
+//           display: "flex",
+//           alignItems: "center",
+//           padding: "8px 12px",
+//           backgroundColor: "#f5f5f5",
+//           borderBottom: "1px solid #e8e8e8",
+//         }}
+//       >
+//         <span style={{ fontSize: "16px", marginRight: 8 }}>{flagEmoji}</span>
+//         <Title
+//           level={5}
+//           style={{ margin: 0, fontSize: "14px", fontWeight: 600 }}
+//         >
+//           {data.name}
+//           {data.countryName ? `, ${data.countryName}` : null}
+//         </Title>
+//       </div>
 
-      {/* ───────────── BODY (list of each source) ───────────── */}
-      <div style={{ padding: "8px 12px" }}>
-        {data.scores.map((row) => {
-          const isNoData = row.score == null || row.score === 0;
-          const displayValue = isNoData
-            ? "No Data"
-            : humanizeNumber(row.score, 2);
-          const baseColor =
-            getEntityScaleColor(row.score, "country") || "#d0d0d0";
+//       {/* ───────────── BODY (list of each source) ───────────── */}
+//       <div style={{ padding: "8px 12px" }}>
+//         {data.scores.map((row) => {
+//           const isNoData = row.score == null || row.score === 0;
+//           const displayValue = isNoData
+//             ? "No Data"
+//             : humanizeNumber(row.score, 2);
+//           const baseColor =
+//             getEntityScaleColor(row.score, "country") || "#d0d0d0";
 
-          const badgeBackground = isNoData
-            ? "#f5f5f5"
-            : convertHexToRgba(baseColor, 0.2);
-          const badgeBorder = isNoData ? "#d9d9d9" : baseColor;
-          const badgeColor = isNoData ? "#bfbfbf" : "#000000";
+//           const badgeBackground = isNoData
+//             ? "#f5f5f5"
+//             : convertHexToRgba(baseColor, 0.2);
+//           const badgeBorder = isNoData ? "#d9d9d9" : baseColor;
+//           const badgeColor = isNoData ? "#bfbfbf" : "#000000";
 
-          return (
-            <div
-              key={row.source}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                // marginBottom: 6,
-                marginBottom:
-                  data.scores[data.scores.length - 1] === row ? 0 : 6,
-              }}
-            >
-              {/* Source name */}
-              <Text
-                style={{
-                  color: isNoData ? "#bfbfbf" : "#000000",
-                  fontSize: "12px",
-                }}
-              >
-                {row.source === "merit-nt.median"
-                  ? "Telescope"
-                  : row.source === "ping-slash24.median"
-                    ? "Active Probing"
-                    : row.source === "bgp.median"
-                      ? "BGP"
-                      : row.source}
-              </Text>
+//           return (
+//             <div
+//               key={row.source}
+//               style={{
+//                 display: "flex",
+//                 justifyContent: "space-between",
+//                 alignItems: "center",
+//                 // marginBottom: 6,
+//                 marginBottom:
+//                   data.scores[data.scores.length - 1] === row ? 0 : 6,
+//               }}
+//             >
+//               {/* Source name */}
+//               <Text
+//                 style={{
+//                   color: isNoData ? "#bfbfbf" : "#000000",
+//                   fontSize: "12px",
+//                 }}
+//               >
+//                 {row.source === "merit-nt.median"
+//                   ? "Telescope"
+//                   : row.source === "ping-slash24.median"
+//                     ? "Active Probing"
+//                     : row.source === "bgp.median"
+//                       ? "BGP"
+//                       : row.source}
+//               </Text>
 
-              {/* “Badge” with score number  */}
-              <span
-                style={{
-                  display: "inline-block",
-                  fontSize: "12px",
-                  minWidth: 36,
-                  textAlign: "center",
-                  lineHeight: "1.2",
-                  padding: "2px 6px",
-                  borderRadius: 2,
-                  backgroundColor: badgeBackground,
-                  border: `1px solid ${badgeBorder}`,
-                  color: badgeColor,
-                }}
-              >
-                {displayValue}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+//               {/* “Badge” with score number  */}
+//               <span
+//                 style={{
+//                   display: "inline-block",
+//                   fontSize: "12px",
+//                   minWidth: 36,
+//                   textAlign: "center",
+//                   lineHeight: "1.2",
+//                   padding: "2px 6px",
+//                   borderRadius: 2,
+//                   backgroundColor: badgeBackground,
+//                   border: `1px solid ${badgeBorder}`,
+//                   color: badgeColor,
+//                 }}
+//               >
+//                 {displayValue}
+//               </span>
+//             </div>
+//           );
+//         })}
+//       </div>
 
-      {/* ───────────── DIVIDER ───────────── */}
-      <Divider style={{ margin: "0" }} />
+//       {/* ───────────── DIVIDER ───────────── */}
+//       <Divider style={{ margin: "0" }} />
 
-      {/* ───────────── FOOTER: Total score ───────────── */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "8px 12px",
-          backgroundColor: "#fafafa",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Text strong style={{ fontSize: "12px" }}>
-            Total Severity Score
-          </Text>
-          <InfoCircleOutlined
-            style={{
-              color: "rgba(0,0,0,0.45)",
-              fontSize: "12px",
-              marginLeft: 4,
-            }}
-          />
-        </div>
-        {(() => {
-          const totalBaseColor =
-            getEntityScaleColor(data.score, "country") || "#d0d0d0";
-          const totalBackground = convertHexToRgba(totalBaseColor, 0.2);
-          const totalBorder = totalBaseColor;
-          const totalColor = "#000000";
-          return (
-            <span
-              style={{
-                display: "inline-block",
-                fontSize: "12px",
-                minWidth: 36,
-                textAlign: "center",
-                lineHeight: "1.2",
-                padding: "2px 6px",
-                borderRadius: 2,
-                backgroundColor: totalBackground,
-                border: `1px solid ${totalBorder}`,
-                color: totalColor,
-              }}
-            >
-              {humanizeNumber(data.score, 2)}
-            </span>
-          );
-        })()}
-      </div>
-    </div>
-  );
-}
+//       {/* ───────────── FOOTER: Total score ───────────── */}
+//       <div
+//         style={{
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//           padding: "8px 12px",
+//           backgroundColor: "#fafafa",
+//         }}
+//       >
+//         <div style={{ display: "flex", alignItems: "center" }}>
+//           <Text strong style={{ fontSize: "12px" }}>
+//             Total Severity Score
+//           </Text>
+//           <InfoCircleOutlined
+//             style={{
+//               color: "rgba(0,0,0,0.45)",
+//               fontSize: "12px",
+//               marginLeft: 4,
+//             }}
+//           />
+//         </div>
+//         {(() => {
+//           const totalBaseColor =
+//             getEntityScaleColor(data.score, "country") || "#d0d0d0";
+//           const totalBackground = convertHexToRgba(totalBaseColor, 0.2);
+//           const totalBorder = totalBaseColor;
+//           const totalColor = "#000000";
+//           return (
+//             <span
+//               style={{
+//                 display: "inline-block",
+//                 fontSize: "12px",
+//                 minWidth: 36,
+//                 textAlign: "center",
+//                 lineHeight: "1.2",
+//                 padding: "2px 6px",
+//                 borderRadius: 2,
+//                 backgroundColor: totalBackground,
+//                 border: `1px solid ${totalBorder}`,
+//                 color: totalColor,
+//               }}
+//             >
+//               {humanizeNumber(data.score, 2)}
+//             </span>
+//           );
+//         })()}
+//       </div>
+//     </div>
+//   );
+// }
 
 const SummaryWithTSChart = ({
   data,
@@ -460,6 +459,162 @@ const SummaryWithTSChart = ({
       ? ascending(valA, valB)
       : descending(valA, valB);
   });
+  function ScorePopoverContent({ data }) {
+    const flagEmoji = getFlagEmoji(data);
+
+    return (
+      <div
+        style={{
+          width: 240,
+          backgroundColor: "#ffffff",
+          // borderRadius: 4,
+          boxShadow: "0 3px 6px rgba(0,0,0,0.16)",
+          overflow: "hidden",
+          fontSize: `${FONT_SIZE}px`,
+        }}
+      >
+        {/* ───────────── HEADER ───────────── */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            padding: "8px 12px",
+            backgroundColor: "#f5f5f5",
+            borderBottom: "1px solid #e8e8e8",
+          }}
+        >
+          <span style={{ fontSize: "16px", marginRight: 8 }}>{flagEmoji}</span>
+          <Title
+            level={5}
+            style={{ margin: 0, fontSize: "14px", fontWeight: 600 }}
+          >
+            {data.name}
+            {data.countryName ? `, ${data.countryName}` : null}
+          </Title>
+        </div>
+
+        {/* ───────────── BODY (list of each source) ───────────── */}
+        <div style={{ padding: "8px 12px" }}>
+          {data.scores.map((row) => {
+            const isNoData = row.score == null || row.score === 0;
+            const displayValue = isNoData
+              ? "No Data"
+              : humanizeNumber(row.score, 2);
+            const baseColor =
+              getEntityScaleColor(row.score, isASN ? "region" : tabType) ||
+              "#d0d0d0";
+
+            const badgeBackground = isNoData
+              ? "#f5f5f5"
+              : convertHexToRgba(baseColor, 0.2);
+            const badgeBorder = isNoData ? "#d9d9d9" : baseColor;
+            const badgeColor = isNoData ? "#bfbfbf" : "#000000";
+
+            return (
+              <div
+                key={row.source}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  // marginBottom: 6,
+                  marginBottom:
+                    data.scores[data.scores.length - 1] === row ? 0 : 6,
+                }}
+              >
+                {/* Source name */}
+                <Text
+                  style={{
+                    color: isNoData ? "#bfbfbf" : "#000000",
+                    fontSize: "12px",
+                  }}
+                >
+                  {row.source === "merit-nt.median"
+                    ? "Telescope"
+                    : row.source === "ping-slash24.median"
+                      ? "Active Probing"
+                      : row.source === "bgp.median"
+                        ? "BGP"
+                        : row.source}
+                </Text>
+
+                {/* “Badge” with score number  */}
+                <span
+                  style={{
+                    display: "inline-block",
+                    fontSize: "12px",
+                    minWidth: 36,
+                    textAlign: "center",
+                    lineHeight: "1.2",
+                    padding: "2px 6px",
+                    borderRadius: 2,
+                    backgroundColor: badgeBackground,
+                    border: `1px solid ${badgeBorder}`,
+                    color: badgeColor,
+                  }}
+                >
+                  {displayValue}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ───────────── DIVIDER ───────────── */}
+        <Divider style={{ margin: "0" }} />
+
+        {/* ───────────── FOOTER: Total score ───────────── */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "8px 12px",
+            backgroundColor: "#fafafa",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Text strong style={{ fontSize: "12px" }}>
+              Total Severity Score
+            </Text>
+            <InfoCircleOutlined
+              style={{
+                color: "rgba(0,0,0,0.45)",
+                fontSize: "12px",
+                marginLeft: 4,
+              }}
+            />
+          </div>
+          {(() => {
+            const totalBaseColor =
+              getEntityScaleColor(data.score, isASN ? "region" : tabType) ||
+              "#d0d0d0";
+            const totalBackground = convertHexToRgba(totalBaseColor, 0.2);
+            const totalBorder = totalBaseColor;
+            const totalColor = "#000000";
+            return (
+              <span
+                style={{
+                  display: "inline-block",
+                  fontSize: "12px",
+                  minWidth: 36,
+                  textAlign: "center",
+                  lineHeight: "1.2",
+                  padding: "2px 6px",
+                  borderRadius: 2,
+                  backgroundColor: totalBackground,
+                  border: `1px solid ${totalBorder}`,
+                  color: totalColor,
+                }}
+              >
+                {humanizeNumber(data.score, 2)}
+              </span>
+            );
+          })()}
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     select(chartRef.current).select("svg").remove();
@@ -518,7 +673,7 @@ const SummaryWithTSChart = ({
 
       const hours = date.getUTCHours();
 
-      if (totalRangeDays > 4) {
+      if (totalRangeDays > 3) {
         // Only label 12 AM UTC
         if (hours === 0) {
           return utcDayFormat(date);
@@ -545,7 +700,7 @@ const SummaryWithTSChart = ({
       const ticks = [];
 
       let current = new Date(start);
-      if (totalRangeDays > 4) {
+      if (totalRangeDays > 3) {
         // Align to next 12AM UTC
         current.setUTCHours(0, 0, 0, 0);
         while (current <= end) {
@@ -580,16 +735,6 @@ const SummaryWithTSChart = ({
       tickPositions.length > 1
         ? xScale(tickPositions[1]) - xScale(tickPositions[0])
         : width;
-
-    // xAxisSvg
-    //   .append("g")
-    //   .attr("class", "x-axis")
-    //   .call(xAxis)
-    //   .selectAll(".tick text")
-    //   .style("font-size", "10px")
-    //   .style("text-anchor", "middle")
-    //   .filter((d) => formatTime(d) !== null) // Only keep ticks we want to show
-    //   .call(wrap, tickSpacing * 0.95); // Wrap labels
     xAxisSvg
       .append("g")
       .attr("class", "x-axis")
@@ -648,7 +793,8 @@ const SummaryWithTSChart = ({
         .attr("width", 6)
         .attr(
           "fill",
-          getEntityScaleColor(country.score, "country") || "#d0d0d0"
+          getEntityScaleColor(country.score, isASN ? "region" : tabType) ||
+            "#d0d0d0"
         )
         .on("mouseover", function (event, d) {
           // select(this).attr("fill", "#e8e9eb"); //0603
@@ -849,16 +995,20 @@ const SummaryWithTSChart = ({
                           position: "absolute",
                           inset: 0,
                           backgroundColor: convertHexToRgba(
-                            getEntityScaleColor(d.score, "country") ||
-                              "#d0d0d0",
+                            getEntityScaleColor(
+                              d.score,
+                              isASN ? "region" : tabType
+                            ) || "#d0d0d0",
                             0.2
                           ),
                           borderRadius: "2px",
                           zIndex: 1,
                           border: "1px solid",
                           borderColor:
-                            getEntityScaleColor(d.score, "country") ||
-                            "#d0d0d0",
+                            getEntityScaleColor(
+                              d.score,
+                              isASN ? "region" : tabType
+                            ) || "#d0d0d0",
                           boxSizing: "border-box",
                         }}
                       ></div>

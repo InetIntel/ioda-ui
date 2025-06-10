@@ -10,7 +10,7 @@ import {
 import MapLegend from "./MapLegend";
 
 const mapAccessToken =
-    "pk.eyJ1Ijoid2ViZXIwMjUiLCJhIjoiY2tmNXp5bG0wMDAzaTMxbWQzcXQ1Y3k2eCJ9.NMu5bfrybATuYQ7HdYvq-g";
+  "pk.eyJ1Ijoid2ViZXIwMjUiLCJhIjoiY2tmNXp5bG0wMDAzaTMxbWQzcXQ1Y3k2eCJ9.NMu5bfrybATuYQ7HdYvq-g";
 
 const DEFAULT_NONE = "#f2f2f0";
 
@@ -21,7 +21,7 @@ const TopoMap = (props) => {
     topoData,
     entityType,
     hideLegend,
-    handleEntityShapeClick
+    handleEntityShapeClick,
   } = props;
 
   // State declarations
@@ -62,13 +62,15 @@ const TopoMap = (props) => {
   // GeoJSON feature interactions
   const mouseOverFeature = useCallback((e, feature) => {
     setHoverName(feature.properties.name);
-    setHoverScore(feature.properties.score ? humanizeNumber(feature.properties.score) : 0);
+    setHoverScore(
+      feature.properties.score ? humanizeNumber(feature.properties.score) : 0
+    );
     setHoverTooltipDisplay(true);
 
     let hoverColor =
-        e.target.options && e.target.options.fillColor
-            ? shadeColor(e.target.options.fillColor, -10)
-            : shadeColor(DEFAULT_NONE, -10);
+      e.target.options && e.target.options.fillColor
+        ? shadeColor(e.target.options.fillColor, -10)
+        : shadeColor(DEFAULT_NONE, -10);
 
     e.target.setStyle({
       fillColor: hoverColor,
@@ -91,19 +93,25 @@ const TopoMap = (props) => {
     setHoverTooltipDisplay(false);
   }, []);
 
-  const clickFeature = useCallback((feature) => {
-    if (handleEntityShapeClick) {
-      handleEntityShapeClick(feature);
-    }
-  }, [handleEntityShapeClick]);
+  const clickFeature = useCallback(
+    (feature) => {
+      if (handleEntityShapeClick) {
+        handleEntityShapeClick(feature);
+      }
+    },
+    [handleEntityShapeClick]
+  );
 
-  const onEachFeature = useCallback((feature, layer) => {
-    layer.on({
-      mouseover: (e) => mouseOverFeature(e, feature),
-      mouseout: (e) => mouseOutFeature(e),
-      click: () => clickFeature(feature),
-    });
-  }, [mouseOverFeature, mouseOutFeature, clickFeature]);
+  const onEachFeature = useCallback(
+    (feature, layer) => {
+      layer.on({
+        mouseover: (e) => mouseOverFeature(e, feature),
+        mouseout: (e) => mouseOutFeature(e),
+        click: () => clickFeature(feature),
+      });
+    },
+    [mouseOverFeature, mouseOutFeature, clickFeature]
+  );
 
   // Determine map position and zoom
   let position = [20, 0];
@@ -122,65 +130,134 @@ const TopoMap = (props) => {
     thresholdBounds = getThresholdBoundsForRegion();
   }
 
+  // return (
+  //     <div
+  //         className="topo-map"
+  //         style={{ position: "relative", height: "inherit", width: "100%" }}
+  //     >
+  //       <div
+  //           className={
+  //             hoverTooltipDisplay
+  //                 ? "topo-map__tooltip topo-map__tooltip-visible"
+  //                 : "topo-map__tooltip"
+  //           }
+  //       >
+  //         <p>
+  //           {hoverName}
+  //           {hoverScore !== 0 ? ` - ${hoverScore}` : null}
+  //         </p>
+  //       </div>
+
+  //       {!hideLegend && (
+  //           <MapLegend
+  //               style={{ position: "absolute", bottom: "1rem", left: "1rem" }}
+  //               highThreshold={thresholdBounds.high ?? 0}
+  //               lowThreshold={thresholdBounds.low ?? 0}
+  //           />
+  //       )}
+
+  //       <Map
+  //           key={mapKey}
+  //           ref={mapRef}
+  //           center={bounds ? null : position}
+  //           zoom={bounds ? null : zoom}
+  //           bounds={bounds ? bounds : null}
+  //           minZoom={1}
+  //           scrollWheelZoom={false}
+  //           touchZoom={true}
+  //           dragging={!screenWidthBelow680}
+  //           style={{ width: "inherit", height: "inherit", overflow: "hidden" }}
+  //       >
+  //         <TileLayer
+  //             id="mapbox/light-v10"
+  //             url={`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapAccessToken}`}
+  //         />
+  //         <GeoJSON
+  //             data={topoData}
+  //             onEachFeature={onEachFeature}
+  //             style={(feature) => ({
+  //               color: "transparent",
+  //               weight: 2,
+  //               fillColor: !scores
+  //                   ? DEFAULT_NONE
+  //                   : !feature.properties.score
+  //                       ? DEFAULT_NONE
+  //                       : getEntityScaleColor(feature.properties.score, entityType),
+  //               fillOpacity: !feature.properties.score ? 0.2 : 0.5,
+  //               dashArray: "2",
+  //             })}
+  //         />
+  //       </Map>
+  //     </div>
+  // );
   return (
+    <div
+      className="topo-map"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        position: "relative",
+      }}
+    >
       <div
-          className="topo-map"
-          style={{ position: "relative", height: "inherit", width: "100%" }}
+        className={
+          hoverTooltipDisplay
+            ? "topo-map__tooltip topo-map__tooltip-visible"
+            : "topo-map__tooltip"
+        }
       >
-        <div
-            className={
-              hoverTooltipDisplay
-                  ? "topo-map__tooltip topo-map__tooltip-visible"
-                  : "topo-map__tooltip"
-            }
-        >
-          <p>
-            {hoverName}
-            {hoverScore !== 0 ? ` - ${hoverScore}` : null}
-          </p>
-        </div>
+        <p>
+          {hoverName}
+          {hoverScore !== 0 ? ` - ${hoverScore}` : null}
+        </p>
+      </div>
 
-        {!hideLegend && (
-            <MapLegend
-                style={{ position: "absolute", bottom: "1rem", left: "1rem" }}
-                highThreshold={thresholdBounds.high ?? 0}
-                lowThreshold={thresholdBounds.low ?? 0}
-            />
-        )}
-
+      <div style={{ flexGrow: 1 }}>
         <Map
-            key={mapKey}
-            ref={mapRef}
-            center={bounds ? null : position}
-            zoom={bounds ? null : zoom}
-            bounds={bounds ? bounds : null}
-            minZoom={1}
-            scrollWheelZoom={false}
-            touchZoom={true}
-            dragging={!screenWidthBelow680}
-            style={{ width: "inherit", height: "inherit", overflow: "hidden" }}
+          key={mapKey}
+          ref={mapRef}
+          center={bounds ? null : position}
+          zoom={bounds ? null : zoom}
+          bounds={bounds ? bounds : null}
+          minZoom={1}
+          scrollWheelZoom={false}
+          touchZoom={true}
+          dragging={!screenWidthBelow680}
+          style={{ width: "100%", height: "100%", overflow: "hidden" }}
         >
           <TileLayer
-              id="mapbox/light-v10"
-              url={`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapAccessToken}`}
+            id="mapbox/light-v10"
+            url={`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapAccessToken}`}
           />
           <GeoJSON
-              data={topoData}
-              onEachFeature={onEachFeature}
-              style={(feature) => ({
-                color: "transparent",
-                weight: 2,
-                fillColor: !scores
-                    ? DEFAULT_NONE
-                    : !feature.properties.score
-                        ? DEFAULT_NONE
-                        : getEntityScaleColor(feature.properties.score, entityType),
-                fillOpacity: !feature.properties.score ? 0.2 : 0.5,
-                dashArray: "2",
-              })}
+            data={topoData}
+            onEachFeature={onEachFeature}
+            style={(feature) => ({
+              color: "transparent",
+              weight: 2,
+              fillColor: !scores
+                ? DEFAULT_NONE
+                : !feature.properties.score
+                  ? DEFAULT_NONE
+                  : getEntityScaleColor(feature.properties.score, entityType),
+              fillOpacity: !feature.properties.score ? 0.2 : 0.5,
+              dashArray: "2",
+            })}
           />
         </Map>
       </div>
+
+      {!hideLegend && (
+        <div style={{ width: "100%" }}>
+          <MapLegend
+            highThreshold={thresholdBounds.high ?? 0}
+            lowThreshold={thresholdBounds.low ?? 0}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

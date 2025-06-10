@@ -5439,19 +5439,22 @@ body {
 
 .map-legend {
   z-index: 10;
-  width: 60%;
+  width: 100%;
   --extreme-width: 15%;
-}
-.map-legend__title {
-  margin-bottom: -0.3rem;
 }
 .map-legend__labels-extreme {
   width: var(--extreme-width);
 }
+.map-legend__labels .label-indicator {
+  position: absolute;
+  top: -20px;
+  width: 1px;
+  height: 15px;
+  background-color: white;
+}
 .map-legend__bar-background {
   background: #efefee;
   position: relative;
-  border-radius: 0.5rem;
 }
 .map-legend__bar-wrapper {
   position: absolute;
@@ -5462,15 +5465,11 @@ body {
   height: 100%;
   width: 100%;
   background: linear-gradient(90deg, #ffcc30 0%, #ee695b 100%);
-  border-top-left-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
 }
 .map-legend__bar-extreme {
   height: 100%;
   width: var(--extreme-width);
   background-color: #ea5362;
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
 }
 
 .progress-bar-striped {
