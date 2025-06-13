@@ -23,7 +23,8 @@ const MapLegend = ({ lowThreshold, highThreshold, className, ...rest }) => {
 
   return (
     <div
-      className={clsx("card p-4 pt-7 map-legend", className)}
+      // className={clsx("card p-4 pt-7 map-legend", className)}
+      className={clsx("card p-2 pt-3 map-legend", className)}
       style={{ borderRadius: 0 }}
       {...rest}
     >

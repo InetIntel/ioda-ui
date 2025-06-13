@@ -58,7 +58,7 @@
 
 .dashboard {
   // padding-top: $header-height;
-  margin: $gutter-vertical auto;
+  // margin: $gutter-vertical auto;
 
   @include respond(phone-440) {
     margin: 3rem auto;

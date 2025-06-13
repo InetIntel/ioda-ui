@@ -574,7 +574,7 @@ const Dashboard = (props) => {
         entityType="country"
         onSelect={(entity) => handleResultClick(entity)}
         handleEntityChange={handleEntityChange}
-        disableMargin
+        disableMarginBottom
       />
       {/* <div className="w-full mb-6">
         <Radio.Group
@@ -608,6 +608,7 @@ const Dashboard = (props) => {
             onClick={(e) => handleSelectTab(e.key)}
             style={{
               borderBottom: "none", // Remove default border
+              height: "40px",
             }}
             theme="light"
           >
@@ -637,7 +638,7 @@ const Dashboard = (props) => {
                     height: "2px",
                     backgroundColor:
                       activeTabType === type ? "#1890ff" : "transparent",
-                    transition: "all 0.3s",
+                    transition: "all 0.2s",
                   }}
                 />
               </Menu.Item>

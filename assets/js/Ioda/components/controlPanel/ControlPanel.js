@@ -58,7 +58,7 @@ const ControlPanel = ({
   searchParams,
   handleEntityChange,
   showGlobalSignals,
-  disableMargin = false,
+  disableMarginBottom = false,
 }) => {
   const [customDuration, setCustomDuration] = useState(1);
   const [customUnit, setCustomUnit] = useState(UNITS.DAY);
@@ -1043,7 +1043,7 @@ const ControlPanel = ({
     <div>
       {/* <div className="flex items-start card p-6 mb-6 control-panel"> */}
       <div
-        className={`flex items-start card p-6 control-panel ${disableMargin ? "" : "mb-6"}`}
+        className={`flex items-start card p-6 control-panel ${disableMarginBottom ? "" : "mb-6"}`}
       >
         {/*Countries*/}
         <div className="control-panel__controls">

@@ -117,11 +117,11 @@ const DashboardTab = (props) => {
                 {/* LEFT 2 / 3 – Map (or Timeseries) */}
                 <div
                   ref={mapCardRef}
-                  className="col-2 p-4 pt-6 card flex flex-col "
+                  className="col-2 p-4 pt-4 card flex flex-col "
                 >
                   <div className="col-2 mw-0">
                     <div className="flex items-center mb-4" ref={config}>
-                      <div className="font-medium text-3xl flex items-center gap-2">
+                      <div className="font-medium text-2xl flex items-center gap-2">
                         <EnvironmentFilled style={{ color: "#8c8c8c" }} />
                         <span className="text-black">
                           {type === "country"
@@ -163,7 +163,7 @@ const DashboardTab = (props) => {
                           topoScores && (
                             <div
                               style={{
-                                height: "400px",
+                                height: "380px",
                               }}
                             >
                               <TopoMap
@@ -176,13 +176,14 @@ const DashboardTab = (props) => {
                           )}
                       </div>
                     )}
-                    <div className="flex mt-4 justify-end">
+                    {/* <div className="flex mt-4 justify-end"> */}
+                    <div className="flex mt-2 justify-end">
                       <TimeStamp from={from} until={until} />
                     </div>
                   </div>
                 </div>
                 <div
-                  className="col-1 card p-4 pt-6 flex flex-col"
+                  className="col-1 card p-4 pt-4 flex flex-col"
                   style={{
                     height: mapHeight || "40rem",
                     overflow: "hidden",
@@ -190,13 +191,13 @@ const DashboardTab = (props) => {
                     flexDirection: "column",
                   }}
                 >
-                  <div className="font-medium text-3xl flex items-center gap-2 mb-4">
+                  <div className="font-medium text-2xl flex items-center gap-2 mb-4">
                     <img
                       src={iconBsky}
                       alt="Bluesky icon"
                       style={{
-                        width: 20,
-                        height: 20,
+                        width: 15,
+                        height: 15,
                         filter: "grayscale(1)",
                         opacity: 0.8, // tweak until it visually matches #8c8c8c
                       }}
@@ -210,7 +211,7 @@ const DashboardTab = (props) => {
               </div>
               {/* ───────────────────────── 2nd ROW ───────────────────────── */}
               {activeTabType !== asn.type && (
-                <div className="card p-4 pt-6">
+                <div className="card p-4 pt-4">
                   <div className="flex items-center mb-4" ref={config}>
                     {/* <div className="font-medium text-3xl">
                       {type === "country"
@@ -221,7 +222,7 @@ const DashboardTab = (props) => {
                             ? "All " + asnOutages + " Timeline"
                             : null}
                     </div> */}
-                    <div className="font-medium text-3xl flex items-center gap-2">
+                    <div className="font-medium text-2xl flex items-center gap-2">
                       <ClockCircleFilled style={{ color: "#8c8c8c" }} />
                       <span className="text-black">
                         {type === "country"

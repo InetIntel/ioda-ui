@@ -4421,7 +4421,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 2rem;
+  padding: 1.5rem;
   background-color: #f9f9f9;
   border-radius: 8px;
   justify-content: space-between;
@@ -6183,9 +6183,6 @@ button[class*=searchButton] {
   object-fit: contain;
 }
 
-.dashboard {
-  margin: 1.5rem auto;
-}
 @media only screen and (max-width: 27.5em) {
   .dashboard {
     margin: 3rem auto;
