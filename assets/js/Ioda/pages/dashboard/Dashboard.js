@@ -31,7 +31,7 @@ import {
   getPreviousMinutesAsUTCSecondRange,
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
-import { Radio } from "antd";
+import { Radio, Menu } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
 import pMap from "p-map"; // tiny util: npm i p-map
 const TAB_VIEW_MAP = "map";
@@ -574,8 +574,9 @@ const Dashboard = (props) => {
         entityType="country"
         onSelect={(entity) => handleResultClick(entity)}
         handleEntityChange={handleEntityChange}
+        disableMargin
       />
-      <div className="w-full mb-6">
+      {/* <div className="w-full mb-6">
         <Radio.Group
           onChange={(e) => handleSelectTab(e?.target?.value)}
           value={activeTabType}
@@ -584,8 +585,65 @@ const Dashboard = (props) => {
           <Radio.Button value={country.type}>{countryTab}</Radio.Button>
           <Radio.Button value={region.type}>{regionTab}</Radio.Button>
           <Radio.Button value={asn.type}>{asnTab}</Radio.Button>
-        </Radio.Group>
-
+        </Radio.Group> */}
+      <div className="w-full">
+        <div className="mb-0">
+          {/* <Menu
+            mode="horizontal"
+            selectedKeys={[activeTabType]}
+            onClick={(e) => handleSelectTab(e.key)}
+            style={{
+              lineHeight: "46px", // Adjust height to match your design
+              borderBottom: "none", // Remove default border if needed
+              background: "transparent", // Or set your preferred background
+            }}
+          >
+            <Menu.Item key={country.type}>{countryTab}</Menu.Item>
+            <Menu.Item key={region.type}>{regionTab}</Menu.Item>
+            <Menu.Item key={asn.type}>{asnTab}</Menu.Item>
+          </Menu> */}
+          <Menu
+            mode="horizontal"
+            selectedKeys={[activeTabType]}
+            onClick={(e) => handleSelectTab(e.key)}
+            style={{
+              borderBottom: "none", // Remove default border
+            }}
+            theme="light"
+          >
+            {[country.type, region.type, asn.type].map((type) => (
+              <Menu.Item
+                key={type}
+                style={{
+                  position: "relative",
+                  padding: "0 16px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "200px",
+                }}
+              >
+                {type === country.type
+                  ? countryTab
+                  : type === region.type
+                    ? regionTab
+                    : asnTab}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    backgroundColor:
+                      activeTabType === type ? "#1890ff" : "transparent",
+                    transition: "all 0.3s",
+                  }}
+                />
+              </Menu.Item>
+            ))}
+          </Menu>
+        </div>
         {activeTabType !== asn.type ? (
           (topoData && topoScores) || until - from > dashboardTimeRangeLimit ? (
             <DashboardTab

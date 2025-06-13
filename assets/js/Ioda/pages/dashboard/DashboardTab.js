@@ -103,7 +103,7 @@ const DashboardTab = (props) => {
 
   return (
     // <div className="card p-8 dashboard__tab">
-    <div className="w-full dashboard__tab mt-6">
+    <div className="w-full dashboard__tab">
       {until - from < dashboardTimeRangeLimit ? (
         <div className="flex items-stretch gap-6 dashboard__tab-layout">
           {totalOutages === 0 ? (
