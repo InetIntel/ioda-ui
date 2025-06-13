@@ -161,12 +161,18 @@ const DashboardTab = (props) => {
                           summaryDataRaw &&
                           totalOutages &&
                           topoScores && (
-                            <TopoMap
-                              topoData={topoData}
-                              scores={topoScores}
-                              handleEntityShapeClick={handleEntityShapeClick}
-                              entityType={activeTabType?.toLowerCase()}
-                            />
+                            <div
+                              style={{
+                                height: "400px",
+                              }}
+                            >
+                              <TopoMap
+                                topoData={topoData}
+                                scores={topoScores}
+                                handleEntityShapeClick={handleEntityShapeClick}
+                                entityType={activeTabType?.toLowerCase()}
+                              />
+                            </div>
                           )}
                       </div>
                     )}
@@ -178,7 +184,7 @@ const DashboardTab = (props) => {
                 <div
                   className="col-1 card p-4 pt-6 flex flex-col"
                   style={{
-                    height: mapHeight || "55rem",
+                    height: mapHeight || "40rem",
                     overflow: "hidden",
                     display: "flex",
                     flexDirection: "column",

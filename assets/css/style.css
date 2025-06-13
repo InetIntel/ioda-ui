@@ -6206,9 +6206,6 @@ button[class*=searchButton] {
 .dashboard__tab-layout {
   flex-direction: column;
 }
-.dashboard__tab-map {
-  height: 52.9rem;
-}
 .dashboard__tab-table .table {
   margin-bottom: 0;
   height: inherit;
