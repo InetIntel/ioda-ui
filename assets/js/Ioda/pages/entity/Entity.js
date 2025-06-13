@@ -36,8 +36,8 @@
  */
 
 // React Imports
-import React, {useState, useEffect, useRef, useCallback} from "react";
-import {connect, useDispatch} from "react-redux";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { connect, useDispatch } from "react-redux";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 // Internationalization
 import T from "i18n-react";
@@ -45,7 +45,9 @@ import T from "i18n-react";
 import {
   getEntityMetadata,
   regionalSignalsTableSummaryDataAction,
-  asnSignalsTableSummaryDataAction, setRegionalSignalsTableSummaryDataAction, setAsnSignalsTableSummaryDataAction,
+  asnSignalsTableSummaryDataAction,
+  setRegionalSignalsTableSummaryDataAction,
+  setAsnSignalsTableSummaryDataAction,
 } from "../../data/ActionEntities";
 import { getTopoAction } from "../../data/ActionTopo";
 import { getDatasourcesAction } from "../../data/ActionDatasources";
@@ -53,7 +55,8 @@ import {
   searchAlerts,
   searchEvents,
   searchRelatedToMapSummary,
-  searchRelatedToTableSummary, setRelatedToMapSummary,
+  searchRelatedToTableSummary,
+  setRelatedToMapSummary,
   totalOutages,
 } from "../../data/ActionOutages";
 import {
@@ -66,10 +69,12 @@ import {
   getRawAsnSignalsMeritNtAction,
   getAdditionalRawSignalAction,
   getRawAsnSignalsUpstreamDelayLatency,
-  getRawAsnSignalsUpstreamDelayPenultAsnCount, getRawAsnSignalsApPacketLoss, getRawAsnSignalsApPacketDelay,
+  getRawAsnSignalsUpstreamDelayPenultAsnCount,
+  getRawAsnSignalsApPacketLoss,
+  getRawAsnSignalsApPacketDelay,
   setRawAsnSignalsPingSlash24Action,
   setRawAsnSignalsMeritNtAction,
-  setRawAsnSignalsBgpAction
+  setRawAsnSignalsBgpAction,
 } from "../../data/ActionSignals";
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
@@ -124,8 +129,10 @@ import {
   ShareAltOutlined,
 } from "@ant-design/icons";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
-import {getChartExportFileName, handleCSVDownload} from "./utils/EntityUtils";
-import {setTimeRange} from "../../data/TimeRangeAction";
+import { getChartExportFileName, handleCSVDownload } from "./utils/EntityUtils";
+import { setTimeRange } from "../../data/TimeRangeAction";
+import ApPacketLatencyAndLossRateComponent from "./components/ApPacketLatencyAndLossRateComponent";
+import UpstreamDelayComponent from "./components/UpstreamDelayComponent";
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -187,7 +194,6 @@ const fromDate =
 const untilDate = urlRange.urlUntilDate ?? getNowAsUTCSeconds();
 
 const Entity = (props) => {
-
   const {
     type,
     entityType,
@@ -214,7 +220,7 @@ const Entity = (props) => {
     rawAsnSignalsUpstreamDelayPenultAsnCount,
     rawAsnSignalsUpstreamDelayLatency,
     rawAsnSignalsApPacketLoss,
-    rawAsnSignalsApPacketDelay
+    rawAsnSignalsApPacketDelay,
   } = props;
   const timeSeriesChartRef = useRef();
 
@@ -239,33 +245,42 @@ const Entity = (props) => {
   const [xyChartOptions, setXyChartOptions] = useState(null);
   const [tsDataRaw, setTsDataRaw] = useState(null);
   const [tsDataNormalized, setTsDataNormalized] = useState(true);
-  const [tsDataDisplayOutageBands, setTsDataDisplayOutageBands] = useState(isAdvancedMode);
+  const [tsDataDisplayOutageBands, setTsDataDisplayOutageBands] =
+    useState(isAdvancedMode);
   const [tsDataLegendRangeFrom, setTsDataLegendRangeFrom] = useState(fromDate);
-  const [tsDataLegendRangeUntil, setTsDataLegendRangeUntil] = useState(untilDate);
+  const [tsDataLegendRangeUntil, setTsDataLegendRangeUntil] =
+    useState(untilDate);
   const [showResetZoomButton, setShowResetZoomButton] = useState(false);
   // Used for responsively styling the xy chart
-  const [tsDataScreenBelow970, setTsDataScreenBelow970] = useState( window.innerWidth <= 970);
-  const [tsDataScreenBelow678, setTsDataScreenBelow678] = useState( window.innerWidth <= 678);
+  const [tsDataScreenBelow970, setTsDataScreenBelow970] = useState(
+    window.innerWidth <= 970
+  );
+  const [tsDataScreenBelow678, setTsDataScreenBelow678] = useState(
+    window.innerWidth <= 678
+  );
   // display export modal
   const [showXyChartModal, setShowXyChartModal] = useState(false);
   // display link sharing modal
   const [showShareLinkModal, setShowShareLinkModal] = useState(false);
   // display annotation studio modal
   const [showMarkupStudioModal, setShowMarkupStudioModal] = useState(false);
-  const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] = useState("");
+  const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] =
+    useState("");
   // Used to track which series have visibility, needed for when switching between normalized/absolute values to maintain state
-  const [tsDataSeriesVisibleMap, setTsDataSeriesVisibleMap] =
-      useState(dataSource.reduce((result, item) => {
-        result[item] = true;
-        return result;
-      }, {})); //new Map(dataSource.map(k => {return [k,true]}))
-  const [prevDataSeriesVisibleMap, setPrevDataSeriesVisibleMap] =
-      useState(dataSource.reduce((result, item) => {
-        result[item] = true;
-        return result;
-      }, {}));
+  const [tsDataSeriesVisibleMap, setTsDataSeriesVisibleMap] = useState(
+    dataSource.reduce((result, item) => {
+      result[item] = true;
+      return result;
+    }, {})
+  ); //new Map(dataSource.map(k => {return [k,true]}))
+  const [prevDataSeriesVisibleMap, setPrevDataSeriesVisibleMap] = useState(
+    dataSource.reduce((result, item) => {
+      result[item] = true;
+      return result;
+    }, {})
+  );
   // Event/Table Data
-  const [currentTable, setCurrentTable] = useState("alert")
+  const [currentTable, setCurrentTable] = useState("alert");
   const [eventDataRaw, setEventDataRaw] = useState(null);
   const [alertDataRaw, setAlertDataRaw] = useState(null);
   // relatedTo entity Map
@@ -274,65 +289,116 @@ const Entity = (props) => {
   const [bounds, setBounds] = useState(null);
   const [summaryDataMapRaw, setSummaryDataMapRaw] = useState(null);
   // relatedTo entity Table
-  const [relatedToTableApiPageNumber, setRelatedToTableApiPageNumber] = useState(0);
-  const [relatedToTableSummaryProcessed, setRelatedToTableSummaryProcessed] = useState(null);
+  const [relatedToTableApiPageNumber, setRelatedToTableApiPageNumber] =
+    useState(0);
+  const [relatedToTableSummaryProcessed, setRelatedToTableSummaryProcessed] =
+    useState(null);
   const [relatedToTablePageNumber, setRelatedToTablePageNumber] = useState(0);
   // RawSignalsModal window display status
   const [showMapModal, setShowMapModal] = useState(false);
   const [showTableModal, setShowTableModal] = useState(false);
   // Signals RawSignalsModal Table on Map Panel
-  const [regionalSignalsTableSummaryDataProcessed, setRegionalSignalsTableSummaryDataProcessed] = useState([]);
-  const [regionalSignalsTableTotalCount, setRegionalSignalsTableTotalCount] = useState(0);
-  const [regionalSignalsTableEntitiesChecked, setRegionalSignalsTableEntitiesChecked] = useState(0);
+  const [
+    regionalSignalsTableSummaryDataProcessed,
+    setRegionalSignalsTableSummaryDataProcessed,
+  ] = useState([]);
+  const [regionalSignalsTableTotalCount, setRegionalSignalsTableTotalCount] =
+    useState(0);
+  const [
+    regionalSignalsTableEntitiesChecked,
+    setRegionalSignalsTableEntitiesChecked,
+  ] = useState(0);
   // Signals RawSignalsModal Table on Table Panel
-  const [asnSignalsTableSummaryDataProcessed, setAsnSignalsTableSummaryDataProcessed] = useState([]);
+  const [
+    asnSignalsTableSummaryDataProcessed,
+    setAsnSignalsTableSummaryDataProcessed,
+  ] = useState([]);
   const [asnSignalsTableTotalCount, setAsnSignalsTableTotalCount] = useState(0);
-  const [asnSignalsTableEntitiesChecked, setAsnSignalsTableEntitiesChecked] = useState(0);
+  const [asnSignalsTableEntitiesChecked, setAsnSignalsTableEntitiesChecked] =
+    useState(0);
   // Stacked Horizon Visual on Region Map Panel
   const [rawRegionalSignalsRawBgp, setRawRegionalSignalsRawBgp] = useState([]);
-  const [rawRegionalSignalsRawPingSlash24, setRawRegionalSignalsRawPingSlash24] = useState([]);
-  const [rawRegionalSignalsRawMeritNt, setRawRegionalSignalsRawMeritNt] = useState([]);
-  const [rawRegionalSignalsProcessedBgp, setRawRegionalSignalsProcessedBgp] = useState(null);
-  const [rawRegionalSignalsProcessedPingSlash24, setRawRegionalSignalsProcessedPingSlash24] = useState(null);
-  const [rawRegionalSignalsProcessedMeritNt, setRawRegionalSignalsProcessedMeritNt] = useState(null);
+  const [
+    rawRegionalSignalsRawPingSlash24,
+    setRawRegionalSignalsRawPingSlash24,
+  ] = useState([]);
+  const [rawRegionalSignalsRawMeritNt, setRawRegionalSignalsRawMeritNt] =
+    useState([]);
+  const [rawRegionalSignalsProcessedBgp, setRawRegionalSignalsProcessedBgp] =
+    useState(null);
+  const [
+    rawRegionalSignalsProcessedPingSlash24,
+    setRawRegionalSignalsProcessedPingSlash24,
+  ] = useState(null);
+  const [
+    rawRegionalSignalsProcessedMeritNt,
+    setRawRegionalSignalsProcessedMeritNt,
+  ] = useState(null);
   // tracking when to dump states if a new entity is chosen
-  const [rawRegionalSignalsLoaded, setRawRegionalSignalsLoaded] = useState(false);
+  const [rawRegionalSignalsLoaded, setRawRegionalSignalsLoaded] =
+    useState(false);
   // Stacked Horizon Visual on ASN Table Panel
   const [rawAsnSignalsRawBgp, setRawAsnSignalsRawBgp] = useState([]);
-  const [rawAsnSignalsRawPingSlash24, setRawAsnSignalsRawPingSlash24] = useState([]);
+  const [rawAsnSignalsRawPingSlash24, setRawAsnSignalsRawPingSlash24] =
+    useState([]);
   const [rawAsnSignalsRawMeritNt, setRawAsnSignalsRawMeritNt] = useState([]);
-  const [rawAsnSignalsProcessedBgp, setRawAsnSignalsProcessedBgp] = useState(null);
-  const [rawAsnSignalsProcessedPingSlash24, setRawAsnSignalsProcessedPingSlash24] = useState(null);
-  const [rawAsnSignalsProcessedMeritNt, setRawAsnSignalsProcessedMeritNt] = useState(null);
+  const [rawAsnSignalsProcessedBgp, setRawAsnSignalsProcessedBgp] =
+    useState(null);
+  const [
+    rawAsnSignalsProcessedPingSlash24,
+    setRawAsnSignalsProcessedPingSlash24,
+  ] = useState(null);
+  const [rawAsnSignalsProcessedMeritNt, setRawAsnSignalsProcessedMeritNt] =
+    useState(null);
   const [rawAsnSignalsLoaded, setRawAsnSignalsLoaded] = useState(false);
   // Shared between Modals
-  const [rawSignalsMaxEntitiesHtsError, setRawSignalsMaxEntitiesHtsError] = useState("");
-  const [regionalRawSignalsLoadAllButtonClicked, setRegionalRawSignalsLoadAllButtonClicked] = useState(false);
-  const [asnRawSignalsLoadAllButtonClicked, setAsnRawSignalsLoadAllButtonClicked] = useState(false);
-  const [loadAllButtonEntitiesLoading, setLoadAllButtonEntitiesLoading] = useState(false);
+  const [rawSignalsMaxEntitiesHtsError, setRawSignalsMaxEntitiesHtsError] =
+    useState("");
+  const [
+    regionalRawSignalsLoadAllButtonClicked,
+    setRegionalRawSignalsLoadAllButtonClicked,
+  ] = useState(false);
+  const [
+    asnRawSignalsLoadAllButtonClicked,
+    setAsnRawSignalsLoadAllButtonClicked,
+  ] = useState(false);
+  const [loadAllButtonEntitiesLoading, setLoadAllButtonEntitiesLoading] =
+    useState(false);
   const [checkMaxButtonLoading, setCheckMaxButtonLoading] = useState(false);
   const [uncheckAllButtonLoading, setUncheckAllButtonLoading] = useState(false);
   // additional raw signals are requested beyond what was initially loaded
-  const [additionalRawSignalRequestedPingSlash24, setAdditionalRawSignalRequestedPingSlash24] = useState(false);
-  const [additionalRawSignalRequestedBgp, setAdditionalRawSignalRequestedBgp] = useState(false);
-  const [additionalRawSignalRequestedMeritNt, setAdditionalRawSignalRequestedMeritNt] = useState(false);
+  const [
+    additionalRawSignalRequestedPingSlash24,
+    setAdditionalRawSignalRequestedPingSlash24,
+  ] = useState(false);
+  const [additionalRawSignalRequestedBgp, setAdditionalRawSignalRequestedBgp] =
+    useState(false);
+  const [
+    additionalRawSignalRequestedMeritNt,
+    setAdditionalRawSignalRequestedMeritNt,
+  ] = useState(false);
   const [currentTab, setCurrentTab] = useState(1);
   const [simplifiedView, setSimplifiedView] = useState(!isAdvancedMode);
   const [currentEntitiesChecked, setCurrentEntitiesChecked] = useState(100);
 
   // Popovers
-  const [displayChartSettingsPopover, setDisplayChartSettingsPopover] = useState(false);
-  const [displayChartSharePopover, setDisplayChartSharePopover] = useState(false);
+  const [displayChartSettingsPopover, setDisplayChartSettingsPopover] =
+    useState(false);
+  const [displayChartSharePopover, setDisplayChartSharePopover] =
+    useState(false);
   const [showGlobalSignals, setShowGlobalSignals] = useState(false);
-  const [showGlobalRegionalAsnSignals, setShowGlobalRegionalAsnSignals] = useState(false);
+  const [showGlobalRegionalAsnSignals, setShowGlobalRegionalAsnSignals] =
+    useState(false);
   const isCombiningRef = useRef(false);
   const isSignalReadyRef = useRef(false);
   const [globalSwitch, setGlobalSwitch] = useState(false);
-  const [globalRegionalAsnConnectivity, setGlobalRegionalAsnConnectivity] = useState(false);
+  const [globalRegionalAsnConnectivity, setGlobalRegionalAsnConnectivity] =
+    useState(false);
 
   //
   const [toggledEntity, setToggledEntity] = useState(null);
-  const [convertValuesForHtsVizCalled, setConvertValuesForHtsVizCalled] = useState(null);
+  const [convertValuesForHtsVizCalled, setConvertValuesForHtsVizCalled] =
+    useState(null);
 
   const initialTableLimit = 300;
   const initialHtsLimit = 100;
@@ -342,27 +408,31 @@ const Entity = (props) => {
 
   const getEntityName = (entityType, data) => {
     let entityName = data[0]["name"];
-    console.log(entityName)
-    if(entityType === "geoasn") {
-      entityName = data[0]?.subnames?.asn + ' ' + entityName;
+    console.log(entityName);
+    if (entityType === "geoasn") {
+      entityName = data[0]?.subnames?.asn + " " + entityName;
     }
     return entityName.replace(/--/g, "|");
-  }
+  };
 
-  function updateEntityMetaData (entityType, entityCode) {
+  function updateEntityMetaData(entityType, entityCode) {
     getEntityMetadata(entityType, entityCode).then((data) => {
-      console.log(data)
+      console.log(data);
       setEntityMetadata(data);
       setEntityName(getEntityName(entityType, data));
-      setParentEntityName(data[0]["attrs"]["country_name"] || data[0]["name"] || parentEntityName);
-      setParentEntityCode(data[0]["attrs"]["country_code"] || data[0]["code"] || parentEntityCode);
+      setParentEntityName(
+        data[0]["attrs"]["country_name"] || data[0]["name"] || parentEntityName
+      );
+      setParentEntityCode(
+        data[0]["attrs"]["country_code"] || data[0]["code"] || parentEntityCode
+      );
     });
   }
 
   useEffect(() => {
     // Get Topo Data for relatedTo Map
     // ToDo: update parameter to base value off of url entity type
-    if(entityMetadata && Object.keys(entityMetadata).length > 0) {
+    if (entityMetadata && Object.keys(entityMetadata).length > 0) {
       getDataTopo("region");
       getDataRelatedToMapSummary("region");
       getDataRelatedToTableSummary();
@@ -371,10 +441,10 @@ const Entity = (props) => {
 
   useEffect(() => {
     // update outage summary data table on entity page (first one)
-    if(entityTypeState === "asn") {
+    if (entityTypeState === "asn") {
       return;
     }
-    if(entityMetadata && Object.keys(entityMetadata).length > 0) {
+    if (entityMetadata && Object.keys(entityMetadata).length > 0) {
       setRawAsnSignalsProcessedBgp(null);
       setRawAsnSignalsProcessedMeritNt(null);
       setRawAsnSignalsRawPingSlash24(null);
@@ -383,10 +453,10 @@ const Entity = (props) => {
   }, [showGlobalSignals, showGlobalRegionalAsnSignals]);
 
   useEffect(() => {
-    if(entityTypeState !== "asn") {
+    if (entityTypeState !== "asn") {
       return;
     }
-    if(entityMetadata && Object.keys(entityMetadata).length > 0) {
+    if (entityMetadata && Object.keys(entityMetadata).length > 0) {
       getDataRelatedToMapSummary("region");
     }
   }, [showGlobalRegionalAsnSignals, showGlobalSignals]);
@@ -416,163 +486,170 @@ const Entity = (props) => {
       return;
     }
     const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(
-        fromDate,
-        untilDate
+      fromDate,
+      untilDate
     );
     // Overview Panel
     // Pull events from the same range as time series signal to show all
     // alerts in the navigator range
 
-    if(entityTypeState === "asn" && entityCodeState && entityCodeState.includes("-")) {
+    if (
+      entityTypeState === "asn" &&
+      entityCodeState &&
+      entityCodeState.includes("-")
+    ) {
       props.getSignalsAction(
-          "geoasn",
-          entityCodeState,
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          3000,
-          sourceParams
+        "geoasn",
+        entityCodeState,
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        3000,
+        sourceParams
       );
       props.searchEventsAction(
-          timeSignalFrom,
-          timeSignalUntil,
-          "geoasn",
-          entityCodeState
+        timeSignalFrom,
+        timeSignalUntil,
+        "geoasn",
+        entityCodeState
       );
       props.searchAlertsAction(
-          timeSignalFrom,
-          timeSignalUntil,
-          "geoasn",
-          entityCodeState,
-          null,
-          null,
-          null
+        timeSignalFrom,
+        timeSignalUntil,
+        "geoasn",
+        entityCodeState,
+        null,
+        null,
+        null
       );
-    }
-    else {
+    } else {
       props.getSignalsAction(
-          entityTypeState,
-          entityCodeState,
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          3000,
-          sourceParams
+        entityTypeState,
+        entityCodeState,
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        3000,
+        sourceParams
       );
       props.searchEventsAction(
-          timeSignalFrom,
-          timeSignalUntil,
-          entityTypeState,
-          entityCodeState
+        timeSignalFrom,
+        timeSignalUntil,
+        entityTypeState,
+        entityCodeState
       );
       props.searchAlertsAction(
-          timeSignalFrom,
-          timeSignalUntil,
-          entityTypeState,
-          entityCodeState,
-          null,
-          null,
-          null
+        timeSignalFrom,
+        timeSignalUntil,
+        entityTypeState,
+        entityCodeState,
+        null,
+        null,
+        null
       );
     }
 
-    if(entityTypeState === "asn") {
-      const asnCode = entityCodeState.includes("-") ? entityCodeState.split("-")[0] : entityCodeState;
+    if (entityTypeState === "asn") {
+      const asnCode = entityCodeState.includes("-")
+        ? entityCodeState.split("-")[0]
+        : entityCodeState;
       props.getRawAsnSignalsUpstreamDelayLatency(
-          entityTypeState,
-          [asnCode],
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          "desc",
-          "upstream-delay-penult-e2e-latency"
+        entityTypeState,
+        [asnCode],
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        "desc",
+        "upstream-delay-penult-e2e-latency"
       );
       props.getRawAsnSignalsUpstreamDelayPenultAsnCount(
-          entityTypeState,
-          [asnCode],
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          "desc",
-          "upstream-delay-penult-asns"
+        entityTypeState,
+        [asnCode],
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        "desc",
+        "upstream-delay-penult-asns"
       );
     }
 
-    if(entityCodeState && !entityCodeState.includes("-")) {
+    if (entityCodeState && !entityCodeState.includes("-")) {
       // const [timeUpstreamDelayFrom, timeUpstreamDelayUntil]  = [1742964120, 1742968120]
 
       props.getRawAsnSignalsApPacketLoss(
-          entityTypeState,
-          [entityCodeState],
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          "desc",
-          "ping-slash24-loss"
+        entityTypeState,
+        [entityCodeState],
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        "desc",
+        "ping-slash24-loss"
       );
       props.getRawAsnSignalsApPacketDelay(
-          entityTypeState,
-          [entityCodeState],
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          "desc",
-          "ping-slash24-latency"
+        entityTypeState,
+        [entityCodeState],
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        "desc",
+        "ping-slash24-latency"
       );
     }
 
     // Get entity name from code provided in url
-    if(entityCodeState.includes("-")) {
+    if (entityCodeState.includes("-")) {
       updateEntityMetaData("geoasn", entityCodeState);
-    }
-    else {
+    } else {
       updateEntityMetaData(entityTypeState, entityCodeState);
     }
   }, [untilDate, fromDate, entityType, entityCode]);
 
   useEffect(() => {
-    if(props.datasources) {
+    if (props.datasources) {
       setDataSources(props.datasources);
     }
   }, [props.datasources]);
 
   useEffect(() => {
     const { timeSignalFrom, timeSignalUntil } = getSignalTimeRange(from, until);
-    if(!sourceParams) return;
-    if(entityTypeState === "asn" && entityCodeState && entityCodeState.includes("-")) {
+    if (!sourceParams) return;
+    if (
+      entityTypeState === "asn" &&
+      entityCodeState &&
+      entityCodeState.includes("-")
+    ) {
       props.getSignalsAction(
-          "geoasn",
-          entityCodeState,
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          3000,
-          sourceParams
+        "geoasn",
+        entityCodeState,
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        3000,
+        sourceParams
       );
-    }
-    else {
+    } else {
       props.getSignalsAction(
-          entityTypeState,
-          entityCodeState,
-          timeSignalFrom,
-          timeSignalUntil,
-          null,
-          3000,
-          sourceParams
+        entityTypeState,
+        entityCodeState,
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        3000,
+        sourceParams
       );
     }
   }, [sourceParams, from, until, entityTypeState, entityCodeState]);
 
   // Make API call for data to populate XY Chart
   useEffect(() => {
-    if(signals) {
+    if (signals) {
       // Map props to state and initiate data processing
       setTsDataRaw(signals);
     }
   }, [signals]);
 
   useEffect(() => {
-    if(tsDataRaw) {
+    if (tsDataRaw) {
       // For XY Plotted Graph
       convertValuesForXyViz();
     }
@@ -580,32 +657,31 @@ const Entity = (props) => {
 
   useEffect(() => {
     // Make API call for data to populate event table
-    if(props.events) {
+    if (props.events) {
       setEventDataRaw(props.events);
     }
   }, [props.events]);
 
   // After API call for Alert Table data completes, check for lengths to set display counts and then process to populate
   useEffect(() => {
-    if(alerts) {
+    if (alerts) {
       setAlertDataRaw(alerts);
     }
   }, [alerts]);
 
   // After API call for outage summary data completes, pass summary data to map function for data merging
   useEffect(() => {
-    if(relatedToMapSummary) {
-      if(entityTypeState !== "asn") {
+    if (relatedToMapSummary) {
+      if (entityTypeState !== "asn") {
         setSummaryDataMapRaw(relatedToMapSummary);
-      }
-      else {
+      } else {
         // if(showGlobalRegionalAsnSignals) {
         //   setSummaryDataMapRaw(relatedToMapSummary);
         // }
         // else {
         //   const filteredRegionData = relatedToMapSummary.filter(item => item.entity?.subnames?.region !== undefined);
         //   console.log(filteredRegionData)
-          setSummaryDataMapRaw(relatedToMapSummary);
+        setSummaryDataMapRaw(relatedToMapSummary);
         // }
       }
       getMapScores();
@@ -613,20 +689,21 @@ const Entity = (props) => {
   }, [relatedToMapSummary, showGlobalRegionalAsnSignals]);
 
   useEffect(() => {
-    if(summaryDataMapRaw && topoData) {
+    if (summaryDataMapRaw && topoData) {
       getMapScores();
     }
   }, [summaryDataMapRaw, topoData]);
 
   // After API call for outage summary data completes, pass summary data to table component for data merging
   useEffect(() => {
-    if(relatedToTableSummary) { // asn summary table
+    if (relatedToTableSummary) {
+      // asn summary table
       _convertValuesForSummaryTable(); // set variable relatedToTableSummaryProcessed
     }
   }, [relatedToTableSummary]);
 
   useEffect(() => {
-    const fetchRegionalSignalsData = async() => {
+    const fetchRegionalSignalsData = async () => {
       if (showMapModal && !rawRegionalSignalsLoaded) {
         let entityType;
         let relatedToEntityType, relatedToEntityCode;
@@ -639,12 +716,15 @@ const Entity = (props) => {
           case "region":
             entityType = "region";
             relatedToEntityType = "country";
-            relatedToEntityCode = entityMetadata[0]["attrs"]["fqid"].split(".")[3];
+            relatedToEntityCode =
+              entityMetadata[0]["attrs"]["fqid"].split(".")[3];
             break;
           case "asn":
             entityType = showGlobalRegionalAsnSignals ? "region" : "geoasn";
             relatedToEntityType = entityTypeState;
-            relatedToEntityCode = entityCodeState.includes("-") ? entityCodeState.split("-")[0] : entityCodeState;
+            relatedToEntityCode = entityCodeState.includes("-")
+              ? entityCodeState.split("-")[0]
+              : entityCodeState;
             break;
           default:
             console.warn("Unknown entityTypeState:", entityTypeState);
@@ -653,9 +733,9 @@ const Entity = (props) => {
 
         try {
           await props.regionalSignalsTableSummaryDataAction(
-              entityType,
-              relatedToEntityType,
-              relatedToEntityCode
+            entityType,
+            relatedToEntityType,
+            relatedToEntityCode
           );
           setRawRegionalSignalsLoaded(true); // ✅ Only after successful fetch
         } catch (error) {
@@ -665,7 +745,7 @@ const Entity = (props) => {
         setRawRegionalSignalsLoaded(false);
       }
     };
-      fetchRegionalSignalsData();
+    fetchRegionalSignalsData();
   }, [showMapModal, showGlobalRegionalAsnSignals]);
 
   useEffect(() => {
@@ -678,61 +758,68 @@ const Entity = (props) => {
   }, [regionalSignalsTableSummaryData, relatedToMapSummary]);
 
   useEffect(() => {
-    if(asnSignalsTableSummaryData && relatedToTableSummary) {
+    if (asnSignalsTableSummaryData && relatedToTableSummary) {
       const timeoutId = setTimeout(() => {
-        if(entityTypeState === "asn") {
+        if (entityTypeState === "asn") {
           _combineValuesForSignalsTable("country");
-        }
-        else {
+        } else {
           _combineValuesForSignalsTable("asn");
         }
-    }, 500);
+      }, 500);
       return () => clearTimeout(timeoutId);
     }
   }, [asnSignalsTableSummaryData, relatedToTableSummary]);
 
   useEffect(() => {
-      // For XY Plotted Graph
-      convertValuesForXyViz();
+    // For XY Plotted Graph
+    convertValuesForXyViz();
   }, [tsDataNormalized]);
 
   useEffect(() => {
-      // For XY Plotted Graph
-      convertValuesForXyViz();
+    // For XY Plotted Graph
+    convertValuesForXyViz();
   }, [tsDataDisplayOutageBands]);
 
   useEffect(() => {
-    if(tsDataScreenBelow678) {
+    if (tsDataScreenBelow678) {
       // For XY Plotted Graph
       convertValuesForXyViz();
     }
   }, [tsDataScreenBelow678]);
 
   useEffect(() => {
-    if(tsDataSeriesVisibleMap) {
+    if (tsDataSeriesVisibleMap) {
       // For XY Plotted Graph
       convertValuesForXyViz();
     }
   }, [tsDataSeriesVisibleMap]);
 
-
   // data for regional signals table Ping-Slash24 Source
   useEffect(() => {
     if (rawRegionalSignalsPingSlash24?.length && showMapModal) {
       const rawRegionalSignals = rawRegionalSignalsPingSlash24
-          .filter((signal) => signal.length) //Remove empty items and assign to proper state. Then call next function
-          .map((signal) => signal[0]);
+        .filter((signal) => signal.length) //Remove empty items and assign to proper state. Then call next function
+        .map((signal) => signal[0]);
       setRawRegionalSignalsRawPingSlash24(rawRegionalSignals);
-      convertValuesForHtsViz("ping-slash24", "region", null, rawRegionalSignals);
+      convertValuesForHtsViz(
+        "ping-slash24",
+        "region",
+        null,
+        rawRegionalSignals
+      );
     }
-  }, [rawRegionalSignalsPingSlash24, showMapModal, showGlobalRegionalAsnSignals]);
+  }, [
+    rawRegionalSignalsPingSlash24,
+    showMapModal,
+    showGlobalRegionalAsnSignals,
+  ]);
 
   // data for regional signals table BGP Source
   useEffect(() => {
     if (rawRegionalSignalsBgp?.length && showMapModal) {
       const rawRegionalSignals = rawRegionalSignalsBgp
-          .filter((signal) => signal.length) // Remove empty items
-          .map((signal) => signal[0]); // Extract the first element
+        .filter((signal) => signal.length) // Remove empty items
+        .map((signal) => signal[0]); // Extract the first element
       setRawRegionalSignalsRawBgp(rawRegionalSignals);
       convertValuesForHtsViz("bgp", "region", null, rawRegionalSignals);
     }
@@ -742,8 +829,8 @@ const Entity = (props) => {
   useEffect(() => {
     if (rawRegionalSignalsMeritNt?.length && showMapModal) {
       const rawRegionalSignals = rawRegionalSignalsMeritNt
-          .filter((signal) => signal.length) // Remove empty items
-          .map((signal) => signal[0]); // Extract the first element
+        .filter((signal) => signal.length) // Remove empty items
+        .map((signal) => signal[0]); // Extract the first element
       setRawRegionalSignalsRawMeritNt(rawRegionalSignals);
       convertValuesForHtsViz("merit-nt", "region", null, rawRegionalSignals);
     }
@@ -753,8 +840,8 @@ const Entity = (props) => {
   useEffect(() => {
     if (rawAsnSignalsPingSlash24?.length && showTableModal) {
       const rawAsnSignals = rawAsnSignalsPingSlash24
-          .filter((signal) => signal.length) // Remove empty items
-          .map((signal) => signal[0]); // Extract the first element
+        .filter((signal) => signal.length) // Remove empty items
+        .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawPingSlash24(rawAsnSignals);
       convertValuesForHtsViz("ping-slash24", "asn", null, rawAsnSignals);
     }
@@ -764,20 +851,19 @@ const Entity = (props) => {
   useEffect(() => {
     if (rawAsnSignalsBgp?.length && showTableModal) {
       const rawAsnSignals = rawAsnSignalsBgp
-          .filter((signal) => signal.length) // Remove empty items
-          .map((signal) => signal[0]); // Extract the first element
+        .filter((signal) => signal.length) // Remove empty items
+        .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawBgp(rawAsnSignals);
       convertValuesForHtsViz("bgp", "asn", null, rawAsnSignals);
     }
   }, [rawAsnSignalsBgp, showTableModal]);
 
-
   // data for asn signals table Merit-NT Source
   useEffect(() => {
     if (rawAsnSignalsMeritNt?.length && showTableModal) {
       const rawAsnSignals = rawAsnSignalsMeritNt
-          .filter((signal) => signal.length) // Remove empty items
-          .map((signal) => signal[0]); // Extract the first element
+        .filter((signal) => signal.length) // Remove empty items
+        .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawMeritNt(rawAsnSignals);
       convertValuesForHtsViz("merit-nt", "asn", null, rawAsnSignals);
     }
@@ -785,25 +871,25 @@ const Entity = (props) => {
 
   // data for additional raw feed signals to use after load all button is clicked
   useEffect(() => {
-    if(!additionalRawSignal) return;
+    if (!additionalRawSignal) return;
     const rawSignal = additionalRawSignal[0][0];
     if (rawSignal !== undefined) {
       switch (rawSignal["entityType"]) {
         case "region":
           switch (rawSignal["datasource"]) {
             case "ping-slash24":
-              setRawRegionalSignalsRawPingSlash24(
-                  (prevState) => prevState.concat(additionalRawSignal[0])
+              setRawRegionalSignalsRawPingSlash24((prevState) =>
+                prevState.concat(additionalRawSignal[0])
               );
               break;
             case "bgp":
-             setRawRegionalSignalsRawBgp(
-                 (prevState) => prevState.concat(additionalRawSignal[0])
-             );
+              setRawRegionalSignalsRawBgp((prevState) =>
+                prevState.concat(additionalRawSignal[0])
+              );
               break;
             case "merit-nt":
-              setRawRegionalSignalsRawMeritNt((prevState) => prevState.concat(
-                  additionalRawSignal[0])
+              setRawRegionalSignalsRawMeritNt((prevState) =>
+                prevState.concat(additionalRawSignal[0])
               );
               break;
           }
@@ -811,18 +897,18 @@ const Entity = (props) => {
         case "asn":
           switch (rawSignal["datasource"]) {
             case "ping-slash24":
-              setRawAsnSignalsRawPingSlash24((prevState) => prevState.concat(
-                  additionalRawSignal[0])
+              setRawAsnSignalsRawPingSlash24((prevState) =>
+                prevState.concat(additionalRawSignal[0])
               );
               break;
             case "bgp":
-              setRawAsnSignalsRawBgp((prevState) => prevState.concat(
-                 additionalRawSignal[0])
+              setRawAsnSignalsRawBgp((prevState) =>
+                prevState.concat(additionalRawSignal[0])
               );
               break;
             case "merit-nt":
-              setRawAsnSignalsRawMeritNt((prevState) => prevState.concat(
-                  additionalRawSignal[0])
+              setRawAsnSignalsRawMeritNt((prevState) =>
+                prevState.concat(additionalRawSignal[0])
               );
               break;
           }
@@ -833,7 +919,7 @@ const Entity = (props) => {
 
   useEffect(() => {
     // Rerender chart and set navigator bounds
-    if(xyChartOptions) {
+    if (xyChartOptions) {
       renderXyChart();
       const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
       const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
@@ -844,10 +930,21 @@ const Entity = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       if (showTableModal && !rawAsnSignalsLoaded) {
-        const entityTypeProp = entityTypeState === "asn" ? "country" : (showGlobalSignals ? "asn" : "geoasn");
+        const entityTypeProp =
+          entityTypeState === "asn"
+            ? "country"
+            : showGlobalSignals
+              ? "asn"
+              : "geoasn";
         try {
-          const geoCode = entityCodeState.includes("-") ? entityCodeState.split("-")[0] : entityCodeState;
-          await props.asnSignalsTableSummaryDataAction(entityTypeProp, entityTypeState, geoCode);
+          const geoCode = entityCodeState.includes("-")
+            ? entityCodeState.split("-")[0]
+            : entityCodeState;
+          await props.asnSignalsTableSummaryDataAction(
+            entityTypeProp,
+            entityTypeState,
+            geoCode
+          );
           setRawAsnSignalsLoaded(true);
         } catch (err) {
           console.error("Failed to fetch ASN Signals Table Summary:", err);
@@ -860,26 +957,36 @@ const Entity = (props) => {
     fetchData();
   }, [showTableModal, showGlobalSignals]);
 
-
-
   useEffect(() => {
-    if(regionalSignalsTableSummaryDataProcessed && Object.keys(regionalSignalsTableSummaryDataProcessed).length > 0) {
-        getSignalsHtsDataEvents("region", "ping-slash24",regionalSignalsTableSummaryDataProcessed);
-        getSignalsHtsDataEvents("region", "bgp", regionalSignalsTableSummaryDataProcessed);
-        getSignalsHtsDataEvents("region", "merit-nt", regionalSignalsTableSummaryDataProcessed);
-      }
+    if (
+      regionalSignalsTableSummaryDataProcessed &&
+      Object.keys(regionalSignalsTableSummaryDataProcessed).length > 0
+    ) {
+      getSignalsHtsDataEvents(
+        "region",
+        "ping-slash24",
+        regionalSignalsTableSummaryDataProcessed
+      );
+      getSignalsHtsDataEvents(
+        "region",
+        "bgp",
+        regionalSignalsTableSummaryDataProcessed
+      );
+      getSignalsHtsDataEvents(
+        "region",
+        "merit-nt",
+        regionalSignalsTableSummaryDataProcessed
+      );
+    }
   }, [regionalSignalsTableSummaryDataProcessed]);
 
   useEffect(() => {
-
-    if(!convertValuesForHtsVizCalled) return;
-    if(convertValuesForHtsVizCalled === "asn") {
+    if (!convertValuesForHtsVizCalled) return;
+    if (convertValuesForHtsVizCalled === "asn") {
       convertValuesForHtsViz("ping-slash24", "asn");
       convertValuesForHtsViz("bgp", "asn");
       convertValuesForHtsViz("merit-nt", "asn");
-
-    }
-    else if (convertValuesForHtsVizCalled === "region") {
+    } else if (convertValuesForHtsVizCalled === "region") {
       convertValuesForHtsViz("ping-slash24", "region");
       convertValuesForHtsViz("bgp", "region");
       convertValuesForHtsViz("merit-nt", "region");
@@ -889,9 +996,9 @@ const Entity = (props) => {
 
   // Control Panel
   // manage the date selected in the input
-  function handleTimeFrame ({ _from, _until }) {
+  function handleTimeFrame({ _from, _until }) {
     navigate(
-        `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
+      `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
     );
   }
 
@@ -905,14 +1012,12 @@ const Entity = (props) => {
 
   function handleEntityChange(url) {
     navigate(
-        hasDateRangeInUrl()
-            ? `/${url}?from=${from}&until=${until}`
-            : `/${url}`
+      hasDateRangeInUrl() ? `/${url}?from=${from}&until=${until}` : `/${url}`
     );
   }
 
   // Define what happens when user clicks suggested search result entry
-  function handleResultClick(entity){
+  function handleResultClick(entity) {
     if (!entity) return;
     if (!entity.url) return;
     handleEntityChange(entity.url);
@@ -929,9 +1034,7 @@ const Entity = (props) => {
   }
 
   function getChartExportTitle() {
-    return `${T.translate(
-      "entity.xyChartTitle"
-    )} ${entityName?.trim()}`;
+    return `${T.translate("entity.xyChartTitle")} ${entityName?.trim()}`;
   }
 
   function getChartExportSubtitle() {
@@ -959,7 +1062,7 @@ const Entity = (props) => {
   // XY Chart Functions
   // format data from api to be compatible with chart visual
   function convertValuesForXyViz() {
-    if(!tsDataRaw) {
+    if (!tsDataRaw) {
       return;
     }
     const signalValues = [];
@@ -982,9 +1085,7 @@ const Entity = (props) => {
       const seriesMax = getMaxValue(datasource.values);
       if (tsDataSeriesVisibleMap[id]) {
         seriesMaxes[id] = tsDataNormalized ? 100 : seriesMax;
-        seriesMins[id] = tsDataNormalized
-          ? 0
-          : getMinValue(datasource.values);
+        seriesMins[id] = tsDataNormalized ? 0 : getMinValue(datasource.values);
       }
 
       if (!datasource.values) {
@@ -1362,7 +1463,7 @@ const Entity = (props) => {
     setXyChartOptions(chartOptions);
   }
 
-  function setDefaultNavigatorTimeRange(){
+  function setDefaultNavigatorTimeRange() {
     const navigatorLowerBound = secondsToMilliseconds(from);
     const navigatorUpperBound = secondsToMilliseconds(until);
 
@@ -1486,7 +1587,7 @@ const Entity = (props) => {
   }
 
   // function for when zoom/pan is used
-  function xyPlotRangeChanged (event) {
+  function xyPlotRangeChanged(event) {
     if (!event.target.series) {
       return;
     }
@@ -1505,8 +1606,7 @@ const Entity = (props) => {
     const axisMin = millisecondsToSeconds(event.min);
     const axisMax = millisecondsToSeconds(event.max);
 
-    const isDefaultRange =
-      axisMin === from && axisMax === until;
+    const isDefaultRange = axisMin === from && axisMax === until;
 
     setTsDataLegendRangeFrom(axisMin);
     setTsDataLegendRangeUntil(axisMax);
@@ -1514,7 +1614,7 @@ const Entity = (props) => {
   }
 
   // populate xy chart UI
-  function renderXyChart () {
+  function renderXyChart() {
     return (
       xyChartOptions && (
         <div className="entity__chart">
@@ -1532,7 +1632,7 @@ const Entity = (props) => {
     setDisplayChartSettingsPopover(val);
   }
 
-  function handleDisplayChartSharePopover(val){
+  function handleDisplayChartSharePopover(val) {
     setDisplayChartSharePopover(val);
   }
 
@@ -1540,7 +1640,7 @@ const Entity = (props) => {
    * Trigger a download of the chart from outside the chart context. Used in the
    * ShareLinkModal to trigger a direct download
    */
-  function manuallyDownloadChart(imageType){
+  function manuallyDownloadChart(imageType) {
     if (!timeSeriesChartRef.current?.chart) {
       return;
     }
@@ -1622,7 +1722,7 @@ const Entity = (props) => {
   /**
    * Get an SVG node of the chart
    */
-  function getChartSvg()  {
+  function getChartSvg() {
     if (timeSeriesChartRef.current) {
       return timeSeriesChartRef.current.chart.getSVG();
     }
@@ -1640,7 +1740,7 @@ const Entity = (props) => {
 
   // toggle normalized values and absolute values
   function changeXyChartNormalization() {
-    setTsDataNormalized((prevState) => (!prevState));
+    setTsDataNormalized((prevState) => !prevState);
   }
 
   // toggle any populated alert bands to be displayed in chart
@@ -1665,7 +1765,7 @@ const Entity = (props) => {
     setShowShareLinkModal(true);
   }
 
-  function hideShareLinkModal(){
+  function hideShareLinkModal() {
     setShowShareLinkModal(false);
   }
 
@@ -1684,8 +1784,7 @@ const Entity = (props) => {
       )
       .then((data) => {
         setTopoData(data);
-      }
-    )
+      });
   }
   // Process Geo data from api, attribute outage scores to a new topoData property where possible, then render Map
   function getMapScores() {
@@ -1697,15 +1796,16 @@ const Entity = (props) => {
       // get Topographic info for a country if it has outages
       summaryDataMapRaw.map((outage) => {
         let topoItemIndex;
-        if(outage.entity.type === 'geoasn') {
+        if (outage.entity.type === "geoasn") {
           topoItemIndex = topoData.features.findIndex(
-              (topoItem) => topoItem.properties.name === outage.entity.subnames.region
+            (topoItem) =>
+              topoItem.properties.name === outage.entity.subnames.region
           );
-        }
-        else {
+        } else {
           topoItemIndex = topoData.features.findIndex(
-              (topoItem) => topoItem.properties.name === outage.entity.name
-                  && topoItem.properties.iso2cc === outage.entity.attrs.country_code
+            (topoItem) =>
+              topoItem.properties.name === outage.entity.name &&
+              topoItem.properties.iso2cc === outage.entity.attrs.country_code
           );
         }
         if (topoItemIndex > 0) {
@@ -1745,13 +1845,11 @@ const Entity = (props) => {
         break;
       case "region":
         relatedToEntityType = "country";
-        relatedToEntityCode =
-          entityMetadata[0]["attrs"]["fqid"].split(".")[3];
+        relatedToEntityCode = entityMetadata[0]["attrs"]["fqid"].split(".")[3];
         break;
       case "asn":
         relatedToEntityType = "asn";
-        relatedToEntityCode =
-          entityMetadata[0]["attrs"]["fqid"].split(".")[1];
+        relatedToEntityCode = entityMetadata[0]["attrs"]["fqid"].split(".")[1];
         // entityTypeProp = (showGlobalRegionalAsnSignals) ? "region" : "geoasn";
         entityTypeProp = "region";
         break;
@@ -1779,15 +1877,14 @@ const Entity = (props) => {
   }, []);
 
   // Show/hide modal when button is clicked on either panel
-  const toggleModal = useCallback((modalLocation)=> {
+  const toggleModal = useCallback((modalLocation) => {
     if (modalLocation === "map") {
       // Get related entities used on table in map modal
       setShowMapModal((prev) => !prev);
-
     } else if (modalLocation === "table") {
       setShowTableModal((prev) => !prev);
     }
-  }, [])
+  }, []);
 
   // Summary Outage Table for related ASNs
   // Make API call to retrieve summary outage data to populate on map
@@ -1812,7 +1909,8 @@ const Entity = (props) => {
       case "asn":
         entityType = "country";
         relatedToEntityType = "asn";
-        relatedToEntityCode = entityMetadata[0]?.attrs?.fqid?.split(".")[1] || null;
+        relatedToEntityCode =
+          entityMetadata[0]?.attrs?.fqid?.split(".")[1] || null;
         break;
     }
     props.searchRelatedToTableSummary(
@@ -1828,14 +1926,16 @@ const Entity = (props) => {
     );
   }
   // Make raw values from api compatible with table component
-  function _convertValuesForSummaryTable(){
+  function _convertValuesForSummaryTable() {
     let summaryData = convertValuesForSummaryTable(relatedToTableSummary);
     if (relatedToTableApiPageNumber === 0) {
       setRelatedToTableSummaryProcessed(summaryData);
     }
     // If the end of the data list is hit but more data exists, fetch it and tack it on
     if (relatedToTableApiPageNumber > 0) {
-      setRelatedToTableSummaryProcessed((prevState) => prevState.concat(summaryData));
+      setRelatedToTableSummaryProcessed((prevState) =>
+        prevState.concat(summaryData)
+      );
     }
   }
 
@@ -1846,7 +1946,9 @@ const Entity = (props) => {
     let order = "desc";
     let entities;
     let entityTypeProp;
-    switch (entityType) { // panelType
+    switch (
+      entityType // panelType
+    ) {
       case "region":
         entities = signalsData
           .map((entity) => {
@@ -1855,12 +1957,17 @@ const Entity = (props) => {
               return entity.entityCode;
             }
           })
-            .slice(0, initialTableLimit)
+          .slice(0, initialTableLimit)
           .toString();
-        if(entities.length === 0){
+        if (entities.length === 0) {
           return;
         }
-        entityTypeProp = entityTypeState === "asn" ? (showGlobalRegionalAsnSignals ? "region" : "geoasn") : entityType;
+        entityTypeProp =
+          entityTypeState === "asn"
+            ? showGlobalRegionalAsnSignals
+              ? "region"
+              : "geoasn"
+            : entityType;
         switch (dataSource) {
           case "ping-slash24":
             props.getRawRegionalSignalsPingSlash24Action(
@@ -1871,7 +1978,7 @@ const Entity = (props) => {
               attr,
               order,
               dataSource,
-                initialTableLimit
+              initialTableLimit
             );
             break;
           case "bgp":
@@ -1883,7 +1990,7 @@ const Entity = (props) => {
               attr,
               order,
               dataSource,
-                initialTableLimit
+              initialTableLimit
             );
             break;
           case "merit-nt":
@@ -1895,78 +2002,83 @@ const Entity = (props) => {
               attr,
               order,
               dataSource,
-                initialTableLimit
+              initialTableLimit
             );
             break;
         }
         break;
       case "asn":
-          entities = signalsData
+        entities = signalsData
           .map((entity) => {
             // some entities don't return a code to be used in an api call, seem to default to '??' in that event
             if (entity.code !== "??") {
               return entity.entityCode;
             }
           })
-              .slice(0, initialTableLimit)
+          .slice(0, initialTableLimit)
           .toString();
-        if(entities.length === 0){
+        if (entities.length === 0) {
           return;
         }
         entityTypeProp = "country";
         switch (dataSource) {
           case "ping-slash24":
             props.getRawAsnSignalsPingSlash24Action(
-                entityTypeProp,
-                entities,
-                from,
-                until,
-                attr,
-                order,
-                dataSource,
-                initialTableLimit
+              entityTypeProp,
+              entities,
+              from,
+              until,
+              attr,
+              order,
+              dataSource,
+              initialTableLimit
             );
             break;
           case "bgp":
             props.getRawAsnSignalsBgpAction(
-                entityTypeProp,
-                entities,
-                from,
-                until,
-                attr,
-                order,
-                dataSource,
-                initialTableLimit
+              entityTypeProp,
+              entities,
+              from,
+              until,
+              attr,
+              order,
+              dataSource,
+              initialTableLimit
             );
             break;
           case "merit-nt":
             props.getRawAsnSignalsMeritNtAction(
-                entityTypeProp,
-                entities,
-                from,
-                until,
-                attr,
-                order,
-                dataSource,
-                initialTableLimit
+              entityTypeProp,
+              entities,
+              from,
+              until,
+              attr,
+              order,
+              dataSource,
+              initialTableLimit
             );
             break;
         }
         break;
       case "country":
         entities = signalsData
-            .map((entity) => {
-              // some entities don't return a code to be used in an api call, seem to default to '??' in that event
-              if (entity.code !== "??") {
-                return entity.entityCode;
-              }
-            })
-            .slice(0, initialTableLimit)
-            .toString();
-        if(entities.length === 0){
+          .map((entity) => {
+            // some entities don't return a code to be used in an api call, seem to default to '??' in that event
+            if (entity.code !== "??") {
+              return entity.entityCode;
+            }
+          })
+          .slice(0, initialTableLimit)
+          .toString();
+        if (entities.length === 0) {
           return;
         }
-        entityTypeProp = entityType !== "asn" ? (showGlobalSignals ? "asn" : "geoasn") : entityType;
+        entityTypeProp =
+          entityType !== "asn"
+            ? showGlobalSignals
+              ? "asn"
+              : "geoasn"
+            : entityType;
         switch (dataSource) {
           case "ping-slash24":
             props.getRawAsnSignalsPingSlash24Action(
@@ -1977,7 +2089,7 @@ const Entity = (props) => {
               attr,
               order,
               dataSource,
-                initialTableLimit
+              initialTableLimit
             );
             break;
           case "bgp":
@@ -1989,7 +2101,7 @@ const Entity = (props) => {
               attr,
               order,
               dataSource,
-                initialTableLimit
+              initialTableLimit
             );
             break;
           case "merit-nt":
@@ -2001,7 +2113,7 @@ const Entity = (props) => {
               attr,
               order,
               dataSource,
-                initialTableLimit
+              initialTableLimit
             );
             break;
         }
@@ -2013,22 +2125,34 @@ const Entity = (props) => {
     isCombiningRef.current = true;
     isSignalReadyRef.current = false;
     let filteredData = [];
-    if(summaryPanelType === 'region' && (!regionalSignalsTableSummaryData || !relatedToMapSummary)) return;
+    if (
+      summaryPanelType === "region" &&
+      (!regionalSignalsTableSummaryData || !relatedToMapSummary)
+    )
+      return;
     switch (summaryPanelType) {
       case "region":
         let relatedToMapSummaryFiltered = relatedToMapSummary;
         filteredData = regionalSignalsTableSummaryData;
         if (entityTypeState === "asn") {
           if (!showGlobalRegionalAsnSignals) {
-            filteredData = regionalSignalsTableSummaryData.filter(item => item.subnames?.region !== undefined);
-            relatedToMapSummaryFiltered = relatedToMapSummaryFiltered.filter(item => item.subnames?.region !== undefined);
+            filteredData = regionalSignalsTableSummaryData.filter(
+              (item) => item.subnames?.region !== undefined
+            );
+            relatedToMapSummaryFiltered = relatedToMapSummaryFiltered.filter(
+              (item) => item.subnames?.region !== undefined
+            );
           }
         }
         // Before combining and making API calls for fetching raw signals, please make sure to filter only regions
         // Entity Type = asn, local means geoasn but API returns region-ASN as well as country-ASN.
         // Filter to return only region-ASN not country-ASN
 
-        const signalsTableData = combineValuesForSignalsTable(relatedToMapSummaryFiltered, filteredData, initialHtsLimit);
+        const signalsTableData = combineValuesForSignalsTable(
+          relatedToMapSummaryFiltered,
+          filteredData,
+          initialHtsLimit
+        );
         setRegionalSignalsTableSummaryDataProcessed(signalsTableData);
         setRegionalSignalsTableTotalCount(signalsTableData.length);
         getSignalsHtsDataEvents("region", "ping-slash24", signalsTableData);
@@ -2041,16 +2165,23 @@ const Entity = (props) => {
           filteredData = asnSignalsTableSummaryData;
           if (entityTypeState === "region") {
             if (!showGlobalSignals) {
-              filteredData = filteredData.filter(item => item.subnames?.region !== undefined);
-              relatedToTableSummaryFiltered = relatedToTableSummaryFiltered.filter(item => item.subnames?.region !== undefined);
+              filteredData = filteredData.filter(
+                (item) => item.subnames?.region !== undefined
+              );
+              relatedToTableSummaryFiltered =
+                relatedToTableSummaryFiltered.filter(
+                  (item) => item.subnames?.region !== undefined
+                );
             }
           }
           const signalsTableData = combineValuesForSignalsTable(
-              relatedToTableSummaryFiltered,
-              filteredData,
-              initialHtsLimit
+            relatedToTableSummaryFiltered,
+            filteredData,
+            initialHtsLimit
           );
-          setAsnSignalsTableSummaryDataProcessed(signalsTableData.slice(0, initialTableLimit));
+          setAsnSignalsTableSummaryDataProcessed(
+            signalsTableData.slice(0, initialTableLimit)
+          );
           setAsnSignalsTableTotalCount(signalsTableData.length);
           getSignalsHtsDataEvents("country", "ping-slash24", signalsTableData);
           getSignalsHtsDataEvents("country", "bgp", signalsTableData);
@@ -2064,7 +2195,9 @@ const Entity = (props) => {
             asnSignalsTableSummaryData,
             initialHtsLimit
           );
-          setAsnSignalsTableSummaryDataProcessed(signalsTableData.slice(0, initialTableLimit));
+          setAsnSignalsTableSummaryDataProcessed(
+            signalsTableData.slice(0, initialTableLimit)
+          );
           setAsnSignalsTableTotalCount(signalsTableData.length);
           getSignalsHtsDataEvents("asn", "ping-slash24", signalsTableData);
           getSignalsHtsDataEvents("asn", "bgp", signalsTableData);
@@ -2074,7 +2207,12 @@ const Entity = (props) => {
     }
   }
   // function that decides what data will populate in the horizon time series
-  function convertValuesForHtsViz(dataSource, entityType, directTableSummaryData = null, directRawSignals = null) {
+  function convertValuesForHtsViz(
+    dataSource,
+    entityType,
+    directTableSummaryData = null,
+    directRawSignals = null
+  ) {
     let visibilityChecked = [];
     let entitiesChecked = 0;
     let rawSignalsNew = [];
@@ -2082,7 +2220,7 @@ const Entity = (props) => {
     switch (entityType) {
       case "region":
         signalsTableSummaryDataProcessed =
-            directTableSummaryData || regionalSignalsTableSummaryDataProcessed;
+          directTableSummaryData || regionalSignalsTableSummaryDataProcessed;
         switch (dataSource) {
           case "ping-slash24":
             rawSignals = directRawSignals || rawRegionalSignalsRawPingSlash24;
@@ -2097,7 +2235,7 @@ const Entity = (props) => {
         break;
       case "asn":
         signalsTableSummaryDataProcessed =
-            directTableSummaryData || asnSignalsTableSummaryDataProcessed;
+          directTableSummaryData || asnSignalsTableSummaryDataProcessed;
         switch (dataSource) {
           case "ping-slash24":
             rawSignals = directRawSignals || rawAsnSignalsRawPingSlash24;
@@ -2145,18 +2283,21 @@ const Entity = (props) => {
         switch (dataSource) {
           case "ping-slash24":
             setRawRegionalSignalsProcessedPingSlash24(
-                convertTsDataForHtsViz(rawSignalsNew));
+              convertTsDataForHtsViz(rawSignalsNew)
+            );
             setAdditionalRawSignalRequestedPingSlash24(false);
             break;
           case "bgp":
             setRawRegionalSignalsProcessedBgp(
-                convertTsDataForHtsViz(rawSignalsNew));
-              setAdditionalRawSignalRequestedBgp(false);
+              convertTsDataForHtsViz(rawSignalsNew)
+            );
+            setAdditionalRawSignalRequestedBgp(false);
             break;
           case "merit-nt":
             setRawRegionalSignalsProcessedMeritNt(
-                convertTsDataForHtsViz(rawSignalsNew));
-              setAdditionalRawSignalRequestedMeritNt(false);
+              convertTsDataForHtsViz(rawSignalsNew)
+            );
+            setAdditionalRawSignalRequestedMeritNt(false);
             break;
         }
         break;
@@ -2164,7 +2305,8 @@ const Entity = (props) => {
         switch (dataSource) {
           case "ping-slash24":
             setRawAsnSignalsProcessedPingSlash24(
-                convertTsDataForHtsViz(rawSignalsNew));
+              convertTsDataForHtsViz(rawSignalsNew)
+            );
             setAdditionalRawSignalRequestedPingSlash24(false);
             break;
           case "bgp":
@@ -2172,7 +2314,9 @@ const Entity = (props) => {
             setAdditionalRawSignalRequestedBgp(false);
             break;
           case "merit-nt":
-            setRawAsnSignalsProcessedMeritNt(convertTsDataForHtsViz(rawSignalsNew));
+            setRawAsnSignalsProcessedMeritNt(
+              convertTsDataForHtsViz(rawSignalsNew)
+            );
             setAdditionalRawSignalRequestedMeritNt(false);
             break;
         }
@@ -2181,15 +2325,15 @@ const Entity = (props) => {
   }
 
   useEffect(() => {
-    if(toggledEntity && Object.keys(toggledEntity).length > 0){
-      const {entity, entityType} = toggledEntity;
+    if (toggledEntity && Object.keys(toggledEntity).length > 0) {
+      const { entity, entityType } = toggledEntity;
       toggleEntityVisibilityInHtsViz(entity, entityType);
     }
-  }, [toggledEntity])
+  }, [toggledEntity]);
   // function to manage what happens when a checkbox is changed in the raw signals table
   function toggleEntityVisibilityInHtsViz(entity, entityType) {
     let maxEntitiesPopulatedMessage = T.translate(
-        "entityModal.maxEntitiesPopulatedMessage"
+      "entityModal.maxEntitiesPopulatedMessage"
     );
     let signalsTableSummaryDataProcessed;
     switch (entityType) {
@@ -2200,13 +2344,12 @@ const Entity = (props) => {
       case "asn":
       case "geoasn":
       case "country":
-        signalsTableSummaryDataProcessed =
-          asnSignalsTableSummaryDataProcessed;
+        signalsTableSummaryDataProcessed = asnSignalsTableSummaryDataProcessed;
         break;
     }
     // find the entity that was clicked
-    const indexValue = signalsTableSummaryDataProcessed
-        .findIndex((obj) => obj.entityCode === entity.entityCode
+    const indexValue = signalsTableSummaryDataProcessed.findIndex(
+      (obj) => obj.entityCode === entity.entityCode
     );
 
     if (indexValue === -1) {
@@ -2218,53 +2361,51 @@ const Entity = (props) => {
       case true:
         // If checkbox is now set to true, determine if adding it will breach the limit
         if (maxHtsLimit > currentEntitiesChecked) {
-          setCurrentEntitiesChecked((prev) => (prev + 1));
+          setCurrentEntitiesChecked((prev) => prev + 1);
 
           // check if entity data is already available
           switch (entityData["initiallyLoaded"]) {
             case false:
-              const updatedData = signalsTableSummaryDataProcessed.map((item, idx) =>
-                idx === indexValue
-                    ? { ...item, visibility: true }
-                    : item
-            );
+              const updatedData = signalsTableSummaryDataProcessed.map(
+                (item, idx) =>
+                  idx === indexValue ? { ...item, visibility: true } : item
+              );
               // Update visibility boolean property in copied object to update table
               // Check if raw signals data is already loaded for particular entity, get it if not
-              if (asnRawSignalsLoadAllButtonClicked &&
-                  updatedData[indexValue]["initiallyLoaded"] === false
+              if (
+                asnRawSignalsLoadAllButtonClicked &&
+                updatedData[indexValue]["initiallyLoaded"] === false
               ) {
                 // update property that manages if raw signal data has loaded or not
                 updatedData[indexValue]["initiallyLoaded"] = true;
                 // call api for additional data on entity
-                let attr = "score";  // TODO
-                let order = "desc";  // TODO
+                let attr = "score"; // TODO
+                let order = "desc"; // TODO
                 const { entityCode, entityType } = entityData;
 
                 if (entityType && entityCode) {
                   const rawSignalTypes = ["ping-slash24", "bgp", "merit-nt"];
                   rawSignalTypes.forEach((signalType) =>
-                      props.getAdditionalRawSignalAction(
-                          showGlobalSignals ? "asn" : "geoasn",
-                          entityCode,
-                          from,
-                          until,
-                          attr,
-                          order,
-                          signalType
-                      )
+                    props.getAdditionalRawSignalAction(
+                      showGlobalSignals ? "asn" : "geoasn",
+                      entityCode,
+                      from,
+                      until,
+                      attr,
+                      order,
+                      signalType
+                    )
                   );
                   // Update state with freshly updated object list, then redraw the chart with new visibility values
                   switch (entityType) {
                     case "region":
-                      setRegionalSignalsTableSummaryDataProcessed(
-                          updatedData);
+                      setRegionalSignalsTableSummaryDataProcessed(updatedData);
                       setRawSignalsMaxEntitiesHtsError("");
                       break;
                     case "geoasn":
                     case "asn":
                     case "country":
-                      setAsnSignalsTableSummaryDataProcessed(
-                          updatedData);
+                      setAsnSignalsTableSummaryDataProcessed(updatedData);
                       setRawSignalsMaxEntitiesHtsError("");
                       break;
                   }
@@ -2275,20 +2416,54 @@ const Entity = (props) => {
               // set new data
               switch (entityType) {
                 case "region":
-                  setRegionalSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed)
+                  setRegionalSignalsTableSummaryDataProcessed(
+                    signalsTableSummaryDataProcessed
+                  );
                   setRawSignalsMaxEntitiesHtsError("");
-                  convertValuesForHtsViz("ping-slash24", "region", signalsTableSummaryDataProcessed, null);
-                  convertValuesForHtsViz("bgp", "region", signalsTableSummaryDataProcessed, null);
-                  convertValuesForHtsViz("merit-nt", "region", signalsTableSummaryDataProcessed, null);
+                  convertValuesForHtsViz(
+                    "ping-slash24",
+                    "region",
+                    signalsTableSummaryDataProcessed,
+                    null
+                  );
+                  convertValuesForHtsViz(
+                    "bgp",
+                    "region",
+                    signalsTableSummaryDataProcessed,
+                    null
+                  );
+                  convertValuesForHtsViz(
+                    "merit-nt",
+                    "region",
+                    signalsTableSummaryDataProcessed,
+                    null
+                  );
                   break;
                 case "geoasn":
                 case "asn":
                 case "country":
-                  setAsnSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
+                  setAsnSignalsTableSummaryDataProcessed(
+                    signalsTableSummaryDataProcessed
+                  );
                   setRawSignalsMaxEntitiesHtsError("");
-                  convertValuesForHtsViz("ping-slash24", "asn", signalsTableSummaryDataProcessed, null);
-                  convertValuesForHtsViz("bgp", "asn", signalsTableSummaryDataProcessed, null);
-                  convertValuesForHtsViz("merit-nt", "asn", signalsTableSummaryDataProcessed, null);
+                  convertValuesForHtsViz(
+                    "ping-slash24",
+                    "asn",
+                    signalsTableSummaryDataProcessed,
+                    null
+                  );
+                  convertValuesForHtsViz(
+                    "bgp",
+                    "asn",
+                    signalsTableSummaryDataProcessed,
+                    null
+                  );
+                  convertValuesForHtsViz(
+                    "merit-nt",
+                    "asn",
+                    signalsTableSummaryDataProcessed,
+                    null
+                  );
                   break;
               }
               break;
@@ -2303,14 +2478,16 @@ const Entity = (props) => {
         break;
       case false:
         // // Update currently checked item count and set new data to populate
-        setCurrentEntitiesChecked((prev) => (prev - 1));
+        setCurrentEntitiesChecked((prev) => prev - 1);
         // const updatedData = signalsTableSummaryDataProcessed.map((item, idx) =>
         //     idx === indexValue ? { ...item, visibility: false } : item
         // );
 
         switch (entityType) {
           case "region":
-            setRegionalSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
+            setRegionalSignalsTableSummaryDataProcessed(
+              signalsTableSummaryDataProcessed
+            );
             setRawSignalsMaxEntitiesHtsError("");
             setAdditionalRawSignalRequestedPingSlash24(false);
             setAdditionalRawSignalRequestedBgp(false);
@@ -2320,7 +2497,9 @@ const Entity = (props) => {
           case "geoasn":
           case "asn":
           case "country":
-            setAsnSignalsTableSummaryDataProcessed(signalsTableSummaryDataProcessed);
+            setAsnSignalsTableSummaryDataProcessed(
+              signalsTableSummaryDataProcessed
+            );
             setRawSignalsMaxEntitiesHtsError("");
             setAdditionalRawSignalRequestedPingSlash24(false);
             setAdditionalRawSignalRequestedBgp(false);
@@ -2332,7 +2511,7 @@ const Entity = (props) => {
     }
   }
   // function to manage what happens when the select max/uncheck all buttons are clicked
-  const handleSelectAndDeselectAllButtons = useCallback((target)=> {
+  const handleSelectAndDeselectAllButtons = useCallback((target) => {
     if (target === "checkMaxRegional") {
       setCheckMaxButtonLoading(true);
 
@@ -2350,23 +2529,29 @@ const Entity = (props) => {
         entity.visibility = index < maxHtsLimit;
       });
 
-      setRegionalSignalsTableSummaryDataProcessed(updatedRegionalSignalsTableSummaryDataProcessed);
+      setRegionalSignalsTableSummaryDataProcessed(
+        updatedRegionalSignalsTableSummaryDataProcessed
+      );
       setRegionalSignalsTableEntitiesChecked(
-          updatedRegionalSignalsTableSummaryDataProcessed.length < maxHtsLimit
-              ? updatedRegionalSignalsTableSummaryDataProcessed.length
-              : maxHtsLimit);
+        updatedRegionalSignalsTableSummaryDataProcessed.length < maxHtsLimit
+          ? updatedRegionalSignalsTableSummaryDataProcessed.length
+          : maxHtsLimit
+      );
       setCurrentEntitiesChecked(maxHtsLimit);
       setCheckMaxButtonLoading(false);
     }
     if (target === "uncheckAllRegional") {
       setUncheckAllButtonLoading(true);
 
-      let updatedRegionalSignalsTableSummaryDataProcessed = regionalSignalsTableSummaryDataProcessed;
+      let updatedRegionalSignalsTableSummaryDataProcessed =
+        regionalSignalsTableSummaryDataProcessed;
       updatedRegionalSignalsTableSummaryDataProcessed.map((entity) => {
-          entity.visibility = false;
-        });
+        entity.visibility = false;
+      });
 
-      setRegionalSignalsTableSummaryDataProcessed(updatedRegionalSignalsTableSummaryDataProcessed);
+      setRegionalSignalsTableSummaryDataProcessed(
+        updatedRegionalSignalsTableSummaryDataProcessed
+      );
       setRegionalSignalsTableEntitiesChecked(0);
       setCurrentEntitiesChecked(0);
       setUncheckAllButtonLoading(false);
@@ -2377,11 +2562,12 @@ const Entity = (props) => {
       setCheckMaxButtonLoading(true);
 
       // setTimeout(() => {
-        // Count how many entities are currently checked
-      const entitiesCurrentlyChecked = asnSignalsTableSummaryDataProcessed.reduce(
+      // Count how many entities are currently checked
+      const entitiesCurrentlyChecked =
+        asnSignalsTableSummaryDataProcessed.reduce(
           (count, entity) => (entity.visibility === true ? count + 1 : count),
           0
-      );
+        );
 
       // Check off additional entities to get to max allowed
       // const updatedAsnSignalsTableSummaryDataProcessed =
@@ -2389,50 +2575,54 @@ const Entity = (props) => {
       //     entity.visibility = index < maxHtsLimit;
       //   });
       const updatedAsnSignalsTableSummaryDataProcessed =
-          asnSignalsTableSummaryDataProcessed.map((entity, index) => ({
-            ...entity,
-            visibility: index < maxHtsLimit,
-          }));
+        asnSignalsTableSummaryDataProcessed.map((entity, index) => ({
+          ...entity,
+          visibility: index < maxHtsLimit,
+        }));
 
-       setAsnSignalsTableSummaryDataProcessed(updatedAsnSignalsTableSummaryDataProcessed);
-       setAsnSignalsTableEntitiesChecked(updatedAsnSignalsTableSummaryDataProcessed.length < maxHtsLimit
-                ? updatedAsnSignalsTableSummaryDataProcessed.length
-                : maxHtsLimit);
-       setCurrentEntitiesChecked(maxHtsLimit);
-       setCheckMaxButtonLoading(false);
-       setConvertValuesForHtsVizCalled("asn");
+      setAsnSignalsTableSummaryDataProcessed(
+        updatedAsnSignalsTableSummaryDataProcessed
+      );
+      setAsnSignalsTableEntitiesChecked(
+        updatedAsnSignalsTableSummaryDataProcessed.length < maxHtsLimit
+          ? updatedAsnSignalsTableSummaryDataProcessed.length
+          : maxHtsLimit
+      );
+      setCurrentEntitiesChecked(maxHtsLimit);
+      setCheckMaxButtonLoading(false);
+      setConvertValuesForHtsVizCalled("asn");
       // }, 500);
     }
     if (target === "uncheckAllAsn") {
       setUncheckAllButtonLoading(true);
       // setTimeout(() => {
-        let updatedAsnSignalsTableSummaryDataProcessed =
-          asnSignalsTableSummaryDataProcessed;
-        updatedAsnSignalsTableSummaryDataProcessed.map((entity) => {
-          entity.visibility = false;
-        });
-        setAsnSignalsTableSummaryDataProcessed(
-            updatedAsnSignalsTableSummaryDataProcessed);
-        setAsnSignalsTableEntitiesChecked(0);
-        setCurrentEntitiesChecked(0);
-        setUncheckAllButtonLoading(false);
-        setConvertValuesForHtsVizCalled("asn");
+      let updatedAsnSignalsTableSummaryDataProcessed =
+        asnSignalsTableSummaryDataProcessed;
+      updatedAsnSignalsTableSummaryDataProcessed.map((entity) => {
+        entity.visibility = false;
+      });
+      setAsnSignalsTableSummaryDataProcessed(
+        updatedAsnSignalsTableSummaryDataProcessed
+      );
+      setAsnSignalsTableEntitiesChecked(0);
+      setCurrentEntitiesChecked(0);
+      setUncheckAllButtonLoading(false);
+      setConvertValuesForHtsVizCalled("asn");
       // }, 500);
     }
-  }, [])
+  }, []);
   // function to manage what happens when the load all entities button is clicked
-  const handleLoadAllEntitiesButton = useCallback((name)=>{
+  const handleLoadAllEntitiesButton = useCallback((name) => {
     if (name === "regionLoadAllEntities") {
-      setLoadAllButtonEntitiesLoading(true)
+      setLoadAllButtonEntitiesLoading(true);
       let signalsTableData = combineValuesForSignalsTable(
         summaryDataMapRaw,
         regionalSignalsTableSummaryData,
         0
       );
-      setRegionalSignalsTableSummaryDataProcessed(
-          (prevState) => prevState.concat(
-              signalsTableData.slice(initialTableLimit)
-            ));
+      setRegionalSignalsTableSummaryDataProcessed((prevState) =>
+        prevState.concat(signalsTableData.slice(initialTableLimit))
+      );
       setLoadAllButtonEntitiesLoading(false);
       setRegionalRawSignalsLoadAllButtonClicked(true);
     }
@@ -2442,42 +2632,39 @@ const Entity = (props) => {
       let signalsTableData = combineValuesForSignalsTable(
         relatedToTableSummary,
         asnSignalsTableSummaryData,
-            0
-          );
-      setAsnSignalsTableSummaryDataProcessed(
-          (prevState) => prevState.concat(
-              signalsTableData.slice(initialTableLimit)
-            ),
+        0
+      );
+      setAsnSignalsTableSummaryDataProcessed((prevState) =>
+        prevState.concat(signalsTableData.slice(initialTableLimit))
       );
       setLoadAllButtonEntitiesLoading(false);
     }
-  }, [])
+  }, []);
   const handleAdditionalEntitiesLoading = useCallback(() => {
     setLoadAllButtonEntitiesLoading(true);
   }, []);
   // to trigger loading bars on raw signals horizon time series when a checkbox event occurs in the signals table
   const handleCheckboxEventLoading = useCallback((item) => {
     const maxEntitiesPopulatedMessage = T.translate(
-        "entityModal.maxEntitiesPopulatedMessage"
+      "entityModal.maxEntitiesPopulatedMessage"
     );
     // Set checkbox visibility
     let signalsTableSummaryDataProcessed;
     switch (item.entityType) {
       case "region":
         signalsTableSummaryDataProcessed =
-            regionalSignalsTableSummaryDataProcessed;
+          regionalSignalsTableSummaryDataProcessed;
         break;
       case "geoasn":
       case "country":
       case "asn":
-        signalsTableSummaryDataProcessed =
-            asnSignalsTableSummaryDataProcessed;
+        signalsTableSummaryDataProcessed = asnSignalsTableSummaryDataProcessed;
         break;
     }
 
-    const indexValue = signalsTableSummaryDataProcessed
-        .findIndex((obj) =>
-            obj.entityCode === item.entityCode);
+    const indexValue = signalsTableSummaryDataProcessed.findIndex(
+      (obj) => obj.entityCode === item.entityCode
+    );
 
     if (indexValue === -1) {
       console.error("Entity not found", item.entityCode);
@@ -2486,8 +2673,9 @@ const Entity = (props) => {
 
     const entity = signalsTableSummaryDataProcessed[indexValue];
 
-    const canToggleVisibility = (entity.visibility === false && maxHtsLimit > currentEntitiesChecked)
-        || entity.visibility === true;
+    const canToggleVisibility =
+      (entity.visibility === false && maxHtsLimit > currentEntitiesChecked) ||
+      entity.visibility === true;
 
     // Update visibility boolean property in copied object to match updated table
     if (!canToggleVisibility) {
@@ -2495,11 +2683,8 @@ const Entity = (props) => {
       return;
     }
     const updatedData = signalsTableSummaryDataProcessed.map((obj, index) =>
-        index === indexValue
-            ? { ...obj, visibility: !obj.visibility }
-            : obj
+      index === indexValue ? { ...obj, visibility: !obj.visibility } : obj
     );
-
 
     // set loading bars and updated table data
     setAdditionalRawSignalRequestedPingSlash24(true);
@@ -2521,14 +2706,14 @@ const Entity = (props) => {
         setAsnSignalsTableSummaryDataProcessed(updatedData);
         setToggledEntity({
           entity: item,
-          entityType: item['entityType']
-        })
+          entityType: item["entityType"],
+        });
         // setTimeout(() => {
         //   toggleEntityVisibilityInHtsViz(item, item["entityType"], updatedData);
         // }, 500);
         break;
     }
-  }, [])
+  }, []);
 
   /**
    * Handles users toggling a chart legend series (on the chart itself): when a
@@ -2591,7 +2776,7 @@ const Entity = (props) => {
     }
   }
 
-  function toggleView(){
+  function toggleView() {
     let tmpVisibleSeries = prevDataSeriesVisibleMap;
     setSimplifiedView(!simplifiedView);
     setTsDataDisplayOutageBands(!tsDataDisplayOutageBands);
@@ -2599,9 +2784,9 @@ const Entity = (props) => {
     setTsDataSeriesVisibleMap(tmpVisibleSeries);
   }
 
-  const handleGlobalAsnSignals =  useCallback(() => {
-    setRawAsnSignalsLoaded(prev => !prev);
-    setGlobalSwitch(globalSwitch => !globalSwitch);
+  const handleGlobalAsnSignals = useCallback(() => {
+    setRawAsnSignalsLoaded((prev) => !prev);
+    setGlobalSwitch((globalSwitch) => !globalSwitch);
     props.setAsnSignalsTableSummaryData(null);
     setRawAsnSignalsProcessedBgp(null);
     setRawAsnSignalsProcessedPingSlash24(null);
@@ -2613,19 +2798,19 @@ const Entity = (props) => {
     props.setRawAsnSignalsMeritNtAction(null);
     props.setRawAsnSignalsBgpAction(null);
     props.setAsnSignalsTableSummaryData(null);
-    setShowGlobalSignals(showGlobalSignals => !showGlobalSignals);
+    setShowGlobalSignals((showGlobalSignals) => !showGlobalSignals);
   }, []);
 
   const handleGlobalRegionalAsnSignals = useCallback(() => {
-    setRawRegionalSignalsLoaded(prev => !prev);
-    setGlobalRegionalAsnConnectivity(globalSwitch => !globalSwitch);
+    setRawRegionalSignalsLoaded((prev) => !prev);
+    setGlobalRegionalAsnConnectivity((globalSwitch) => !globalSwitch);
     setRegionalSignalsTableSummaryDataProcessed(null);
     props.setSearchRelatedToMapSummary(null);
     props.setRegionalSignalsTableSummaryData();
     setRawRegionalSignalsProcessedBgp(null);
     setRawRegionalSignalsRawMeritNt(null);
     setRawRegionalSignalsRawPingSlash24(null);
-    setShowGlobalRegionalAsnSignals(globalSwitch => !globalSwitch);
+    setShowGlobalRegionalAsnSignals((globalSwitch) => !globalSwitch);
   }, []);
 
   function handleSelectTab(selectedKey) {
@@ -2638,9 +2823,7 @@ const Entity = (props) => {
   const xyChartTitle = T.translate("entity.xyChartTitle");
   const eventFeedTitle = T.translate("entity.eventFeedTitle");
   const alertFeedTitle = T.translate("entity.alertFeedTitle");
-  const xyChartAlertToggleLabel = T.translate(
-    "entity.xyChartAlertToggleLabel"
-  );
+  const xyChartAlertToggleLabel = T.translate("entity.xyChartAlertToggleLabel");
   const xyChartNormalizedToggleLabel = T.translate(
     "entity.xyChartNormalizedToggleLabel"
   );
@@ -2701,171 +2884,194 @@ const Entity = (props) => {
             hideModal={handleHideMarkupStudioModal}
             chartTitle={getChartExportTitle()}
             chartSubtitle={getChartExportSubtitle()}
-            exportFileName={() => getChartExportFileName(fromDate,  entityName)}
+            exportFileName={() => getChartExportFileName(fromDate, entityName)}
             shareLink={window.location.href}
             entityName={entityName}
           />
           <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
-            <div className="col-2 p-4 card entity__chart">
-              <div className="flex items-center mb-3">
-                <h3 className="text-2xl mr-1">
-                  {xyChartTitle}
-                  {entityName}
-                </h3>
-                <CustomToolip
-                  className="mr-auto"
-                  title={tooltipXyPlotTimeSeriesTitle}
-                  text={tooltipXyPlotTimeSeriesText}
-                />
+            {/* <div className="grid grid-cols-3 gap-6 mb-6 entity__chart-layout"> */}
+            <div className="col-2">
+              {/* <div className="col-span-2"> */}
+              <div className="p-4 card mb-6">
+                <div className="flex items-center mb-3">
+                  <h3 className="text-2xl mr-1">
+                    {xyChartTitle}
+                    {entityName}
+                  </h3>
+                  <CustomToolip
+                    className="mr-auto"
+                    title={tooltipXyPlotTimeSeriesTitle}
+                    text={tooltipXyPlotTimeSeriesText}
+                  />
 
-                {showResetZoomButton && (
-                  <Tooltip title="Reset View">
+                  {showResetZoomButton && (
+                    <Tooltip title="Reset View">
+                      <Button
+                        className="mr-3"
+                        icon={<MagnifyExpandIcon />}
+                        onClick={setDefaultNavigatorTimeRange}
+                      />
+                    </Tooltip>
+                  )}
+
+                  {!simplifiedView && (
+                    <Popover
+                      open={displayChartSettingsPopover}
+                      onOpenChange={handleDisplayChartSettingsPopover}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayStyle={{
+                        width: 180,
+                      }}
+                      content={
+                        <div
+                          onClick={() =>
+                            handleDisplayChartSettingsPopover(false)
+                          }
+                        >
+                          <>
+                            <Checkbox
+                              checked={!!tsDataDisplayOutageBands}
+                              onChange={(e) =>
+                                handleDisplayAlertBands(e.target.checked)
+                              }
+                            >
+                              {xyChartAlertToggleLabel}
+                            </Checkbox>
+                            <Checkbox
+                              checked={!!tsDataNormalized}
+                              onChange={changeXyChartNormalization}
+                            >
+                              {xyChartNormalizedToggleLabel}
+                            </Checkbox>
+                          </>
+                        </div>
+                      }
+                    >
+                      <Tooltip title="Chart Settings">
+                        <Button className="mr-3" icon={<SettingOutlined />} />
+                      </Tooltip>
+                    </Popover>
+                  )}
+
+                  <Tooltip title="Markup">
                     <Button
                       className="mr-3"
-                      icon={<MagnifyExpandIcon />}
-                      onClick={setDefaultNavigatorTimeRange}
+                      icon={<EditOutlined />}
+                      onClick={handleShowMarkupStudioModal}
+                      disabled={xyChartOptions == null}
                     />
                   </Tooltip>
-                )}
 
-                {!simplifiedView && (
+                  <Tooltip title="Share Link">
+                    <Button
+                      className="mr-3"
+                      icon={<ShareAltOutlined />}
+                      onClick={displayShareLinkModal}
+                    />
+                  </Tooltip>
+
                   <Popover
-                    open={displayChartSettingsPopover}
-                    onOpenChange={handleDisplayChartSettingsPopover}
+                    open={displayChartSharePopover}
+                    onOpenChange={handleDisplayChartSharePopover}
                     trigger="click"
                     placement="bottomRight"
                     overlayStyle={{
-                      width: 180,
+                      maxWidth: 180,
                     }}
                     content={
                       <div
-                        onClick={() =>
-                          handleDisplayChartSettingsPopover(false)
-                        }
+                        onClick={() => handleDisplayChartSharePopover(false)}
                       >
-                        <>
-                          <Checkbox
-                            checked={!!tsDataDisplayOutageBands}
-                            onChange={(e) =>
-                              handleDisplayAlertBands(e.target.checked)
-                            }
-                          >
-                            {xyChartAlertToggleLabel}
-                          </Checkbox>
-                          <Checkbox
-                            checked={!!tsDataNormalized}
-                            onChange={changeXyChartNormalization}
-                          >
-                            {xyChartNormalizedToggleLabel}
-                          </Checkbox>
-                        </>
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={() => handleCSVDownload(timeSeriesChartRef)}
+                          disabled={xyChartOptions == null}
+                        >
+                          Data CSV
+                        </Button>
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={() => manuallyDownloadChart("image/jpeg")}
+                          disabled={xyChartOptions == null}
+                        >
+                          Chart JPEG
+                        </Button>
+                        <Button
+                          className="w-full mb-2"
+                          size="small"
+                          onClick={() => manuallyDownloadChart("image/png")}
+                          disabled={xyChartOptions == null}
+                        >
+                          Chart PNG
+                        </Button>
+                        <Button
+                          className="w-full"
+                          size="small"
+                          onClick={() => manuallyDownloadChart("image/svg+xml")}
+                          disabled={xyChartOptions == null}
+                        >
+                          Chart SVG
+                        </Button>
                       </div>
                     }
                   >
-                    <Tooltip title="Chart Settings">
-                      <Button className="mr-3" icon={<SettingOutlined />} />
+                    <Tooltip
+                      title="Download"
+                      mouseEnterDelay={0}
+                      mouseLeaveDelay={0}
+                    >
+                      <Button icon={<DownloadOutlined />} />
                     </Tooltip>
                   </Popover>
-                )}
-
-                <Tooltip title="Markup">
-                  <Button
-                    className="mr-3"
-                    icon={<EditOutlined />}
-                    onClick={handleShowMarkupStudioModal}
-                    disabled={xyChartOptions == null}
-                  />
-                </Tooltip>
-
-                <Tooltip title="Share Link">
-                  <Button
-                    className="mr-3"
-                    icon={<ShareAltOutlined />}
-                    onClick={displayShareLinkModal}
-                  />
-                </Tooltip>
-
-                <Popover
-                  open={displayChartSharePopover}
-                  onOpenChange={handleDisplayChartSharePopover}
-                  trigger="click"
-                  placement="bottomRight"
-                  overlayStyle={{
-                    maxWidth: 180,
-                  }}
-                  content={
-                    <div
-                      onClick={() =>
-                        handleDisplayChartSharePopover(false)
-                      }
-                    >
-                      <Button
-                        className="w-full mb-2"
-                        size="small"
-                        onClick={() => handleCSVDownload(timeSeriesChartRef)}
-                        disabled={xyChartOptions == null}
-                      >
-                        Data CSV
-                      </Button>
-                      <Button
-                        className="w-full mb-2"
-                        size="small"
-                        onClick={() =>
-                          manuallyDownloadChart("image/jpeg")
-                        }
-                        disabled={xyChartOptions == null}
-                      >
-                        Chart JPEG
-                      </Button>
-                      <Button
-                        className="w-full mb-2"
-                        size="small"
-                        onClick={() =>
-                          manuallyDownloadChart("image/png")
-                        }
-                        disabled={xyChartOptions == null}
-                      >
-                        Chart PNG
-                      </Button>
-                      <Button
-                        className="w-full"
-                        size="small"
-                        onClick={() =>
-                          manuallyDownloadChart("image/svg+xml")
-                        }
-                        disabled={xyChartOptions == null}
-                      >
-                        Chart SVG
-                      </Button>
-                    </div>
-                  }
-                >
-                  <Tooltip
-                    title="Download"
-                    mouseEnterDelay={0}
-                    mouseLeaveDelay={0}
-                  >
-                    <Button icon={<DownloadOutlined />} />
-                  </Tooltip>
-                </Popover>
+                </div>
+                {xyChartOptions ? renderXyChart() : <Loading />}
+                <TimeStamp
+                  className="mt-4"
+                  from={tsDataLegendRangeFrom}
+                  until={tsDataLegendRangeUntil}
+                />
               </div>
-              {xyChartOptions ? renderXyChart() : <Loading />}
-              <TimeStamp
-                className="mt-4"
-                from={tsDataLegendRangeFrom}
-                until={tsDataLegendRangeUntil}
-              />
+              <div className="p-4 card">
+                {" "}
+                {entityCode && !entityCode.includes("-") && (
+                  <ApPacketLatencyAndLossRateComponent
+                    rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                    rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
+                    entityName={entityName}
+                    from={from}
+                    until={until}
+                  />
+                )}
+                {entityType && entityType === "asn" && (
+                  <UpstreamDelayComponent
+                    from={from}
+                    until={until}
+                    rawAsnSignalsUpstreamDelayLatency={
+                      rawAsnSignalsUpstreamDelayLatency
+                    }
+                    rawAsnSignalsUpstreamDelayPenultAsnCount={
+                      rawAsnSignalsUpstreamDelayPenultAsnCount
+                    }
+                    entityName={entityName}
+                  />
+                )}
+              </div>
             </div>
-            <div className="col-1 p-4 card">
-              <ChartTabCard
-                type={type}
-                eventData={eventDataRaw}
-                alertsData={alertDataRaw}
-                legendHandler={handleSelectedSignal}
-                tsDataSeriesVisibleMap={tsDataSeriesVisibleMap}
-                updateSourceParams={updateSourceParams}
-                simplifiedView={simplifiedView}
-              />
+            <div className="col-1">
+              <div className="p-4 card h-full">
+                <ChartTabCard
+                  type={type}
+                  eventData={eventDataRaw}
+                  alertsData={alertDataRaw}
+                  legendHandler={handleSelectedSignal}
+                  tsDataSeriesVisibleMap={tsDataSeriesVisibleMap}
+                  updateSourceParams={updateSourceParams}
+                  simplifiedView={simplifiedView}
+                />
+              </div>
             </div>
           </div>
           <EntityRelated
@@ -2881,13 +3087,9 @@ const Entity = (props) => {
             topoData={topoData}
             topoScores={topoScores}
             bounds={bounds}
-            handleEntityShapeClick={(entity) =>
-              handleEntityShapeClick(entity)
-            }
+            handleEntityShapeClick={(entity) => handleEntityShapeClick(entity)}
             // to populate asn summary table
-            relatedToTableSummaryProcessed={
-              relatedToTableSummaryProcessed
-            }
+            relatedToTableSummaryProcessed={relatedToTableSummaryProcessed}
             // handleEntityClick={(entity) => this.handleEntityClick(entity)}
             // raw signals tables for region modal
             handleSelectAndDeselectAllButtons={(event) =>
@@ -2909,16 +3111,12 @@ const Entity = (props) => {
             regionalSignalsTableEntitiesChecked={
               regionalSignalsTableEntitiesChecked
             }
-            asnSignalsTableEntitiesChecked={
-              asnSignalsTableEntitiesChecked
-            }
+            asnSignalsTableEntitiesChecked={asnSignalsTableEntitiesChecked}
             initialTableLimit={initialTableLimit}
             rawRegionalSignalsProcessedPingSlash24={
               rawRegionalSignalsProcessedPingSlash24
             }
-            rawRegionalSignalsProcessedBgp={
-              rawRegionalSignalsProcessedBgp
-            }
+            rawRegionalSignalsProcessedBgp={rawRegionalSignalsProcessedBgp}
             rawRegionalSignalsProcessedMeritNt={
               rawRegionalSignalsProcessedMeritNt
             }
@@ -2926,18 +3124,12 @@ const Entity = (props) => {
               rawAsnSignalsProcessedPingSlash24
             }
             rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
-            rawAsnSignalsProcessedMeritNt={
-              rawAsnSignalsProcessedMeritNt
-            }
+            rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
             summaryDataMapRaw={summaryDataMapRaw}
-            rawSignalsMaxEntitiesHtsError={
-              rawSignalsMaxEntitiesHtsError
-            }
+            rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
             // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
             asnSignalsTableTotalCount={asnSignalsTableTotalCount}
-            regionalSignalsTableTotalCount={
-              regionalSignalsTableTotalCount
-            }
+            regionalSignalsTableTotalCount={regionalSignalsTableTotalCount}
             // function used to call api to load remaining entities
             handleLoadAllEntitiesButton={(event) =>
               handleLoadAllEntitiesButton(event)
@@ -2950,18 +3142,14 @@ const Entity = (props) => {
               asnRawSignalsLoadAllButtonClicked
             }
             // modal loading icon for load all button
-            loadAllButtonEntitiesLoading={
-              loadAllButtonEntitiesLoading
-            }
+            loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
             handleAdditionalEntitiesLoading={() =>
               handleAdditionalEntitiesLoading()
             }
             additionalRawSignalRequestedPingSlash24={
               additionalRawSignalRequestedPingSlash24
             }
-            additionalRawSignalRequestedBgp={
-              additionalRawSignalRequestedBgp
-            }
+            additionalRawSignalRequestedBgp={additionalRawSignalRequestedBgp}
             additionalRawSignalRequestedMeritNt={
               additionalRawSignalRequestedMeritNt
             }
@@ -2969,9 +3157,7 @@ const Entity = (props) => {
             checkMaxButtonLoading={checkMaxButtonLoading}
             uncheckAllButtonLoading={uncheckAllButtonLoading}
             // used to check if there are no entities available to load (to control when loading bar disappears)
-            rawRegionalSignalsRawBgpLength={
-              rawRegionalSignalsRawBgp?.length
-            }
+            rawRegionalSignalsRawBgpLength={rawRegionalSignalsRawBgp?.length}
             rawRegionalSignalsRawPingSlash24Length={
               rawRegionalSignalsRawPingSlash24?.length
             }
@@ -2982,33 +3168,32 @@ const Entity = (props) => {
             rawAsnSignalsRawPingSlash24Length={
               rawAsnSignalsRawPingSlash24?.length
             }
-            rawAsnSignalsRawMeritNtLength={
-              rawAsnSignalsRawMeritNt?.length
-            }
+            rawAsnSignalsRawMeritNtLength={rawAsnSignalsRawMeritNt?.length}
             handleGlobalAsnSignals={handleGlobalAsnSignals}
             globalSwitch={globalSwitch}
             globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
             handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
-            rawAsnSignalsUpstreamDelayPenultAsnCount={rawAsnSignalsUpstreamDelayPenultAsnCount}
-            rawAsnSignalsUpstreamDelayLatency={rawAsnSignalsUpstreamDelayLatency}
+            rawAsnSignalsUpstreamDelayPenultAsnCount={
+              rawAsnSignalsUpstreamDelayPenultAsnCount
+            }
+            rawAsnSignalsUpstreamDelayLatency={
+              rawAsnSignalsUpstreamDelayLatency
+            }
             rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
             rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
             showApPacketGraph={entityCode && !entityCode.includes("-")}
-              isLoading={false}
+            isLoading={false}
           />
         </React.Fragment>
       ) : (
         <div className="p-6 text-lg card">
           {timeDurationTooHighErrorMessage}
-          {getSecondsAsErrorDurationString(
-            until - from
-          )}
-          .
+          {getSecondsAsErrorDurationString(until - from)}.
         </div>
       )}
     </div>
   );
-}
+};
 
 const mapStateToProps = (state) => {
   return {
@@ -3033,10 +3218,12 @@ const mapStateToProps = (state) => {
     rawAsnSignalsBgp: state.iodaApi.rawRegionalSignalsBgp,
     rawAsnSignalsMeritNt: state.iodaApi.rawRegionalSignalsMeritNt,
     additionalRawSignal: state.iodaApi.additionalRawSignal,
-    rawAsnSignalsUpstreamDelayPenultAsnCount: state.iodaApi.rawAsnSignalsUpstreamDelayPenultAsnCount,
-    rawAsnSignalsUpstreamDelayLatency: state.iodaApi.rawAsnSignalsUpstreamDelayLatency,
+    rawAsnSignalsUpstreamDelayPenultAsnCount:
+      state.iodaApi.rawAsnSignalsUpstreamDelayPenultAsnCount,
+    rawAsnSignalsUpstreamDelayLatency:
+      state.iodaApi.rawAsnSignalsUpstreamDelayLatency,
     rawAsnSignalsApPacketLoss: state.iodaApi.rawAsnSignalsApPacketLoss,
-    rawAsnSignalsApPacketDelay: state.iodaApi.rawAsnSignalsApPacketDelay
+    rawAsnSignalsApPacketDelay: state.iodaApi.rawAsnSignalsApPacketDelay,
   };
 };
 
@@ -3362,6 +3549,17 @@ const mapDispatchToProps = (dispatch) => {
       );
     },
     getRawAsnSignalsUpstreamDelayPenultAsnCount: (
+      entityType,
+      entities,
+      from,
+      until,
+      attr,
+      order,
+      dataSource,
+      maxPoints
+    ) => {
+      getRawAsnSignalsUpstreamDelayPenultAsnCount(
+        dispatch,
         entityType,
         entities,
         from,
@@ -3370,20 +3568,20 @@ const mapDispatchToProps = (dispatch) => {
         order,
         dataSource,
         maxPoints
-    ) => {
-      getRawAsnSignalsUpstreamDelayPenultAsnCount(
-          dispatch,
-          entityType,
-          entities,
-          from,
-          until,
-          attr,
-          order,
-          dataSource,
-          maxPoints
       );
     },
     getRawAsnSignalsApPacketLoss: (
+      entityType,
+      entities,
+      from,
+      until,
+      attr,
+      order,
+      dataSource,
+      maxPoints
+    ) => {
+      getRawAsnSignalsApPacketLoss(
+        dispatch,
         entityType,
         entities,
         from,
@@ -3392,20 +3590,20 @@ const mapDispatchToProps = (dispatch) => {
         order,
         dataSource,
         maxPoints
-    ) => {
-      getRawAsnSignalsApPacketLoss(
-          dispatch,
-          entityType,
-          entities,
-          from,
-          until,
-          attr,
-          order,
-          dataSource,
-          maxPoints
       );
     },
     getRawAsnSignalsApPacketDelay: (
+      entityType,
+      entities,
+      from,
+      until,
+      attr,
+      order,
+      dataSource,
+      maxPoints
+    ) => {
+      getRawAsnSignalsApPacketDelay(
+        dispatch,
         entityType,
         entities,
         from,
@@ -3414,24 +3612,13 @@ const mapDispatchToProps = (dispatch) => {
         order,
         dataSource,
         maxPoints
-    ) => {
-      getRawAsnSignalsApPacketDelay(
-          dispatch,
-          entityType,
-          entities,
-          from,
-          until,
-          attr,
-          order,
-          dataSource,
-          maxPoints
       );
     },
     setRegionalSignalsTableSummaryData: () => {
-      setRegionalSignalsTableSummaryDataAction(dispatch)
+      setRegionalSignalsTableSummaryDataAction(dispatch);
     },
     setAsnSignalsTableSummaryData: () => {
-      setAsnSignalsTableSummaryDataAction(dispatch)
+      setAsnSignalsTableSummaryDataAction(dispatch);
     },
     setSearchRelatedToMapSummary: () => {
       setRelatedToMapSummary(dispatch);
@@ -3444,7 +3631,7 @@ const mapDispatchToProps = (dispatch) => {
     },
     setRawAsnSignalsBgpAction: () => {
       setRawAsnSignalsBgpAction(dispatch);
-    }
+    },
   };
 };
 

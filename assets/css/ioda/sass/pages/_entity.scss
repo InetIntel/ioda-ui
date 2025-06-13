@@ -10,6 +10,7 @@
     @include respond(tab-port) {
       flex-direction: column;
     }
+    min-height: 100%;
   }
 
   &__chart {

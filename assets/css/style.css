@@ -6280,6 +6280,9 @@ button[class*=searchButton] {
     margin: 1.5rem auto;
   }
 }
+.entity__chart-layout {
+  min-height: 100%;
+}
 @media only screen and (max-width: 64em) {
   .entity__chart-layout {
     flex-direction: column;

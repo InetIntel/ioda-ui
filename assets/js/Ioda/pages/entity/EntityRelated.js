@@ -35,7 +35,7 @@
  * MODIFICATIONS.
  */
 
-import React, {useRef} from "react";
+import React, { useRef } from "react";
 import RawSignalsModal from "../../components/modal/RawSignalsModal";
 import T from "i18n-react";
 import Loading from "../../components/loading/Loading";
@@ -46,9 +46,7 @@ import { Button } from "antd";
 import ApPacketLatencyAndLossRateComponent from "./components/ApPacketLatencyAndLossRateComponent";
 import UpstreamDelayComponent from "./components/UpstreamDelayComponent";
 
-
 const EntityRelated = (props) => {
-
   const {
     bounds,
     entityName,
@@ -58,8 +56,8 @@ const EntityRelated = (props) => {
     toggleModal,
     topoData,
     topoScores,
-      from,
-      until,
+    from,
+    until,
     handleEntityShapeClick,
     regionalSignalsTableSummaryDataProcessed,
     asnSignalsTableSummaryDataProcessed,
@@ -105,53 +103,52 @@ const EntityRelated = (props) => {
     rawAsnSignalsApPacketDelay,
     showApPacketGraph,
     globalRegionalAsnConnectivity,
-      globalSwitch,
-      isLoading
+    globalSwitch,
+    isLoading,
   } = props;
 
-  console.log(showApPacketGraph)
-  console.log(rawAsnSignalsUpstreamDelayLatency)
-  console.log(rawAsnSignalsUpstreamDelayPenultAsnCount)
+  console.log(showApPacketGraph);
+  console.log(rawAsnSignalsUpstreamDelayLatency);
+  console.log(rawAsnSignalsUpstreamDelayPenultAsnCount);
   // console.log(rawAsnSignalsApPacketLoss)
   // console.log(rawAsnSignalsApPacketDelay)
 
-
-  const updatedRelatedToTableSummaryProcessed = (relatedToTableSummaryProcessed ?? []).map(summary => ({
+  const updatedRelatedToTableSummaryProcessed = (
+    relatedToTableSummaryProcessed ?? []
+  ).map((summary) => ({
     ...summary,
     ipCount: summary.ipCount === "NaN" ? "Unknown" : summary.ipCount,
   }));
 
   const relatedTableConfig = useRef();
 
-    const regionalModalButtonText = T.translate(
-      "entity.regionalModalButtonText"
-    );
-    const asnModalButtonText = T.translate("entity.asnModalButtonText");
-    const regionalSectionTitleCountryType = T.translate(
-      "entity.regionalSectionTitleCountryType"
-    );
-    const regionalSectionTitleRegionType = T.translate(
-      "entity.regionalSectionTitleRegionType"
-    );
+  const regionalModalButtonText = T.translate("entity.regionalModalButtonText");
+  const asnModalButtonText = T.translate("entity.asnModalButtonText");
+  const regionalSectionTitleCountryType = T.translate(
+    "entity.regionalSectionTitleCountryType"
+  );
+  const regionalSectionTitleRegionType = T.translate(
+    "entity.regionalSectionTitleRegionType"
+  );
 
-    const tooltipEntityRegionalSummaryMapTitle = T.translate(
-      "tooltip.entityRegionalSummaryMap.title"
-    );
-    const tooltipEntityRegionalSummaryMapText = T.translate(
-      "tooltip.entityRegionalSummaryMap.text"
-    );
-    const tooltipEntityAsnSummaryTableTitle = T.translate(
-      "tooltip.entityAsnSummaryTable.title"
-    );
-    const tooltipEntityAsnSummaryTableText = T.translate(
-      "tooltip.entityAsnSummaryTable.text"
-    );
-    const noOutagesOnMapMessage = T.translate(
-      "entityModal.noOutagesOnMapMessage"
-    );
+  const tooltipEntityRegionalSummaryMapTitle = T.translate(
+    "tooltip.entityRegionalSummaryMap.title"
+  );
+  const tooltipEntityRegionalSummaryMapText = T.translate(
+    "tooltip.entityRegionalSummaryMap.text"
+  );
+  const tooltipEntityAsnSummaryTableTitle = T.translate(
+    "tooltip.entityAsnSummaryTable.title"
+  );
+  const tooltipEntityAsnSummaryTableText = T.translate(
+    "tooltip.entityAsnSummaryTable.text"
+  );
+  const noOutagesOnMapMessage = T.translate(
+    "entityModal.noOutagesOnMapMessage"
+  );
 
-    return (
-        <div>
+  return (
+    <div>
       <div className="flex items-stretch gap-6 entity-related">
         {/* Region Panel */}
         <div className="card mw-0 p-6 col-1">
@@ -162,12 +159,12 @@ const EntityRelated = (props) => {
                   {entityType === "country"
                     ? `${regionalSectionTitleCountryType} ${entityName}`
                     : entityType === "region"
-                    ? `${regionalSectionTitleRegionType} ${parentEntityName}`
-                    : (entityType === "asn" || entityType === "geoasn")
-                    ? T.translate("entity.regionalSectionTitleAsnType", {
-                        asn: entityName,
-                      })
-                    : null}
+                      ? `${regionalSectionTitleRegionType} ${parentEntityName}`
+                      : entityType === "asn" || entityType === "geoasn"
+                        ? T.translate("entity.regionalSectionTitleAsnType", {
+                            asn: entityName,
+                          })
+                        : null}
                 </h3>
                 <Tooltip
                   title={tooltipEntityRegionalSummaryMapTitle}
@@ -182,117 +179,105 @@ const EntityRelated = (props) => {
                 {regionalModalButtonText}
               </Button>
             </div>
-            {showMapModal && <RawSignalsModal
-              modalLocation={"map"}
-              // entity name needed to populate text in headings
-              entityName={entityName}
-              // entity type needed to determine which time series count text to use
-              entityType={entityType}
-              // tracking when the modal should be visible
-              showModal={showMapModal}
-              // tracking when the close button is clicked
-              toggleModal={toggleModal}
-              // to populate outage map
-              topoData={topoData}
-              bounds={bounds}
-              topoScores={topoScores}
-              handleEntityShapeClick={(entity) =>
-                handleEntityShapeClick(entity)
-              }
-              // render function that populates the ui
-              totalCount={
-                regionalSignalsTableSummaryDataProcessed?.length
-              }
-              toggleEntityVisibilityInHtsViz={(event) =>
-                toggleEntityVisibilityInHtsViz(event, "region")
-              }
-              handleCheckboxEventLoading={(item) =>
-                handleCheckboxEventLoading(item)
-              }
-              regionalSignalsTableSummaryDataProcessed={
-                regionalSignalsTableSummaryDataProcessed
-              }
-              // data that draws polygons on map
-              summaryDataMapRaw={summaryDataMapRaw}
-              // check max and uncheck all button functionality
-              handleSelectAndDeselectAllButtons={(event) =>
-                handleSelectAndDeselectAllButtons(event)
-              }
-              // Current number of entities checked in table
-              regionalSignalsTableEntitiesChecked={
-               regionalSignalsTableEntitiesChecked
-              }
-              // to detect when loading bar should appear in modal
-              // and to populate data in modal for chart
-              rawRegionalSignalsProcessedPingSlash24={
-               rawRegionalSignalsProcessedPingSlash24
-              }
-              rawRegionalSignalsProcessedBgp={
-                rawRegionalSignalsProcessedBgp
-              }
-              rawRegionalSignalsProcessedMeritNt={
-                rawRegionalSignalsProcessedMeritNt
-              }
-              // Error message when max entities are checked
-              rawSignalsMaxEntitiesHtsError={
-                rawSignalsMaxEntitiesHtsError
-              }
-              // For use in the string that populates when there are more than 300 entities that could load
-              initialTableLimit={initialTableLimit}
-              // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
-              regionalSignalsTableTotalCount={
-                regionalSignalsTableTotalCount
-              }
-              // function used to call api to load remaining entities
-              handleLoadAllEntitiesButton={(event) =>
-                handleLoadAllEntitiesButton(event)
-              }
-              // Used to determine if load all message should display or not
-              regionalRawSignalsLoadAllButtonClicked={
-                regionalRawSignalsLoadAllButtonClicked
-              }
-              // Used for triggering the load all button loading icon once clicked
-              loadAllButtonEntitiesLoading={
-                loadAllButtonEntitiesLoading
-              }
-              handleAdditionalEntitiesLoading={() =>
-                handleAdditionalEntitiesLoading()
-              }
-              // manage loading bar for when loadAll button is clicked and
-              // additional raw signals are requested beyond what was initially loaded
-              additionalRawSignalRequestedPingSlash24={
-                additionalRawSignalRequestedPingSlash24
-              }
-              additionalRawSignalRequestedBgp={
-                additionalRawSignalRequestedBgp
-              }
-              additionalRawSignalRequestedMeritNt={
-                additionalRawSignalRequestedMeritNt
-              }
-              // used for tracking when check max/uncheck all loading icon should appear and not
-              checkMaxButtonLoading={checkMaxButtonLoading}
-              uncheckAllButtonLoading={uncheckAllButtonLoading}
-              // used to check if there are no entities available to load (to control when loading bar disappears)
-              rawRegionalSignalsRawBgpLength={
-                rawRegionalSignalsRawBgpLength
-              }
-              rawRegionalSignalsRawPingSlash24Length={
-                rawRegionalSignalsRawPingSlash24Length
-              }
-              rawRegionalSignalsRawMeritNtLength={
-                rawRegionalSignalsRawMeritNtLength
-              }
-              handleGlobalAsnSignals={handleGlobalAsnSignals}
-              handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
-              parentEntityName={parentEntityName}
-              globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
+            {showMapModal && (
+              <RawSignalsModal
+                modalLocation={"map"}
+                // entity name needed to populate text in headings
+                entityName={entityName}
+                // entity type needed to determine which time series count text to use
+                entityType={entityType}
+                // tracking when the modal should be visible
+                showModal={showMapModal}
+                // tracking when the close button is clicked
+                toggleModal={toggleModal}
+                // to populate outage map
+                topoData={topoData}
+                bounds={bounds}
+                topoScores={topoScores}
+                handleEntityShapeClick={(entity) =>
+                  handleEntityShapeClick(entity)
+                }
+                // render function that populates the ui
+                totalCount={regionalSignalsTableSummaryDataProcessed?.length}
+                toggleEntityVisibilityInHtsViz={(event) =>
+                  toggleEntityVisibilityInHtsViz(event, "region")
+                }
+                handleCheckboxEventLoading={(item) =>
+                  handleCheckboxEventLoading(item)
+                }
+                regionalSignalsTableSummaryDataProcessed={
+                  regionalSignalsTableSummaryDataProcessed
+                }
+                // data that draws polygons on map
+                summaryDataMapRaw={summaryDataMapRaw}
+                // check max and uncheck all button functionality
+                handleSelectAndDeselectAllButtons={(event) =>
+                  handleSelectAndDeselectAllButtons(event)
+                }
+                // Current number of entities checked in table
+                regionalSignalsTableEntitiesChecked={
+                  regionalSignalsTableEntitiesChecked
+                }
+                // to detect when loading bar should appear in modal
+                // and to populate data in modal for chart
+                rawRegionalSignalsProcessedPingSlash24={
+                  rawRegionalSignalsProcessedPingSlash24
+                }
+                rawRegionalSignalsProcessedBgp={rawRegionalSignalsProcessedBgp}
+                rawRegionalSignalsProcessedMeritNt={
+                  rawRegionalSignalsProcessedMeritNt
+                }
+                // Error message when max entities are checked
+                rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
+                // For use in the string that populates when there are more than 300 entities that could load
+                initialTableLimit={initialTableLimit}
+                // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
+                regionalSignalsTableTotalCount={regionalSignalsTableTotalCount}
+                // function used to call api to load remaining entities
+                handleLoadAllEntitiesButton={(event) =>
+                  handleLoadAllEntitiesButton(event)
+                }
+                // Used to determine if load all message should display or not
+                regionalRawSignalsLoadAllButtonClicked={
+                  regionalRawSignalsLoadAllButtonClicked
+                }
+                // Used for triggering the load all button loading icon once clicked
+                loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
+                handleAdditionalEntitiesLoading={() =>
+                  handleAdditionalEntitiesLoading()
+                }
+                // manage loading bar for when loadAll button is clicked and
+                // additional raw signals are requested beyond what was initially loaded
+                additionalRawSignalRequestedPingSlash24={
+                  additionalRawSignalRequestedPingSlash24
+                }
+                additionalRawSignalRequestedBgp={
+                  additionalRawSignalRequestedBgp
+                }
+                additionalRawSignalRequestedMeritNt={
+                  additionalRawSignalRequestedMeritNt
+                }
+                // used for tracking when check max/uncheck all loading icon should appear and not
+                checkMaxButtonLoading={checkMaxButtonLoading}
+                uncheckAllButtonLoading={uncheckAllButtonLoading}
+                // used to check if there are no entities available to load (to control when loading bar disappears)
+                rawRegionalSignalsRawBgpLength={rawRegionalSignalsRawBgpLength}
+                rawRegionalSignalsRawPingSlash24Length={
+                  rawRegionalSignalsRawPingSlash24Length
+                }
+                rawRegionalSignalsRawMeritNtLength={
+                  rawRegionalSignalsRawMeritNtLength
+                }
+                handleGlobalAsnSignals={handleGlobalAsnSignals}
+                handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
+                parentEntityName={parentEntityName}
+                globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
                 isLoading={isLoading}
-            />}
+              />
+            )}
           </div>
           <div className="map" style={{ display: "block", height: "40.5rem" }}>
-            {topoData &&
-            bounds &&
-            topoScores ? (
+            {topoData && bounds && topoScores ? (
               <TopoMap
                 topoData={topoData}
                 bounds={bounds}
@@ -302,9 +287,7 @@ const EntityRelated = (props) => {
                 }
                 entityType="region"
               />
-            ) : summaryDataMapRaw &&
-              topoScores &&
-              topoScores.length === 0 ? (
+            ) : summaryDataMapRaw && topoScores && topoScores.length === 0 ? (
               <div className="h-full flex-column items-center justify-center">
                 <h2 className="text-2xl">{noOutagesOnMapMessage}</h2>
                 <Button
@@ -330,10 +313,10 @@ const EntityRelated = (props) => {
                   {entityType === "country"
                     ? `Outages of ASNs/ISPs operating in ${entityName}`
                     : entityType === "region"
-                    ? `Outages of ASNs/ISPs related to ${entityName}`
-                    : entityType === "asn"
-                    ? `Countries where ${entityName} operates that experienced outages`
-                    : null}
+                      ? `Outages of ASNs/ISPs related to ${entityName}`
+                      : entityType === "asn"
+                        ? `Countries where ${entityName} operates that experienced outages`
+                        : null}
                 </h3>
                 <Tooltip
                   title={tooltipEntityAsnSummaryTableTitle}
@@ -348,96 +331,88 @@ const EntityRelated = (props) => {
                 {asnModalButtonText}
               </Button>
             </div>
-            {showTableModal && <RawSignalsModal
-              modalLocation={"table"}
-              // tracking when the modal should be visible
-              showModal={showTableModal}
-              // entity name needed to populate text in headings
-              entityName={entityName}
-              // entity type needed to determine which time series count text to use
-              entityType={entityType}
-              // tracking when the close button is clicked
-              toggleModal={toggleModal}
-              // render function that populates the ui
+            {showTableModal && (
+              <RawSignalsModal
+                modalLocation={"table"}
+                // tracking when the modal should be visible
+                showModal={showTableModal}
+                // entity name needed to populate text in headings
+                entityName={entityName}
+                // entity type needed to determine which time series count text to use
+                entityType={entityType}
+                // tracking when the close button is clicked
+                toggleModal={toggleModal}
+                // render function that populates the ui
 
-              // data that populates in table
-              asnSignalsTableSummaryDataProcessed={
-                asnSignalsTableSummaryDataProcessed
-              }
-              // render function that populates the ui
-              toggleEntityVisibilityInHtsViz={(event) =>
-                toggleEntityVisibilityInHtsViz(event, "asn")
-              }
-              handleCheckboxEventLoading={(item) =>
-                handleCheckboxEventLoading(item)
-              }
-              // data for each horizon time series
-              rawAsnSignalsProcessedPingSlash24={
-                rawAsnSignalsProcessedPingSlash24
-              }
-              rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
-              rawAsnSignalsProcessedMeritNt={
-                rawAsnSignalsProcessedMeritNt
-              }
-              // Current number of entities checked in table
-              asnSignalsTableEntitiesChecked={
-                asnSignalsTableEntitiesChecked
-              }
-              // check max and uncheck all button functionality
-              handleSelectAndDeselectAllButtons={(event) =>
-                handleSelectAndDeselectAllButtons(event)
-              }
-              // Error message when max entities are checked
-              rawSignalsMaxEntitiesHtsError={
-                rawSignalsMaxEntitiesHtsError
-              }
-              // For use in the string that populates when there are more than 300 entities that could load
-              initialTableLimit={initialTableLimit}
-              // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
-              asnSignalsTableTotalCount={asnSignalsTableTotalCount}
-              // function used to call api to load remaining entities
-              handleLoadAllEntitiesButton={(event) =>
-                handleLoadAllEntitiesButton(event)
-              }
-              // Used to determine if load all message should display or not
-              asnRawSignalsLoadAllButtonClicked={
-                asnRawSignalsLoadAllButtonClicked
-              }
-              // Used for triggering the load all button loading icon once clicked
-              loadAllButtonEntitiesLoading={
-                loadAllButtonEntitiesLoading
-              }
-              handleAdditionalEntitiesLoading={() =>
-                handleAdditionalEntitiesLoading()
-              }
-              // manage loading bar for when loadAll button is clicked and
-              // additional raw signals are requested beyond what was initially loaded
-              additionalRawSignalRequestedPingSlash24={
-                additionalRawSignalRequestedPingSlash24
-              }
-              additionalRawSignalRequestedBgp={
-                additionalRawSignalRequestedBgp
-              }
-              additionalRawSignalRequestedMeritNt={
-                additionalRawSignalRequestedMeritNt
-              }
-              // used for tracking when check max/uncheck all loading icon should appear and not
-              checkMaxButtonLoading={checkMaxButtonLoading}
-              uncheckAllButtonLoading={uncheckAllButtonLoading}
-              // used to check if there are no entities available to load (to control when loading bar disappears)
-              rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgpLength}
-              rawAsnSignalsRawPingSlash24Length={
-                rawAsnSignalsRawPingSlash24Length
-              }
-              rawAsnSignalsRawMeritNtLength={
-                rawAsnSignalsRawMeritNtLength
-              }
-              handleGlobalAsnSignals={handleGlobalAsnSignals}
-              handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
-              parentEntityName={parentEntityName}
-              globalSwitch={globalSwitch}
-              isLoading={isLoading}
-            />}
+                // data that populates in table
+                asnSignalsTableSummaryDataProcessed={
+                  asnSignalsTableSummaryDataProcessed
+                }
+                // render function that populates the ui
+                toggleEntityVisibilityInHtsViz={(event) =>
+                  toggleEntityVisibilityInHtsViz(event, "asn")
+                }
+                handleCheckboxEventLoading={(item) =>
+                  handleCheckboxEventLoading(item)
+                }
+                // data for each horizon time series
+                rawAsnSignalsProcessedPingSlash24={
+                  rawAsnSignalsProcessedPingSlash24
+                }
+                rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
+                rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
+                // Current number of entities checked in table
+                asnSignalsTableEntitiesChecked={asnSignalsTableEntitiesChecked}
+                // check max and uncheck all button functionality
+                handleSelectAndDeselectAllButtons={(event) =>
+                  handleSelectAndDeselectAllButtons(event)
+                }
+                // Error message when max entities are checked
+                rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
+                // For use in the string that populates when there are more than 300 entities that could load
+                initialTableLimit={initialTableLimit}
+                // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
+                asnSignalsTableTotalCount={asnSignalsTableTotalCount}
+                // function used to call api to load remaining entities
+                handleLoadAllEntitiesButton={(event) =>
+                  handleLoadAllEntitiesButton(event)
+                }
+                // Used to determine if load all message should display or not
+                asnRawSignalsLoadAllButtonClicked={
+                  asnRawSignalsLoadAllButtonClicked
+                }
+                // Used for triggering the load all button loading icon once clicked
+                loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
+                handleAdditionalEntitiesLoading={() =>
+                  handleAdditionalEntitiesLoading()
+                }
+                // manage loading bar for when loadAll button is clicked and
+                // additional raw signals are requested beyond what was initially loaded
+                additionalRawSignalRequestedPingSlash24={
+                  additionalRawSignalRequestedPingSlash24
+                }
+                additionalRawSignalRequestedBgp={
+                  additionalRawSignalRequestedBgp
+                }
+                additionalRawSignalRequestedMeritNt={
+                  additionalRawSignalRequestedMeritNt
+                }
+                // used for tracking when check max/uncheck all loading icon should appear and not
+                checkMaxButtonLoading={checkMaxButtonLoading}
+                uncheckAllButtonLoading={uncheckAllButtonLoading}
+                // used to check if there are no entities available to load (to control when loading bar disappears)
+                rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgpLength}
+                rawAsnSignalsRawPingSlash24Length={
+                  rawAsnSignalsRawPingSlash24Length
+                }
+                rawAsnSignalsRawMeritNtLength={rawAsnSignalsRawMeritNtLength}
+                handleGlobalAsnSignals={handleGlobalAsnSignals}
+                handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
+                parentEntityName={parentEntityName}
+                globalSwitch={globalSwitch}
+                isLoading={isLoading}
+              />
+            )}
           </div>
           <div className="tab__table" ref={relatedTableConfig}>
             {relatedToTableSummaryProcessed ? (
@@ -453,7 +428,7 @@ const EntityRelated = (props) => {
           </div>
         </div>
       </div>
-          {
+      {/* {
               showApPacketGraph &&
               <ApPacketLatencyAndLossRateComponent
                   rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
@@ -468,10 +443,9 @@ const EntityRelated = (props) => {
               rawAsnSignalsUpstreamDelayLatency={rawAsnSignalsUpstreamDelayLatency}
               rawAsnSignalsUpstreamDelayPenultAsnCount={rawAsnSignalsUpstreamDelayPenultAsnCount}
               entityName={entityName}
-          />}
-
+          />} */}
     </div>
-    );
-}
+  );
+};
 
 export default React.memo(EntityRelated);
