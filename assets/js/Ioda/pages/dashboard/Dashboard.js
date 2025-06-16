@@ -607,7 +607,8 @@ const Dashboard = (props) => {
             selectedKeys={[activeTabType]}
             onClick={(e) => handleSelectTab(e.key)}
             style={{
-              borderBottom: "none", // Remove default border
+              background: "transparent",
+              borderBottom: "none",
               height: "40px",
             }}
             theme="light"

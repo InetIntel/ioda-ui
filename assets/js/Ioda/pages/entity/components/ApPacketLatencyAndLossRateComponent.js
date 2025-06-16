@@ -171,7 +171,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     if (chart && leftText) {
       if (displayLatency) {
         leftText.attr({
-          text: "<strong>Latency</strong> <span style='opacity: 0.8;'>Round Trip Time (ms)</span>",
+          text: "<strong>Latency</strong> <span style='opacity: 0.8;'>(Round Trip Time (ms))</span>",
         });
       } else {
         leftText.attr({ text: "" });
@@ -185,7 +185,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     if (chart && rightText) {
       if (displayPctLoss) {
         rightText.attr({
-          text: "<strong> Packet Loss </strong> <span style='opacity: 0.8;'>(%)</span>",
+          text: "<strong> Packet Loss </strong> <span style='opacity: 0.8;'>(Percentage Loss Rate)</span>",
         });
       } else {
         rightText.attr({ text: "" });
@@ -307,7 +307,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           // Left-aligned title
           leftYAxisTitleRef.current = chart.renderer
             .text(
-              "<strong>Latency</strong> <span style='opacity: 0.8;'>Round Trip Time (ms)</span>",
+              "<strong>Latency</strong> <span style='opacity: 0.8;'>(Round Trip Time (ms))</span>",
               chart.plotLeft,
               chart.plotTop - 20,
               true
@@ -579,7 +579,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           enabled: false,
         },
         visible: displayPctLoss,
-        showInNavigator: false,
+        showInNavigator: true,
       },
     ],
   };

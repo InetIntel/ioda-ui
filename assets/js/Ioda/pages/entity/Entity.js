@@ -2889,9 +2889,7 @@ const Entity = (props) => {
             entityName={entityName}
           />
           <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
-            {/* <div className="grid grid-cols-3 gap-6 mb-6 entity__chart-layout"> */}
             <div className="col-2">
-              {/* <div className="col-span-2"> */}
               <div className="p-4 card mb-6">
                 <div className="flex items-center mb-3">
                   <h3 className="text-2xl mr-1">
