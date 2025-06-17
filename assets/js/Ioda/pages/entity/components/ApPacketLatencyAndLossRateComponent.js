@@ -16,7 +16,7 @@ require("highcharts/modules/offline-exporting")(Highcharts);
 
 import Loading from "../../../components/loading/Loading";
 
-import { Button, Checkbox, Popover, Tooltip } from "antd";
+import { Button, Checkbox, Popover, Tooltip, Cascader, Tag } from "antd";
 import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
 import ShareLinkModal from "../../../components/modal/ShareLinkModal";
 import { getApLatencyChartExportFileName } from "../utils/EntityUtils";
@@ -44,7 +44,7 @@ const ApPacketLatencyAndLossRateComponent = ({
   const [lossData, setLossData] = useState(null);
   const [latencyData, setLatencyData] = useState(null);
   const [displayLatency, setDisplayLatency] = useState(true);
-  const [displayPctLoss, setDisplayPctLoss] = useState(false);
+  const [displayPctLoss, setDisplayPctLoss] = useState(true);
   const [showShareLinkModal, setShowShareLinkModal] = useState(false);
   const rightYAxisTitleRef = useRef(null);
   const leftYAxisTitleRef = useRef(null);
@@ -322,7 +322,14 @@ const ApPacketLatencyAndLossRateComponent = ({
           // if(displayPctLoss) {
 
           const rightText = chart.renderer
-            .text("", 0, chart.plotTop - 20, true)
+            .text(
+              displayPctLoss
+                ? "<strong> Packet Loss </strong> <span style='opacity: 0.8;'>(Percentage Loss Rate)</span>"
+                : "",
+              0,
+              chart.plotTop - 20,
+              true
+            )
             .css({
               color: "#333",
               fontSize: "12px",
@@ -336,7 +343,8 @@ const ApPacketLatencyAndLossRateComponent = ({
           //     x: chart.chartWidth - chart.marginRight - textBBox.width - 20
           // });
           rightText.attr({
-            x: chart.plotLeft + chart.plotWidth - textBBox.width - 20,
+            // x: chart.plotLeft + chart.plotWidth - textBBox.width,
+            x: chart.chartWidth - chart.marginRight - textBBox.width,
           });
 
           rightYAxisTitleRef.current = rightText;
@@ -553,7 +561,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         color: "#722ED1",
         zIndex: 0,
         visible: displayLatency,
-        lineWidth: 2,
+        lineWidth: 1,
         marker: {
           enabled: true,
           radius: 0.05,
@@ -570,7 +578,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         type: "line",
         color: "#D62782",
         zIndex: 0,
-        lineWidth: 2,
+        lineWidth: 1,
         yAxis: 1,
         marker: {
           // enabled: true,
@@ -729,6 +737,34 @@ const ApPacketLatencyAndLossRateComponent = ({
       </div>
     </div>
   );
+  const [selectedMetricPaths, setSelectedMetricPaths] = useState([]);
+
+  const metricOptions = [
+    {
+      value: "latency",
+      label: apChartLatencyLabel,
+    },
+    {
+      value: "loss",
+      label: apChartPctLossLabel,
+    },
+  ];
+
+  useEffect(() => {
+    const initial = [];
+    if (displayLatency) {
+      initial.push(["latency"]);
+    }
+    if (displayPctLoss) {
+      initial.push(["loss"]);
+    }
+    setSelectedMetricPaths(initial);
+  }, []);
+  const tagColors = {
+    latency: "#722ED1",
+    loss: "#D62782",
+  };
+
   return (
     <React.Fragment>
       <ShareLinkModal
@@ -804,9 +840,50 @@ const ApPacketLatencyAndLossRateComponent = ({
       {/* </div> */}
 
       {lossPackage?.length > 0 && (
-        <div className="flex entity__chart-layout">
+        <div
+          className="flex flex-col entity__chart-layout"
+          style={{ flexDirection: "column" }}
+        >
+          {/* <div
+            className="p-4"
+            style={{ width: "30%", minWidth: "150px", marginTop: "10px" }}
+          > */}
+          <div className="mt-4" style={{ width: "40%" }}>
+            <Cascader
+              options={metricOptions}
+              value={selectedMetricPaths}
+              onChange={(paths) => {
+                setSelectedMetricPaths(paths);
+                const flat = paths.map((p) => p[p.length - 1]);
+                handleDisplayLatencyBands(flat.includes("latency"));
+                handleDisplayPctLoss(flat.includes("loss"));
+              }}
+              multiple
+              placeholder="Show metrics…"
+              maxTagCount="responsive"
+              style={{ width: "100%" }}
+              tagRender={({ label, value, closable, onClose }) => {
+                const color = tagColors[value] || "#999";
+                return (
+                  <Tag
+                    closable={closable}
+                    onClose={onClose}
+                    style={{
+                      backgroundColor: `${color}33`,
+                      borderColor: color,
+                      color: "#000",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {label}
+                  </Tag>
+                );
+              }}
+            />
+          </div>
           {/* 0612 */}
-          <div className="flex-grow p-4 mt-2" style={{ width: "85%" }}>
+          {/* <div className="flex-grow" style={{ width: "100%" }}> */}
+          <div className=" w-full">
             {lossPackage && (
               <div>
                 {/* <ASNLegend /> */}
@@ -822,27 +899,6 @@ const ApPacketLatencyAndLossRateComponent = ({
                 />
               </div>
             )}
-          </div>
-          <div
-            className="p-4"
-            style={{ width: "15%", minWidth: "150px", marginTop: "15px" }}
-          >
-            <div>
-              <Checkbox
-                checked={!!displayLatency}
-                onChange={(e) => handleDisplayLatencyBands(e.target.checked)}
-              >
-                {apChartLatencyLabel}
-              </Checkbox>
-            </div>
-            <div className="mt-2">
-              <Checkbox
-                checked={!!displayPctLoss}
-                onChange={(e) => handleDisplayPctLoss(e.target.checked)}
-              >
-                {apChartPctLossLabel}
-              </Checkbox>
-            </div>
           </div>
         </div>
       )}
