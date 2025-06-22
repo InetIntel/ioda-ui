@@ -1,10 +1,10 @@
 .entity {
-  padding-top: $header-height;
-  margin: $gutter-vertical auto;
+  // padding-top: $header-height;
+  // margin: $gutter-vertical auto;
 
-  @include respond(phone-440) {
-    margin: 1.5rem auto;
-  }
+  // @include respond(phone-440) {
+  //   margin: 1.5rem auto;
+  // }
 
   &__chart-layout {
     @include respond(tab-port) {

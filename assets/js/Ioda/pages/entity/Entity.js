@@ -133,6 +133,7 @@ import { getChartExportFileName, handleCSVDownload } from "./utils/EntityUtils";
 import { setTimeRange } from "../../data/TimeRangeAction";
 import ApPacketLatencyAndLossRateComponent from "./components/ApPacketLatencyAndLossRateComponent";
 import UpstreamDelayComponent from "./components/UpstreamDelayComponent";
+import ChartLegendCard from "../../components/cards/ChartLegendCard";
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
@@ -3025,6 +3026,12 @@ const Entity = (props) => {
                     </Tooltip>
                   </Popover>
                 </div>
+                <ChartLegendCard
+                  legendHandler={handleSelectedSignal}
+                  checkedMap={tsDataSeriesVisibleMap}
+                  updateSourceParams={updateSourceParams}
+                  simplifiedView={simplifiedView}
+                />
                 {xyChartOptions ? renderXyChart() : <Loading />}
                 <TimeStamp
                   className="mt-4"

@@ -55,6 +55,8 @@ const ApPacketLatencyAndLossRateComponent = ({
   const [showResetZoomButton, setShowResetZoomButton] = useState(false);
   const [displayChartSharePopover, setDisplayChartSharePopover] =
     useState(false);
+  // exportingInit(Highcharts);
+  // offlineExportingInit(Highcharts);
 
   useEffect(() => {
     if (!rawAsnSignalsApPacketLoss?.[0]?.[0]) {
@@ -248,16 +250,37 @@ const ApPacketLatencyAndLossRateComponent = ({
       .filter((point) => point[1] != null) || [];
   // console.log(lossRanges)
 
-  const lossMedians = latencyData?.values
-    ?.map((obj, index) => {
-      const x = secondsToMilliseconds(
-        latencyData?.from + latencyData?.step * index
-      );
-      return [x, obj[0].agg_values.median_latency];
-    })
-    .filter((point) => point[1] != null && !isNaN(point[1]));
+  const lossMedians =
+    latencyData?.values
+      ?.map((obj, index) => {
+        const x = secondsToMilliseconds(
+          latencyData?.from + latencyData?.step * index
+        );
+        return [x, obj[0].agg_values.median_latency];
+      })
+      .filter((point) => point[1] != null && !isNaN(point[1])) || [];
 
-  // console.log(lossMedians)
+  console.log("lossMedians", lossMedians);
+  let navLatency = [],
+    navLoss = [];
+
+  if (lossMedians.length > 0 && lossPackage.length > 0) {
+    const valsLat = lossMedians.map(([, v]) => v);
+    const valsLoss = lossPackage.map(([, v]) => v);
+
+    const minLat = Math.min(...valsLat),
+      maxLat = Math.max(...valsLat);
+    const minLoss = Math.min(...valsLoss),
+      maxLoss = Math.max(...valsLoss);
+
+    navLatency = lossMedians.map(([t, v]) => [t, v / maxLat]);
+
+    navLoss = lossPackage.map(([t, v]) => [
+      t,
+      //   (v - minLoss) / (maxLoss - minLoss),
+      v / 100,
+    ]);
+  }
 
   // const rightPartitionMin = lossPackage?.length > 0 ? Math.min(...lossPackage) : null;
   // console.log(rightPartitionMin)
@@ -348,7 +371,20 @@ const ApPacketLatencyAndLossRateComponent = ({
           });
 
           rightYAxisTitleRef.current = rightText;
-          // }
+          //   // }
+          //   const axisMax = chart.yAxis[0].getExtremes().max;
+
+          //   //    (make sure lossMedians and lossPackage are in scope)
+          //   const navLatency = lossMedians.map(([t, v]) => [
+          //     t,
+          //     (v * 100) / axisMax,
+          //   ]);
+          //   const navLoss = lossPackage.map(([t, v]) => [t, v]);
+
+          //   chart.navigator.series[0].setData(navLatency, false);
+          //   chart.navigator.series[1].setData(navLoss, false);
+
+          //   chart.redraw();
         },
       },
       spacingBottom: 0,
@@ -425,6 +461,9 @@ const ApPacketLatencyAndLossRateComponent = ({
     },
     navigator: {
       enabled: true,
+
+      adaptToUpdatedData: false,
+
       time: {
         useUTC: true,
       },
@@ -448,6 +487,22 @@ const ApPacketLatencyAndLossRateComponent = ({
           },
         },
       },
+      series: [
+        {
+          data: navLatency,
+          type: "line",
+          color: "#722ED1",
+          name: "Latency (normalized)",
+          index: 0,
+        },
+        {
+          data: navLoss,
+          type: "line",
+          color: "#D62782",
+          name: "Packet Loss (normalized)",
+          index: 1,
+        },
+      ],
     },
     time: {
       useUTC: true,
@@ -570,7 +625,8 @@ const ApPacketLatencyAndLossRateComponent = ({
           lineWidth: 1,
           lineColor: "#FFFFFF",
         },
-        showInNavigator: true,
+        // showInNavigator: true,
+        showInNavigator: false,
       },
       {
         name: "Loss",
@@ -587,7 +643,8 @@ const ApPacketLatencyAndLossRateComponent = ({
           enabled: false,
         },
         visible: displayPctLoss,
-        showInNavigator: true,
+        // showInNavigator: true,
+        showInNavigator: false,
       },
     ],
   };
@@ -650,51 +707,6 @@ const ApPacketLatencyAndLossRateComponent = ({
                 )
                 .add()
                 .toFront();
-
-              // if(displayLatency) {
-              //     const titleBBox = chart.title?.getBBox?.();
-              //     console.log(titleBBox)
-              //     const yOffset = titleBBox ? titleBBox.y + titleBBox.height - 10 : chart.spacingTop;
-              //
-              //     leftYAxisTitleRef.current = chart.renderer
-              //         .text(
-              //             "<strong>Latency</strong> <span style='opacity: 0.8;'>Round Trip Time (ms)</span>",
-              //             chart.plotLeft,
-              //             yOffset,
-              //             true
-              //         )
-              //         .css({
-              //             color: '#333',
-              //             fontSize: '12px'
-              //         })
-              //         .add();
-              // }
-              //
-              // if(displayPctLoss) {
-              //     const titleBBox = chart.title?.getBBox?.();
-              //     console.log(titleBBox)
-              //     const yOffset =  titleBBox ? titleBBox.y + titleBBox.height + 30 : chart.spacingTop;
-              //
-              //     const rightText = chart.renderer
-              //         .text(
-              //             "<strong>Packet Loss</strong> <span style='opacity: 0.8;'>%</span>",
-              //             0,
-              //             yOffset,
-              //             true
-              //         )
-              //         .css({
-              //             color: '#333',
-              //             fontSize: '12px',
-              //             textAlign: 'right'
-              //         })
-              //         .add();
-              //
-              //     // Align it to the right
-              //     const textBBox = rightText.getBBox();
-              //     rightText.attr({
-              //         x: chart.plotLeft + chart.plotWidth - textBBox.width - 20
-              //     });
-              // }
             },
           },
         },
