@@ -51,8 +51,8 @@ const ChartTabCard = ({
   alertsData,
   eventData,
 }) => {
-  const [currentTab, setCurrentTab] = useState(1);
-  // const [currentTab, setCurrentTab] = useState(2);
+  // const [currentTab, setCurrentTab] = useState(1);
+  const [currentTab, setCurrentTab] = useState(simplifiedView ? 1 : 2);
 
   const handleSelectTab = (selectedKey) => {
     setCurrentTab(selectedKey);

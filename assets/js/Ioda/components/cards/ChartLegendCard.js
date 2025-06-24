@@ -34,11 +34,175 @@
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
  */
-import React from "react";
-import { Checkbox, Collapse } from "antd";
-import { gtrColor, legend } from "../../utils";
-import { debounce } from "lodash";
+// import React from "react";
+// import { Checkbox, Collapse } from "antd";
+// import { gtrColor, legend } from "../../utils";
+// import { debounce } from "lodash";
+// import { useParams } from "react-router-dom";
+// import Tooltip from "../tooltip/Tooltip";
+// import T from "i18n-react";
+
+// const ChartLegendCard = ({
+//   legendHandler,
+//   checkedMap,
+//   updateSourceParams,
+//   simplifiedView,
+// }) => {
+//   const { entityType } = useParams();
+//   const handleChange = (source) => {
+//     legendHandler(source);
+//     if (source.includes("gtr.")) {
+//       updateSourceParams(source.split(".")[1]);
+//     }
+//   };
+
+//   const isCountryView = entityType === "country";
+
+//   const handleChangeDebounced = debounce(handleChange, 180);
+
+//   const googleSeries = legend.filter((item) => item.key.includes("gtr"));
+//   const selectedGoogleSeries = googleSeries.filter(
+//     (item) => !!checkedMap[item.key]
+//   );
+
+//   // The expandable checkbox for Google is checked if all Google series are
+//   // checked, or not checked if none are checked. We use null to signify that
+//   // the checkbox is in an indeterminate state.
+//   const googleExpandableChecked =
+//     googleSeries.length === selectedGoogleSeries.length
+//       ? true
+//       : selectedGoogleSeries.length === 0
+//       ? false
+//       : null;
+
+//   const tooltipGoogleLegendText = T.translate("tooltip.googleLegend.text");
+
+//   const tooltipGoogleLegendTitle = T.translate("tooltip.googleLegend.title");
+
+//   return (
+//     <>
+//       {legend
+//         .filter(
+//           (item) => !item.key.includes(".") && checkedMap[item.key] != null
+//         )
+//         .map((item) => (
+//           <div key={item.key} style={{ display: "flex", alignItems: "center" }}>
+//             <Checkbox
+//               className="ioda-checkbox mb-2"
+//               checked={checkedMap[item.key]}
+//               onChange={() => handleChangeDebounced(item.key)}
+//               name={item.key}
+//               style={{
+//                 "--background-color": item.color,
+//                 "--border-color": item.color,
+//               }}
+//             >
+//               {item.title}
+//             </Checkbox>
+//             <Tooltip
+//               title={item.tooltip.title}
+//               customCode={
+//                 <>
+//                   {item.tooltip.text}{" "}
+//                   <a
+//                     href={item.tooltip.link}
+//                     target="_blank"
+//                     rel="noopener noreferrer"
+//                     style={{ color: "#fa8c16" }}
+//                   >
+//                     Learn More.
+//                   </a>
+//                 </>
+//               }
+//             />
+//           </div>
+//         ))}
+
+//       {simplifiedView && !isCountryView && (
+//         <div style={{ display: "flex", alignItems: "center" }}>
+//           <Checkbox
+//             key="gtr.WEB_SEARCH"
+//             className="ioda-checkbox mb-2"
+//             checked={checkedMap["gtr.WEB_SEARCH"]}
+//             onChange={() => handleChangeDebounced("gtr.WEB_SEARCH")}
+//             style={{
+//               "--background-color": gtrColor,
+//               "--border-color": gtrColor,
+//             }}
+//           >
+//             Google (Search)
+//           </Checkbox>
+//           {/* <Tooltip
+//             title={tooltipGoogleLegendTitle}
+//             text={tooltipGoogleLegendText}
+//           /> */}
+//           <Tooltip
+//             title={tooltipGoogleLegendTitle}
+//             customCode={
+//               <>
+//                 {tooltipGoogleLegendText}{" "}
+//                 <a
+//                   href={"/resources?search=google&tab=glossary"}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   style={{ color: "#fa8c16" }}
+//                 >
+//                   Learn More.
+//                 </a>
+//               </>
+//             }
+//           />
+//         </div>
+//       )}
+
+//       {!simplifiedView && isCountryView && (
+//         <Collapse rootClassName="mt-4" expandIconPosition="end">
+//           <Collapse.Panel
+//             header={
+//               <div style={{ display: "flex", alignItems: "center" }}>
+//                 <Checkbox
+//                   indeterminate={googleExpandableChecked === null}
+//                   onChange={() => {}}
+//                   checked={googleExpandableChecked}
+//                 >
+//                   Google ({selectedGoogleSeries.length})
+//                 </Checkbox>
+//                 <Tooltip
+//                   title={tooltipGoogleLegendTitle}
+//                   text={tooltipGoogleLegendText}
+//                 />
+//               </div>
+//             }
+//             key="1"
+//           >
+//             {googleSeries.map((item) => (
+//               <div key={item.key}>
+//                 <Checkbox
+//                   className="ioda-checkbox mb-2"
+//                   checked={!!checkedMap[item.key]}
+//                   onChange={() => handleChangeDebounced(item.key)}
+//                   style={{
+//                     "--background-color": item.color,
+//                     "--border-color": item.color,
+//                   }}
+//                 >
+//                   {item.title}
+//                 </Checkbox>
+//               </div>
+//             ))}
+//           </Collapse.Panel>
+//         </Collapse>
+//       )}
+//     </>
+//   );
+// };
+
+// export default React.memo(ChartLegendCard);
+
+import React, { useState, useEffect } from "react";
+import { Cascader, Tag } from "antd";
 import { useParams } from "react-router-dom";
+import { gtrColor, legend } from "../../utils";
 import Tooltip from "../tooltip/Tooltip";
 import T from "i18n-react";
 
@@ -49,151 +213,191 @@ const ChartLegendCard = ({
   simplifiedView,
 }) => {
   const { entityType } = useParams();
-  const handleChange = (source) => {
-    legendHandler(source);
-    if (source.includes("gtr.")) {
-      updateSourceParams(source.split(".")[1]);
-    }
-  };
-
   const isCountryView = entityType === "country";
 
-  const handleChangeDebounced = debounce(handleChange, 180);
-
-  const googleSeries = legend.filter((item) => item.key.includes("gtr"));
-  const selectedGoogleSeries = googleSeries.filter(
-    (item) => !!checkedMap[item.key]
+  const baseItems = legend.filter(
+    (item) => !item.key.includes(".") && checkedMap[item.key] != null
   );
+  const allGoogleSeries = legend.filter((item) => item.key.startsWith("gtr."));
+  const googleLeaves = !simplifiedView && isCountryView ? allGoogleSeries : [];
 
-  // The expandable checkbox for Google is checked if all Google series are
-  // checked, or not checked if none are checked. We use null to signify that
-  // the checkbox is in an indeterminate state.
-  const googleExpandableChecked =
-    googleSeries.length === selectedGoogleSeries.length
-      ? true
-      : selectedGoogleSeries.length === 0
-      ? false
-      : null;
-
-  const tooltipGoogleLegendText = T.translate("tooltip.googleLegend.text");
-
-  const tooltipGoogleLegendTitle = T.translate("tooltip.googleLegend.title");
-
-  return (
-    <>
-      {legend
-        .filter(
-          (item) => !item.key.includes(".") && checkedMap[item.key] != null
-        )
-        .map((item) => (
-          <div key={item.key} style={{ display: "flex", alignItems: "center" }}>
-            <Checkbox
-              className="ioda-checkbox mb-2"
-              checked={checkedMap[item.key]}
-              onChange={() => handleChangeDebounced(item.key)}
-              name={item.key}
-              style={{
-                "--background-color": item.color,
-                "--border-color": item.color,
-              }}
-            >
-              {item.title}
-            </Checkbox>
+  const cascaderOptions = [
+    ...baseItems.map((item) => {
+      const tip = item.tooltip;
+      return {
+        value: item.key,
+        // label: item.title,
+        tooltip: item.tooltip,
+        label: (
+          <span style={{ display: "inline-flex", alignItems: "center" }}>
+            <span style={{ marginRight: 4 }}>{item.title}</span>
             <Tooltip
-              title={item.tooltip.title}
+              title={tip.title}
               customCode={
                 <>
-                  {item.tooltip.text}{" "}
-                  <a
-                    href={item.tooltip.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "#fa8c16" }}
-                  >
-                    Learn More.
-                  </a>
+                  {tip.text}{" "}
+                  {tip.link && (
+                    <a
+                      href={tip.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#fa8c16" }}
+                    >
+                      Learn More.
+                    </a>
+                  )}
                 </>
               }
             />
-          </div>
-        ))}
+          </span>
+        ),
+      };
+    }),
+    ...(googleLeaves.length
+      ? [
+          {
+            value: "google",
+            label: `Google (${googleLeaves.length})`,
+            children: googleLeaves.map((item) => ({
+              value: item.key,
+              label: item.title,
+            })),
+          },
+        ]
+      : []),
+  ];
 
-      {simplifiedView && !isCountryView && (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Checkbox
-            key="gtr.WEB_SEARCH"
-            className="ioda-checkbox mb-2"
-            checked={checkedMap["gtr.WEB_SEARCH"]}
-            onChange={() => handleChangeDebounced("gtr.WEB_SEARCH")}
+  const [selectedPaths, setSelectedPaths] = useState([]);
+  useEffect(() => {
+    const init = [];
+    baseItems.forEach((item) => {
+      if (checkedMap[item.key]) init.push([item.key]);
+    });
+    googleLeaves.forEach((item) => {
+      if (checkedMap[item.key]) init.push(["google", item.key]);
+    });
+    setSelectedPaths(init);
+  }, [checkedMap, simplifiedView, isCountryView]);
+
+  const fullTagText = {};
+  const colorMap = {};
+  baseItems.forEach((item) => {
+    fullTagText[item.key] = item.title;
+    colorMap[item.key] = item.color;
+  });
+  googleLeaves.forEach((item) => {
+    fullTagText["google__RC_CASCADER_SPLIT__" + item.key] =
+      `Google (${item.title})`;
+    colorMap["google__RC_CASCADER_SPLIT__" + item.key] = item.color;
+  });
+  console.log("fullTagText:", fullTagText);
+  console.log("colorMap:", colorMap);
+
+  const onCascaderChange = (newPaths) => {
+    const newLeaves = newPaths.map((p) => p[p.length - 1]);
+    baseItems.forEach((item) => {
+      const was = !!checkedMap[item.key];
+      const now = newLeaves.includes(item.key);
+      if (was !== now) legendHandler(item.key);
+    });
+    googleLeaves.forEach((item) => {
+      const was = !!checkedMap[item.key];
+      const now = newLeaves.includes(item.key);
+      if (was !== now) {
+        legendHandler(item.key);
+        updateSourceParams(item.key.split(".")[1]);
+      }
+    });
+    setSelectedPaths(newPaths);
+  };
+
+  return (
+    // <Cascader
+    //   options={cascaderOptions}
+    //   value={selectedPaths}
+    //   onChange={onCascaderChange}
+    //   multiple
+    //   placeholder="Select series…"
+    //   maxTagCount="responsive"
+    //   style={{ width: "100%" }}
+    //   tagRender={({ label, value, closable, onClose }) => {
+    //     const color = colorMap[value] || "#999";
+    //     console.log("Value:", value);
+    //     return (
+    //       <Tag
+    //         closable={closable}
+    //         onClose={onClose}
+    //         style={{
+    //           backgroundColor: `${color}33`,
+    //           borderColor: color,
+    //           color: "#000",
+    //           fontWeight: 500,
+    //         }}
+    //       >
+    //         {fullTagText[value] || label}
+    //       </Tag>
+    //     );
+    //   }}
+    //   // displayRender={(labels, selectedOptions) => {
+    //   //   const lastOpt = selectedOptions[selectedOptions.length - 1];
+    //   //   return fullTagText[lastOpt.value] ?? labels.join(" / ");
+    //   // }}
+    // />
+    <Cascader
+      options={cascaderOptions}
+      value={selectedPaths}
+      onChange={onCascaderChange}
+      multiple
+      placeholder="Select series…"
+      maxTagCount="responsive"
+      style={{ width: "100%" }}
+      tagRender={({ label, value, closable, onClose }) => {
+        const color = colorMap[value] || "#999";
+        const tooltipKey = value.includes("__RC_CASCADER_SPLIT__")
+          ? value.split("__RC_CASCADER_SPLIT__")[1]
+          : value;
+        const tooltipData = legend.find(
+          (item) => item.key === tooltipKey
+        )?.tooltip;
+        console.log("tooltipdata", tooltipData);
+
+        return (
+          <Tag
+            closable={closable}
+            onClose={onClose}
             style={{
-              "--background-color": gtrColor,
-              "--border-color": gtrColor,
+              display: "inline-flex",
+              alignItems: "center",
+              backgroundColor: `${color}33`,
+              borderColor: color,
+              color: "#000",
+              fontWeight: 500,
             }}
           >
-            Google (Search)
-          </Checkbox>
-          {/* <Tooltip
-            title={tooltipGoogleLegendTitle}
-            text={tooltipGoogleLegendText}
-          /> */}
-          <Tooltip
-            title={tooltipGoogleLegendTitle}
-            customCode={
-              <>
-                {tooltipGoogleLegendText}{" "}
-                <a
-                  href={"/resources?search=google&tab=glossary"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "#fa8c16" }}
-                >
-                  Learn More.
-                </a>
-              </>
-            }
-          />
-        </div>
-      )}
-
-      {!simplifiedView && isCountryView && (
-        <Collapse rootClassName="mt-4" expandIconPosition="end">
-          <Collapse.Panel
-            header={
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <Checkbox
-                  indeterminate={googleExpandableChecked === null}
-                  onChange={() => {}}
-                  checked={googleExpandableChecked}
-                >
-                  Google ({selectedGoogleSeries.length})
-                </Checkbox>
-                <Tooltip
-                  title={tooltipGoogleLegendTitle}
-                  text={tooltipGoogleLegendText}
-                />
-              </div>
-            }
-            key="1"
-          >
-            {googleSeries.map((item) => (
-              <div key={item.key}>
-                <Checkbox
-                  className="ioda-checkbox mb-2"
-                  checked={!!checkedMap[item.key]}
-                  onChange={() => handleChangeDebounced(item.key)}
-                  style={{
-                    "--background-color": item.color,
-                    "--border-color": item.color,
-                  }}
-                >
-                  {item.title}
-                </Checkbox>
-              </div>
-            ))}
-          </Collapse.Panel>
-        </Collapse>
-      )}
-    </>
+            {fullTagText[value] || label}{" "}
+            {/* <Tooltip
+              title={tooltipData?.title}
+              customCode={
+                <>
+                  {tooltipData?.text}{" "}
+                  {tooltipData?.link && (
+                    <a
+                      href={tooltipData.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#fa8c16" }}
+                    >
+                      Learn More.
+                    </a>
+                  )}
+                </>
+              }
+            /> */}
+          </Tag>
+        );
+      }}
+      dropdownRender={(menu) => <div>{menu}</div>}
+    />
   );
 };
 

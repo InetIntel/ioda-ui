@@ -276,7 +276,7 @@ const DashboardTab = (props) => {
                           topoScores && (
                             <div
                               style={{
-                                height: "380px",
+                                height: "460px",
                               }}
                             >
                               <TopoMap
