@@ -19,8 +19,8 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 const FONT_SIZE = 12; // default text
 const AXIS_FONT_SIZE = 10; // axis label
 const SCORE_FONT_SIZE = 11; // the little score badge
-const HEADER_HEIGHT = 30;
-const HEADER_BASELINE = 24; // the 14-px font sits on this baseline
+const HEADER_HEIGHT = 20;
+const HEADER_BASELINE = 16; // the 14-px font sits on this baseline
 const ROW_HEIGHT = 36;
 //helper: emoji flag map
 const countryFlagMap = countryData.reduce((acc, country) => {
@@ -333,7 +333,7 @@ const SummaryWithTSChart = ({
       justifyContent: "flex-end", // Vertically center content
     },
     timeseriesHeader: {
-      padding: "10px 20px",
+      padding: "5px 20px",
       textAlign: "center",
       // fontWeight: "bold",
       // fontSize: "10px",
@@ -379,7 +379,7 @@ const SummaryWithTSChart = ({
       position: "relative",
     },
     xAxisContainer: {
-      height: "30px",
+      height: "20px",
       overflow: "hidden",
       backgroundColor: "white",
       position: "relative",

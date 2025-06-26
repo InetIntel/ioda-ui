@@ -261,6 +261,11 @@ const ApPacketLatencyAndLossRateComponent = ({
       .filter((point) => point[1] != null && !isNaN(point[1])) || [];
 
   console.log("lossMedians", lossMedians);
+  const latencyHighs = lossRanges.map(([, range]) => range.high);
+  const maxLatencyHigh =
+    latencyHighs.length > 0 ? Math.max(...latencyHighs) : null;
+  const latencyMax = maxLatencyHigh ? maxLatencyHigh * 1.1 : null;
+  console.log("latencyhigh:", latencyMax);
   let navLatency = [],
     navLoss = [];
 
@@ -273,7 +278,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     const minLoss = Math.min(...valsLoss),
       maxLoss = Math.max(...valsLoss);
 
-    navLatency = lossMedians.map(([t, v]) => [t, v / maxLat]);
+    navLatency = lossMedians.map(([t, v]) => [t, v / latencyMax]);
 
     navLoss = lossPackage.map(([t, v]) => [
       t,
@@ -487,6 +492,9 @@ const ApPacketLatencyAndLossRateComponent = ({
           },
         },
       },
+      yAxis: {
+        min: 0,
+      },
       series: [
         {
           data: navLatency,
@@ -499,7 +507,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           data: navLoss,
           type: "line",
           color: "#D62782",
-          name: "Packet Loss (normalized)",
+          name: "Packet Loss",
           index: 1,
         },
       ],
@@ -566,7 +574,9 @@ const ApPacketLatencyAndLossRateComponent = ({
             return this.value;
           },
         },
+        // endOnTick: false,
         min: 0,
+        // max: latencyMax,
       },
       {
         opposite: true,
