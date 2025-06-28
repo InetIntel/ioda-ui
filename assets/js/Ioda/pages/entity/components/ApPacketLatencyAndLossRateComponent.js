@@ -13,7 +13,7 @@ require("highcharts/modules/export-data")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
 // import exportingInit from "highcharts/modules/exporting";
 // import offlineExportingInit from "highcharts/modules/offline-exporting";
-
+import cloneDeep from "lodash/cloneDeep";
 import Loading from "../../../components/loading/Loading";
 
 import { Button, Checkbox, Popover, Tooltip, Cascader, Tag } from "antd";
@@ -57,6 +57,46 @@ const ApPacketLatencyAndLossRateComponent = ({
     useState(false);
   // exportingInit(Highcharts);
   // offlineExportingInit(Highcharts);
+  const [viewMode, setViewMode] = useState("overlay");
+  const ViewModeToggle = () => (
+    <div style={{ marginBottom: "16px" }}>
+      <Button.Group>
+        <Button
+          type={viewMode === "overlay" ? "primary" : "default"}
+          onClick={() => setViewMode("overlay")}
+          //   style={{ fontSize: 12 }}
+          style={
+            viewMode === "overlay"
+              ? {
+                  backgroundColor: "#722ED133",
+                  color: "#722ED1",
+                  borderColor: "#722ED133",
+                  fontSize: 12,
+                }
+              : { fontSize: 12 }
+          }
+        >
+          Overlay View
+        </Button>
+        <Button
+          type={viewMode === "stacked" ? "primary" : "default"}
+          onClick={() => setViewMode("stacked")}
+          style={
+            viewMode === "stacked"
+              ? {
+                  backgroundColor: "#722ED133",
+                  color: "#722ED1",
+                  borderColor: "#722ED133",
+                  fontSize: 12,
+                }
+              : { fontSize: 12 }
+          }
+        >
+          Stacked View
+        </Button>
+      </Button.Group>
+    </div>
+  );
 
   useEffect(() => {
     if (!rawAsnSignalsApPacketLoss?.[0]?.[0]) {
@@ -317,6 +357,8 @@ const ApPacketLatencyAndLossRateComponent = ({
 
   const options = {
     chart: {
+      marginLeft: 50,
+      marginRight: 50,
       type: "arearange",
       zoomType: "x",
       resetZoomButton: {
@@ -326,76 +368,76 @@ const ApPacketLatencyAndLossRateComponent = ({
       panKey: "shift",
       animation: false,
       selectionMarkerFill: "rgba(50, 184, 237, 0.3)",
-      height: 300,
+      height: 350,
       backgroundColor: "#ffffff",
       events: {
         load: function () {
           const chart = this;
 
-          // Left-aligned title
-          leftYAxisTitleRef.current = chart.renderer
-            .text(
-              "<strong>Latency</strong> <span style='opacity: 0.8;'>(Round Trip Time (ms))</span>",
-              chart.plotLeft,
-              chart.plotTop - 20,
-              true
-            )
-            .css({
-              color: "#333",
-              fontSize: "12px",
-            })
-            .add();
+          //   // Left-aligned title
+          //   leftYAxisTitleRef.current = chart.renderer
+          //     .text(
+          //       "<strong>Latency</strong> <span style='opacity: 0.8;'>(Round Trip Time (ms))</span>",
+          //       chart.plotLeft,
+          //       chart.plotTop - 20,
+          //       true
+          //     )
+          //     .css({
+          //       color: "#333",
+          //       fontSize: "12px",
+          //     })
+          //     .add();
 
-          // Right-aligned title
-          // if(displayPctLoss) {
+          //   // Right-aligned title
+          //   // if(displayPctLoss) {
 
-          const rightText = chart.renderer
-            .text(
-              displayPctLoss
-                ? "<strong> Packet Loss </strong> <span style='opacity: 0.8;'>(Percentage Loss Rate)</span>"
-                : "",
-              0,
-              chart.plotTop - 20,
-              true
-            )
-            .css({
-              color: "#333",
-              fontSize: "12px",
-              textAlign: "right",
-            })
-            .add();
+          //   const rightText = chart.renderer
+          //     .text(
+          //       displayPctLoss
+          //         ? "<strong> Packet Loss </strong> <span style='opacity: 0.8;'>(Percentage Loss Rate)</span>"
+          //         : "",
+          //       0,
+          //       chart.plotTop - 20,
+          //       true
+          //     )
+          //     .css({
+          //       color: "#333",
+          //       fontSize: "12px",
+          //       textAlign: "right",
+          //     })
+          //     .add();
 
-          // Align it to the right
-          const textBBox = rightText.getBBox();
-          // rightText.attr({
-          //     x: chart.chartWidth - chart.marginRight - textBBox.width - 20
-          // });
-          rightText.attr({
-            // x: chart.plotLeft + chart.plotWidth - textBBox.width,
-            x: chart.chartWidth - chart.marginRight - textBBox.width,
-          });
+          //   // Align it to the right
+          //   const textBBox = rightText.getBBox();
+          //   // rightText.attr({
+          //   //     x: chart.chartWidth - chart.marginRight - textBBox.width - 20
+          //   // });
+          //   rightText.attr({
+          //     // x: chart.plotLeft + chart.plotWidth - textBBox.width,
+          //     x: chart.chartWidth - chart.marginRight - textBBox.width,
+          //   });
 
-          rightYAxisTitleRef.current = rightText;
-          //   // }
-          //   const axisMax = chart.yAxis[0].getExtremes().max;
+          //   rightYAxisTitleRef.current = rightText;
+          //   //   // }
+          //   //   const axisMax = chart.yAxis[0].getExtremes().max;
 
-          //   //    (make sure lossMedians and lossPackage are in scope)
-          //   const navLatency = lossMedians.map(([t, v]) => [
-          //     t,
-          //     (v * 100) / axisMax,
-          //   ]);
-          //   const navLoss = lossPackage.map(([t, v]) => [t, v]);
+          //   //   //    (make sure lossMedians and lossPackage are in scope)
+          //   //   const navLatency = lossMedians.map(([t, v]) => [
+          //   //     t,
+          //   //     (v * 100) / axisMax,
+          //   //   ]);
+          //   //   const navLoss = lossPackage.map(([t, v]) => [t, v]);
 
-          //   chart.navigator.series[0].setData(navLatency, false);
-          //   chart.navigator.series[1].setData(navLoss, false);
+          //   //   chart.navigator.series[0].setData(navLatency, false);
+          //   //   chart.navigator.series[1].setData(navLoss, false);
 
-          //   chart.redraw();
+          //   //   chart.redraw();
         },
       },
       spacingBottom: 0,
       spacingLeft: 5,
       spacingRight: 5,
-      spacingTop: 50,
+      spacingTop: 30,
       style: {
         fontFamily: CUSTOM_FONT_FAMILY,
       },
@@ -494,6 +536,7 @@ const ApPacketLatencyAndLossRateComponent = ({
       },
       yAxis: {
         min: 0,
+        max: 1,
       },
       series: [
         {
@@ -558,8 +601,18 @@ const ApPacketLatencyAndLossRateComponent = ({
     },
     yAxis: [
       {
+        // title: {
+        //   text: null,
+        // },
         title: {
-          text: null,
+          text: '<strong>Latency</strong> <span style="opacity:0.8;">(Round Trip Time (ms))</span>',
+          useHTML: true,
+          align: "high",
+          textAlign: "left",
+          rotation: 0,
+          x: 0,
+          y: -15,
+          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
         },
         tickAmount: 5,
         lineColor: "#eeeeee",
@@ -589,10 +642,19 @@ const ApPacketLatencyAndLossRateComponent = ({
         gridLineWidth: 1,
         gridLineDashStyle: "ShortDash",
         title: {
-          text: null,
+          text: '<strong>Packet Loss</strong> <span style="opacity:0.8;">(Percentage Loss Rate)</span>',
+          useHTML: true,
+          align: "high",
+          textAlign: "right",
+          rotation: 0,
+          x: -20,
+          y: -15,
+          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
         },
+        // title: {
+        //   text: null,
+        // },
         labels: {
-          x: 5,
           style: {
             colors: "#111",
             fontSize: "10px",
@@ -658,6 +720,92 @@ const ApPacketLatencyAndLossRateComponent = ({
       },
     ],
   };
+  //0627
+  //   const latencyOptions = cloneDeep(options);
+  //   latencyOptions.series = latencyOptions.series.filter(
+  //     (s) => s.name === "Range" || s.name === "Median"
+  //   );
+  //   latencyOptions.yAxis = [latencyOptions.yAxis[0]];
+  //   latencyOptions.chart.height = 300;
+
+  //   const lossOptions = cloneDeep(options);
+  //   lossOptions.series = lossOptions.series.filter((s) => s.name === "Loss");
+  //   lossOptions.series.forEach((s) => {
+  //     s.yAxis = 0;
+  //   });
+  //   //   lossOptions.yAxis = [lossOptions.yAxis[0]];
+  //   lossOptions.yAxis = [cloneDeep(options.yAxis[1])];
+  //   lossOptions.chart.height = 300;
+  const overlayOptions = options;
+
+  const stackedOptions = cloneDeep(options);
+
+  stackedOptions.chart.height = 550;
+  stackedOptions.chart.marginRight = 0;
+
+  //   stackedOptions.yAxis = [
+  //     {
+  //       ...stackedOptions.yAxis[0],
+  //       top: "0%",
+  //       height: "45%",
+  //       offset: 0,
+  //     },
+  //     {
+  //       ...stackedOptions.yAxis[1],
+  //       top: "55%",
+  //       height: "45%",
+  //       offset: 0,
+  //     },
+  //   ];
+
+  //   const fromMs = secondsToMilliseconds(tsDataLegendRangeFrom);
+  //   const toMs = secondsToMilliseconds(tsDataLegendRangeUntil);
+  //   stackedOptions.xAxis = {
+  //     ...stackedOptions.xAxis,
+  //     min: fromMs,
+  //     max: toMs,
+  //   };
+  stackedOptions.yAxis = [
+    {
+      ...stackedOptions.yAxis[0],
+      top: "0%",
+      height: "45%",
+      offset: 0,
+      opposite: false,
+      title: {
+        text: '<strong>Latency</strong> <span style="opacity:0.8;">(Round Trip Time (ms))</span>',
+        useHTML: true,
+        align: "high",
+        textAlign: "left",
+        rotation: 0,
+        x: 0,
+        y: -15,
+        style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+      },
+    },
+    {
+      ...stackedOptions.yAxis[1],
+      top: "55%",
+      height: "45%",
+      offset: 0,
+      opposite: false,
+      title: {
+        text: '<strong>Packet Loss</strong> <span style="opacity:0.8;">(Percentage Loss Rate)</span>',
+        useHTML: true,
+        align: "high",
+        textAlign: "left",
+        rotation: 0,
+        x: 5,
+        y: -15,
+        style: {
+          fontSize: "12px",
+          color: "#333",
+          textAnchor: "end",
+          whiteSpace: "nowrap",
+        },
+      },
+    },
+  ];
 
   function displayShareLinkModal() {
     setShowShareLinkModal(true);
@@ -786,6 +934,13 @@ const ApPacketLatencyAndLossRateComponent = ({
     latency: "#722ED1",
     loss: "#D62782",
   };
+  useEffect(() => {
+    if (!chartRef.current) return;
+    const chart = chartRef.current.chart;
+    const fromMs = secondsToMilliseconds(tsDataLegendRangeFrom);
+    const toMs = secondsToMilliseconds(tsDataLegendRangeUntil);
+    chart.xAxis[0].setExtremes(fromMs, toMs, true);
+  }, [viewMode, tsDataLegendRangeFrom, tsDataLegendRangeUntil]);
 
   return (
     <React.Fragment>
@@ -870,50 +1025,93 @@ const ApPacketLatencyAndLossRateComponent = ({
             className="p-4"
             style={{ width: "30%", minWidth: "150px", marginTop: "10px" }}
           > */}
-          <div className="mt-4" style={{ width: "40%" }}>
-            <Cascader
-              options={metricOptions}
-              value={selectedMetricPaths}
-              onChange={(paths) => {
-                setSelectedMetricPaths(paths);
-                const flat = paths.map((p) => p[p.length - 1]);
-                handleDisplayLatencyBands(flat.includes("latency"));
-                handleDisplayPctLoss(flat.includes("loss"));
-              }}
-              multiple
-              placeholder="Show metrics…"
-              maxTagCount="responsive"
-              style={{ width: "100%" }}
-              tagRender={({ label, value, closable, onClose }) => {
-                const color = tagColors[value] || "#999";
-                return (
-                  <Tag
-                    closable={closable}
-                    onClose={onClose}
-                    style={{
-                      backgroundColor: `${color}33`,
-                      borderColor: color,
-                      color: "#000",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {label}
-                  </Tag>
-                );
-              }}
-            />
+          <div className="flex mt-4" style={{ width: "100%" }}>
+            <div style={{ width: "40%" }}>
+              <Cascader
+                options={metricOptions}
+                value={selectedMetricPaths}
+                onChange={(paths) => {
+                  setSelectedMetricPaths(paths);
+                  const flat = paths.map((p) => p[p.length - 1]);
+                  handleDisplayLatencyBands(flat.includes("latency"));
+                  handleDisplayPctLoss(flat.includes("loss"));
+                }}
+                multiple
+                placeholder="Show metrics…"
+                maxTagCount="responsive"
+                style={{ width: "100%" }}
+                tagRender={({ label, value, closable, onClose }) => {
+                  const color = tagColors[value] || "#999";
+                  return (
+                    <Tag
+                      closable={closable}
+                      onClose={onClose}
+                      style={{
+                        backgroundColor: `${color}33`,
+                        borderColor: color,
+                        color: "#000",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {label}
+                    </Tag>
+                  );
+                }}
+              />
+            </div>
+            <div className="ml-auto">
+              <ViewModeToggle />
+            </div>
           </div>
           {/* 0612 */}
           {/* <div className="flex-grow" style={{ width: "100%" }}> */}
           <div className=" w-full">
             {lossPackage && (
+              //   <div>
+              //     <HighchartsReact
+              //       highcharts={Highcharts}
+              //       options={options}
+              //       ref={chartRef}
+              //     />
+              //     <ViewModeToggle />
+              //     {viewMode === "overlay" ? (
+              //       <HighchartsReact
+              //         highcharts={Highcharts}
+              //         options={options}
+              //         ref={chartRef}
+              //       />
+              //     ) : (
+              //       <div className=" gap-4">
+              //         <div className="w-full">
+              //           <HighchartsReact
+              //             highcharts={Highcharts}
+              //             options={latencyOptions}
+              //           />
+              //         </div>
+              //         <div className="w-full">
+              //           <HighchartsReact
+              //             highcharts={Highcharts}
+              //             options={lossOptions}
+              //           />
+              //         </div>
+              //       </div>
+              //     )}
+              //     <TimeStamp
+              //       className="mt-4"
+              //       from={tsDataLegendRangeFrom}
+              //       until={tsDataLegendRangeUntil}
+              //     />
+              //   </div>
               <div>
-                {/* <ASNLegend /> */}
                 <HighchartsReact
+                  key={viewMode}
                   highcharts={Highcharts}
-                  options={options}
+                  options={
+                    viewMode === "overlay" ? overlayOptions : stackedOptions
+                  }
                   ref={chartRef}
                 />
+
                 <TimeStamp
                   className="mt-4"
                   from={tsDataLegendRangeFrom}
