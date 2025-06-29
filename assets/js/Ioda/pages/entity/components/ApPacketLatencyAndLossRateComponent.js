@@ -630,6 +630,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         // endOnTick: false,
         min: 0,
         // max: latencyMax,
+        visible: displayLatency,
       },
       {
         opposite: true,
@@ -720,27 +721,11 @@ const ApPacketLatencyAndLossRateComponent = ({
       },
     ],
   };
-  //0627
-  //   const latencyOptions = cloneDeep(options);
-  //   latencyOptions.series = latencyOptions.series.filter(
-  //     (s) => s.name === "Range" || s.name === "Median"
-  //   );
-  //   latencyOptions.yAxis = [latencyOptions.yAxis[0]];
-  //   latencyOptions.chart.height = 300;
-
-  //   const lossOptions = cloneDeep(options);
-  //   lossOptions.series = lossOptions.series.filter((s) => s.name === "Loss");
-  //   lossOptions.series.forEach((s) => {
-  //     s.yAxis = 0;
-  //   });
-  //   //   lossOptions.yAxis = [lossOptions.yAxis[0]];
-  //   lossOptions.yAxis = [cloneDeep(options.yAxis[1])];
-  //   lossOptions.chart.height = 300;
   const overlayOptions = options;
 
   const stackedOptions = cloneDeep(options);
 
-  stackedOptions.chart.height = 550;
+  stackedOptions.chart.height = displayLatency + displayPctLoss < 2 ? 350 : 550;
   stackedOptions.chart.marginRight = 0;
 
   //   stackedOptions.yAxis = [
@@ -755,57 +740,67 @@ const ApPacketLatencyAndLossRateComponent = ({
   //       top: "55%",
   //       height: "45%",
   //       offset: 0,
+  //       opposite: false,
   //     },
   //   ];
+  //   stackedOptions.yAxis[1].title.textAlign = "left";
+  //   stackedOptions.yAxis[1].title.x = 5;
 
-  //   const fromMs = secondsToMilliseconds(tsDataLegendRangeFrom);
-  //   const toMs = secondsToMilliseconds(tsDataLegendRangeUntil);
-  //   stackedOptions.xAxis = {
-  //     ...stackedOptions.xAxis,
-  //     min: fromMs,
-  //     max: toMs,
-  //   };
-  stackedOptions.yAxis = [
-    {
-      ...stackedOptions.yAxis[0],
-      top: "0%",
-      height: "45%",
+  stackedOptions.yAxis = [];
+  stackedOptions.series = [];
+
+  let yAxisIndex = 0;
+
+  if (displayLatency) {
+    stackedOptions.yAxis.push({
+      ...options.yAxis[0],
+      max: null,
+      top: displayPctLoss ? "0%" : "0%",
+      height: displayPctLoss ? "45%" : "100%",
+      offset: 0,
+    });
+
+    stackedOptions.series.push(
+      {
+        ...options.series.find((s) => s.name === "Range"),
+        yAxis: yAxisIndex,
+        visible: true,
+      },
+      {
+        ...options.series.find((s) => s.name === "Median"),
+        yAxis: yAxisIndex,
+        visible: true,
+      }
+    );
+
+    yAxisIndex++;
+  }
+
+  if (displayPctLoss) {
+    stackedOptions.yAxis.push({
+      ...options.yAxis[1],
+      top: displayLatency ? "55%" : "0%",
+      height: displayLatency ? "45%" : "100%",
       offset: 0,
       opposite: false,
-      title: {
-        text: '<strong>Latency</strong> <span style="opacity:0.8;">(Round Trip Time (ms))</span>',
-        useHTML: true,
-        align: "high",
-        textAlign: "left",
-        rotation: 0,
-        x: 0,
-        y: -15,
-        style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
-      },
-    },
-    {
-      ...stackedOptions.yAxis[1],
-      top: "55%",
-      height: "45%",
-      offset: 0,
-      opposite: false,
-      title: {
-        text: '<strong>Packet Loss</strong> <span style="opacity:0.8;">(Percentage Loss Rate)</span>',
-        useHTML: true,
-        align: "high",
-        textAlign: "left",
-        rotation: 0,
-        x: 5,
-        y: -15,
-        style: {
-          fontSize: "12px",
-          color: "#333",
-          textAnchor: "end",
-          whiteSpace: "nowrap",
-        },
-      },
-    },
-  ];
+    });
+
+    stackedOptions.series.push({
+      ...options.series.find((s) => s.name === "Loss"),
+      yAxis: yAxisIndex,
+      visible: true,
+    });
+    // stackedOptions.yAxis[yAxisIndex].title.textAlign = "left";
+    stackedOptions.yAxis[yAxisIndex].title = {
+      ...stackedOptions.yAxis[yAxisIndex].title,
+      align: "high",
+      textAlign: "left",
+      x: 5,
+      y: -15,
+    };
+  }
+  console.log("check stacked series:", stackedOptions.series);
+  console.log("check stacked y-axis:", stackedOptions.yAxis);
 
   function displayShareLinkModal() {
     setShowShareLinkModal(true);
