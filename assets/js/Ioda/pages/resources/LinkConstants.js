@@ -464,6 +464,17 @@ const link_resources = [
       expertise: [],
     },
   },
+  {
+    title:
+      "IODA Animated Signal Explainer Video: Active Probing, BGP, and Telescope",
+    type: "Video",
+    link: "https://www.youtube.com/embed/lP9f-zWrfjo",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+    },
+  },
 ];
 
 export default link_resources;
