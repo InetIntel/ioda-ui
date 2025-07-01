@@ -1136,7 +1136,11 @@ const ControlPanel = ({
             />
             {/*</span>*/}
           </label>
-          <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+          {/* <div style={{ display: "flex", alignItems: "center", gap: "2px" }}> */}
+          <div
+            className="time-range-wrapper"
+            style={{ display: "flex", alignItems: "center", gap: "2px" }}
+          >
             <Popover
               overlayStyle={{
                 width: 240,

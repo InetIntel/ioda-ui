@@ -463,12 +463,11 @@ const ApPacketLatencyAndLossRateComponent = ({
       fallbackToExportServer: false,
       filename: exportFileName,
       chartOptions: {
-        // spacingTop: 60,
         title: {
           align: "left",
           text: exportChartTitle,
-          y: -10, // Move closer to the top
-          x: 1, // Move closer to the left
+          y: -10,
+          x: 1,
           style: {
             fontWeight: "bold",
           },
@@ -476,8 +475,8 @@ const ApPacketLatencyAndLossRateComponent = ({
         subtitle: {
           align: "left",
           text: exportChartSubtitle,
-          y: 3, // Move closer to the top
-          x: 1, // Move closer to the left
+          y: 3,
+          x: 1,
         },
         legend: {
           itemDistance: 40,
