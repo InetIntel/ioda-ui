@@ -357,7 +357,7 @@ const ApPacketLatencyAndLossRateComponent = ({
 
   const options = {
     chart: {
-      marginLeft: 50,
+      marginLeft: 40,
       marginRight: 50,
       type: "arearange",
       zoomType: "x",
@@ -463,9 +463,12 @@ const ApPacketLatencyAndLossRateComponent = ({
       fallbackToExportServer: false,
       filename: exportFileName,
       chartOptions: {
+        // spacingTop: 60,
         title: {
           align: "left",
           text: exportChartTitle,
+          y: -10, // Move closer to the top
+          x: 1, // Move closer to the left
           style: {
             fontWeight: "bold",
           },
@@ -473,20 +476,19 @@ const ApPacketLatencyAndLossRateComponent = ({
         subtitle: {
           align: "left",
           text: exportChartSubtitle,
+          y: 3, // Move closer to the top
+          x: 1, // Move closer to the left
         },
         legend: {
           itemDistance: 40,
         },
-        spacing: [50, 10, 15, 10],
+        spacing: [1, 1, 1, 1],
       },
       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-      sourceWidth: 960,
-      sourceHeight: 540,
+      sourceWidth: 736,
+      sourceHeight: 414,
     },
-    title: {
-      text: "",
-      useHTML: true,
-    },
+    title: null,
     tooltip: {
       shared: true,
       xDateFormat: "%a, %b %e %l:%M%p",
@@ -545,6 +547,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           color: "#722ED1",
           name: "Latency (normalized)",
           index: 0,
+          visible: displayLatency,
         },
         {
           data: navLoss,
@@ -552,6 +555,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           color: "#D62782",
           name: "Packet Loss",
           index: 1,
+          visible: displayPctLoss,
         },
       ],
     },
@@ -560,6 +564,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     },
     plotOptions: {
       series: {
+        animation: false,
         marker: {
           enabled: false,
         },
@@ -580,11 +585,11 @@ const ApPacketLatencyAndLossRateComponent = ({
           fontFamily: CUSTOM_FONT_FAMILY,
         },
       },
-      lineColor: "#eeeeee",
-      tickColor: "#eeeeee",
-      gridLineWidth: 1,
-      gridLineColor: "#eeeeee",
-      gridLineDashStyle: "dash",
+      //   lineColor: "#eeeeee",
+      //   tickColor: "#eeeeee",
+      //   gridLineWidth: 1,
+      //   gridLineColor: "#eeeeee",
+      //   gridLineDashStyle: "dash",
       // minRange: secondsToMilliseconds(5 * 60),
       title: {
         text: "Time (UTC)",
@@ -615,11 +620,14 @@ const ApPacketLatencyAndLossRateComponent = ({
           style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
         },
         tickAmount: 5,
-        lineColor: "#eeeeee",
-        tickColor: "#eeeeee",
-        gridLineColor: "#eeeeee",
-        gridLineDashStyle: "dash",
+        // lineColor: "#eeeeee",
+        // tickColor: "#eeeeee",
+        // gridLineColor: "#eeeeee",
+        // gridLineDashStyle: "dash",
+        gridLineColor: "#E6E6E6",
+        gridLineDashStyle: "ShortDash",
         labels: {
+          x: -5,
           style: {
             fontSize: "10px",
           },
@@ -656,6 +664,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         //   text: null,
         // },
         labels: {
+          x: 5,
           style: {
             colors: "#111",
             fontSize: "10px",
@@ -725,7 +734,7 @@ const ApPacketLatencyAndLossRateComponent = ({
 
   const stackedOptions = cloneDeep(options);
 
-  stackedOptions.chart.height = displayLatency + displayPctLoss < 2 ? 350 : 550;
+  stackedOptions.chart.height = displayLatency + displayPctLoss < 2 ? 350 : 400;
   stackedOptions.chart.marginRight = 0;
 
   //   stackedOptions.yAxis = [
@@ -756,7 +765,7 @@ const ApPacketLatencyAndLossRateComponent = ({
       ...options.yAxis[0],
       max: null,
       top: displayPctLoss ? "0%" : "0%",
-      height: displayPctLoss ? "45%" : "100%",
+      height: displayPctLoss ? "40%" : "100%",
       offset: 0,
     });
 
@@ -779,8 +788,8 @@ const ApPacketLatencyAndLossRateComponent = ({
   if (displayPctLoss) {
     stackedOptions.yAxis.push({
       ...options.yAxis[1],
-      top: displayLatency ? "55%" : "0%",
-      height: displayLatency ? "45%" : "100%",
+      top: displayLatency ? "60%" : "0%",
+      height: displayLatency ? "40%" : "100%",
       offset: 0,
       opposite: false,
     });
@@ -797,6 +806,10 @@ const ApPacketLatencyAndLossRateComponent = ({
       textAlign: "left",
       x: 5,
       y: -15,
+    };
+    stackedOptions.yAxis[yAxisIndex].labels = {
+      ...stackedOptions.yAxis[yAxisIndex].labels,
+      x: -5,
     };
   }
   console.log("check stacked series:", stackedOptions.series);
@@ -839,7 +852,6 @@ const ApPacketLatencyAndLossRateComponent = ({
       },
       {
         chart: {
-          // spacingTop: 70,
           events: {
             load: function () {
               const chart = this;
@@ -1023,6 +1035,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           <div className="flex mt-4" style={{ width: "100%" }}>
             <div style={{ width: "40%" }}>
               <Cascader
+                className="custom-tag-spacing"
                 options={metricOptions}
                 value={selectedMetricPaths}
                 onChange={(paths) => {
@@ -1033,7 +1046,7 @@ const ApPacketLatencyAndLossRateComponent = ({
                 }}
                 multiple
                 placeholder="Show metrics…"
-                maxTagCount="responsive"
+                // maxTagCount="responsive"
                 style={{ width: "100%" }}
                 tagRender={({ label, value, closable, onClose }) => {
                   const color = tagColors[value] || "#999";
