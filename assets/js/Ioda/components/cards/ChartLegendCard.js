@@ -344,13 +344,16 @@ const ChartLegendCard = ({
     //   // }}
     // />
     <Cascader
+      className="custom-tag-spacing"
       options={cascaderOptions}
       value={selectedPaths}
       onChange={onCascaderChange}
       multiple
       placeholder="Select series…"
-      maxTagCount="responsive"
-      style={{ width: "100%" }}
+      // maxTagCount="responsive"
+      style={{
+        width: "73%",
+      }}
       tagRender={({ label, value, closable, onClose }) => {
         const color = colorMap[value] || "#999";
         const tooltipKey = value.includes("__RC_CASCADER_SPLIT__")

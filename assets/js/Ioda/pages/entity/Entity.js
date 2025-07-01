@@ -400,6 +400,7 @@ const Entity = (props) => {
   const [toggledEntity, setToggledEntity] = useState(null);
   const [convertValuesForHtsVizCalled, setConvertValuesForHtsVizCalled] =
     useState(null);
+  const [isStackedView, setIsStackedView] = useState(false);
 
   const initialTableLimit = 300;
   const initialHtsLimit = 100;
@@ -770,7 +771,9 @@ const Entity = (props) => {
       return () => clearTimeout(timeoutId);
     }
   }, [asnSignalsTableSummaryData, relatedToTableSummary]);
-
+  useEffect(() => {
+    convertValuesForXyViz();
+  }, [isStackedView]);
   useEffect(() => {
     // For XY Plotted Graph
     convertValuesForXyViz();
@@ -1059,6 +1062,21 @@ const Entity = (props) => {
   //   return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
   // }
 
+  //0630
+  function getChartHeightAbsolutePx(numSeries) {
+    const pxHeightPerSeries = 175;
+    return Math.max(515, numSeries * pxHeightPerSeries);
+  }
+
+  function getChartAspectRatio() {
+    if (!timeSeriesChartRef.current) {
+      return 1;
+    }
+    return (
+      timeSeriesChartRef.current.chart.chartWidth /
+      timeSeriesChartRef.current.chart.chartHeight
+    );
+  }
   // 1st Row
   // XY Chart Functions
   // format data from api to be compatible with chart visual
@@ -1218,11 +1236,73 @@ const Entity = (props) => {
 
     const xyChartXAxisTitle = T.translate("entity.xyChartXAxisTitle");
 
-    const { chartSignals, alertBands } = createChartSeries(
-      signalValues,
-      normalizedValues,
-      leftPartitionSeries
+    const {
+      chartSignals,
+      alertBands,
+      chartSeriesStacked,
+      navigatorSeriesStacked,
+    } = createChartSeries(signalValues, normalizedValues, leftPartitionSeries);
+
+    //0630
+    //Based on Arvin's signal separation code:  https://github.com/InetIntel/ioda-ui/tree/feat/signal-separation
+    // PX height to allocate for each series title
+    const axisTitleSpacingPx = 60;
+
+    // Absolute height of chart in pixels
+    const absoluteChartHeightPx = getChartHeightAbsolutePx(
+      chartSeriesStacked.length
     );
+    // Percent height of each series (subtracts percent height for axis titles)
+    const seriesHeight =
+      Math.floor(100 / chartSeriesStacked.length) -
+      (axisTitleSpacingPx / absoluteChartHeightPx) * 100;
+
+    const yAxes = chartSeriesStacked.map((signal, index) => {
+      const seriesTop =
+        index * Math.floor(100 / chartSeriesStacked.length) +
+        (axisTitleSpacingPx / absoluteChartHeightPx) * 100;
+
+      return {
+        opposite: false,
+        id: signal.yAxis,
+        height: `${seriesHeight}%`,
+        top: `${seriesTop}%`,
+        floor: 0,
+        min: tsDataNormalized ? 0 : undefined,
+        max: tsDataNormalized ? 100 : undefined,
+        alignTicks: true,
+        tickAmount: 5,
+        gridLineWidth: 1,
+        gridLineColor: "#E6E6E6",
+        gridLineDashStyle: "ShortDash",
+        title: {
+          reserveSpace: false,
+          text: `${signal.name}:`,
+          textAlign: "low",
+          align: "high",
+          rotation: 0,
+          y: -16,
+          offset: 0,
+          style: {
+            whiteSpace: "nowrap",
+            fontWeight: "bold",
+            fontSize: "12px",
+          },
+        },
+        offset: 0,
+        labels: {
+          x: -5,
+          style: {
+            colors: "#111",
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+          formatter: function (obj) {
+            return formatYAxisLabels(obj.value);
+          },
+        },
+      };
+    });
 
     // Set necessary fields for chart exporting
     const exportChartTitle = getChartExportTitle();
@@ -1231,7 +1311,7 @@ const Entity = (props) => {
 
     const exportFileName = getChartExportFileName(from, entityName);
 
-    const chartOptions = {
+    const chartOptionsOverlay = {
       chart: {
         type: "line",
         zoomType: "x",
@@ -1242,7 +1322,8 @@ const Entity = (props) => {
         panKey: "shift",
         animation: false,
         selectionMarkerFill: "rgba(50, 184, 237, 0.3)",
-        height: tsDataScreenBelow678 ? 400 : 514,
+        // height: tsDataScreenBelow678 ? 400 : 514,
+        height: 514,
         spacingBottom: 0,
         spacingLeft: 5,
         spacingRight: 5,
@@ -1460,8 +1541,183 @@ const Entity = (props) => {
 
       series: chartSignals,
     };
+    //0630
+    const chartOptionsStacked = {
+      chart: {
+        type: "line",
+        zoomType: "x",
+        resetZoomButton: {
+          theme: { style: { display: "none" } },
+        },
+        panning: true,
+        panKey: "shift",
+        animation: false,
+        selectionMarkerFill: "rgba(50, 184, 237, 0.3)",
+        height: absoluteChartHeightPx,
+        spacingBottom: 0,
+        spacingLeft: 5,
+        spacingRight: 5,
+        style: {
+          fontFamily: CUSTOM_FONT_FAMILY,
+        },
+        events: {},
+      },
+      accessibility: {
+        enabled: false,
+      },
+      credits: {
+        enabled: false,
+      },
+      navigation: {
+        buttonOptions: {
+          enabled: false,
+        },
+      },
+      exporting: {
+        fallbackToExportServer: false,
+        filename: exportFileName,
+        chartOptions: {
+          title: {
+            align: "left",
+            text: exportChartTitle,
+            style: {
+              fontWeight: "bold",
+            },
+          },
+          subtitle: {
+            align: "left",
+            text: exportChartSubtitle,
+          },
+          legend: {
+            itemDistance: 40,
+          },
+          spacing: [10, 10, 15, 10],
+        },
+        // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
+        sourceWidth: 1000,
+        sourceHeight: absoluteChartHeightPx,
+      },
+      title: {
+        text: null,
+      },
+      tooltip: {
+        headerFormat: "{point.key} (UTC)<br>",
+        pointFormatter: function () {
+          return tooltipContentFormatter(this);
+        },
+        xDateFormat: "%a, %b %e %l:%M%p",
+        borderWidth: 1.5,
+        borderRadius: 0,
+        style: {
+          fontSize: "14px",
+          fontFamily: CUSTOM_FONT_FAMILY,
+        },
+      },
+      legend: {
+        margin: 15,
+        className: "time-series-legend",
+        itemStyle: {
+          fontSize: tsDataScreenBelow678 ? "10px" : "12px",
+          fontFamily: CUSTOM_FONT_FAMILY,
+        },
+        // Compress legend items on small screens (remove column alignment)
+        alignColumns: !tsDataScreenBelow678,
+      },
+      navigator: {
+        enabled: true,
+        time: {
+          useUTC: true,
+        },
+        margin: 10,
+        maskFill: "rgba(50, 184, 237, 0.3)",
+        outlineColor: "#aaa",
+        xAxis: {
+          plotBands: alertBands,
+          gridLineColor: "#666",
+          gridLineDashStyle: "Dash",
+          tickPixelInterval: 100,
+          dateTimeLabelFormats: dateFormats,
+          labels: {
+            zIndex: 100,
+            align: "center",
+            y: 12,
+            style: {
+              //textOutline: "2px solid #fff",
+              color: "#666",
+              fontSize: "10px",
+              fontFamily: CUSTOM_FONT_FAMILY,
+            },
+          },
+        },
+        yAxis: {
+          visible: false,
+          floor: 0,
+          min: 0,
+          max: 110,
+        },
+      },
+      time: {
+        useUTC: true,
+      },
+      plotOptions: {
+        spline: {
+          marker: {
+            enabled: true,
+          },
+        },
+        series: {
+          //showInNavigator: true,
+          animation: false,
+          states: {
+            hover: {
+              enabled: false,
+            },
+            inactive: {
+              opacity: 1,
+            },
+          },
+          events: {
+            legendItemClick: (e) => {
+              const legendItemId = e.target.userOptions.id;
+              handleChartLegendSelectionChange(legendItemId);
+            },
+          },
+        },
+      },
+      xAxis: {
+        type: "datetime",
+        minRange: secondsToMilliseconds(5 * 60), // 5 minutes as milliseconds
+        dateTimeLabelFormats: dateFormats,
+        title: {
+          text: xyChartXAxisTitle,
+          style: {
+            fontSize: "12px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+        },
+        labels: {
+          style: {
+            colors: "#111",
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+        },
+        crosshair: true,
+        plotBands: alertBands,
+        events: {
+          afterSetExtremes: (e) => {
+            xyPlotRangeChanged(e);
+          },
+        },
+      },
+      yAxis: yAxes,
+      //0630
+      series: [...chartSeriesStacked, ...navigatorSeriesStacked],
+    };
     // Rerender chart and set navigator bounds
-    setXyChartOptions(chartOptions);
+    setXyChartOptions(
+      isStackedView ? chartOptionsStacked : chartOptionsOverlay
+    );
   }
 
   function setDefaultNavigatorTimeRange() {
@@ -1494,6 +1750,8 @@ const Entity = (props) => {
   function createChartSeries(signalValues, normalValues, primaryPartition) {
     const chartSignals = [];
     const alertBands = [];
+    const chartSeriesStacked = [];
+    const navigatorSeriesStacked = [];
 
     // Add alert bands series
     if (tsDataDisplayOutageBands) {
@@ -1507,7 +1765,7 @@ const Entity = (props) => {
         });
       }
     }
-
+    let axisIndex = 0;
     // Create series for main chart and navigator
     for (let i = 0; i < signalValues.length; i++) {
       const primarySignal = signalValues[i];
@@ -1518,7 +1776,8 @@ const Entity = (props) => {
         (elem) => elem.key === primarySignal.dataSource
       );
 
-      if (legendDetails === undefined) {
+      // if (legendDetails === undefined) { //0630
+      if (legendDetails === undefined || !tsDataSeriesVisibleMap[seriesId]) {
         continue;
       }
 
@@ -1579,11 +1838,30 @@ const Entity = (props) => {
 
       chartSignals.push(primaryChartSeries);
       chartSignals.push(navigatorChartSeries);
+
+      const primaryChartSeriesStacked = {
+        type: "line",
+        id: seriesId,
+        name: seriesName,
+        color: legendDetails.color,
+        lineWidth: 0.7,
+        data: primaryData,
+        marker: {
+          radius: 1.5,
+        },
+        yAxis: axisIndex,
+        showInNavigator: false,
+      };
+      chartSeriesStacked.push(primaryChartSeriesStacked);
+      navigatorSeriesStacked.push(navigatorChartSeries);
+      axisIndex++;
     }
 
     return {
       alertBands,
       chartSignals,
+      chartSeriesStacked,
+      navigatorSeriesStacked,
     };
   }
 
@@ -1623,6 +1901,7 @@ const Entity = (props) => {
             highcharts={Highcharts}
             options={xyChartOptions}
             ref={timeSeriesChartRef}
+            immutable={true}
           />
         </div>
       )
@@ -3026,12 +3305,50 @@ const Entity = (props) => {
                     </Tooltip>
                   </Popover>
                 </div>
-                <ChartLegendCard
-                  legendHandler={handleSelectedSignal}
-                  checkedMap={tsDataSeriesVisibleMap}
-                  updateSourceParams={updateSourceParams}
-                  simplifiedView={simplifiedView}
-                />
+                <div className="flex mt-4" style={{ width: "100%" }}>
+                  <ChartLegendCard
+                    legendHandler={handleSelectedSignal}
+                    checkedMap={tsDataSeriesVisibleMap}
+                    updateSourceParams={updateSourceParams}
+                    simplifiedView={simplifiedView}
+                  />
+                  <div className="ml-auto">
+                    <Button.Group style={{ marginBottom: 4 }}>
+                      <Button
+                        type={!isStackedView ? "primary" : "default"}
+                        onClick={() => setIsStackedView(false)}
+                        style={
+                          !isStackedView
+                            ? {
+                                backgroundColor: "#1570EF33",
+                                color: "#1570EF",
+                                borderColor: "#1570EF33",
+                                fontSize: 12,
+                              }
+                            : { fontSize: 12 }
+                        }
+                      >
+                        Overlay View
+                      </Button>
+                      <Button
+                        type={isStackedView ? "primary" : "default"}
+                        onClick={() => setIsStackedView(true)}
+                        style={
+                          isStackedView
+                            ? {
+                                backgroundColor: "#1570EF33",
+                                color: "#1570EF",
+                                borderColor: "#1570EF33",
+                                fontSize: 12,
+                              }
+                            : { fontSize: 12 }
+                        }
+                      >
+                        Stacked View
+                      </Button>
+                    </Button.Group>
+                  </div>
+                </div>
                 {xyChartOptions ? renderXyChart() : <Loading />}
                 <TimeStamp
                   className="mt-4"

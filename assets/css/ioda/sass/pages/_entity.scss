@@ -15,7 +15,7 @@
 
   &__chart {
     min-width: 0;
-    max-height: 614px;
+    // max-height: 614px;
   }
 }
 
@@ -40,4 +40,8 @@
 /* Antd tabs flickering issue fix */
 .ant-tabs-nav-operations {
   display: none !important;
+}
+
+.custom-tag-spacing .ant-tag {
+  margin: 2px 2px 2px 2px;
 }
