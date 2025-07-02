@@ -205,6 +205,8 @@ import { useParams } from "react-router-dom";
 import { gtrColor, legend } from "../../utils";
 import Tooltip from "../tooltip/Tooltip";
 import T from "i18n-react";
+const tooltipGoogleLegendText = T.translate("tooltip.googleLegend.text");
+const tooltipGoogleLegendTitle = T.translate("tooltip.googleLegend.title");
 
 const ChartLegendCard = ({
   legendHandler,
@@ -257,7 +259,32 @@ const ChartLegendCard = ({
       ? [
           {
             value: "google",
-            label: `Google (${googleLeaves.length})`,
+            // label: `Google (${googleLeaves.length})`,
+            label: (
+              <span style={{ display: "inline-flex", alignItems: "center" }}>
+                <span
+                  style={{ marginRight: 4 }}
+                >{`Google (${googleLeaves.length})`}</span>
+                <Tooltip
+                  title={tooltipGoogleLegendTitle}
+                  customCode={
+                    <>
+                      {tooltipGoogleLegendText}{" "}
+                      {
+                        <a
+                          href={"/resources?search=google"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#fa8c16" }}
+                        >
+                          Learn More.
+                        </a>
+                      }
+                    </>
+                  }
+                />
+              </span>
+            ),
             children: googleLeaves.map((item) => ({
               value: item.key,
               label: item.title,
@@ -286,12 +313,14 @@ const ChartLegendCard = ({
     colorMap[item.key] = item.color;
   });
   googleLeaves.forEach((item) => {
-    fullTagText["google__RC_CASCADER_SPLIT__" + item.key] =
-      `Google (${item.title})`;
-    colorMap["google__RC_CASCADER_SPLIT__" + item.key] = item.color;
+    // fullTagText["google__RC_CASCADER_SPLIT__" + item.key] =
+    //   `Google (${item.title})`;
+    // colorMap["google__RC_CASCADER_SPLIT__" + item.key] = item.color;
+    fullTagText[item.key] = `Google (${item.title})`;
+    colorMap[item.key] = item.color;
   });
-  console.log("fullTagText:", fullTagText);
-  console.log("colorMap:", colorMap);
+  // console.log("fullTagText:", fullTagText);
+  // console.log("colorMap:", colorMap);
 
   const onCascaderChange = (newPaths) => {
     const newLeaves = newPaths.map((p) => p[p.length - 1]);
@@ -310,39 +339,9 @@ const ChartLegendCard = ({
     });
     setSelectedPaths(newPaths);
   };
+  // console.log("SelectedPaths", selectedPaths);
 
   return (
-    // <Cascader
-    //   options={cascaderOptions}
-    //   value={selectedPaths}
-    //   onChange={onCascaderChange}
-    //   multiple
-    //   placeholder="Select series…"
-    //   maxTagCount="responsive"
-    //   style={{ width: "100%" }}
-    //   tagRender={({ label, value, closable, onClose }) => {
-    //     const color = colorMap[value] || "#999";
-    //     console.log("Value:", value);
-    //     return (
-    //       <Tag
-    //         closable={closable}
-    //         onClose={onClose}
-    //         style={{
-    //           backgroundColor: `${color}33`,
-    //           borderColor: color,
-    //           color: "#000",
-    //           fontWeight: 500,
-    //         }}
-    //       >
-    //         {fullTagText[value] || label}
-    //       </Tag>
-    //     );
-    //   }}
-    //   // displayRender={(labels, selectedOptions) => {
-    //   //   const lastOpt = selectedOptions[selectedOptions.length - 1];
-    //   //   return fullTagText[lastOpt.value] ?? labels.join(" / ");
-    //   // }}
-    // />
     <Cascader
       className="custom-tag-spacing"
       options={cascaderOptions}
@@ -351,18 +350,19 @@ const ChartLegendCard = ({
       multiple
       placeholder="Select series…"
       // maxTagCount="responsive"
+      showCheckedStrategy={Cascader.SHOW_CHILD}
       style={{
         width: "73%",
       }}
       tagRender={({ label, value, closable, onClose }) => {
-        const color = colorMap[value] || "#999";
-        const tooltipKey = value.includes("__RC_CASCADER_SPLIT__")
+        const itemKey = value.includes("__RC_CASCADER_SPLIT__")
           ? value.split("__RC_CASCADER_SPLIT__")[1]
           : value;
-        const tooltipData = legend.find(
-          (item) => item.key === tooltipKey
-        )?.tooltip;
-        console.log("tooltipdata", tooltipData);
+        const color = colorMap[itemKey] || "#999";
+        // const tooltipData = legend.find(
+        //   (item) => item.key === tooltipKey
+        // )?.tooltip;
+        // console.log("tooltipdata", tooltipData);
 
         return (
           <Tag
@@ -377,25 +377,7 @@ const ChartLegendCard = ({
               fontWeight: 500,
             }}
           >
-            {fullTagText[value] || label}{" "}
-            {/* <Tooltip
-              title={tooltipData?.title}
-              customCode={
-                <>
-                  {tooltipData?.text}{" "}
-                  {tooltipData?.link && (
-                    <a
-                      href={tooltipData.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "#fa8c16" }}
-                    >
-                      Learn More.
-                    </a>
-                  )}
-                </>
-              }
-            /> */}
+            {fullTagText[itemKey] || label}
           </Tag>
         );
       }}

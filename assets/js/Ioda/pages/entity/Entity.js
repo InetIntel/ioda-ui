@@ -3313,7 +3313,7 @@ const Entity = (props) => {
                     simplifiedView={simplifiedView}
                   />
                   <div className="ml-auto">
-                    <Button.Group style={{ marginBottom: 4 }}>
+                    <Button.Group style={{ marginBottom: 4, marginLeft: 4 }}>
                       <Button
                         type={!isStackedView ? "primary" : "default"}
                         onClick={() => setIsStackedView(false)}
