@@ -9,6 +9,10 @@ require("highcharts/modules/offline-exporting")(Highcharts);
 import highchartsMore from "highcharts/highcharts-more";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExportingInit from "highcharts/modules/offline-exporting";
+import {
+  millisecondsToSeconds,
+  secondsToMilliseconds,
+} from "../../../utils/timeUtils";
 
 exportingInit(Highcharts);
 offlineExportingInit(Highcharts);
@@ -36,8 +40,14 @@ const UpstreamDelayComponent = ({
   rawAsnSignalsUpstreamDelayPenultAsnCount,
   entityName,
 }) => {
-  console.log(rawAsnSignalsUpstreamDelayLatency);
-  console.log(rawAsnSignalsUpstreamDelayPenultAsnCount);
+  //   console.log(
+  //     "rawAsnSignalsUpstreamDelayLatency",
+  //     rawAsnSignalsUpstreamDelayLatency
+  //   );
+  //   console.log(
+  //     "rawAsnSignalsUpstreamDelayPenultAsnCount",
+  //     rawAsnSignalsUpstreamDelayPenultAsnCount
+  //   );
 
   const [activeTab, setActiveTab] = useState("1");
   const [displayChartSharePopover, setDisplayChartSharePopover] =
@@ -152,9 +162,10 @@ const UpstreamDelayComponent = ({
   };
 
   const latencyAsnDict = {};
-
+  //   console.log("latency data", jsonData);
   // Process each entry in the values array
-  jsonData?.values?.forEach((obj) => {
+  jsonData?.values?.forEach((obj, timeIndex) => {
+    const x = secondsToMilliseconds(jsonData.from + jsonData.step * timeIndex);
     obj.forEach((entry) => {
       const asName = `AS${entry.penultimate_as}`;
       if (!latencyAsnDict[asName]) {
@@ -163,7 +174,7 @@ const UpstreamDelayComponent = ({
       // Convert null to 0 for penultimate_as_count
       const latency = (entry.agg_values.geometric_mean_e2e_latency =
         entry.agg_values.geometric_mean_e2e_latency);
-      latencyAsnDict[asName].push(latency);
+      latencyAsnDict[asName].push([x, latency]);
     });
   });
 
@@ -175,20 +186,24 @@ const UpstreamDelayComponent = ({
   }));
 
   const traceAsnDict = {};
+  //   console.log("trace data", traceData);
 
   // Process each entry in the values array
-  traceData?.values?.forEach((timepoint) => {
+  traceData?.values?.forEach((timepoint, timeIndex) => {
+    const x = secondsToMilliseconds(
+      traceData.from + traceData.step * timeIndex
+    );
     timepoint.forEach((entry) => {
       const asName = `AS${entry.penultimate_as}`;
       if (!traceAsnDict[asName]) {
         traceAsnDict[asName] = [];
       }
       const count = entry.agg_values.penultimate_as_count;
-      traceAsnDict[asName].push(count);
+      traceAsnDict[asName].push([x, count]);
     });
   });
 
-  console.log(traceAsnDict);
+  //   console.log("traceAsnDict", traceAsnDict);
 
   // Format the result as required
   const traceAsnSeries =
@@ -199,7 +214,7 @@ const UpstreamDelayComponent = ({
       lineColor: colorsArray[i],
     })) || [];
 
-  console.log(traceAsnSeries);
+  console.log("traceAsnSeries data for traceroute chart", traceAsnSeries);
 
   const latencyCombined = {
     chart: {
@@ -653,7 +668,7 @@ const UpstreamDelayComponent = ({
       return;
     }
 
-    console.log(chartRef2);
+    // console.log(chartRef2);
 
     // Append watermark to image on download:
     // https://www.highcharts.com/forum/viewtopic.php?t=47368

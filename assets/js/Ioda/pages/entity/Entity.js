@@ -410,7 +410,7 @@ const Entity = (props) => {
 
   const getEntityName = (entityType, data) => {
     let entityName = data[0]["name"];
-    console.log(entityName);
+    // console.log(entityName);
     if (entityType === "geoasn") {
       entityName = data[0]?.subnames?.asn + " " + entityName;
     }
@@ -419,7 +419,7 @@ const Entity = (props) => {
 
   function updateEntityMetaData(entityType, entityCode) {
     getEntityMetadata(entityType, entityCode).then((data) => {
-      console.log(data);
+      // console.log(data);
       setEntityMetadata(data);
       setEntityName(getEntityName(entityType, data));
       setParentEntityName(

@@ -174,7 +174,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     if (!chartRef || !chartRef.current) {
       return;
     }
-    console.log(fromMs, untilMs);
+    // console.log(fromMs, untilMs);
     chartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
   }
 
@@ -300,12 +300,12 @@ const ApPacketLatencyAndLossRateComponent = ({
       })
       .filter((point) => point[1] != null && !isNaN(point[1])) || [];
 
-  console.log("lossMedians", lossMedians);
+  console.log("lossMedians series data for ap chart", lossMedians);
   const latencyHighs = lossRanges.map(([, range]) => range.high);
   const maxLatencyHigh =
     latencyHighs.length > 0 ? Math.max(...latencyHighs) : null;
   const latencyMax = maxLatencyHigh ? maxLatencyHigh * 1.1 : null;
-  console.log("latencyhigh:", latencyMax);
+  // console.log("latencyhigh:", latencyMax);
   let navLatency = [],
     navLoss = [];
 
@@ -811,8 +811,8 @@ const ApPacketLatencyAndLossRateComponent = ({
       x: -5,
     };
   }
-  console.log("check stacked series:", stackedOptions.series);
-  console.log("check stacked y-axis:", stackedOptions.yAxis);
+  // console.log("check stacked series:", stackedOptions.series);
+  // console.log("check stacked y-axis:", stackedOptions.yAxis);
 
   function displayShareLinkModal() {
     setShowShareLinkModal(true);
