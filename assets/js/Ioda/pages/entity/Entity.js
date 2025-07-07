@@ -3367,7 +3367,10 @@ const Entity = (props) => {
                     until={until}
                   />
                 )}
-                {entityType && entityType === "asn" && (
+              </div>
+
+              {entityType && entityType === "asn" && (
+                <div className="p-4 card mt-6">
                   <UpstreamDelayComponent
                     from={from}
                     until={until}
@@ -3379,8 +3382,8 @@ const Entity = (props) => {
                     }
                     entityName={entityName}
                   />
-                )}
-              </div>
+                </div>
+              )}
             </div>
             <div className="col-1">
               <div className="p-4 card h-full">
