@@ -183,6 +183,11 @@ const UpstreamDelayComponent = ({
     data: latencyAsnDict[name],
     color: Highcharts.color(colorsArray[i]).get(),
     lineColor: colorsArray[i],
+    yAxis: 0,
+    type: "line",
+    tooltip: {
+      valueSuffix: " ms",
+    },
   }));
 
   const traceAsnDict = {};
@@ -212,21 +217,412 @@ const UpstreamDelayComponent = ({
       data: traceAsnDict[name],
       color: Highcharts.color(colorsArray[i]).setOpacity(0.4).get(),
       lineColor: colorsArray[i],
+      type: "area",
+      yAxis: 1,
     })) || [];
 
-  console.log("traceAsnSeries data for traceroute chart", traceAsnSeries);
+  //   console.log("traceAsnSeries data for traceroute chart", traceAsnSeries);
 
-  const latencyCombined = {
+  //   const latencyCombined = {
+  //     chart: {
+  //       type: "line",
+  //       height: 180,
+  //       animation: false,
+  //     },
+  //     title: {
+  //       text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+  //       align: "left",
+  //       x: 10,
+  //     },
+  //     exporting: {
+  //       enabled: true,
+  //       buttons: {
+  //         contextButton: {
+  //           enabled: false,
+  //         },
+  //       },
+  //       fallbackToExportServer: false,
+  //       filename: exportFileName,
+  //       chartOptions: {
+  //         title: {
+  //           align: "left",
+  //           text: exportChartTitle,
+  //           style: {
+  //             fontWeight: "bold",
+  //           },
+  //         },
+  //         subtitle: {
+  //           align: "left",
+  //           text: exportChartSubtitle,
+  //         },
+  //         legend: {
+  //           itemDistance: 40,
+  //           enabled: true,
+  //         },
+  //         spacing: [50, 10, 15, 10],
+  //       },
+  //       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
+  //       sourceWidth: 960,
+  //       sourceHeight: 240,
+  //     },
+  //     yAxis: {
+  //       min: 0,
+  //       endOnTick: false,
+  //       maxPadding: 0.25,
+  //       tickAmount: 5,
+  //       title: { text: "" },
+  //       labels: {
+  //         style: {
+  //           fontSize: "10px",
+  //         },
+  //         formatter: function () {
+  //           return Math.round(this.value / 1000).toLocaleString();
+  //         },
+  //       },
+  //     },
+  //     xAxis: {
+  //       visible: false,
+  //       type: "datetime",
+  //     },
+  //     series: [
+  //       {
+  //         name: "TTL ",
+  //         data: asnLatencyData,
+  //         color: "#1890ff",
+  //         lineColor: "#1890ff",
+  //       },
+  //     ], // TODO - done
+  //     legend: {
+  //       enabled: false,
+  //     },
+  //     plotOptions: {
+  //       series: {
+  //         animation: false,
+  //         marker: {
+  //           enabled: true,
+  //           radius: 2,
+  //         },
+  //         lineWidth: 0.9,
+  //         pointStart: jsonData?.from * 1000,
+  //         pointInterval: jsonData?.step * 1000,
+  //       },
+  //     },
+  //     tooltip: {
+  //       xDateFormat: "%a, %b %e %l:%M%p",
+  //       borderWidth: 1,
+  //       borderRadius: 0,
+  //       style: {
+  //         fontSize: "14px",
+  //         fontFamily: CUSTOM_FONT_FAMILY,
+  //       },
+  //       headerFormat: "{point.key}<br>",
+  //       pointFormatter: function () {
+  //         return `<b>Mean TTL</b> = ${this.y} ms`;
+  //       },
+  //     },
+  //     responsive: {
+  //       rules: [
+  //         {
+  //           condition: {
+  //             maxWidth: 600,
+  //           },
+  //           chartOptions: {
+  //             chart: {
+  //               width: 400,
+  //               height: 300,
+  //             },
+  //           },
+  //         },
+  //       ],
+  //     },
+  //     lang: {
+  //       noData: "No Latency data available for selected time range",
+  //     },
+  //     noData: {
+  //       style: {
+  //         fontWeight: "bold",
+  //         fontSize: "14px",
+  //         color: "#666",
+  //       },
+  //     },
+  //     credits: {
+  //       enabled: false,
+  //     },
+  //   };
+
+  //   const latencyIndividual = {
+  //     chart: {
+  //       type: "line",
+  //       height: 180,
+  //       animation: false,
+  //     },
+  //     title: {
+  //       text: "<strong>Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+  //       align: "left",
+  //       x: 10,
+  //       // useHTML: true
+  //     },
+  //     exporting: {
+  //       enabled: true,
+  //       buttons: {
+  //         contextButton: {
+  //           enabled: false,
+  //         },
+  //       },
+  //       fallbackToExportServer: false,
+  //       filename: exportFileName,
+  //       chartOptions: {
+  //         title: {
+  //           align: "left",
+  //           text: exportChartTitle,
+  //           style: {
+  //             fontWeight: "bold",
+  //           },
+  //         },
+  //         subtitle: {
+  //           align: "left",
+  //           text: exportChartSubtitle,
+  //         },
+  //         legend: {
+  //           itemDistance: 40,
+  //           enabled: true,
+  //         },
+  //         spacing: [50, 10, 15, 10],
+  //       },
+  //       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
+  //       sourceWidth: 960,
+  //       sourceHeight: 240,
+  //     },
+  //     yAxis: {
+  //       endOnTick: false,
+  //       maxPadding: 0.25,
+  //       tickAmount: 5,
+  //       title: { text: "" },
+  //       labels: {
+  //         style: {
+  //           fontSize: "10px",
+  //         },
+  //         formatter: function () {
+  //           return Math.round(this.value / 1000).toLocaleString();
+  //         },
+  //       },
+  //     },
+  //     xAxis: {
+  //       visible: false,
+  //       type: "datetime",
+  //     },
+  //     series: latencyAsnSeries,
+  //     legend: {
+  //       enabled: false,
+  //     },
+
+  //     plotOptions: {
+  //       series: {
+  //         animation: false,
+  //         marker: {
+  //           enabled: true,
+  //           radius: 2,
+  //         },
+  //         lineWidth: 0.9,
+  //         pointStart: jsonData?.from * 1000,
+  //         pointInterval: jsonData?.step * 1000,
+  //       },
+  //     },
+  //     tooltip: {
+  //       xDateFormat: "%a, %b %e %l:%M%p",
+  //       borderWidth: 1,
+  //       borderRadius: 0,
+  //       style: {
+  //         fontSize: "14px",
+  //         fontFamily: CUSTOM_FONT_FAMILY,
+  //       },
+  //       headerFormat: "{point.key}<br>",
+  //       pointFormatter: function () {
+  //         return `<b>TTL</b> = ${this.y} ms`;
+  //       },
+  //     },
+  //     responsive: {
+  //       rules: [
+  //         {
+  //           condition: {
+  //             maxWidth: 600,
+  //           },
+  //           chartOptions: {
+  //             chart: {
+  //               width: 400,
+  //               height: 300,
+  //             },
+  //           },
+  //         },
+  //       ],
+  //     },
+  //     lang: {
+  //       noData: "No Latency data available for selected time range",
+  //     },
+  //     noData: {
+  //       style: {
+  //         fontWeight: "bold",
+  //         fontSize: "14px",
+  //         color: "#666",
+  //       },
+  //     },
+  //     credits: {
+  //       enabled: false,
+  //     },
+  //   };
+
+  //   const traceRouteOptions = {
+  //     chart: {
+  //       type: "area",
+  //       height: 220,
+  //       animation: false,
+  //     },
+  //     title: {
+  //       text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
+  //       align: "left",
+  //       x: 0,
+  //       useHTML: true,
+  //     },
+  //     exporting: {
+  //       enabled: true,
+  //       buttons: {
+  //         contextButton: {
+  //           enabled: false,
+  //         },
+  //       },
+  //       fallbackToExportServer: false,
+  //       filename: exportFileName,
+  //       chartOptions: {
+  //         title: {
+  //           align: "left",
+  //           text: exportChartTitle,
+  //           style: {
+  //             fontWeight: "bold",
+  //           },
+  //         },
+  //         subtitle: {
+  //           align: "left",
+  //           text: exportChartSubtitle,
+  //         },
+  //         legend: {
+  //           itemDistance: 40,
+  //           enabled: true,
+  //         },
+  //         spacing: [50, 10, 15, 10],
+  //       },
+  //       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
+  //       sourceWidth: 960,
+  //       sourceHeight: 240,
+  //     },
+  //     yAxis: {
+  //       tickAmount: 5,
+  //       title: { text: "" },
+  //       labels: {
+  //         style: {
+  //           fontSize: "10px",
+  //         },
+  //         formatter: function () {
+  //           return this.value;
+  //         },
+  //       },
+  //     },
+  //     xAxis: {
+  //       type: "datetime",
+  //       gridLineColor: "#666",
+  //       gridLineDashStyle: "Dash",
+  //       tickPixelInterval: 100,
+  //       dateTimeLabelFormats: dateFormats,
+  //       labels: {
+  //         // format: '{value:%H:%M}',
+  //         zIndex: 100,
+  //         align: "center",
+  //         y: 24,
+  //         style: {
+  //           //textOutline: "2px solid #fff",
+  //           color: "#666",
+  //           fontSize: "10px",
+  //           fontFamily: CUSTOM_FONT_FAMILY,
+  //         },
+  //       },
+  //       title: {
+  //         text: "Time (UTC)",
+  //         style: {
+  //           fontSize: "12px",
+  //           fontFamily: CUSTOM_FONT_FAMILY,
+  //         },
+  //       },
+  //     },
+  //     series: traceAsnSeries,
+  //     legend: {
+  //       enabled: false,
+  //     },
+  //     responsive: {
+  //       rules: [
+  //         {
+  //           condition: {
+  //             maxWidth: 600,
+  //           },
+  //           chartOptions: {
+  //             chart: {
+  //               width: 400,
+  //               height: 300,
+  //             },
+  //           },
+  //         },
+  //       ],
+  //     },
+  //     lang: {
+  //       noData: "No trace data available for selected time range",
+  //     },
+  //     noData: {
+  //       style: {
+  //         fontWeight: "bold",
+  //         fontSize: "14px",
+  //         color: "#666",
+  //       },
+  //     },
+  //     plotOptions: {
+  //       // series: {
+  //       //     marker: {
+  //       //         enabled: true
+  //       //     },
+  //       //     pointStart: traceData?.from * 1000,
+  //       //     pointInterval: traceData?.step * 1000
+  //       // },
+  //       area: {
+  //         stacking: "normal",
+  //         lineWidth: 1,
+  //         marker: {
+  //           enabled: false,
+  //         },
+  //       },
+  //     },
+  //     tooltip: {
+  //       xDateFormat: "%a, %b %e %l:%M%p",
+  //       borderWidth: 1.5,
+  //       borderRadius: 0,
+  //       style: {
+  //         fontSize: "14px",
+  //         fontFamily: CUSTOM_FONT_FAMILY,
+  //       },
+  //     },
+  //     credits: {
+  //       enabled: false,
+  //     },
+  //   };
+  const combineTrace = {
     chart: {
-      type: "line",
-      height: 180,
+      //   type: "line",
+      height: 360,
       animation: false,
+      spacingLeft: 5,
     },
-    title: {
-      text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
-      align: "left",
-      x: 10,
-    },
+    // title: {
+    //   text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+    //   align: "left",
+    //   x: 10,
+    // },
+    title: { text: "" },
     exporting: {
       enabled: true,
       buttons: {
@@ -258,267 +654,71 @@ const UpstreamDelayComponent = ({
       sourceWidth: 960,
       sourceHeight: 240,
     },
-    yAxis: {
-      min: 0,
-      endOnTick: false,
-      maxPadding: 0.25,
-      tickAmount: 5,
-      title: { text: "" },
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-        formatter: function () {
-          return Math.round(this.value / 1000).toLocaleString();
-        },
-      },
-    },
-    xAxis: {
-      visible: false,
-      type: "datetime",
-    },
-    series: [
+    yAxis: [
       {
-        name: "TTL ",
-        data: asnLatencyData,
-        color: "#1890ff",
-        lineColor: "#1890ff",
-      },
-    ], // TODO - done
-    legend: {
-      enabled: false,
-    },
-    plotOptions: {
-      series: {
-        animation: false,
-        marker: {
-          enabled: true,
-          radius: 2,
-        },
-        lineWidth: 0.9,
-        pointStart: jsonData?.from * 1000,
-        pointInterval: jsonData?.step * 1000,
-      },
-    },
-    tooltip: {
-      xDateFormat: "%a, %b %e %l:%M%p",
-      borderWidth: 1,
-      borderRadius: 0,
-      style: {
-        fontSize: "14px",
-        fontFamily: CUSTOM_FONT_FAMILY,
-      },
-      headerFormat: "{point.key}<br>",
-      pointFormatter: function () {
-        return `<b>Mean TTL</b> = ${this.y} ms`;
-      },
-    },
-    responsive: {
-      rules: [
-        {
-          condition: {
-            maxWidth: 600,
-          },
-          chartOptions: {
-            chart: {
-              width: 400,
-              height: 300,
-            },
-          },
-        },
-      ],
-    },
-    lang: {
-      noData: "No Latency data available for selected time range",
-    },
-    noData: {
-      style: {
-        fontWeight: "bold",
-        fontSize: "14px",
-        color: "#666",
-      },
-    },
-    credits: {
-      enabled: false,
-    },
-  };
-
-  const latencyIndividual = {
-    chart: {
-      type: "line",
-      height: 180,
-      animation: false,
-    },
-    title: {
-      text: "<strong>Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
-      align: "left",
-      x: 10,
-      // useHTML: true
-    },
-    exporting: {
-      enabled: true,
-      buttons: {
-        contextButton: {
-          enabled: false,
-        },
-      },
-      fallbackToExportServer: false,
-      filename: exportFileName,
-      chartOptions: {
+        offset: 0,
+        opposite: false,
+        alignTicks: true,
+        top: "5%",
+        height: "40%",
+        min: 0,
+        endOnTick: false,
+        maxPadding: 0.25,
+        tickAmount: 5,
+        // title: { text: "" },
         title: {
-          align: "left",
-          text: exportChartTitle,
+          reserveSpace: false,
+          text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+          textAlign: "low",
+          align: "high",
+          x: 0,
+          useHTML: true,
+          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          y: -10,
+          rotation: 0,
+          marginLeft: "10px",
+        },
+        labels: {
+          x: -3,
           style: {
-            fontWeight: "bold",
+            fontSize: "10px",
+          },
+          formatter: function () {
+            return Math.round(this.value / 1000).toLocaleString();
           },
         },
-        subtitle: {
-          align: "left",
-          text: exportChartSubtitle,
-        },
-        legend: {
-          itemDistance: 40,
-          enabled: true,
-        },
-        spacing: [50, 10, 15, 10],
       },
-      // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-      sourceWidth: 960,
-      sourceHeight: 240,
-    },
-    yAxis: {
-      endOnTick: false,
-      maxPadding: 0.25,
-      tickAmount: 5,
-      title: { text: "" },
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-        formatter: function () {
-          return Math.round(this.value / 1000).toLocaleString();
-        },
-      },
-    },
-    xAxis: {
-      visible: false,
-      type: "datetime",
-    },
-    series: latencyAsnSeries,
-    legend: {
-      enabled: false,
-    },
-
-    plotOptions: {
-      series: {
-        animation: false,
-        marker: {
-          enabled: true,
-          radius: 2,
-        },
-        lineWidth: 0.9,
-        pointStart: jsonData?.from * 1000,
-        pointInterval: jsonData?.step * 1000,
-      },
-    },
-    tooltip: {
-      xDateFormat: "%a, %b %e %l:%M%p",
-      borderWidth: 1,
-      borderRadius: 0,
-      style: {
-        fontSize: "14px",
-        fontFamily: CUSTOM_FONT_FAMILY,
-      },
-      headerFormat: "{point.key}<br>",
-      pointFormatter: function () {
-        return `<b>TTL</b> = ${this.y} ms`;
-      },
-    },
-    responsive: {
-      rules: [
-        {
-          condition: {
-            maxWidth: 600,
-          },
-          chartOptions: {
-            chart: {
-              width: 400,
-              height: 300,
-            },
-          },
-        },
-      ],
-    },
-    lang: {
-      noData: "No Latency data available for selected time range",
-    },
-    noData: {
-      style: {
-        fontWeight: "bold",
-        fontSize: "14px",
-        color: "#666",
-      },
-    },
-    credits: {
-      enabled: false,
-    },
-  };
-
-  const traceRouteOptions = {
-    chart: {
-      type: "area",
-      height: 220,
-      animation: false,
-    },
-    title: {
-      text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
-      align: "left",
-      x: 0,
-      useHTML: true,
-    },
-    exporting: {
-      enabled: true,
-      buttons: {
-        contextButton: {
-          enabled: false,
-        },
-      },
-      fallbackToExportServer: false,
-      filename: exportFileName,
-      chartOptions: {
+      {
+        offset: 0,
+        opposite: false,
+        alignTicks: true,
+        top: "60%",
+        height: "40%",
+        tickAmount: 5,
+        // title: { text: "" },
         title: {
-          align: "left",
-          text: exportChartTitle,
+          reserveSpace: false,
+          text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
+          x: 0,
+          useHTML: true,
+          textAlign: "low",
+          align: "high",
+          rotation: 0,
+          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          y: -10,
+          marginLeft: "10px",
+        },
+        labels: {
+          x: -3,
           style: {
-            fontWeight: "bold",
+            fontSize: "10px",
+          },
+          formatter: function () {
+            return this.value;
           },
         },
-        subtitle: {
-          align: "left",
-          text: exportChartSubtitle,
-        },
-        legend: {
-          itemDistance: 40,
-          enabled: true,
-        },
-        spacing: [50, 10, 15, 10],
       },
-      // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-      sourceWidth: 960,
-      sourceHeight: 240,
-    },
-    yAxis: {
-      tickAmount: 5,
-      title: { text: "" },
-      labels: {
-        style: {
-          fontSize: "10px",
-        },
-        formatter: function () {
-          return this.value;
-        },
-      },
-    },
+    ],
     xAxis: {
       type: "datetime",
       gridLineColor: "#666",
@@ -545,9 +745,76 @@ const UpstreamDelayComponent = ({
         },
       },
     },
-    series: traceAsnSeries,
+    series: [
+      {
+        name: "Mean TTL",
+        data: asnLatencyData,
+        type: "line",
+        color: "#1890ff",
+        lineColor: "#1890ff",
+        tooltip: {
+          valueSuffix: " ms",
+        },
+        yAxis: 0,
+        // tooltip: {
+        //   xDateFormat: "%a, %b %e %l:%M%p",
+        //   borderWidth: 1,
+        //   borderRadius: 0,
+        //   style: {
+        //     fontSize: "14px",
+        //     fontFamily: CUSTOM_FONT_FAMILY,
+        //   },
+        //   headerFormat: "{point.key}<br>",
+        //   pointFormatter: function () {
+        //     return `<b>Mean TTL</b> = ${this.y} ms`;
+        //   },
+        // },
+      },
+      ...traceAsnSeries,
+    ], // TODO - done
     legend: {
       enabled: false,
+    },
+    plotOptions: {
+      series: {
+        animation: false,
+        marker: {
+          enabled: true,
+          radius: 2,
+        },
+        lineWidth: 0.9,
+        pointStart: jsonData?.from * 1000,
+        pointInterval: jsonData?.step * 1000,
+      },
+      line: {
+        marker: {
+          enabled: true,
+          radius: 2,
+        },
+        lineWidth: 1,
+        animation: false,
+      },
+      area: {
+        stacking: "normal",
+        marker: {
+          enabled: false,
+        },
+        fillOpacity: 0.4,
+        animation: false,
+      },
+    },
+    tooltip: {
+      xDateFormat: "%a, %b %e %l:%M%p",
+      borderWidth: 1,
+      borderRadius: 0,
+      style: {
+        fontSize: "14px",
+        fontFamily: CUSTOM_FONT_FAMILY,
+      },
+      headerFormat: "{point.key}<br>",
+      //   pointFormatter: function () {
+      //     return `<b>Mean TTL</b> = ${this.y} ms`;
+      //   },
     },
     responsive: {
       rules: [
@@ -564,41 +831,221 @@ const UpstreamDelayComponent = ({
         },
       ],
     },
-    lang: {
-      noData: "No trace data available for selected time range",
+    // lang: {
+    //   noData: "No Latency data available for selected time range",
+    // },
+    // noData: {
+    //   style: {
+    //     fontWeight: "bold",
+    //     fontSize: "14px",
+    //     color: "#666",
+    //   },
+    // },
+    credits: {
+      enabled: false,
     },
-    noData: {
-      style: {
-        fontWeight: "bold",
-        fontSize: "14px",
-        color: "#666",
+  };
+  const indivTrace = {
+    chart: {
+      //   type: "line",
+      height: 360,
+      animation: false,
+    },
+    // title: {
+    //   text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+    //   align: "left",
+    //   x: 10,
+    // },
+    exporting: {
+      enabled: true,
+      buttons: {
+        contextButton: {
+          enabled: false,
+        },
+      },
+      fallbackToExportServer: false,
+      filename: exportFileName,
+      chartOptions: {
+        title: {
+          align: "left",
+          text: exportChartTitle,
+          style: {
+            fontWeight: "bold",
+          },
+        },
+        subtitle: {
+          align: "left",
+          text: exportChartSubtitle,
+        },
+        legend: {
+          itemDistance: 40,
+          enabled: true,
+        },
+        spacing: [50, 10, 15, 10],
+      },
+      // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
+      sourceWidth: 960,
+      sourceHeight: 240,
+    },
+    yAxis: [
+      {
+        offset: 0,
+        opposite: false,
+        alignTicks: true,
+        top: "5%",
+        height: "40%",
+        min: 0,
+        endOnTick: false,
+        maxPadding: 0.25,
+        tickAmount: 5,
+        // title: { text: "" },
+        title: {
+          reserveSpace: false,
+          text: "<strong>Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+          x: 0,
+          useHTML: true,
+          textAlign: "low",
+          align: "high",
+          rotation: 0,
+          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          y: -10,
+          marginLeft: "10px",
+        },
+        labels: {
+          x: -3,
+          style: {
+            fontSize: "10px",
+          },
+          formatter: function () {
+            return Math.round(this.value / 1000).toLocaleString();
+          },
+        },
+      },
+      {
+        offset: 0,
+        opposite: false,
+        alignTicks: true,
+        top: "60%",
+        height: "40%",
+        tickAmount: 5,
+        // title: { text: "" },
+        title: {
+          reserveSpace: false,
+          text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
+          textAlign: "low",
+          align: "high",
+          x: 0,
+          useHTML: true,
+          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          y: -10,
+        },
+        labels: {
+          x: -3,
+          style: {
+            fontSize: "10px",
+          },
+          formatter: function () {
+            return this.value;
+          },
+        },
+      },
+    ],
+    xAxis: {
+      type: "datetime",
+      gridLineColor: "#666",
+      gridLineDashStyle: "Dash",
+      tickPixelInterval: 100,
+      dateTimeLabelFormats: dateFormats,
+      labels: {
+        // format: '{value:%H:%M}',
+        zIndex: 100,
+        align: "center",
+        y: 24,
+        style: {
+          //textOutline: "2px solid #fff",
+          color: "#666",
+          fontSize: "10px",
+          fontFamily: CUSTOM_FONT_FAMILY,
+        },
+      },
+      title: {
+        text: "Time (UTC)",
+        style: {
+          fontSize: "12px",
+          fontFamily: CUSTOM_FONT_FAMILY,
+        },
       },
     },
+    series: [...latencyAsnSeries, ...traceAsnSeries],
+    legend: {
+      enabled: false,
+    },
     plotOptions: {
-      // series: {
+      //   series: {
+      //     animation: false,
       //     marker: {
-      //         enabled: true
+      //       enabled: true,
+      //       radius: 2,
       //     },
-      //     pointStart: traceData?.from * 1000,
-      //     pointInterval: traceData?.step * 1000
-      // },
+      //     lineWidth: 0.9,
+      //     pointStart: jsonData?.from * 1000,
+      //     pointInterval: jsonData?.step * 1000,
+      //   },
+      line: {
+        marker: {
+          enabled: true,
+          radius: 2,
+        },
+        lineWidth: 1,
+        animation: false,
+      },
       area: {
         stacking: "normal",
-        lineWidth: 1,
         marker: {
           enabled: false,
         },
+        fillOpacity: 0.4,
+        animation: false,
       },
     },
     tooltip: {
       xDateFormat: "%a, %b %e %l:%M%p",
-      borderWidth: 1.5,
+      borderWidth: 1,
       borderRadius: 0,
       style: {
         fontSize: "14px",
         fontFamily: CUSTOM_FONT_FAMILY,
       },
+      //   headerFormat: "{point.key}<br>",
+      //   pointFormatter: function () {
+      //     return `<b>Mean TTL</b> = ${this.y} ms`;
+      //   },
     },
+    responsive: {
+      rules: [
+        {
+          condition: {
+            maxWidth: 600,
+          },
+          chartOptions: {
+            chart: {
+              width: 400,
+              height: 300,
+            },
+          },
+        },
+      ],
+    },
+    // lang: {
+    //   noData: "No Latency data available for selected time range",
+    // },
+    // noData: {
+    //   style: {
+    //     fontWeight: "bold",
+    //     fontSize: "14px",
+    //     color: "#666",
+    //   },
+    // },
     credits: {
       enabled: false,
     },
@@ -830,27 +1277,33 @@ const UpstreamDelayComponent = ({
 
                   <div className="content-area px-0">
                     {activeTab === "1" ? (
-                      <HighchartsReact
-                        highcharts={Highcharts}
-                        options={latencyCombined}
-                        ref={chartCombinedRef}
-                      />
+                      <div style={{ marginLeft: "10px" }}>
+                        <HighchartsReact
+                          highcharts={Highcharts}
+                          // options={latencyCombined}
+                          options={combineTrace}
+                          ref={chartCombinedRef}
+                        />
+                      </div>
                     ) : (
-                      <HighchartsReact
-                        highcharts={Highcharts}
-                        options={latencyIndividual}
-                        ref={chartIndividualRef}
-                      />
+                      <div style={{ marginLeft: "10px" }}>
+                        <HighchartsReact
+                          highcharts={Highcharts}
+                          // options={latencyIndividual}
+                          options={indivTrace}
+                          ref={chartIndividualRef}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>
-                <div className="px-4 card">
+                {/* <div className="px-4 card">
                   <HighchartsReact
                     highcharts={Highcharts}
                     options={traceRouteOptions}
                     ref={chartTraceRouteRef}
                   />
-                </div>
+                </div> */}
               </div>
             )}
             {!jsonData && <Loading />}
