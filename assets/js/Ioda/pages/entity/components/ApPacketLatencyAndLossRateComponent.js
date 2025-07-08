@@ -15,6 +15,7 @@ require("highcharts/modules/offline-exporting")(Highcharts);
 // import offlineExportingInit from "highcharts/modules/offline-exporting";
 import cloneDeep from "lodash/cloneDeep";
 import Loading from "../../../components/loading/Loading";
+import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 
 import { Button, Checkbox, Popover, Tooltip, Cascader, Tag } from "antd";
 import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
@@ -26,6 +27,7 @@ import {
   secondsToUTC,
 } from "../../../utils/timeUtils";
 import TimeStamp from "../../../components/timeStamp/TimeStamp";
+import HighchartsNoData from "highcharts/modules/no-data-to-display";
 
 if (typeof Highcharts === "object") {
   highchartsMore(Highcharts);
@@ -33,6 +35,7 @@ if (typeof Highcharts === "object") {
 
 // exportingInit(Highcharts);
 // offlineExportingInit(Highcharts);
+HighchartsNoData(Highcharts);
 
 const ApPacketLatencyAndLossRateComponent = ({
   from,
@@ -169,7 +172,12 @@ const ApPacketLatencyAndLossRateComponent = ({
     setTsDataLegendRangeUntil(axisMax);
     setShowResetZoomButton(!isDefaultRange);
   }
+  function setDefaultNavigatorTimeRange() {
+    const navigatorLowerBound = secondsToMilliseconds(from);
+    const navigatorUpperBound = secondsToMilliseconds(until);
 
+    setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
+  }
   function setChartNavigatorTimeRange(fromMs, untilMs) {
     if (!chartRef || !chartRef.current) {
       return;
@@ -499,6 +507,7 @@ const ApPacketLatencyAndLossRateComponent = ({
       },
     },
     legend: {
+      enabled: latencyData,
       margin: 10,
       className: "ap-latency-loss-legend",
       itemStyle: {
@@ -508,7 +517,7 @@ const ApPacketLatencyAndLossRateComponent = ({
       alignColumns: true,
     },
     navigator: {
-      enabled: true,
+      enabled: latencyData,
 
       adaptToUpdatedData: false,
 
@@ -570,6 +579,7 @@ const ApPacketLatencyAndLossRateComponent = ({
       },
     },
     xAxis: {
+      showEmpty: false,
       type: "datetime",
       minRange: secondsToMilliseconds(3 * 60),
       dateTimeLabelFormats: dateFormats,
@@ -608,6 +618,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         // title: {
         //   text: null,
         // },
+        showEmpty: false,
         title: {
           text: '<strong>Latency</strong> <span style="opacity:0.8;">(Round Trip Time (ms))</span>',
           useHTML: true,
@@ -640,6 +651,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         visible: displayLatency,
       },
       {
+        showEmpty: false,
         opposite: true,
         min: 0,
         max: 100,
@@ -728,6 +740,16 @@ const ApPacketLatencyAndLossRateComponent = ({
         showInNavigator: false,
       },
     ],
+    lang: {
+      noData: "No data available for selected time range",
+    },
+    noData: {
+      style: {
+        fontWeight: "normal",
+        fontSize: "14px",
+        color: "#666",
+      },
+    },
   };
   const overlayOptions = options;
 
@@ -967,6 +989,15 @@ const ApPacketLatencyAndLossRateComponent = ({
           {entityName}
         </h3>
         <div className="flex ml-auto">
+          {showResetZoomButton && (
+            <Tooltip title="Reset View">
+              <Button
+                className="mr-3"
+                icon={<MagnifyExpandIcon />}
+                onClick={setDefaultNavigatorTimeRange}
+              />
+            </Tooltip>
+          )}
           <Tooltip title="Share Link">
             <Button
               className="mr-3"
@@ -1022,114 +1053,114 @@ const ApPacketLatencyAndLossRateComponent = ({
       </div>
       {/* </div> */}
 
-      {lossPackage?.length > 0 && (
-        <div
-          className="flex flex-col entity__chart-layout"
-          style={{ flexDirection: "column" }}
-        >
-          {/* <div
+      {/* {lossPackage?.length > 0 && ( */}
+      <div
+        className="flex flex-col entity__chart-layout"
+        style={{ flexDirection: "column" }}
+      >
+        {/* <div
             className="p-4"
             style={{ width: "30%", minWidth: "150px", marginTop: "10px" }}
           > */}
-          <div className="flex mt-4" style={{ width: "100%" }}>
-            <div style={{ width: "40%" }}>
-              <Cascader
-                className="custom-tag-spacing"
-                options={metricOptions}
-                value={selectedMetricPaths}
-                onChange={(paths) => {
-                  setSelectedMetricPaths(paths);
-                  const flat = paths.map((p) => p[p.length - 1]);
-                  handleDisplayLatencyBands(flat.includes("latency"));
-                  handleDisplayPctLoss(flat.includes("loss"));
-                }}
-                multiple
-                placeholder="Show metrics…"
-                // maxTagCount="responsive"
-                style={{ width: "100%" }}
-                tagRender={({ label, value, closable, onClose }) => {
-                  const color = tagColors[value] || "#999";
-                  return (
-                    <Tag
-                      closable={closable}
-                      onClose={onClose}
-                      style={{
-                        backgroundColor: `${color}33`,
-                        borderColor: color,
-                        color: "#000",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {label}
-                    </Tag>
-                  );
-                }}
-              />
-            </div>
-            <div className="ml-auto">
-              <ViewModeToggle />
-            </div>
+        <div className="flex mt-4" style={{ width: "100%" }}>
+          <div style={{ width: "40%" }}>
+            <Cascader
+              className="custom-tag-spacing"
+              options={metricOptions}
+              value={selectedMetricPaths}
+              onChange={(paths) => {
+                setSelectedMetricPaths(paths);
+                const flat = paths.map((p) => p[p.length - 1]);
+                handleDisplayLatencyBands(flat.includes("latency"));
+                handleDisplayPctLoss(flat.includes("loss"));
+              }}
+              multiple
+              placeholder="Show metrics…"
+              // maxTagCount="responsive"
+              style={{ width: "100%" }}
+              tagRender={({ label, value, closable, onClose }) => {
+                const color = tagColors[value] || "#999";
+                return (
+                  <Tag
+                    closable={closable}
+                    onClose={onClose}
+                    style={{
+                      backgroundColor: `${color}33`,
+                      borderColor: color,
+                      color: "#000",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {label}
+                  </Tag>
+                );
+              }}
+            />
           </div>
-          {/* 0612 */}
-          {/* <div className="flex-grow" style={{ width: "100%" }}> */}
-          <div className=" w-full">
-            {lossPackage && (
-              //   <div>
-              //     <HighchartsReact
-              //       highcharts={Highcharts}
-              //       options={options}
-              //       ref={chartRef}
-              //     />
-              //     <ViewModeToggle />
-              //     {viewMode === "overlay" ? (
-              //       <HighchartsReact
-              //         highcharts={Highcharts}
-              //         options={options}
-              //         ref={chartRef}
-              //       />
-              //     ) : (
-              //       <div className=" gap-4">
-              //         <div className="w-full">
-              //           <HighchartsReact
-              //             highcharts={Highcharts}
-              //             options={latencyOptions}
-              //           />
-              //         </div>
-              //         <div className="w-full">
-              //           <HighchartsReact
-              //             highcharts={Highcharts}
-              //             options={lossOptions}
-              //           />
-              //         </div>
-              //       </div>
-              //     )}
-              //     <TimeStamp
-              //       className="mt-4"
-              //       from={tsDataLegendRangeFrom}
-              //       until={tsDataLegendRangeUntil}
-              //     />
-              //   </div>
-              <div>
-                <HighchartsReact
-                  key={viewMode}
-                  highcharts={Highcharts}
-                  options={
-                    viewMode === "overlay" ? overlayOptions : stackedOptions
-                  }
-                  ref={chartRef}
-                />
-
-                <TimeStamp
-                  className="mt-4"
-                  from={tsDataLegendRangeFrom}
-                  until={tsDataLegendRangeUntil}
-                />
-              </div>
-            )}
+          <div className="ml-auto">
+            <ViewModeToggle />
           </div>
         </div>
-      )}
-      {!latencyData && <Loading />}
+        {/* 0612 */}
+        {/* <div className="flex-grow" style={{ width: "100%" }}> */}
+        <div className=" w-full">
+          {lossPackage && (
+            //   <div>
+            //     <HighchartsReact
+            //       highcharts={Highcharts}
+            //       options={options}
+            //       ref={chartRef}
+            //     />
+            //     <ViewModeToggle />
+            //     {viewMode === "overlay" ? (
+            //       <HighchartsReact
+            //         highcharts={Highcharts}
+            //         options={options}
+            //         ref={chartRef}
+            //       />
+            //     ) : (
+            //       <div className=" gap-4">
+            //         <div className="w-full">
+            //           <HighchartsReact
+            //             highcharts={Highcharts}
+            //             options={latencyOptions}
+            //           />
+            //         </div>
+            //         <div className="w-full">
+            //           <HighchartsReact
+            //             highcharts={Highcharts}
+            //             options={lossOptions}
+            //           />
+            //         </div>
+            //       </div>
+            //     )}
+            //     <TimeStamp
+            //       className="mt-4"
+            //       from={tsDataLegendRangeFrom}
+            //       until={tsDataLegendRangeUntil}
+            //     />
+            //   </div>
+            <div>
+              <HighchartsReact
+                key={viewMode}
+                highcharts={Highcharts}
+                options={
+                  viewMode === "overlay" ? overlayOptions : stackedOptions
+                }
+                ref={chartRef}
+              />
+
+              <TimeStamp
+                className="mt-4"
+                from={tsDataLegendRangeFrom}
+                until={tsDataLegendRangeUntil}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+      {/* )}
+       {!latencyData && <Loading />} */}
       {/* </div> */}
     </React.Fragment>
   );

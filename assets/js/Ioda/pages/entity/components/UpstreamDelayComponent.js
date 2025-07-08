@@ -13,7 +13,7 @@ import {
   millisecondsToSeconds,
   secondsToMilliseconds,
 } from "../../../utils/timeUtils";
-
+import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 exportingInit(Highcharts);
 offlineExportingInit(Highcharts);
 
@@ -22,6 +22,7 @@ import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
 // Internationalization
 import T from "i18n-react";
 import HighchartsNoData from "highcharts/modules/no-data-to-display";
+import TimeStamp from "../../../components/timeStamp/TimeStamp";
 
 // Initialize the module
 if (typeof Highcharts === "object") {
@@ -32,6 +33,8 @@ import ShareLinkModal from "../../../components/modal/ShareLinkModal";
 import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
 import { getUpstreamChartExportFileName } from "../utils/EntityUtils";
 import { secondsToUTC } from "../../../utils/timeUtils";
+
+HighchartsNoData(Highcharts);
 
 const UpstreamDelayComponent = ({
   from,
@@ -52,6 +55,9 @@ const UpstreamDelayComponent = ({
   const [activeTab, setActiveTab] = useState("1");
   const [displayChartSharePopover, setDisplayChartSharePopover] =
     useState(false);
+  const [tsDataLegendRangeFrom, setTsDataLegendRangeFrom] = useState(from);
+  const [tsDataLegendRangeUntil, setTsDataLegendRangeUntil] = useState(until);
+  const [showResetZoomButton, setShowResetZoomButton] = useState(false);
 
   const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
 
@@ -111,6 +117,67 @@ const UpstreamDelayComponent = ({
       values: newValues,
     });
   }, [rawAsnSignalsUpstreamDelayPenultAsnCount]);
+
+  useEffect(() => {
+    if (!chartCombinedRef.current) return;
+    const chart = chartCombinedRef.current.chart;
+    const fromMs = secondsToMilliseconds(tsDataLegendRangeFrom);
+    const toMs = secondsToMilliseconds(tsDataLegendRangeUntil);
+    chart.xAxis[0].setExtremes(fromMs, toMs, true);
+  }, [tsDataLegendRangeFrom, tsDataLegendRangeUntil]);
+
+  useEffect(() => {
+    if (!chartIndividualRef.current) return;
+    const chart = chartIndividualRef.current.chart;
+    const fromMs = secondsToMilliseconds(tsDataLegendRangeFrom);
+    const toMs = secondsToMilliseconds(tsDataLegendRangeUntil);
+    chart.xAxis[0].setExtremes(fromMs, toMs, true);
+  }, [tsDataLegendRangeFrom, tsDataLegendRangeUntil]);
+
+  // function for when zoom/pan is used
+  function xyPlotRangeChanged(event) {
+    if (!event.target.series) {
+      return;
+    }
+
+    // Count the number of visible series in our chart
+    const hasVisibleSeries = event.target.series.some(
+      (series) => !!series.visible
+    );
+
+    // If we don't have any data on the chart, Highcharts will set an arbitrary
+    // erroring data range. We prevent this by terminating early
+    if (!hasVisibleSeries) {
+      return;
+    }
+
+    const axisMin = millisecondsToSeconds(event.min);
+    const axisMax = millisecondsToSeconds(event.max);
+
+    const isDefaultRange = axisMin === from && axisMax === until;
+
+    setTsDataLegendRangeFrom(axisMin);
+    setTsDataLegendRangeUntil(axisMax);
+    setShowResetZoomButton(!isDefaultRange);
+  }
+  function setDefaultNavigatorTimeRange() {
+    const navigatorLowerBound = secondsToMilliseconds(from);
+    const navigatorUpperBound = secondsToMilliseconds(until);
+    setTsDataLegendRangeFrom(from);
+    setTsDataLegendRangeUntil(until);
+
+    setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
+  }
+  function setChartNavigatorTimeRange(fromMs, untilMs) {
+    if (!chartCombinedRef || !chartCombinedRef.current) {
+      return;
+    }
+    if (!chartIndividualRef || !chartIndividualRef.current) {
+      return;
+    }
+    chartCombinedRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
+    chartIndividualRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
+  }
 
   function geometricMean(values) {
     const valid = values.filter((v) => v != null);
@@ -188,6 +255,7 @@ const UpstreamDelayComponent = ({
     tooltip: {
       valueSuffix: " ms",
     },
+    showInNavigator: false,
   }));
 
   const traceAsnDict = {};
@@ -219,8 +287,11 @@ const UpstreamDelayComponent = ({
       lineColor: colorsArray[i],
       type: "area",
       yAxis: 1,
+      showInNavigator: false,
     })) || [];
-
+  const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
+  const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
+  setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
   //   console.log("traceAsnSeries data for traceroute chart", traceAsnSeries);
 
   //   const latencyCombined = {
@@ -616,6 +687,12 @@ const UpstreamDelayComponent = ({
       height: 360,
       animation: false,
       spacingLeft: 5,
+      zoomType: "x",
+      resetZoomButton: {
+        theme: { style: { display: "none" } },
+      },
+      panning: true,
+      panKey: "shift",
     },
     // title: {
     //   text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
@@ -656,6 +733,7 @@ const UpstreamDelayComponent = ({
     },
     yAxis: [
       {
+        showEmpty: false,
         offset: 0,
         opposite: false,
         alignTicks: true,
@@ -689,6 +767,7 @@ const UpstreamDelayComponent = ({
         },
       },
       {
+        showEmpty: false,
         offset: 0,
         opposite: false,
         alignTicks: true,
@@ -720,6 +799,7 @@ const UpstreamDelayComponent = ({
       },
     ],
     xAxis: {
+      showEmpty: false,
       type: "datetime",
       gridLineColor: "#666",
       gridLineDashStyle: "Dash",
@@ -744,9 +824,15 @@ const UpstreamDelayComponent = ({
           fontFamily: CUSTOM_FONT_FAMILY,
         },
       },
+      events: {
+        afterSetExtremes: (e) => {
+          xyPlotRangeChanged(e);
+        },
+      },
     },
     series: [
       {
+        showInNavigator: false,
         name: "Mean TTL",
         data: asnLatencyData,
         type: "line",
@@ -774,6 +860,46 @@ const UpstreamDelayComponent = ({
     ], // TODO - done
     legend: {
       enabled: false,
+    },
+    navigator: {
+      enabled: jsonData,
+      adaptToUpdatedData: false,
+      time: {
+        useUTC: true,
+      },
+      margin: 10,
+      maskFill: "rgba(50, 184, 237, 0.3)",
+      outlineColor: "#aaa",
+      xAxis: {
+        gridLineColor: "#666",
+        gridLineDashStyle: "Dash",
+        tickPixelInterval: 100,
+        dateTimeLabelFormats: dateFormats,
+        labels: {
+          zIndex: 100,
+          align: "center",
+          y: 12,
+          style: {
+            //textOutline: "2px solid #fff",
+            color: "#666",
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+        },
+      },
+      yAxis: {
+        min: 0,
+      },
+      //   series: [{}],
+      series: traceAsnSeries.map((s) => ({
+        name: s.name,
+        data: s.data,
+        type: "area",
+        stacking: "normal",
+        fillOpacity: 0.4,
+        color: s.color,
+        lineColor: Highcharts.color(s.color).brighten(-0.2).get(),
+      })),
     },
     plotOptions: {
       series: {
@@ -831,16 +957,16 @@ const UpstreamDelayComponent = ({
         },
       ],
     },
-    // lang: {
-    //   noData: "No Latency data available for selected time range",
-    // },
-    // noData: {
-    //   style: {
-    //     fontWeight: "bold",
-    //     fontSize: "14px",
-    //     color: "#666",
-    //   },
-    // },
+    lang: {
+      noData: "No data available for selected time range",
+    },
+    noData: {
+      style: {
+        fontWeight: "normal",
+        fontSize: "14px",
+        color: "#666",
+      },
+    },
     credits: {
       enabled: false,
     },
@@ -850,6 +976,12 @@ const UpstreamDelayComponent = ({
       //   type: "line",
       height: 360,
       animation: false,
+      zoomType: "x",
+      resetZoomButton: {
+        theme: { style: { display: "none" } },
+      },
+      panning: true,
+      panKey: "shift",
     },
     // title: {
     //   text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
@@ -889,6 +1021,7 @@ const UpstreamDelayComponent = ({
     },
     yAxis: [
       {
+        showEmpty: false,
         offset: 0,
         opposite: false,
         alignTicks: true,
@@ -922,6 +1055,7 @@ const UpstreamDelayComponent = ({
         },
       },
       {
+        showEmpty: false,
         offset: 0,
         opposite: false,
         alignTicks: true,
@@ -951,6 +1085,7 @@ const UpstreamDelayComponent = ({
       },
     ],
     xAxis: {
+      showEmpty: false,
       type: "datetime",
       gridLineColor: "#666",
       gridLineDashStyle: "Dash",
@@ -973,6 +1108,11 @@ const UpstreamDelayComponent = ({
         style: {
           fontSize: "12px",
           fontFamily: CUSTOM_FONT_FAMILY,
+        },
+      },
+      events: {
+        afterSetExtremes: (e) => {
+          xyPlotRangeChanged(e);
         },
       },
     },
@@ -1036,16 +1176,16 @@ const UpstreamDelayComponent = ({
         },
       ],
     },
-    // lang: {
-    //   noData: "No Latency data available for selected time range",
-    // },
-    // noData: {
-    //   style: {
-    //     fontWeight: "bold",
-    //     fontSize: "14px",
-    //     color: "#666",
-    //   },
-    // },
+    lang: {
+      noData: "No data available for selected time range",
+    },
+    noData: {
+      style: {
+        fontWeight: "normal",
+        fontSize: "14px",
+        color: "#666",
+      },
+    },
     credits: {
       enabled: false,
     },
@@ -1175,6 +1315,15 @@ const UpstreamDelayComponent = ({
                   {entityName}
                 </h3>
                 <div className="flex ml-auto">
+                  {showResetZoomButton && (
+                    <Tooltip title="Reset View">
+                      <Button
+                        className="mr-3"
+                        icon={<MagnifyExpandIcon />}
+                        onClick={setDefaultNavigatorTimeRange}
+                      />
+                    </Tooltip>
+                  )}
                   <Tooltip title="Share Link">
                     <Button
                       className="mr-3"
@@ -1235,78 +1384,80 @@ const UpstreamDelayComponent = ({
                 </h4>
               </div>
             </div>
-            {jsonData && (
-              <div className="upstream__chart">
-                <div className="card">
-                  <div
-                    className="header-row"
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Tabs
-                      defaultActiveKey="1"
-                      animated={false}
-                      style={{ marginBottom: 0 }}
-                      items={[
-                        {
-                          key: "1",
-                          label: (
-                            <span style={{ padding: "0 10px" }}>
-                              {" "}
-                              Combined{" "}
-                            </span>
-                          ),
-                        },
-                        {
-                          key: "2",
-                          label: (
-                            <span style={{ padding: "0 10px" }}>
-                              {" "}
-                              Individual{" "}
-                            </span>
-                          ),
-                        },
-                      ]}
-                      onChange={(key) => setActiveTab(key)}
-                    />
-                    <ASNLegend asnList={asnList} />
-                  </div>
-
-                  <div className="content-area px-0">
-                    {activeTab === "1" ? (
-                      <div style={{ marginLeft: "10px" }}>
-                        <HighchartsReact
-                          highcharts={Highcharts}
-                          // options={latencyCombined}
-                          options={combineTrace}
-                          ref={chartCombinedRef}
-                        />
-                      </div>
-                    ) : (
-                      <div style={{ marginLeft: "10px" }}>
-                        <HighchartsReact
-                          highcharts={Highcharts}
-                          // options={latencyIndividual}
-                          options={indivTrace}
-                          ref={chartIndividualRef}
-                        />
-                      </div>
-                    )}
-                  </div>
+            {/* {jsonData && ( */}
+            <div className="upstream__chart">
+              <div className="card">
+                <div
+                  className="header-row"
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Tabs
+                    defaultActiveKey="1"
+                    animated={false}
+                    style={{ marginBottom: 0 }}
+                    items={[
+                      {
+                        key: "1",
+                        label: (
+                          <span style={{ padding: "0 10px" }}> Combined </span>
+                        ),
+                      },
+                      {
+                        key: "2",
+                        label: (
+                          <span style={{ padding: "0 10px" }}>
+                            {" "}
+                            Individual{" "}
+                          </span>
+                        ),
+                      },
+                    ]}
+                    onChange={(key) => setActiveTab(key)}
+                  />
+                  <ASNLegend asnList={asnList} />
                 </div>
-                {/* <div className="px-4 card">
+
+                <div className="content-area px-0">
+                  {activeTab === "1" ? (
+                    <div style={{ marginLeft: "10px" }}>
+                      <HighchartsReact
+                        highcharts={Highcharts}
+                        // options={latencyCombined}
+                        options={combineTrace}
+                        ref={chartCombinedRef}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ marginLeft: "10px" }}>
+                      <HighchartsReact
+                        highcharts={Highcharts}
+                        // options={latencyIndividual}
+                        options={indivTrace}
+                        ref={chartIndividualRef}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* <div className="px-4 card">
                   <HighchartsReact
                     highcharts={Highcharts}
                     options={traceRouteOptions}
                     ref={chartTraceRouteRef}
                   />
                 </div> */}
-              </div>
-            )}
-            {!jsonData && <Loading />}
+              <TimeStamp
+                className="mt-4"
+                from={tsDataLegendRangeFrom}
+                until={tsDataLegendRangeUntil}
+              />
+            </div>
+            {/* )}
+        {!jsonData && <Loading />} */}
           </div>
         </div>
       </div>
