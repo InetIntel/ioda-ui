@@ -18,8 +18,13 @@ import Loading from "../../../components/loading/Loading";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 
 import { Button, Checkbox, Popover, Tooltip, Cascader, Tag } from "antd";
-import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  ShareAltOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import ShareLinkModal from "../../../components/modal/ShareLinkModal";
+import MarkupStudioModal from "./MarkupStudioModal";
 import { getApLatencyChartExportFileName } from "../utils/EntityUtils";
 import {
   millisecondsToSeconds,
@@ -58,6 +63,9 @@ const ApPacketLatencyAndLossRateComponent = ({
   const [showResetZoomButton, setShowResetZoomButton] = useState(false);
   const [displayChartSharePopover, setDisplayChartSharePopover] =
     useState(false);
+  const [showMarkupStudioModal, setShowMarkupStudioModal] = useState(false);
+  const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] =
+    useState("");
   // exportingInit(Highcharts);
   // offlineExportingInit(Highcharts);
   const [viewMode, setViewMode] = useState("overlay");
@@ -171,6 +179,19 @@ const ApPacketLatencyAndLossRateComponent = ({
     setTsDataLegendRangeFrom(axisMin);
     setTsDataLegendRangeUntil(axisMax);
     setShowResetZoomButton(!isDefaultRange);
+  }
+  function getChartSvg() {
+    if (chartRef.current) {
+      return chartRef.current.chart.getSVG();
+    }
+    return null;
+  }
+  function handleShowMarkupStudioModal() {
+    setShowMarkupStudioModal(true);
+    setMarkupStudioSvgBaseString(getChartSvg());
+  }
+  function handleHideMarkupStudioModal() {
+    setShowMarkupStudioModal(false);
   }
   function setDefaultNavigatorTimeRange() {
     const navigatorLowerBound = secondsToMilliseconds(from);
@@ -445,10 +466,13 @@ const ApPacketLatencyAndLossRateComponent = ({
       spacingBottom: 0,
       spacingLeft: 5,
       spacingRight: 5,
-      spacingTop: 30,
+      spacingTop: 45,
       style: {
         fontFamily: CUSTOM_FONT_FAMILY,
       },
+    },
+    title: {
+      text: "",
     },
     accessibility: {
       enabled: false,
@@ -495,7 +519,6 @@ const ApPacketLatencyAndLossRateComponent = ({
       sourceWidth: 736,
       sourceHeight: 414,
     },
-    title: null,
     tooltip: {
       shared: true,
       xDateFormat: "%a, %b %e %l:%M%p",
@@ -667,7 +690,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           align: "high",
           textAlign: "right",
           rotation: 0,
-          x: -20,
+          x: -30,
           y: -15,
           style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
         },
@@ -980,6 +1003,16 @@ const ApPacketLatencyAndLossRateComponent = ({
         entityName={entityName}
         handleDownload={() => manuallyDownloadChart("image/jpeg")}
       />
+      <MarkupStudioModal
+        open={showMarkupStudioModal}
+        svgString={markupStudioSvgBaseString}
+        hideModal={handleHideMarkupStudioModal}
+        chartTitle={getChartExportTitle()}
+        chartSubtitle={getChartExportSubtitle()}
+        exportFileName={() => getApLatencyChartExportFileName(from, entityName)}
+        shareLink={window.location.href}
+        entityName={entityName}
+      />
 
       {/* <div className="gap-0 mb-6 card"> */}
       {/* <div className="p-4"> */}
@@ -998,6 +1031,14 @@ const ApPacketLatencyAndLossRateComponent = ({
               />
             </Tooltip>
           )}
+          <Tooltip title="Markup">
+            <Button
+              className="mr-3"
+              icon={<EditOutlined />}
+              onClick={handleShowMarkupStudioModal}
+              disabled={!latencyData}
+            />
+          </Tooltip>
           <Tooltip title="Share Link">
             <Button
               className="mr-3"

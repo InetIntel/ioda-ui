@@ -9,6 +9,11 @@ require("highcharts/modules/offline-exporting")(Highcharts);
 import highchartsMore from "highcharts/highcharts-more";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExportingInit from "highcharts/modules/offline-exporting";
+import MarkupStudioModal from "./MarkupStudioModal";
+import {
+  getChartExportFileName,
+  handleCSVDownload,
+} from "../utils/EntityUtils";
 import {
   millisecondsToSeconds,
   secondsToMilliseconds,
@@ -18,7 +23,11 @@ exportingInit(Highcharts);
 offlineExportingInit(Highcharts);
 
 import { Tabs, Tooltip, Button, Popover } from "antd";
-import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  ShareAltOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 // Internationalization
 import T from "i18n-react";
 import HighchartsNoData from "highcharts/modules/no-data-to-display";
@@ -81,6 +90,9 @@ const UpstreamDelayComponent = ({
   const chartCombinedRef = useRef(null);
   const chartIndividualRef = useRef(null);
   const chartTraceRouteRef = useRef(null);
+  const [showMarkupStudioModal, setShowMarkupStudioModal] = useState(false);
+  const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] =
+    useState("");
 
   useEffect(() => {
     if (!rawAsnSignalsUpstreamDelayLatency?.[0]?.[0]) return;
@@ -177,6 +189,24 @@ const UpstreamDelayComponent = ({
     }
     chartCombinedRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
     chartIndividualRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
+  }
+  function getChartSvg() {
+    if (chartCombinedRef.current) {
+      return chartCombinedRef.current.chart.getSVG();
+    }
+    if (chartIndividualRef.current) {
+      return chartIndividualRef.current.chart.getSVG();
+    }
+    return null;
+  }
+
+  function handleShowMarkupStudioModal() {
+    setShowMarkupStudioModal(true);
+    setMarkupStudioSvgBaseString(getChartSvg());
+  }
+
+  function handleHideMarkupStudioModal() {
+    setShowMarkupStudioModal(false);
   }
 
   function geometricMean(values) {
@@ -1305,8 +1335,18 @@ const UpstreamDelayComponent = ({
         entityName={entityName}
         handleDownload={() => manuallyDownloadChart("image/jpeg")}
       />
+      <MarkupStudioModal
+        open={showMarkupStudioModal}
+        svgString={markupStudioSvgBaseString}
+        hideModal={handleHideMarkupStudioModal}
+        chartTitle={getChartExportTitle()}
+        chartSubtitle={getChartExportSubtitle()}
+        exportFileName={() => getChartExportFileName(from, entityName)}
+        shareLink={window.location.href}
+        entityName={entityName}
+      />
       <div>
-        <div className="flex items-stretch gap-0 mb-6 entity__chart-layout">
+        <div className="flex items-stretch gap-0 entity__chart-layout">
           <div className="col-3">
             <div className="p-4">
               <div className="flex items-center mb-3">
@@ -1324,6 +1364,14 @@ const UpstreamDelayComponent = ({
                       />
                     </Tooltip>
                   )}
+                  <Tooltip title="Markup">
+                    <Button
+                      className="mr-3"
+                      icon={<EditOutlined />}
+                      onClick={handleShowMarkupStudioModal}
+                      disabled={!jsonData}
+                    />
+                  </Tooltip>
                   <Tooltip title="Share Link">
                     <Button
                       className="mr-3"
