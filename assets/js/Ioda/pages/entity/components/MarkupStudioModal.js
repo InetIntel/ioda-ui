@@ -337,7 +337,8 @@ export default function MarkupStudioModal({
         fontFamily: "Inter, sans-serif",
         fontWeight: "bold",
         fontSize: 16,
-        width: canvas.width / 2,
+        // width: canvas.width / 2,
+        width: canvas.width,
         lockMovementY: true,
         lockMovementX: true,
       })

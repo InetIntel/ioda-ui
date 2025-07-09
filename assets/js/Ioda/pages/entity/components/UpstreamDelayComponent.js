@@ -19,8 +19,8 @@ import {
   secondsToMilliseconds,
 } from "../../../utils/timeUtils";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
-exportingInit(Highcharts);
-offlineExportingInit(Highcharts);
+// exportingInit(Highcharts);
+// offlineExportingInit(Highcharts);
 
 import { Tabs, Tooltip, Button, Popover } from "antd";
 import {
@@ -233,6 +233,13 @@ const UpstreamDelayComponent = ({
   const exportFileName = getUpstreamChartExportFileName(from, entityName);
 
   function getChartExportTitle() {
+    console.log("entityName", entityName);
+    console.log("entityName json", JSON.stringify(entityName));
+    console.log(
+      "export chart title",
+      `${T.translate("entity.upstreamChartTitle")} ${entityName}`
+    );
+    // return `${T.translate("entity.upstreamChartTitle")} ${entityName?.trim()}`;
     return `${T.translate("entity.upstreamChartTitle")} ${entityName?.trim()}`;
   }
 
@@ -283,7 +290,10 @@ const UpstreamDelayComponent = ({
     yAxis: 0,
     type: "line",
     tooltip: {
-      valueSuffix: " ms",
+      pointFormatter: function () {
+        const val = (this.y / 1000).toFixed(3);
+        return `<b>TTL</b> = ${val} ms`;
+      },
     },
     showInNavigator: false,
   }));
@@ -313,11 +323,19 @@ const UpstreamDelayComponent = ({
     Object.keys(traceAsnDict).map((name, i) => ({
       name,
       data: traceAsnDict[name],
-      color: Highcharts.color(colorsArray[i]).setOpacity(0.4).get(),
+      //   color: Highcharts.color(colorsArray[i]).setOpacity(0.4).get(),
+      color: colorsArray[i],
+      fillOpacity: 0.2,
+
       lineColor: colorsArray[i],
       type: "area",
       yAxis: 1,
       showInNavigator: false,
+      tooltip: {
+        pointFormatter: function () {
+          return `<b>${name}</b>: ${this.y}`;
+        },
+      },
     })) || [];
   const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
   const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
@@ -717,6 +735,7 @@ const UpstreamDelayComponent = ({
       height: 360,
       animation: false,
       spacingLeft: 5,
+      spacingTop: 25,
       zoomType: "x",
       resetZoomButton: {
         theme: { style: { display: "none" } },
@@ -745,6 +764,7 @@ const UpstreamDelayComponent = ({
           text: exportChartTitle,
           style: {
             fontWeight: "bold",
+            whiteSpace: "nowrap",
           },
         },
         subtitle: {
@@ -759,7 +779,7 @@ const UpstreamDelayComponent = ({
       },
       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
       sourceWidth: 960,
-      sourceHeight: 240,
+      sourceHeight: 540,
     },
     yAxis: [
       {
@@ -776,12 +796,16 @@ const UpstreamDelayComponent = ({
         // title: { text: "" },
         title: {
           reserveSpace: false,
-          text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+          text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (ms)</span>",
           textAlign: "low",
           align: "high",
           x: 0,
-          useHTML: true,
-          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          //   useHTML: true,
+          style: {
+            fontSize: "12px",
+            color: "#333",
+            whiteSpace: "nowrap",
+          },
           y: -10,
           rotation: 0,
           marginLeft: "10px",
@@ -808,12 +832,17 @@ const UpstreamDelayComponent = ({
         title: {
           reserveSpace: false,
           text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
+          //   text: "Traceroute (# of observations of penultimate ASes)",
           x: 0,
-          useHTML: true,
           textAlign: "low",
           align: "high",
           rotation: 0,
-          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          style: {
+            fontSize: "12px",
+            color: "#333",
+            whiteSpace: "nowrap",
+            position: "relative",
+          },
           y: -10,
           marginLeft: "10px",
         },
@@ -869,7 +898,10 @@ const UpstreamDelayComponent = ({
         color: "#1890ff",
         lineColor: "#1890ff",
         tooltip: {
-          valueSuffix: " ms",
+          pointFormatter: function () {
+            const val = (this.y / 1000).toFixed(3);
+            return `<b>Mean TTL</b> = ${val} ms`;
+          },
         },
         yAxis: 0,
         // tooltip: {
@@ -926,7 +958,7 @@ const UpstreamDelayComponent = ({
         data: s.data,
         type: "area",
         stacking: "normal",
-        fillOpacity: 0.4,
+        fillOpacity: 0.2,
         color: s.color,
         lineColor: Highcharts.color(s.color).brighten(-0.2).get(),
       })),
@@ -955,7 +987,7 @@ const UpstreamDelayComponent = ({
         marker: {
           enabled: false,
         },
-        fillOpacity: 0.4,
+        fillOpacity: 0.2,
         animation: false,
       },
     },
@@ -967,7 +999,7 @@ const UpstreamDelayComponent = ({
         fontSize: "14px",
         fontFamily: CUSTOM_FONT_FAMILY,
       },
-      headerFormat: "{point.key}<br>",
+      //   headerFormat: "{point.key}<br>",
       //   pointFormatter: function () {
       //     return `<b>Mean TTL</b> = ${this.y} ms`;
       //   },
@@ -1047,7 +1079,7 @@ const UpstreamDelayComponent = ({
       },
       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
       sourceWidth: 960,
-      sourceHeight: 240,
+      sourceHeight: 540,
     },
     yAxis: [
       {
@@ -1064,13 +1096,17 @@ const UpstreamDelayComponent = ({
         // title: { text: "" },
         title: {
           reserveSpace: false,
-          text: "<strong>Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
+          text: "<strong>Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (ms)</span>",
           x: 0,
-          useHTML: true,
+          //   useHTML: true,
           textAlign: "low",
           align: "high",
           rotation: 0,
-          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          style: {
+            fontSize: "12px",
+            color: "#333",
+            whiteSpace: "nowrap",
+          },
           y: -10,
           marginLeft: "10px",
         },
@@ -1099,8 +1135,12 @@ const UpstreamDelayComponent = ({
           textAlign: "low",
           align: "high",
           x: 0,
-          useHTML: true,
-          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+          //   useHTML: true,
+          style: {
+            fontSize: "12px",
+            color: "#333",
+            whiteSpace: "nowrap",
+          },
           y: -10,
         },
         labels: {
@@ -1174,7 +1214,7 @@ const UpstreamDelayComponent = ({
         marker: {
           enabled: false,
         },
-        fillOpacity: 0.4,
+        fillOpacity: 0.2,
         animation: false,
       },
     },
@@ -1246,8 +1286,9 @@ const UpstreamDelayComponent = ({
                 width: "14px",
                 height: "14px",
                 backgroundColor: Highcharts.color(item.color)
-                  .setOpacity(0.4)
+                  .setOpacity(0.2)
                   .get(),
+                // fillOpacity: 0.2,
                 borderRadius: "50%",
                 borderColor: item.color,
                 borderStyle: "solid",
@@ -1278,18 +1319,20 @@ const UpstreamDelayComponent = ({
    * ShareLinkModal to trigger a direct download
    */
   function manuallyDownloadChart(imageType) {
-    const chartRef1 = activeTab === "1" ? chartCombinedRef : chartIndividualRef;
-
-    const chartRef2 = chartTraceRouteRef;
-    if (!chartRef1.current?.chart || !chartRef2.current?.chart) {
-      return;
-    }
+    const chartRef = activeTab === "1" ? chartCombinedRef : chartIndividualRef;
+    // const chartRef = chartCombinedRef.current
+    //   ? chartCombinedRef
+    //   : chartIndividualRef;
+    // const chartRef2 = chartTraceRouteRef;
+    // if (!chartRef1.current?.chart || !chartRef2.current?.chart) {
+    //   return;
+    // }
 
     // console.log(chartRef2);
 
     // Append watermark to image on download:
     // https://www.highcharts.com/forum/viewtopic.php?t=47368
-    chartRef1.current.chart.exportChartLocal(
+    chartRef.current.chart.exportChartLocal(
       {
         type: imageType,
         filename: exportFileName,
@@ -1446,7 +1489,8 @@ const UpstreamDelayComponent = ({
                   <Tabs
                     defaultActiveKey="1"
                     animated={false}
-                    style={{ marginBottom: 0 }}
+                    // style={{ marginBottom: 0 }}
+                    tabBarStyle={{ marginBottom: 0 }}
                     items={[
                       {
                         key: "1",
