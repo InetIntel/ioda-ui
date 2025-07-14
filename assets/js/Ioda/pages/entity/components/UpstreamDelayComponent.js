@@ -22,7 +22,7 @@ import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 // exportingInit(Highcharts);
 // offlineExportingInit(Highcharts);
 
-import { Tabs, Tooltip, Button, Popover } from "antd";
+import { Tabs, Tooltip, Button, Popover, Checkbox } from "antd";
 import {
   DownloadOutlined,
   ShareAltOutlined,
@@ -93,6 +93,33 @@ const UpstreamDelayComponent = ({
   const [showMarkupStudioModal, setShowMarkupStudioModal] = useState(false);
   const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] =
     useState("");
+  // const [selectedAsns, setSelectedAsns] = useState("");
+  const asnListName =
+    jsonData?.values?.[0]?.map((item) => `AS${item.penultimate_as}`) || [];
+  const asnList = asnListName.map((name, i) => ({
+    name,
+    color: colorsArray[i],
+  }));
+
+  // Initialize selectedAsns with all ASNs by default
+  // const [selectedAsns, setSelectedAsns] = useState(asnList.map((a) => a.name));
+  const [selectedAsns, setSelectedAsns] = useState([]);
+  const initialLoad = useRef(true);
+
+  // useEffect(() => {
+  //   setSelectedAsns(asnList.map((a) => a.name));
+  // }, [asnList]);
+  // useEffect(() => {
+  //   if (asnList.length > 0 && selectedAsns.length === 0) {
+  //     setSelectedAsns(asnList.map((a) => a.name));
+  //   }
+  // }, [asnList]);
+  useEffect(() => {
+    if (asnList.length > 0 && initialLoad.current) {
+      setSelectedAsns(asnList.map((a) => a.name));
+      initialLoad.current = false;
+    }
+  }, [asnList]);
 
   useEffect(() => {
     if (!rawAsnSignalsUpstreamDelayLatency?.[0]?.[0]) return;
@@ -111,6 +138,12 @@ const UpstreamDelayComponent = ({
       values: newValues,
     });
   }, [rawAsnSignalsUpstreamDelayLatency]);
+
+  // const allAsns = asnList.map((a) => a.name);
+  // const [selectedAsns, setSelectedAsns] = useState(allAsns);
+  // useEffect(() => {
+  //   setSelectedAsns(asnList.map((a) => a.name));
+  // }, [asnList]);
 
   useEffect(() => {
     if (!rawAsnSignalsUpstreamDelayPenultAsnCount?.[0]?.[0]) return;
@@ -208,22 +241,34 @@ const UpstreamDelayComponent = ({
   function handleHideMarkupStudioModal() {
     setShowMarkupStudioModal(false);
   }
-
+  // const filteredLatencySeries = latencyAsnSeries.filter((s) =>
+  //   selectedAsns.includes(s.name)
+  // );
   function geometricMean(values) {
     const valid = values.filter((v) => v != null);
     if (valid.length === 0) return null; // Handle empty array case
     const product = valid.reduce((a, b) => a * b, 1);
     return Math.pow(product, 1 / valid.length);
   }
-
-  const asnLatencyData =
-    jsonData?.values?.map((obj) => {
-      const geometric_mean_e2e_latency_array = obj.map(
-        (item) => item?.agg_values?.geometric_mean_e2e_latency
+  // const asnLatencyData =
+  //   jsonData?.values?.map((obj) => {
+  //     const geometric_mean_e2e_latency_array = obj.map(
+  //       (item) => item?.agg_values?.geometric_mean_e2e_latency
+  //     );
+  //     return geometricMean(geometric_mean_e2e_latency_array) === null
+  //       ? null
+  //       : Math.round(geometricMean(geometric_mean_e2e_latency_array));
+  //   }) || [];
+  const asnLatencyDataFiltered =
+    jsonData?.values?.map((timeSlice) => {
+      const filtered = timeSlice.filter((item) =>
+        selectedAsns.includes(`AS${item.penultimate_as}`)
       );
-      return geometricMean(geometric_mean_e2e_latency_array) === null
-        ? null
-        : Math.round(geometricMean(geometric_mean_e2e_latency_array));
+      const latencies = filtered
+        .map((item) => item.agg_values.geometric_mean_e2e_latency)
+        .filter((v) => v != null);
+      const gm = geometricMean(latencies);
+      return gm == null ? null : Math.round(gm);
     }) || [];
 
   const exportChartTitle = getChartExportTitle();
@@ -233,13 +278,6 @@ const UpstreamDelayComponent = ({
   const exportFileName = getUpstreamChartExportFileName(from, entityName);
 
   function getChartExportTitle() {
-    console.log("entityName", entityName);
-    console.log("entityName json", JSON.stringify(entityName));
-    console.log(
-      "export chart title",
-      `${T.translate("entity.upstreamChartTitle")} ${entityName}`
-    );
-    // return `${T.translate("entity.upstreamChartTitle")} ${entityName?.trim()}`;
     return `${T.translate("entity.upstreamChartTitle")} ${entityName?.trim()}`;
   }
 
@@ -337,6 +375,12 @@ const UpstreamDelayComponent = ({
         },
       },
     })) || [];
+  const filteredLatencySeries = latencyAsnSeries.filter((s) =>
+    selectedAsns.includes(s.name)
+  );
+  const filteredTraceSeries = traceAsnSeries.filter((s) =>
+    selectedAsns.includes(s.name)
+  );
   const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
   const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
   setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
@@ -893,7 +937,7 @@ const UpstreamDelayComponent = ({
       {
         showInNavigator: false,
         name: "Mean TTL",
-        data: asnLatencyData,
+        data: asnLatencyDataFiltered,
         type: "line",
         color: "#1890ff",
         lineColor: "#1890ff",
@@ -918,7 +962,8 @@ const UpstreamDelayComponent = ({
         //   },
         // },
       },
-      ...traceAsnSeries,
+      // ...traceAsnSeries,
+      ...filteredTraceSeries,
     ], // TODO - done
     legend: {
       enabled: false,
@@ -952,8 +997,9 @@ const UpstreamDelayComponent = ({
       yAxis: {
         min: 0,
       },
-      //   series: [{}],
-      series: traceAsnSeries.map((s) => ({
+      //   series: [{}], 0711
+      // series: traceAsnSeries.map((s) => ({
+      series: filteredTraceSeries.map((s) => ({
         name: s.name,
         data: s.data,
         type: "area",
@@ -1186,9 +1232,51 @@ const UpstreamDelayComponent = ({
         },
       },
     },
-    series: [...latencyAsnSeries, ...traceAsnSeries],
+    // series: [...latencyAsnSeries, ...traceAsnSeries],
+    series: [...filteredLatencySeries, ...filteredTraceSeries],
     legend: {
       enabled: false,
+    },
+    navigator: {
+      enabled: jsonData,
+      adaptToUpdatedData: false,
+      time: {
+        useUTC: true,
+      },
+      margin: 10,
+      maskFill: "rgba(50, 184, 237, 0.3)",
+      outlineColor: "#aaa",
+      xAxis: {
+        gridLineColor: "#666",
+        gridLineDashStyle: "Dash",
+        tickPixelInterval: 100,
+        dateTimeLabelFormats: dateFormats,
+        labels: {
+          zIndex: 100,
+          align: "center",
+          y: 12,
+          style: {
+            //textOutline: "2px solid #fff",
+            color: "#666",
+            fontSize: "10px",
+            fontFamily: CUSTOM_FONT_FAMILY,
+          },
+        },
+      },
+      yAxis: {
+        min: 0,
+      },
+      //   series: [{}], 0711
+      // series: traceAsnSeries.map((s) => ({
+      series: filteredTraceSeries.map((s) => ({
+        name: s.name,
+        data: s.data,
+        type: "area",
+        stacking: "normal",
+        fillOpacity: 0.2,
+        color: s.color,
+        lineColor: Highcharts.color(s.color).brighten(-0.2).get(),
+      })),
     },
     plotOptions: {
       //   series: {
@@ -1261,12 +1349,6 @@ const UpstreamDelayComponent = ({
     },
   };
 
-  const asnListName =
-    jsonData?.values?.[0]?.map((item) => `AS${item.penultimate_as}`) || [];
-  const asnList = asnListName.map((name, i) => ({
-    name,
-    color: colorsArray[i],
-  }));
   const ASNLegend = ({ asnList }) => (
     <div style={{ display: "flex", justifyContent: "flex-end" }}>
       <div style={{ display: "flex", flexWrap: "wrap" }}>
@@ -1474,6 +1556,30 @@ const UpstreamDelayComponent = ({
                   {upstreamChartSubTitle}
                 </h4>
               </div>
+              <div style={{ padding: 12 }}>
+                <Checkbox.Group
+                  options={asnList.map((a) => ({
+                    label: (
+                      <span>
+                        <span
+                          style={{
+                            display: "inline-block",
+                            width: 8,
+                            height: 8,
+                            backgroundColor: a.color,
+                            borderRadius: 4,
+                            marginRight: 4,
+                          }}
+                        />
+                        {a.name}
+                      </span>
+                    ),
+                    value: a.name,
+                  }))}
+                  value={selectedAsns}
+                  onChange={(vals) => setSelectedAsns(vals)}
+                />
+              </div>
             </div>
             {/* {jsonData && ( */}
             <div className="upstream__chart">
@@ -1514,7 +1620,18 @@ const UpstreamDelayComponent = ({
                 </div>
 
                 <div className="content-area px-0">
-                  {activeTab === "1" ? (
+                  {selectedAsns.length === 0 ? (
+                    <div
+                      style={{
+                        padding: "2rem",
+                        textAlign: "center",
+                        color: "#666",
+                        // fontStyle: "italic",
+                      }}
+                    >
+                      Please select at least one AS
+                    </div>
+                  ) : activeTab === "1" ? (
                     <div style={{ marginLeft: "10px" }}>
                       <HighchartsReact
                         highcharts={Highcharts}
