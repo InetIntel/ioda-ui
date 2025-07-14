@@ -118,9 +118,9 @@ const TopoMap = (props) => {
   let zoom = screenWidthBelow680 ? 1 : 2;
 
   // Adjust zoom for regions
-  if (entityType === "region") {
-    zoom = 5;
-  }
+  // if (entityType === "region") {
+  //   zoom = 5;
+  // }
 
   // Get color threshold bounds based on entity type
   let thresholdBounds = {};
