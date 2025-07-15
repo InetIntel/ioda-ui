@@ -1620,7 +1620,7 @@ const UpstreamDelayComponent = ({
                 </div>
 
                 <div className="content-area px-0">
-                  {selectedAsns.length === 0 ? (
+                  {selectedAsns.length === 0 && jsonData ? (
                     <div
                       style={{
                         padding: "2rem",
@@ -1629,7 +1629,7 @@ const UpstreamDelayComponent = ({
                         // fontStyle: "italic",
                       }}
                     >
-                      Please select at least one AS
+                      No ASes selected.
                     </div>
                   ) : activeTab === "1" ? (
                     <div style={{ marginLeft: "10px" }}>

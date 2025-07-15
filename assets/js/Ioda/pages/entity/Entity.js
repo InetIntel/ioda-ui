@@ -79,7 +79,8 @@ import {
 // Components
 import ControlPanel from "../../components/controlPanel/ControlPanel";
 import EntitySearchTypeahead from "../../components/entitySearchTypeahead/EntitySearchTypeahead";
-import EntityRelated from "./EntityRelated";
+import EntityRelatedRegion from "./EntityRelatedRegion";
+import EntityRelatedAsn from "./EntityRelatedAsn";
 import Loading from "../../components/loading/Loading";
 import TimeStamp from "../../components/timeStamp/TimeStamp";
 import * as topojson from "topojson";
@@ -121,7 +122,7 @@ import {
   secondsToUTC,
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
-import { Button, Checkbox, Popover, Tooltip } from "antd";
+import { Button, Checkbox, Popover, Tooltip, Menu } from "antd";
 import {
   DownloadOutlined,
   EditOutlined,
@@ -401,11 +402,45 @@ const Entity = (props) => {
   const [convertValuesForHtsVizCalled, setConvertValuesForHtsVizCalled] =
     useState(null);
   const [isStackedView, setIsStackedView] = useState(false);
+  const [selectedView, setSelectedView] = useState("view1");
+  const handleMenuClick = ({ key }) => {
+    setSelectedView(key);
+  };
 
   const initialTableLimit = 300;
   const initialHtsLimit = 100;
   const maxHtsLimit = 150;
-
+  const VIEW_ITEMS = [
+    {
+      key: "view1",
+      label:
+        entityTypeState === "country"
+          ? "National View"
+          : entityTypeState === "region"
+            ? "Regional View"
+            : entityTypeState === "asn"
+              ? "ASN/ISP View"
+              : null,
+    },
+    {
+      key: "view2",
+      label:
+        entityTypeState === "country" || entityTypeState === "asn"
+          ? "Regional Outages"
+          : entityTypeState === "region"
+            ? "Other Regional Outages"
+            : null,
+    },
+    {
+      key: "view3",
+      label:
+        entityTypeState === "country" || entityTypeState === "region"
+          ? "ASN/ISP Outages"
+          : entityTypeState === "asn"
+            ? "Other ASN/ISP Outages"
+            : null,
+    },
+  ];
   const dispatch = useDispatch();
 
   const getEntityName = (entityType, data) => {
@@ -3145,6 +3180,61 @@ const Entity = (props) => {
         showGlobalSignals={showGlobalSignals}
         showRegionalGlobalAsnSignals={showGlobalRegionalAsnSignals}
       />
+      {/* <Menu
+        onClick={handleMenuClick}
+        selectedKeys={[selectedView]}
+        mode="horizontal"
+        items={[
+          { key: "view1", label: "View 1" },
+          { key: "view2", label: "View 2" },
+          { key: "view3", label: "View 3" },
+        ]}
+        style={{
+          background: "transparent",
+          borderBottom: "none",
+          height: "40px",
+        }}
+        theme="light"
+      /> */}
+      <Menu
+        mode="horizontal"
+        selectedKeys={[selectedView]}
+        onClick={handleMenuClick}
+        theme="light"
+        style={{
+          background: "transparent",
+          borderBottom: "none",
+          height: "40px",
+        }}
+      >
+        {VIEW_ITEMS.map(({ key, label }) => (
+          <Menu.Item
+            key={key}
+            style={{
+              position: "relative",
+              padding: "0 16px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "200px",
+            }}
+          >
+            {label}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "2px",
+                backgroundColor:
+                  selectedView === key ? "#1890ff" : "transparent",
+                transition: "all 0.2s",
+              }}
+            />
+          </Menu.Item>
+        ))}
+      </Menu>
       {displayTimeRangeError ? (
         <Error />
       ) : until - from < controlPanelTimeRangeLimit ? (
@@ -3168,347 +3258,527 @@ const Entity = (props) => {
             shareLink={window.location.href}
             entityName={entityName}
           />
-          <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
-            <div className="col-2">
-              <div className="p-4 card mb-6">
-                <div className="flex items-center mb-3">
-                  <h3 className="text-2xl mr-1">
-                    {xyChartTitle}
-                    {entityName}
-                  </h3>
-                  <CustomToolip
-                    className="mr-auto"
-                    title={tooltipXyPlotTimeSeriesTitle}
-                    text={tooltipXyPlotTimeSeriesText}
-                  />
+          <div>
+            {selectedView === "view1" && (
+              <>
+                <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
+                  <div className="col-2">
+                    <div className="p-4 card mb-6">
+                      <div className="flex items-center mb-3">
+                        <h3 className="text-2xl mr-1">
+                          {xyChartTitle}
+                          {entityName}
+                        </h3>
+                        <CustomToolip
+                          className="mr-auto"
+                          title={tooltipXyPlotTimeSeriesTitle}
+                          text={tooltipXyPlotTimeSeriesText}
+                        />
 
-                  {showResetZoomButton && (
-                    <Tooltip title="Reset View">
-                      <Button
-                        className="mr-3"
-                        icon={<MagnifyExpandIcon />}
-                        onClick={setDefaultNavigatorTimeRange}
-                      />
-                    </Tooltip>
-                  )}
+                        {showResetZoomButton && (
+                          <Tooltip title="Reset View">
+                            <Button
+                              className="mr-3"
+                              icon={<MagnifyExpandIcon />}
+                              onClick={setDefaultNavigatorTimeRange}
+                            />
+                          </Tooltip>
+                        )}
 
-                  {!simplifiedView && (
-                    <Popover
-                      open={displayChartSettingsPopover}
-                      onOpenChange={handleDisplayChartSettingsPopover}
-                      trigger="click"
-                      placement="bottomRight"
-                      overlayStyle={{
-                        width: 180,
-                      }}
-                      content={
-                        <div
-                          onClick={() =>
-                            handleDisplayChartSettingsPopover(false)
+                        {!simplifiedView && (
+                          <Popover
+                            open={displayChartSettingsPopover}
+                            onOpenChange={handleDisplayChartSettingsPopover}
+                            trigger="click"
+                            placement="bottomRight"
+                            overlayStyle={{
+                              width: 180,
+                            }}
+                            content={
+                              <div
+                                onClick={() =>
+                                  handleDisplayChartSettingsPopover(false)
+                                }
+                              >
+                                <>
+                                  <Checkbox
+                                    checked={!!tsDataDisplayOutageBands}
+                                    onChange={(e) =>
+                                      handleDisplayAlertBands(e.target.checked)
+                                    }
+                                  >
+                                    {xyChartAlertToggleLabel}
+                                  </Checkbox>
+                                  <Checkbox
+                                    checked={!!tsDataNormalized}
+                                    onChange={changeXyChartNormalization}
+                                  >
+                                    {xyChartNormalizedToggleLabel}
+                                  </Checkbox>
+                                </>
+                              </div>
+                            }
+                          >
+                            <Tooltip title="Chart Settings">
+                              <Button
+                                className="mr-3"
+                                icon={<SettingOutlined />}
+                              />
+                            </Tooltip>
+                          </Popover>
+                        )}
+
+                        <Tooltip title="Markup">
+                          <Button
+                            className="mr-3"
+                            icon={<EditOutlined />}
+                            onClick={handleShowMarkupStudioModal}
+                            disabled={xyChartOptions == null}
+                          />
+                        </Tooltip>
+
+                        <Tooltip title="Share Link">
+                          <Button
+                            className="mr-3"
+                            icon={<ShareAltOutlined />}
+                            onClick={displayShareLinkModal}
+                          />
+                        </Tooltip>
+
+                        <Popover
+                          open={displayChartSharePopover}
+                          onOpenChange={handleDisplayChartSharePopover}
+                          trigger="click"
+                          placement="bottomRight"
+                          overlayStyle={{
+                            maxWidth: 180,
+                          }}
+                          content={
+                            <div
+                              onClick={() =>
+                                handleDisplayChartSharePopover(false)
+                              }
+                            >
+                              <Button
+                                className="w-full mb-2"
+                                size="small"
+                                onClick={() =>
+                                  handleCSVDownload(timeSeriesChartRef)
+                                }
+                                disabled={xyChartOptions == null}
+                              >
+                                Data CSV
+                              </Button>
+                              <Button
+                                className="w-full mb-2"
+                                size="small"
+                                onClick={() =>
+                                  manuallyDownloadChart("image/jpeg")
+                                }
+                                disabled={xyChartOptions == null}
+                              >
+                                Chart JPEG
+                              </Button>
+                              <Button
+                                className="w-full mb-2"
+                                size="small"
+                                onClick={() =>
+                                  manuallyDownloadChart("image/png")
+                                }
+                                disabled={xyChartOptions == null}
+                              >
+                                Chart PNG
+                              </Button>
+                              <Button
+                                className="w-full"
+                                size="small"
+                                onClick={() =>
+                                  manuallyDownloadChart("image/svg+xml")
+                                }
+                                disabled={xyChartOptions == null}
+                              >
+                                Chart SVG
+                              </Button>
+                            </div>
                           }
                         >
-                          <>
-                            <Checkbox
-                              checked={!!tsDataDisplayOutageBands}
-                              onChange={(e) =>
-                                handleDisplayAlertBands(e.target.checked)
-                              }
-                            >
-                              {xyChartAlertToggleLabel}
-                            </Checkbox>
-                            <Checkbox
-                              checked={!!tsDataNormalized}
-                              onChange={changeXyChartNormalization}
-                            >
-                              {xyChartNormalizedToggleLabel}
-                            </Checkbox>
-                          </>
-                        </div>
-                      }
-                    >
-                      <Tooltip title="Chart Settings">
-                        <Button className="mr-3" icon={<SettingOutlined />} />
-                      </Tooltip>
-                    </Popover>
-                  )}
-
-                  <Tooltip title="Markup">
-                    <Button
-                      className="mr-3"
-                      icon={<EditOutlined />}
-                      onClick={handleShowMarkupStudioModal}
-                      disabled={xyChartOptions == null}
-                    />
-                  </Tooltip>
-
-                  <Tooltip title="Share Link">
-                    <Button
-                      className="mr-3"
-                      icon={<ShareAltOutlined />}
-                      onClick={displayShareLinkModal}
-                    />
-                  </Tooltip>
-
-                  <Popover
-                    open={displayChartSharePopover}
-                    onOpenChange={handleDisplayChartSharePopover}
-                    trigger="click"
-                    placement="bottomRight"
-                    overlayStyle={{
-                      maxWidth: 180,
-                    }}
-                    content={
-                      <div
-                        onClick={() => handleDisplayChartSharePopover(false)}
-                      >
-                        <Button
-                          className="w-full mb-2"
-                          size="small"
-                          onClick={() => handleCSVDownload(timeSeriesChartRef)}
-                          disabled={xyChartOptions == null}
-                        >
-                          Data CSV
-                        </Button>
-                        <Button
-                          className="w-full mb-2"
-                          size="small"
-                          onClick={() => manuallyDownloadChart("image/jpeg")}
-                          disabled={xyChartOptions == null}
-                        >
-                          Chart JPEG
-                        </Button>
-                        <Button
-                          className="w-full mb-2"
-                          size="small"
-                          onClick={() => manuallyDownloadChart("image/png")}
-                          disabled={xyChartOptions == null}
-                        >
-                          Chart PNG
-                        </Button>
-                        <Button
-                          className="w-full"
-                          size="small"
-                          onClick={() => manuallyDownloadChart("image/svg+xml")}
-                          disabled={xyChartOptions == null}
-                        >
-                          Chart SVG
-                        </Button>
+                          <Tooltip
+                            title="Download"
+                            mouseEnterDelay={0}
+                            mouseLeaveDelay={0}
+                          >
+                            <Button icon={<DownloadOutlined />} />
+                          </Tooltip>
+                        </Popover>
                       </div>
-                    }
-                  >
-                    <Tooltip
-                      title="Download"
-                      mouseEnterDelay={0}
-                      mouseLeaveDelay={0}
-                    >
-                      <Button icon={<DownloadOutlined />} />
-                    </Tooltip>
-                  </Popover>
-                </div>
-                <div className="flex mt-4" style={{ width: "100%" }}>
-                  <ChartLegendCard
-                    legendHandler={handleSelectedSignal}
-                    checkedMap={tsDataSeriesVisibleMap}
-                    updateSourceParams={updateSourceParams}
-                    simplifiedView={simplifiedView}
-                  />
-                  <div className="ml-auto">
-                    <Button.Group style={{ marginBottom: 4, marginLeft: 4 }}>
-                      <Button
-                        type={!isStackedView ? "primary" : "default"}
-                        onClick={() => setIsStackedView(false)}
-                        style={
-                          !isStackedView
-                            ? {
-                                backgroundColor: "#1570EF33",
-                                color: "#1570EF",
-                                borderColor: "#1570EF33",
-                                fontSize: 12,
+                      <div className="flex mt-4" style={{ width: "100%" }}>
+                        <ChartLegendCard
+                          legendHandler={handleSelectedSignal}
+                          checkedMap={tsDataSeriesVisibleMap}
+                          updateSourceParams={updateSourceParams}
+                          simplifiedView={simplifiedView}
+                        />
+                        <div className="ml-auto">
+                          <Button.Group
+                            style={{ marginBottom: 4, marginLeft: 4 }}
+                          >
+                            <Button
+                              type={!isStackedView ? "primary" : "default"}
+                              onClick={() => setIsStackedView(false)}
+                              style={
+                                !isStackedView
+                                  ? {
+                                      backgroundColor: "#1570EF33",
+                                      color: "#1570EF",
+                                      borderColor: "#1570EF33",
+                                      fontSize: 12,
+                                    }
+                                  : { fontSize: 12 }
                               }
-                            : { fontSize: 12 }
-                        }
-                      >
-                        Overlay View
-                      </Button>
-                      <Button
-                        type={isStackedView ? "primary" : "default"}
-                        onClick={() => setIsStackedView(true)}
-                        style={
-                          isStackedView
-                            ? {
-                                backgroundColor: "#1570EF33",
-                                color: "#1570EF",
-                                borderColor: "#1570EF33",
-                                fontSize: 12,
+                            >
+                              Overlay View
+                            </Button>
+                            <Button
+                              type={isStackedView ? "primary" : "default"}
+                              onClick={() => setIsStackedView(true)}
+                              style={
+                                isStackedView
+                                  ? {
+                                      backgroundColor: "#1570EF33",
+                                      color: "#1570EF",
+                                      borderColor: "#1570EF33",
+                                      fontSize: 12,
+                                    }
+                                  : { fontSize: 12 }
                               }
-                            : { fontSize: 12 }
-                        }
-                      >
-                        Stacked View
-                      </Button>
-                    </Button.Group>
+                            >
+                              Stacked View
+                            </Button>
+                          </Button.Group>
+                        </div>
+                      </div>
+                      {xyChartOptions ? renderXyChart() : <Loading />}
+                      <TimeStamp
+                        className="mt-4"
+                        from={tsDataLegendRangeFrom}
+                        until={tsDataLegendRangeUntil}
+                      />
+                    </div>
+                    <div className="p-4 card">
+                      {" "}
+                      {entityCode && !entityCode.includes("-") && (
+                        <ApPacketLatencyAndLossRateComponent
+                          rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                          rawAsnSignalsApPacketDelay={
+                            rawAsnSignalsApPacketDelay
+                          }
+                          entityName={entityName}
+                          from={from}
+                          until={until}
+                        />
+                      )}
+                    </div>
+
+                    {entityType && entityType === "asn" && (
+                      <div className="p-4 card mt-6">
+                        <UpstreamDelayComponent
+                          from={from}
+                          until={until}
+                          rawAsnSignalsUpstreamDelayLatency={
+                            rawAsnSignalsUpstreamDelayLatency
+                          }
+                          rawAsnSignalsUpstreamDelayPenultAsnCount={
+                            rawAsnSignalsUpstreamDelayPenultAsnCount
+                          }
+                          entityName={entityName}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="col-1">
+                    <div className="p-4 card h-full">
+                      <ChartTabCard
+                        type={type}
+                        eventData={eventDataRaw}
+                        alertsData={alertDataRaw}
+                        legendHandler={handleSelectedSignal}
+                        tsDataSeriesVisibleMap={tsDataSeriesVisibleMap}
+                        updateSourceParams={updateSourceParams}
+                        simplifiedView={simplifiedView}
+                      />
+                    </div>
                   </div>
                 </div>
-                {xyChartOptions ? renderXyChart() : <Loading />}
-                <TimeStamp
-                  className="mt-4"
-                  from={tsDataLegendRangeFrom}
-                  until={tsDataLegendRangeUntil}
+              </>
+            )}
+            {/* <div className="flex items-stretch gap-6 entity-related">
+              <div className="card mw-0 p-6 col-1"> */}
+            {selectedView === "view2" && (
+              <div className="w-full p-4 card">
+                <EntityRelatedRegion
+                  entityName={entityName}
+                  entityType={entityTypeState}
+                  parentEntityName={parentEntityName}
+                  toggleModal={toggleModal}
+                  showMapModal={showMapModal}
+                  showTableModal={showTableModal}
+                  from={from}
+                  until={until}
+                  // to populate map
+                  topoData={topoData}
+                  topoScores={topoScores}
+                  bounds={bounds}
+                  handleEntityShapeClick={(entity) =>
+                    handleEntityShapeClick(entity)
+                  }
+                  // to populate asn summary table
+                  relatedToTableSummaryProcessed={
+                    relatedToTableSummaryProcessed
+                  }
+                  // handleEntityClick={(entity) => this.handleEntityClick(entity)}
+                  // raw signals tables for region modal
+                  handleSelectAndDeselectAllButtons={(event) =>
+                    handleSelectAndDeselectAllButtons(event)
+                  }
+                  regionalSignalsTableSummaryDataProcessed={
+                    regionalSignalsTableSummaryDataProcessed
+                  }
+                  toggleEntityVisibilityInHtsViz={(event) =>
+                    toggleEntityVisibilityInHtsViz(event, "region")
+                  }
+                  handleCheckboxEventLoading={(item) =>
+                    handleCheckboxEventLoading(item)
+                  }
+                  asnSignalsTableSummaryDataProcessed={
+                    asnSignalsTableSummaryDataProcessed
+                  }
+                  // Regional HTS methods
+                  regionalSignalsTableEntitiesChecked={
+                    regionalSignalsTableEntitiesChecked
+                  }
+                  asnSignalsTableEntitiesChecked={
+                    asnSignalsTableEntitiesChecked
+                  }
+                  initialTableLimit={initialTableLimit}
+                  rawRegionalSignalsProcessedPingSlash24={
+                    rawRegionalSignalsProcessedPingSlash24
+                  }
+                  rawRegionalSignalsProcessedBgp={
+                    rawRegionalSignalsProcessedBgp
+                  }
+                  rawRegionalSignalsProcessedMeritNt={
+                    rawRegionalSignalsProcessedMeritNt
+                  }
+                  rawAsnSignalsProcessedPingSlash24={
+                    rawAsnSignalsProcessedPingSlash24
+                  }
+                  rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
+                  rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
+                  summaryDataMapRaw={summaryDataMapRaw}
+                  rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
+                  // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
+                  asnSignalsTableTotalCount={asnSignalsTableTotalCount}
+                  regionalSignalsTableTotalCount={
+                    regionalSignalsTableTotalCount
+                  }
+                  // function used to call api to load remaining entities
+                  handleLoadAllEntitiesButton={(event) =>
+                    handleLoadAllEntitiesButton(event)
+                  }
+                  // Used to determine if load all message should display or not
+                  regionalRawSignalsLoadAllButtonClicked={
+                    regionalRawSignalsLoadAllButtonClicked
+                  }
+                  asnRawSignalsLoadAllButtonClicked={
+                    asnRawSignalsLoadAllButtonClicked
+                  }
+                  // modal loading icon for load all button
+                  loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
+                  handleAdditionalEntitiesLoading={() =>
+                    handleAdditionalEntitiesLoading()
+                  }
+                  additionalRawSignalRequestedPingSlash24={
+                    additionalRawSignalRequestedPingSlash24
+                  }
+                  additionalRawSignalRequestedBgp={
+                    additionalRawSignalRequestedBgp
+                  }
+                  additionalRawSignalRequestedMeritNt={
+                    additionalRawSignalRequestedMeritNt
+                  }
+                  // used for tracking when check max/uncheck all loading icon should appear and not
+                  checkMaxButtonLoading={checkMaxButtonLoading}
+                  uncheckAllButtonLoading={uncheckAllButtonLoading}
+                  // used to check if there are no entities available to load (to control when loading bar disappears)
+                  rawRegionalSignalsRawBgpLength={
+                    rawRegionalSignalsRawBgp?.length
+                  }
+                  rawRegionalSignalsRawPingSlash24Length={
+                    rawRegionalSignalsRawPingSlash24?.length
+                  }
+                  rawRegionalSignalsRawMeritNtLength={
+                    rawRegionalSignalsRawMeritNt?.length
+                  }
+                  rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp?.length}
+                  rawAsnSignalsRawPingSlash24Length={
+                    rawAsnSignalsRawPingSlash24?.length
+                  }
+                  rawAsnSignalsRawMeritNtLength={
+                    rawAsnSignalsRawMeritNt?.length
+                  }
+                  handleGlobalAsnSignals={handleGlobalAsnSignals}
+                  globalSwitch={globalSwitch}
+                  globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
+                  handleGlobalRegionalAsnSignals={
+                    handleGlobalRegionalAsnSignals
+                  }
+                  rawAsnSignalsUpstreamDelayPenultAsnCount={
+                    rawAsnSignalsUpstreamDelayPenultAsnCount
+                  }
+                  rawAsnSignalsUpstreamDelayLatency={
+                    rawAsnSignalsUpstreamDelayLatency
+                  }
+                  rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                  rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
+                  showApPacketGraph={entityCode && !entityCode.includes("-")}
+                  isLoading={false}
                 />
               </div>
-              <div className="p-4 card">
-                {" "}
-                {entityCode && !entityCode.includes("-") && (
-                  <ApPacketLatencyAndLossRateComponent
-                    rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
-                    rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
-                    entityName={entityName}
-                    from={from}
-                    until={until}
-                  />
-                )}
-              </div>
+            )}
 
-              {entityType && entityType === "asn" && (
-                <div className="p-4 card mt-6">
-                  <UpstreamDelayComponent
-                    from={from}
-                    until={until}
-                    rawAsnSignalsUpstreamDelayLatency={
-                      rawAsnSignalsUpstreamDelayLatency
-                    }
-                    rawAsnSignalsUpstreamDelayPenultAsnCount={
-                      rawAsnSignalsUpstreamDelayPenultAsnCount
-                    }
-                    entityName={entityName}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="col-1">
-              <div className="p-4 card h-full">
-                <ChartTabCard
-                  type={type}
-                  eventData={eventDataRaw}
-                  alertsData={alertDataRaw}
-                  legendHandler={handleSelectedSignal}
-                  tsDataSeriesVisibleMap={tsDataSeriesVisibleMap}
-                  updateSourceParams={updateSourceParams}
-                  simplifiedView={simplifiedView}
-                />
+            {selectedView === "view3" && (
+              <div className="w-full p-4 card">
+                <EntityRelatedAsn
+                  entityName={entityName}
+                  entityType={entityTypeState}
+                  parentEntityName={parentEntityName}
+                  toggleModal={toggleModal}
+                  showMapModal={showMapModal}
+                  showTableModal={showTableModal}
+                  from={from}
+                  until={until}
+                  // to populate map
+                  topoData={topoData}
+                  topoScores={topoScores}
+                  bounds={bounds}
+                  handleEntityShapeClick={(entity) =>
+                    handleEntityShapeClick(entity)
+                  }
+                  // to populate asn summary table
+                  relatedToTableSummaryProcessed={
+                    relatedToTableSummaryProcessed
+                  }
+                  // handleEntityClick={(entity) => this.handleEntityClick(entity)}
+                  // raw signals tables for region modal
+                  handleSelectAndDeselectAllButtons={(event) =>
+                    handleSelectAndDeselectAllButtons(event)
+                  }
+                  regionalSignalsTableSummaryDataProcessed={
+                    regionalSignalsTableSummaryDataProcessed
+                  }
+                  toggleEntityVisibilityInHtsViz={(event) =>
+                    toggleEntityVisibilityInHtsViz(event, "region")
+                  }
+                  handleCheckboxEventLoading={(item) =>
+                    handleCheckboxEventLoading(item)
+                  }
+                  asnSignalsTableSummaryDataProcessed={
+                    asnSignalsTableSummaryDataProcessed
+                  }
+                  // Regional HTS methods
+                  regionalSignalsTableEntitiesChecked={
+                    regionalSignalsTableEntitiesChecked
+                  }
+                  asnSignalsTableEntitiesChecked={
+                    asnSignalsTableEntitiesChecked
+                  }
+                  initialTableLimit={initialTableLimit}
+                  rawRegionalSignalsProcessedPingSlash24={
+                    rawRegionalSignalsProcessedPingSlash24
+                  }
+                  rawRegionalSignalsProcessedBgp={
+                    rawRegionalSignalsProcessedBgp
+                  }
+                  rawRegionalSignalsProcessedMeritNt={
+                    rawRegionalSignalsProcessedMeritNt
+                  }
+                  rawAsnSignalsProcessedPingSlash24={
+                    rawAsnSignalsProcessedPingSlash24
+                  }
+                  rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
+                  rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
+                  summaryDataMapRaw={summaryDataMapRaw}
+                  rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
+                  // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
+                  asnSignalsTableTotalCount={asnSignalsTableTotalCount}
+                  regionalSignalsTableTotalCount={
+                    regionalSignalsTableTotalCount
+                  }
+                  // function used to call api to load remaining entities
+                  handleLoadAllEntitiesButton={(event) =>
+                    handleLoadAllEntitiesButton(event)
+                  }
+                  // Used to determine if load all message should display or not
+                  regionalRawSignalsLoadAllButtonClicked={
+                    regionalRawSignalsLoadAllButtonClicked
+                  }
+                  asnRawSignalsLoadAllButtonClicked={
+                    asnRawSignalsLoadAllButtonClicked
+                  }
+                  // modal loading icon for load all button
+                  loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
+                  handleAdditionalEntitiesLoading={() =>
+                    handleAdditionalEntitiesLoading()
+                  }
+                  additionalRawSignalRequestedPingSlash24={
+                    additionalRawSignalRequestedPingSlash24
+                  }
+                  additionalRawSignalRequestedBgp={
+                    additionalRawSignalRequestedBgp
+                  }
+                  additionalRawSignalRequestedMeritNt={
+                    additionalRawSignalRequestedMeritNt
+                  }
+                  // used for tracking when check max/uncheck all loading icon should appear and not
+                  checkMaxButtonLoading={checkMaxButtonLoading}
+                  uncheckAllButtonLoading={uncheckAllButtonLoading}
+                  // used to check if there are no entities available to load (to control when loading bar disappears)
+                  rawRegionalSignalsRawBgpLength={
+                    rawRegionalSignalsRawBgp?.length
+                  }
+                  rawRegionalSignalsRawPingSlash24Length={
+                    rawRegionalSignalsRawPingSlash24?.length
+                  }
+                  rawRegionalSignalsRawMeritNtLength={
+                    rawRegionalSignalsRawMeritNt?.length
+                  }
+                  rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp?.length}
+                  rawAsnSignalsRawPingSlash24Length={
+                    rawAsnSignalsRawPingSlash24?.length
+                  }
+                  rawAsnSignalsRawMeritNtLength={
+                    rawAsnSignalsRawMeritNt?.length
+                  }
+                  handleGlobalAsnSignals={handleGlobalAsnSignals}
+                  globalSwitch={globalSwitch}
+                  globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
+                  handleGlobalRegionalAsnSignals={
+                    handleGlobalRegionalAsnSignals
+                  }
+                  rawAsnSignalsUpstreamDelayPenultAsnCount={
+                    rawAsnSignalsUpstreamDelayPenultAsnCount
+                  }
+                  rawAsnSignalsUpstreamDelayLatency={
+                    rawAsnSignalsUpstreamDelayLatency
+                  }
+                  rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                  rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
+                  showApPacketGraph={entityCode && !entityCode.includes("-")}
+                  isLoading={false}
+                />{" "}
               </div>
-            </div>
+            )}
           </div>
-          <EntityRelated
-            entityName={entityName}
-            entityType={entityTypeState}
-            parentEntityName={parentEntityName}
-            toggleModal={toggleModal}
-            showMapModal={showMapModal}
-            showTableModal={showTableModal}
-            from={from}
-            until={until}
-            // to populate map
-            topoData={topoData}
-            topoScores={topoScores}
-            bounds={bounds}
-            handleEntityShapeClick={(entity) => handleEntityShapeClick(entity)}
-            // to populate asn summary table
-            relatedToTableSummaryProcessed={relatedToTableSummaryProcessed}
-            // handleEntityClick={(entity) => this.handleEntityClick(entity)}
-            // raw signals tables for region modal
-            handleSelectAndDeselectAllButtons={(event) =>
-              handleSelectAndDeselectAllButtons(event)
-            }
-            regionalSignalsTableSummaryDataProcessed={
-              regionalSignalsTableSummaryDataProcessed
-            }
-            toggleEntityVisibilityInHtsViz={(event) =>
-              toggleEntityVisibilityInHtsViz(event, "region")
-            }
-            handleCheckboxEventLoading={(item) =>
-              handleCheckboxEventLoading(item)
-            }
-            asnSignalsTableSummaryDataProcessed={
-              asnSignalsTableSummaryDataProcessed
-            }
-            // Regional HTS methods
-            regionalSignalsTableEntitiesChecked={
-              regionalSignalsTableEntitiesChecked
-            }
-            asnSignalsTableEntitiesChecked={asnSignalsTableEntitiesChecked}
-            initialTableLimit={initialTableLimit}
-            rawRegionalSignalsProcessedPingSlash24={
-              rawRegionalSignalsProcessedPingSlash24
-            }
-            rawRegionalSignalsProcessedBgp={rawRegionalSignalsProcessedBgp}
-            rawRegionalSignalsProcessedMeritNt={
-              rawRegionalSignalsProcessedMeritNt
-            }
-            rawAsnSignalsProcessedPingSlash24={
-              rawAsnSignalsProcessedPingSlash24
-            }
-            rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
-            rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
-            summaryDataMapRaw={summaryDataMapRaw}
-            rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
-            // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
-            asnSignalsTableTotalCount={asnSignalsTableTotalCount}
-            regionalSignalsTableTotalCount={regionalSignalsTableTotalCount}
-            // function used to call api to load remaining entities
-            handleLoadAllEntitiesButton={(event) =>
-              handleLoadAllEntitiesButton(event)
-            }
-            // Used to determine if load all message should display or not
-            regionalRawSignalsLoadAllButtonClicked={
-              regionalRawSignalsLoadAllButtonClicked
-            }
-            asnRawSignalsLoadAllButtonClicked={
-              asnRawSignalsLoadAllButtonClicked
-            }
-            // modal loading icon for load all button
-            loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
-            handleAdditionalEntitiesLoading={() =>
-              handleAdditionalEntitiesLoading()
-            }
-            additionalRawSignalRequestedPingSlash24={
-              additionalRawSignalRequestedPingSlash24
-            }
-            additionalRawSignalRequestedBgp={additionalRawSignalRequestedBgp}
-            additionalRawSignalRequestedMeritNt={
-              additionalRawSignalRequestedMeritNt
-            }
-            // used for tracking when check max/uncheck all loading icon should appear and not
-            checkMaxButtonLoading={checkMaxButtonLoading}
-            uncheckAllButtonLoading={uncheckAllButtonLoading}
-            // used to check if there are no entities available to load (to control when loading bar disappears)
-            rawRegionalSignalsRawBgpLength={rawRegionalSignalsRawBgp?.length}
-            rawRegionalSignalsRawPingSlash24Length={
-              rawRegionalSignalsRawPingSlash24?.length
-            }
-            rawRegionalSignalsRawMeritNtLength={
-              rawRegionalSignalsRawMeritNt?.length
-            }
-            rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp?.length}
-            rawAsnSignalsRawPingSlash24Length={
-              rawAsnSignalsRawPingSlash24?.length
-            }
-            rawAsnSignalsRawMeritNtLength={rawAsnSignalsRawMeritNt?.length}
-            handleGlobalAsnSignals={handleGlobalAsnSignals}
-            globalSwitch={globalSwitch}
-            globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
-            handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
-            rawAsnSignalsUpstreamDelayPenultAsnCount={
-              rawAsnSignalsUpstreamDelayPenultAsnCount
-            }
-            rawAsnSignalsUpstreamDelayLatency={
-              rawAsnSignalsUpstreamDelayLatency
-            }
-            rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
-            rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
-            showApPacketGraph={entityCode && !entityCode.includes("-")}
-            isLoading={false}
-          />
         </React.Fragment>
       ) : (
         <div className="p-6 text-lg card">

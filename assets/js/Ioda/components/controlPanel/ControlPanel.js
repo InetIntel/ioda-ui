@@ -1248,17 +1248,18 @@ const ControlPanel = ({
 
         {/*</div>*/}
       </div>
-
       {entityCode && (
-        <DynamicBreadCrumb
-          searchParams={searchParams}
-          entityType={entityType}
-          entityCode={entityCode}
-          countryOptions={countryOptions}
-          regionOptions={regionOptions}
-          asnOptions={asnOptions}
-          getCountryCodeFromRegion={getCountryCodeFromRegion}
-        />
+        <div className={`flex card`}>
+          <DynamicBreadCrumb
+            searchParams={searchParams}
+            entityType={entityType}
+            entityCode={entityCode}
+            countryOptions={countryOptions}
+            regionOptions={regionOptions}
+            asnOptions={asnOptions}
+            getCountryCodeFromRegion={getCountryCodeFromRegion}
+          />
+        </div>
       )}
     </div>
   );
