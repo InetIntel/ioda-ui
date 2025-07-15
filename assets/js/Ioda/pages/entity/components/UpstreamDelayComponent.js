@@ -22,7 +22,7 @@ import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 // exportingInit(Highcharts);
 // offlineExportingInit(Highcharts);
 
-import { Tabs, Tooltip, Button, Popover, Checkbox } from "antd";
+import { Tabs, Tooltip, Button, Popover, Checkbox, Table } from "antd";
 import {
   DownloadOutlined,
   ShareAltOutlined,
@@ -251,6 +251,30 @@ const UpstreamDelayComponent = ({
     const product = valid.reduce((a, b) => a * b, 1);
     return Math.pow(product, 1 / valid.length);
   }
+  const asnColumns = [
+    {
+      title: "ASN",
+      dataIndex: "name",
+      key: "name",
+      width: 48,
+      render: (_text, record) => (
+        <span style={{ display: "flex", alignItems: "center" }}>
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: record.color,
+              marginRight: 8,
+            }}
+          />
+          {record.name}
+        </span>
+      ),
+    },
+    // …any additional columns you want
+  ];
+
   // const asnLatencyData =
   //   jsonData?.values?.map((obj) => {
   //     const geometric_mean_e2e_latency_array = obj.map(
@@ -1681,8 +1705,8 @@ const UpstreamDelayComponent = ({
               {/* <div style={{ padding: 12 }}> */}
               <div className="p-4">
                 <div className=" mb-3">
-                  <h3 className="text-2xl mr-1 mb-6">Select AS Signals</h3>
-                  <Checkbox.Group
+                  {/* <h3 className="text-2xl mr-1 mb-6">Select AS Signals</h3> */}
+                  {/* <Checkbox.Group
                     style={{
                       display: "flex",
                       flexDirection: "column",
@@ -1707,7 +1731,21 @@ const UpstreamDelayComponent = ({
                     }))}
                     value={selectedAsns}
                     onChange={(vals) => setSelectedAsns(vals)}
-                  />
+                  /> */}
+                  <div className="modal__table-container rounded card p-3 mb-6">
+                    <Table
+                      rowKey="name"
+                      pagination={false}
+                      columns={asnColumns}
+                      dataSource={asnList}
+                      rowSelection={{
+                        selectedRowKeys: selectedAsns,
+                        onChange: (keys) => setSelectedAsns(keys),
+                        columnTitle: "", // hides the header text above the checkboxes
+                        // You can also customize the checkbox props here if you need disabled, etc.
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
               {/* </div> */}
