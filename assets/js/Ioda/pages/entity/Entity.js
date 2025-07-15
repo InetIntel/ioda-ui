@@ -3523,7 +3523,7 @@ const Entity = (props) => {
                       )}
                     </div>
 
-                    {entityType && entityType === "asn" && (
+                    {/* {entityType && entityType === "asn" && (
                       <div className="p-4 card mt-6">
                         <UpstreamDelayComponent
                           from={from}
@@ -3537,7 +3537,7 @@ const Entity = (props) => {
                           entityName={entityName}
                         />
                       </div>
-                    )}
+                    )} */}
                   </div>
                   <div className="col-1">
                     <div className="p-4 card h-full">
@@ -3553,6 +3553,21 @@ const Entity = (props) => {
                     </div>
                   </div>
                 </div>
+                {entityType && entityType === "asn" && (
+                  // <div className="p-4 card mt-6">
+                  <UpstreamDelayComponent
+                    from={from}
+                    until={until}
+                    rawAsnSignalsUpstreamDelayLatency={
+                      rawAsnSignalsUpstreamDelayLatency
+                    }
+                    rawAsnSignalsUpstreamDelayPenultAsnCount={
+                      rawAsnSignalsUpstreamDelayPenultAsnCount
+                    }
+                    entityName={entityName}
+                  />
+                  // </div>
+                )}
               </>
             )}
             {/* <div className="flex items-stretch gap-6 entity-related">

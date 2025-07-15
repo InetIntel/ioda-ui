@@ -1486,202 +1486,232 @@ const UpstreamDelayComponent = ({
         entityName={entityName}
       />
       <div>
-        <div className="flex items-stretch gap-0 entity__chart-layout">
-          <div className="col-3">
-            <div className="p-4">
-              <div className="flex items-center mb-3">
-                <h3 className="text-2xl mr-1">
-                  {upstreamChartTitle}
-                  {entityName}
-                </h3>
-                <div className="flex ml-auto">
-                  {showResetZoomButton && (
-                    <Tooltip title="Reset View">
-                      <Button
-                        className="mr-3"
-                        icon={<MagnifyExpandIcon />}
-                        onClick={setDefaultNavigatorTimeRange}
-                      />
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Markup">
-                    <Button
-                      className="mr-3"
-                      icon={<EditOutlined />}
-                      onClick={handleShowMarkupStudioModal}
-                      disabled={!jsonData}
-                    />
-                  </Tooltip>
-                  <Tooltip title="Share Link">
-                    <Button
-                      className="mr-3"
-                      icon={<ShareAltOutlined />}
-                      onClick={displayShareLinkModal}
-                    />
-                  </Tooltip>
-
-                  <Popover
-                    open={displayChartSharePopover}
-                    onOpenChange={handleDisplayChartSharePopover}
-                    trigger="click"
-                    placement="bottomRight"
-                    overlayStyle={{
-                      maxWidth: 180,
-                    }}
-                    content={
-                      <div
-                        onClick={() => handleDisplayChartSharePopover(false)}
-                      >
+        <div className="flex items-stretch gap-6 entity__chart-layout">
+          <div className="col-2">
+            <div className="p-4 card ">
+              <div className="col-3">
+                <div className="p-4">
+                  <div className="flex items-center mb-3">
+                    <h3 className="text-2xl mr-1">
+                      {upstreamChartTitle}
+                      {entityName}
+                    </h3>
+                    <div className="flex ml-auto">
+                      {showResetZoomButton && (
+                        <Tooltip title="Reset View">
+                          <Button
+                            className="mr-3"
+                            icon={<MagnifyExpandIcon />}
+                            onClick={setDefaultNavigatorTimeRange}
+                          />
+                        </Tooltip>
+                      )}
+                      <Tooltip title="Markup">
                         <Button
-                          className="w-full mb-2"
-                          size="small"
-                          onClick={() => manuallyDownloadChart("image/jpeg")}
-                        >
-                          Chart JPEG
-                        </Button>
-                        <Button
-                          className="w-full mb-2"
-                          size="small"
-                          onClick={() => manuallyDownloadChart("image/png")}
-                        >
-                          Chart PNG
-                        </Button>
-                        <Button
-                          className="w-full"
-                          size="small"
-                          onClick={() => manuallyDownloadChart("image/svg+xml")}
-                        >
-                          Chart SVG
-                        </Button>
-                      </div>
-                    }
-                  >
-                    <Tooltip
-                      title="Download"
-                      mouseEnterDelay={0}
-                      mouseLeaveDelay={0}
-                    >
-                      <Button icon={<DownloadOutlined />} />
-                    </Tooltip>
-                  </Popover>
-                </div>
-              </div>
-              <div>
-                <h4 className="text-xl mr-1 mt-0 mb-1">
-                  {upstreamChartSubTitle}
-                </h4>
-              </div>
-              <div style={{ padding: 12 }}>
-                <Checkbox.Group
-                  options={asnList.map((a) => ({
-                    label: (
-                      <span>
-                        <span
-                          style={{
-                            display: "inline-block",
-                            width: 8,
-                            height: 8,
-                            backgroundColor: a.color,
-                            borderRadius: 4,
-                            marginRight: 4,
-                          }}
+                          className="mr-3"
+                          icon={<EditOutlined />}
+                          onClick={handleShowMarkupStudioModal}
+                          disabled={!jsonData}
                         />
-                        {a.name}
-                      </span>
-                    ),
-                    value: a.name,
-                  }))}
-                  value={selectedAsns}
-                  onChange={(vals) => setSelectedAsns(vals)}
-                />
-              </div>
-            </div>
-            {/* {jsonData && ( */}
-            <div className="upstream__chart">
-              <div className="card">
-                <div
-                  className="header-row"
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Tabs
-                    defaultActiveKey="1"
-                    animated={false}
-                    // style={{ marginBottom: 0 }}
-                    tabBarStyle={{ marginBottom: 0 }}
-                    items={[
-                      {
-                        key: "1",
-                        label: (
-                          <span style={{ padding: "0 10px" }}> Combined </span>
-                        ),
-                      },
-                      {
-                        key: "2",
-                        label: (
-                          <span style={{ padding: "0 10px" }}>
-                            {" "}
-                            Individual{" "}
-                          </span>
-                        ),
-                      },
-                    ]}
-                    onChange={(key) => setActiveTab(key)}
-                  />
-                  <ASNLegend asnList={asnList} />
-                </div>
+                      </Tooltip>
+                      <Tooltip title="Share Link">
+                        <Button
+                          className="mr-3"
+                          icon={<ShareAltOutlined />}
+                          onClick={displayShareLinkModal}
+                        />
+                      </Tooltip>
 
-                <div className="content-area px-0">
-                  {selectedAsns.length === 0 && jsonData ? (
+                      <Popover
+                        open={displayChartSharePopover}
+                        onOpenChange={handleDisplayChartSharePopover}
+                        trigger="click"
+                        placement="bottomRight"
+                        overlayStyle={{
+                          maxWidth: 180,
+                        }}
+                        content={
+                          <div
+                            onClick={() =>
+                              handleDisplayChartSharePopover(false)
+                            }
+                          >
+                            <Button
+                              className="w-full mb-2"
+                              size="small"
+                              onClick={() =>
+                                manuallyDownloadChart("image/jpeg")
+                              }
+                            >
+                              Chart JPEG
+                            </Button>
+                            <Button
+                              className="w-full mb-2"
+                              size="small"
+                              onClick={() => manuallyDownloadChart("image/png")}
+                            >
+                              Chart PNG
+                            </Button>
+                            <Button
+                              className="w-full"
+                              size="small"
+                              onClick={() =>
+                                manuallyDownloadChart("image/svg+xml")
+                              }
+                            >
+                              Chart SVG
+                            </Button>
+                          </div>
+                        }
+                      >
+                        <Tooltip
+                          title="Download"
+                          mouseEnterDelay={0}
+                          mouseLeaveDelay={0}
+                        >
+                          <Button icon={<DownloadOutlined />} />
+                        </Tooltip>
+                      </Popover>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-xl mr-1 mt-0 mb-1">
+                      {upstreamChartSubTitle}
+                    </h4>
+                  </div>
+                </div>
+                {/* {jsonData && ( */}
+                <div className="upstream__chart">
+                  <div className="card">
                     <div
+                      className="header-row"
                       style={{
-                        padding: "2rem",
-                        textAlign: "center",
-                        color: "#666",
-                        // fontStyle: "italic",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
-                      No ASes selected.
-                    </div>
-                  ) : activeTab === "1" ? (
-                    <div style={{ marginLeft: "10px" }}>
-                      <HighchartsReact
-                        highcharts={Highcharts}
-                        // options={latencyCombined}
-                        options={combineTrace}
-                        ref={chartCombinedRef}
+                      <Tabs
+                        defaultActiveKey="1"
+                        animated={false}
+                        // style={{ marginBottom: 0 }}
+                        tabBarStyle={{ marginBottom: 0 }}
+                        items={[
+                          {
+                            key: "1",
+                            label: (
+                              <span style={{ padding: "0 10px" }}>
+                                {" "}
+                                Combined{" "}
+                              </span>
+                            ),
+                          },
+                          {
+                            key: "2",
+                            label: (
+                              <span style={{ padding: "0 10px" }}>
+                                {" "}
+                                Individual{" "}
+                              </span>
+                            ),
+                          },
+                        ]}
+                        onChange={(key) => setActiveTab(key)}
+                      />
+                      <ASNLegend
+                        asnList={asnList.filter((a) =>
+                          selectedAsns.includes(a.name)
+                        )}
                       />
                     </div>
-                  ) : (
-                    <div style={{ marginLeft: "10px" }}>
-                      <HighchartsReact
-                        highcharts={Highcharts}
-                        // options={latencyIndividual}
-                        options={indivTrace}
-                        ref={chartIndividualRef}
-                      />
+
+                    <div className="content-area px-0">
+                      {selectedAsns.length === 0 && jsonData ? (
+                        <div
+                          style={{
+                            padding: "2rem",
+                            textAlign: "center",
+                            color: "#666",
+                            // fontStyle: "italic",
+                          }}
+                        >
+                          No ASes selected.
+                        </div>
+                      ) : activeTab === "1" ? (
+                        <div style={{ marginLeft: "10px" }}>
+                          <HighchartsReact
+                            highcharts={Highcharts}
+                            // options={latencyCombined}
+                            options={combineTrace}
+                            ref={chartCombinedRef}
+                          />
+                        </div>
+                      ) : (
+                        <div style={{ marginLeft: "10px" }}>
+                          <HighchartsReact
+                            highcharts={Highcharts}
+                            // options={latencyIndividual}
+                            options={indivTrace}
+                            ref={chartIndividualRef}
+                          />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-              {/* <div className="px-4 card">
+                  </div>
+                  {/* <div className="px-4 card">
                   <HighchartsReact
                     highcharts={Highcharts}
                     options={traceRouteOptions}
                     ref={chartTraceRouteRef}
                   />
                 </div> */}
-              <TimeStamp
-                className="mt-4"
-                from={tsDataLegendRangeFrom}
-                until={tsDataLegendRangeUntil}
-              />
+                  <TimeStamp
+                    className="mt-4"
+                    from={tsDataLegendRangeFrom}
+                    until={tsDataLegendRangeUntil}
+                  />
+                </div>
+              </div>
             </div>
             {/* )}
         {!jsonData && <Loading />} */}
+          </div>
+          <div className="col-1">
+            <div className="p-4 card h-full mb-6">
+              {/* <div style={{ padding: 12 }}> */}
+              <div className="p-4">
+                <div className=" mb-3">
+                  <h3 className="text-2xl mr-1 mb-6">Select AS Signals</h3>
+                  <Checkbox.Group
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                    options={asnList.map((a) => ({
+                      label: (
+                        <span style={{ fontSize: 14 }}>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: 8,
+                              height: 8,
+                              backgroundColor: a.color,
+                              borderRadius: 4,
+                              marginRight: 4,
+                            }}
+                          />
+                          {a.name}
+                        </span>
+                      ),
+                      value: a.name,
+                    }))}
+                    value={selectedAsns}
+                    onChange={(vals) => setSelectedAsns(vals)}
+                  />
+                </div>
+              </div>
+              {/* </div> */}
+            </div>
           </div>
         </div>
       </div>
