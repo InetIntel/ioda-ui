@@ -150,7 +150,7 @@ const EntityRelatedAsn = (props) => {
   return (
     <div>
       <div className="related__heading">
-        <div className="flex items-center gap-3 mb-6">
+        {/* <div className="flex items-center gap-3 mb-6">
           <div className="col-1 mw-0 flex items-center">
             <h3 className="text-2xl">
               {entityType === "country"
@@ -173,14 +173,14 @@ const EntityRelatedAsn = (props) => {
           >
             {asnModalButtonText}
           </Button>
-        </div>
+        </div> */}
         {showTableModal && (
           <RawSignalsModal
             inline
             modalLocation={"table"}
             // tracking when the modal should be visible
-            // showModal={showTableModal}
-            showModal={true}
+            showModal={showTableModal}
+            // showModal={true}
             // entity name needed to populate text in headings
             entityName={entityName}
             // entity type needed to determine which time series count text to use
@@ -257,7 +257,7 @@ const EntityRelatedAsn = (props) => {
           />
         )}
       </div>
-      <div className="tab__table" ref={relatedTableConfig}>
+      {/* <div className="tab__table" ref={relatedTableConfig}>
         {relatedToTableSummaryProcessed ? (
           <Table
             type="summary"
@@ -268,7 +268,7 @@ const EntityRelatedAsn = (props) => {
         ) : (
           <Loading />
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

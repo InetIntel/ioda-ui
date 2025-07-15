@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 // Chart Libraries
-import Highcharts from "highcharts/highstock";
+import Highcharts, { chart } from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/export-data")(Highcharts);
@@ -114,6 +114,7 @@ const UpstreamDelayComponent = ({
   //     setSelectedAsns(asnList.map((a) => a.name));
   //   }
   // }, [asnList]);
+
   useEffect(() => {
     if (asnList.length > 0 && initialLoad.current) {
       setSelectedAsns(asnList.map((a) => a.name));
@@ -381,9 +382,19 @@ const UpstreamDelayComponent = ({
   const filteredTraceSeries = traceAsnSeries.filter((s) =>
     selectedAsns.includes(s.name)
   );
-  const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
-  const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
-  setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
+  // const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
+  // const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
+  // setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
+  // useEffect(() => {
+  //   console.log("SET Inital Navigator Range");
+  //   // Rerender chart and set navigator bounds
+  //   if (chartCombinedRef.current || chartIndividualRef.current) {
+  //     const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
+  //     const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
+  //     setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
+  //     console.log("SET Inital Navigator Range", navigatorLowerBound);
+  //   }
+  // }, [chartCombinedRef, chartIndividualRef]);
   //   console.log("traceAsnSeries data for traceroute chart", traceAsnSeries);
 
   //   const latencyCombined = {
@@ -902,6 +913,8 @@ const UpstreamDelayComponent = ({
       },
     ],
     xAxis: {
+      min: secondsToMilliseconds(from),
+      max: secondsToMilliseconds(until),
       showEmpty: false,
       type: "datetime",
       gridLineColor: "#666",
@@ -1201,6 +1214,8 @@ const UpstreamDelayComponent = ({
       },
     ],
     xAxis: {
+      min: secondsToMilliseconds(from),
+      max: secondsToMilliseconds(until),
       showEmpty: false,
       type: "datetime",
       gridLineColor: "#666",

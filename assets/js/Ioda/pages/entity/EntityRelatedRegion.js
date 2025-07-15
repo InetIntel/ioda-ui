@@ -150,7 +150,7 @@ const EntityRelatedRegion = (props) => {
   return (
     <div>
       <div className="mb-6">
-        <div className="flex items-center">
+        {/* <div className="flex items-center">
           <div className="col-1 mw-0 flex items-center">
             <h3 className="text-2xl">
               {entityType === "country"
@@ -175,7 +175,7 @@ const EntityRelatedRegion = (props) => {
           >
             {regionalModalButtonText}
           </Button>
-        </div>
+        </div> */}
         {showMapModal && (
           <RawSignalsModal
             inline
@@ -185,8 +185,8 @@ const EntityRelatedRegion = (props) => {
             // entity type needed to determine which time series count text to use
             entityType={entityType}
             // tracking when the modal should be visible
-            // showModal={showMapModal}
-            showModal={true}
+            showModal={showMapModal}
+            // showModal={true}
             // tracking when the close button is clicked
             toggleModal={toggleModal}
             // to populate outage map
@@ -271,7 +271,7 @@ const EntityRelatedRegion = (props) => {
           />
         )}
       </div>
-      <div className="map" style={{ display: "block", height: "40.5rem" }}>
+      {/* <div className="map" style={{ display: "block", height: "40.5rem" }}>
         {topoData && bounds && topoScores ? (
           <TopoMap
             topoData={topoData}
@@ -294,7 +294,7 @@ const EntityRelatedRegion = (props) => {
         ) : (
           <Loading />
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

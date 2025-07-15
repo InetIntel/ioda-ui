@@ -452,12 +452,12 @@ const RawSignalsModal = (props) => {
             text={tooltipEntityRawSignalsHeadingText}
           />
           <div className="col"></div>
-          <Button
+          {/* <Button
             type="primary"
             className="ml-auto"
             icon={<CloseOutlined />}
             onClick={() => toggleModal(modalLocation)}
-          />
+          /> */}
         </div>
         {modalLocation === "map" ? (
           <p className="modal__hts-count">
@@ -756,7 +756,7 @@ const RawSignalsModal = (props) => {
                     rawAsnSignalsProcessedPingSlash24.length === 0)
                 ) {
                   return (
-                    <div className="retrievingDataBgp">
+                    <div className="retrievingDataAP">
                       <Loading text="Retrieving Data..." />
                     </div>
                   );
@@ -1094,21 +1094,22 @@ const RawSignalsModal = (props) => {
   if (inline) {
     return <div className="raw-signals-inline">{content}</div>;
   }
-  return (
-    <Modal
-      open={showModal}
-      onOk={() => toggleModal(modalLocation)}
-      onCancel={() => toggleModal(modalLocation)}
-      width={"90vw"}
-      bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }}
-      className="modal"
-      footer={null}
-      centered={true}
-      closeIcon={<></>}
-    >
-      {content}
-    </Modal>
-  );
+  // return (
+  //   <Modal
+  //     open={showModal}
+  //     onOk={() => toggleModal(modalLocation)}
+  //     onCancel={() => toggleModal(modalLocation)}
+  //     width={"90vw"}
+  //     bodyStyle={{ maxHeight: "80vh", overflowY: "auto" }}
+  //     className="modal"
+  //     footer={null}
+  //     centered={true}
+  //     closeIcon={<></>}
+  //   >
+  //     {content}
+  //   </Modal>
+  // );
+  return null;
 };
 
 RawSignalsModal.propTypes = {

@@ -742,6 +742,8 @@ const Entity = (props) => {
   useEffect(() => {
     const fetchRegionalSignalsData = async () => {
       if (showMapModal && !rawRegionalSignalsLoaded) {
+        //0715
+        // if (!rawRegionalSignalsLoaded) {
         let entityType;
         let relatedToEntityType, relatedToEntityCode;
         switch (entityTypeState) {
@@ -783,7 +785,8 @@ const Entity = (props) => {
       }
     };
     fetchRegionalSignalsData();
-  }, [showMapModal, showGlobalRegionalAsnSignals]);
+  }, [showMapModal, showGlobalRegionalAsnSignals, selectedView]);
+  // }, [showGlobalRegionalAsnSignals, selectedView]); //0715
 
   useEffect(() => {
     if (regionalSignalsTableSummaryData && relatedToMapSummary) {
@@ -836,6 +839,7 @@ const Entity = (props) => {
   // data for regional signals table Ping-Slash24 Source
   useEffect(() => {
     if (rawRegionalSignalsPingSlash24?.length && showMapModal) {
+      // if (rawRegionalSignalsPingSlash24?.length) {
       const rawRegionalSignals = rawRegionalSignalsPingSlash24
         .filter((signal) => signal.length) //Remove empty items and assign to proper state. Then call next function
         .map((signal) => signal[0]);
@@ -849,64 +853,87 @@ const Entity = (props) => {
     }
   }, [
     rawRegionalSignalsPingSlash24,
-    showMapModal,
+    showMapModal, //0715
     showGlobalRegionalAsnSignals,
+    selectedView,
   ]);
 
   // data for regional signals table BGP Source
   useEffect(() => {
     if (rawRegionalSignalsBgp?.length && showMapModal) {
+      //0715
+      // if (rawRegionalSignalsBgp?.length) {
       const rawRegionalSignals = rawRegionalSignalsBgp
         .filter((signal) => signal.length) // Remove empty items
         .map((signal) => signal[0]); // Extract the first element
       setRawRegionalSignalsRawBgp(rawRegionalSignals);
       convertValuesForHtsViz("bgp", "region", null, rawRegionalSignals);
     }
-  }, [rawRegionalSignalsBgp, showMapModal, showGlobalRegionalAsnSignals]);
+  }, [
+    rawRegionalSignalsBgp,
+    showMapModal, //0715
+    showGlobalRegionalAsnSignals,
+    selectedView,
+  ]);
 
   // data for regional signals table Merit-NT Source
   useEffect(() => {
     if (rawRegionalSignalsMeritNt?.length && showMapModal) {
+      //0715
+      // if (rawRegionalSignalsMeritNt?.length) {
       const rawRegionalSignals = rawRegionalSignalsMeritNt
         .filter((signal) => signal.length) // Remove empty items
         .map((signal) => signal[0]); // Extract the first element
       setRawRegionalSignalsRawMeritNt(rawRegionalSignals);
       convertValuesForHtsViz("merit-nt", "region", null, rawRegionalSignals);
     }
-  }, [rawRegionalSignalsMeritNt, showMapModal, showGlobalRegionalAsnSignals]);
+  }, [
+    rawRegionalSignalsMeritNt,
+    showMapModal,
+    showGlobalRegionalAsnSignals,
+    selectedView,
+  ]);
 
   // data for asn signals table Ping-Slash24 Source
   useEffect(() => {
     if (rawAsnSignalsPingSlash24?.length && showTableModal) {
+      //0715
+      // if (rawAsnSignalsPingSlash24?.length) {
       const rawAsnSignals = rawAsnSignalsPingSlash24
         .filter((signal) => signal.length) // Remove empty items
         .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawPingSlash24(rawAsnSignals);
       convertValuesForHtsViz("ping-slash24", "asn", null, rawAsnSignals);
     }
-  }, [rawAsnSignalsPingSlash24, showTableModal]);
+  }, [rawAsnSignalsPingSlash24, showTableModal, selectedView]);
+  // }, [rawAsnSignalsPingSlash24, selectedView]);
 
   // data for asn signals table BGP Source
   useEffect(() => {
     if (rawAsnSignalsBgp?.length && showTableModal) {
+      //0715
+      // if (rawAsnSignalsBgp?.length) {
       const rawAsnSignals = rawAsnSignalsBgp
         .filter((signal) => signal.length) // Remove empty items
         .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawBgp(rawAsnSignals);
       convertValuesForHtsViz("bgp", "asn", null, rawAsnSignals);
     }
-  }, [rawAsnSignalsBgp, showTableModal]);
+  }, [rawAsnSignalsBgp, showTableModal, selectedView]);
+  // }, [rawAsnSignalsBgp, selectedView]);
 
   // data for asn signals table Merit-NT Source
   useEffect(() => {
     if (rawAsnSignalsMeritNt?.length && showTableModal) {
+      // if (rawAsnSignalsMeritNt?.length) {
       const rawAsnSignals = rawAsnSignalsMeritNt
         .filter((signal) => signal.length) // Remove empty items
         .map((signal) => signal[0]); // Extract the first element
       setRawAsnSignalsRawMeritNt(rawAsnSignals);
       convertValuesForHtsViz("merit-nt", "asn", null, rawAsnSignals);
     }
-  }, [rawAsnSignalsMeritNt, showTableModal]);
+  }, [rawAsnSignalsMeritNt, showTableModal, selectedView]);
+  // }, [rawAsnSignalsMeritNt, selectedView]);
 
   // data for additional raw feed signals to use after load all button is clicked
   useEffect(() => {
@@ -964,11 +991,13 @@ const Entity = (props) => {
       const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
       setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
     }
-  }, [xyChartOptions]);
+  }, [xyChartOptions, selectedView]);
 
   useEffect(() => {
     const fetchData = async () => {
       if (showTableModal && !rawAsnSignalsLoaded) {
+        //0715
+        // if (!rawAsnSignalsLoaded) {
         const entityTypeProp =
           entityTypeState === "asn"
             ? "country"
@@ -994,7 +1023,8 @@ const Entity = (props) => {
     };
 
     fetchData();
-  }, [showTableModal, showGlobalSignals]);
+  }, [showTableModal, showGlobalSignals, selectedView]);
+  // }, [showGlobalSignals, selectedView]);
 
   useEffect(() => {
     if (
@@ -1042,6 +1072,7 @@ const Entity = (props) => {
       toggleModal("table");
     }
   }, [selectedView, toggleModal]);
+  //0715
 
   // Control Panel
   // manage the date selected in the input
@@ -2205,11 +2236,14 @@ const Entity = (props) => {
   const toggleModal = useCallback((modalLocation) => {
     if (modalLocation === "map") {
       // Get related entities used on table in map modal
-      setShowMapModal((prev) => !prev);
+      // setShowMapModal((prev) => !prev);
+      setShowMapModal(true);
     } else if (modalLocation === "table") {
-      setShowTableModal((prev) => !prev);
+      // setShowTableModal((prev) => !prev);
+      setShowTableModal(true);
     }
   }, []);
+  //0715
 
   // Summary Outage Table for related ASNs
   // Make API call to retrieve summary outage data to populate on map
@@ -3524,273 +3558,254 @@ const Entity = (props) => {
             {/* <div className="flex items-stretch gap-6 entity-related">
               <div className="card mw-0 p-6 col-1"> */}
             {selectedView === "view2" && (
-              <div className="w-full p-4 card">
-                <EntityRelatedRegion
-                  inline
-                  entityName={entityName}
-                  entityType={entityTypeState}
-                  parentEntityName={parentEntityName}
-                  // toggleModal={toggleModal}
-                  // modalLocation="map"
-                  toggleModal={() => {}}
-                  // showMapModal={showMapModal}
-                  showMapModal={true}
-                  showTableModal={showTableModal}
-                  from={from}
-                  until={until}
-                  // to populate map
-                  topoData={topoData}
-                  topoScores={topoScores}
-                  bounds={bounds}
-                  handleEntityShapeClick={(entity) =>
-                    handleEntityShapeClick(entity)
-                  }
-                  // to populate asn summary table
-                  relatedToTableSummaryProcessed={
-                    relatedToTableSummaryProcessed
-                  }
-                  // handleEntityClick={(entity) => this.handleEntityClick(entity)}
-                  // raw signals tables for region modal
-                  handleSelectAndDeselectAllButtons={(event) =>
-                    handleSelectAndDeselectAllButtons(event)
-                  }
-                  regionalSignalsTableSummaryDataProcessed={
-                    regionalSignalsTableSummaryDataProcessed
-                  }
-                  toggleEntityVisibilityInHtsViz={(event) =>
-                    toggleEntityVisibilityInHtsViz(event, "region")
-                  }
-                  handleCheckboxEventLoading={(item) =>
-                    handleCheckboxEventLoading(item)
-                  }
-                  asnSignalsTableSummaryDataProcessed={
-                    asnSignalsTableSummaryDataProcessed
-                  }
-                  // Regional HTS methods
-                  regionalSignalsTableEntitiesChecked={
-                    regionalSignalsTableEntitiesChecked
-                  }
-                  asnSignalsTableEntitiesChecked={
-                    asnSignalsTableEntitiesChecked
-                  }
-                  initialTableLimit={initialTableLimit}
-                  rawRegionalSignalsProcessedPingSlash24={
-                    rawRegionalSignalsProcessedPingSlash24
-                  }
-                  rawRegionalSignalsProcessedBgp={
-                    rawRegionalSignalsProcessedBgp
-                  }
-                  rawRegionalSignalsProcessedMeritNt={
-                    rawRegionalSignalsProcessedMeritNt
-                  }
-                  rawAsnSignalsProcessedPingSlash24={
-                    rawAsnSignalsProcessedPingSlash24
-                  }
-                  rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
-                  rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
-                  summaryDataMapRaw={summaryDataMapRaw}
-                  rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
-                  // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
-                  asnSignalsTableTotalCount={asnSignalsTableTotalCount}
-                  regionalSignalsTableTotalCount={
-                    regionalSignalsTableTotalCount
-                  }
-                  // function used to call api to load remaining entities
-                  handleLoadAllEntitiesButton={(event) =>
-                    handleLoadAllEntitiesButton(event)
-                  }
-                  // Used to determine if load all message should display or not
-                  regionalRawSignalsLoadAllButtonClicked={
-                    regionalRawSignalsLoadAllButtonClicked
-                  }
-                  asnRawSignalsLoadAllButtonClicked={
-                    asnRawSignalsLoadAllButtonClicked
-                  }
-                  // modal loading icon for load all button
-                  loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
-                  handleAdditionalEntitiesLoading={() =>
-                    handleAdditionalEntitiesLoading()
-                  }
-                  additionalRawSignalRequestedPingSlash24={
-                    additionalRawSignalRequestedPingSlash24
-                  }
-                  additionalRawSignalRequestedBgp={
-                    additionalRawSignalRequestedBgp
-                  }
-                  additionalRawSignalRequestedMeritNt={
-                    additionalRawSignalRequestedMeritNt
-                  }
-                  // used for tracking when check max/uncheck all loading icon should appear and not
-                  checkMaxButtonLoading={checkMaxButtonLoading}
-                  uncheckAllButtonLoading={uncheckAllButtonLoading}
-                  // used to check if there are no entities available to load (to control when loading bar disappears)
-                  rawRegionalSignalsRawBgpLength={
-                    rawRegionalSignalsRawBgp?.length
-                  }
-                  rawRegionalSignalsRawPingSlash24Length={
-                    rawRegionalSignalsRawPingSlash24?.length
-                  }
-                  rawRegionalSignalsRawMeritNtLength={
-                    rawRegionalSignalsRawMeritNt?.length
-                  }
-                  rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp?.length}
-                  rawAsnSignalsRawPingSlash24Length={
-                    rawAsnSignalsRawPingSlash24?.length
-                  }
-                  rawAsnSignalsRawMeritNtLength={
-                    rawAsnSignalsRawMeritNt?.length
-                  }
-                  handleGlobalAsnSignals={handleGlobalAsnSignals}
-                  globalSwitch={globalSwitch}
-                  globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
-                  handleGlobalRegionalAsnSignals={
-                    handleGlobalRegionalAsnSignals
-                  }
-                  rawAsnSignalsUpstreamDelayPenultAsnCount={
-                    rawAsnSignalsUpstreamDelayPenultAsnCount
-                  }
-                  rawAsnSignalsUpstreamDelayLatency={
-                    rawAsnSignalsUpstreamDelayLatency
-                  }
-                  rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
-                  rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
-                  showApPacketGraph={entityCode && !entityCode.includes("-")}
-                  isLoading={false}
-                />
-              </div>
+              // <div className="w-full p-4 card">
+              <EntityRelatedRegion
+                inline
+                entityName={entityName}
+                entityType={entityTypeState}
+                parentEntityName={parentEntityName}
+                toggleModal={toggleModal} //0715
+                // modalLocation="map"
+                // toggleModal={() => {}}
+                showMapModal={showMapModal}
+                showTableModal={showTableModal}
+                // showMapModal={true}
+                // showTableModal={true}
+                from={from}
+                until={until}
+                // to populate map
+                topoData={topoData}
+                topoScores={topoScores}
+                bounds={bounds}
+                handleEntityShapeClick={(entity) =>
+                  handleEntityShapeClick(entity)
+                }
+                // to populate asn summary table
+                relatedToTableSummaryProcessed={relatedToTableSummaryProcessed}
+                // handleEntityClick={(entity) => this.handleEntityClick(entity)}
+                // raw signals tables for region modal
+                handleSelectAndDeselectAllButtons={(event) =>
+                  handleSelectAndDeselectAllButtons(event)
+                }
+                regionalSignalsTableSummaryDataProcessed={
+                  regionalSignalsTableSummaryDataProcessed
+                }
+                toggleEntityVisibilityInHtsViz={(event) =>
+                  toggleEntityVisibilityInHtsViz(event, "region")
+                }
+                handleCheckboxEventLoading={(item) =>
+                  handleCheckboxEventLoading(item)
+                }
+                asnSignalsTableSummaryDataProcessed={
+                  asnSignalsTableSummaryDataProcessed
+                }
+                // Regional HTS methods
+                regionalSignalsTableEntitiesChecked={
+                  regionalSignalsTableEntitiesChecked
+                }
+                asnSignalsTableEntitiesChecked={asnSignalsTableEntitiesChecked}
+                initialTableLimit={initialTableLimit}
+                rawRegionalSignalsProcessedPingSlash24={
+                  rawRegionalSignalsProcessedPingSlash24
+                }
+                rawRegionalSignalsProcessedBgp={rawRegionalSignalsProcessedBgp}
+                rawRegionalSignalsProcessedMeritNt={
+                  rawRegionalSignalsProcessedMeritNt
+                }
+                rawAsnSignalsProcessedPingSlash24={
+                  rawAsnSignalsProcessedPingSlash24
+                }
+                rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
+                rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
+                summaryDataMapRaw={summaryDataMapRaw}
+                rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
+                // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
+                asnSignalsTableTotalCount={asnSignalsTableTotalCount}
+                regionalSignalsTableTotalCount={regionalSignalsTableTotalCount}
+                // function used to call api to load remaining entities
+                handleLoadAllEntitiesButton={(event) =>
+                  handleLoadAllEntitiesButton(event)
+                }
+                // Used to determine if load all message should display or not
+                regionalRawSignalsLoadAllButtonClicked={
+                  regionalRawSignalsLoadAllButtonClicked
+                }
+                asnRawSignalsLoadAllButtonClicked={
+                  asnRawSignalsLoadAllButtonClicked
+                }
+                // modal loading icon for load all button
+                loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
+                handleAdditionalEntitiesLoading={() =>
+                  handleAdditionalEntitiesLoading()
+                }
+                additionalRawSignalRequestedPingSlash24={
+                  additionalRawSignalRequestedPingSlash24
+                }
+                additionalRawSignalRequestedBgp={
+                  additionalRawSignalRequestedBgp
+                }
+                additionalRawSignalRequestedMeritNt={
+                  additionalRawSignalRequestedMeritNt
+                }
+                // used for tracking when check max/uncheck all loading icon should appear and not
+                checkMaxButtonLoading={checkMaxButtonLoading}
+                uncheckAllButtonLoading={uncheckAllButtonLoading}
+                // used to check if there are no entities available to load (to control when loading bar disappears)
+                rawRegionalSignalsRawBgpLength={
+                  rawRegionalSignalsRawBgp?.length
+                }
+                rawRegionalSignalsRawPingSlash24Length={
+                  rawRegionalSignalsRawPingSlash24?.length
+                }
+                rawRegionalSignalsRawMeritNtLength={
+                  rawRegionalSignalsRawMeritNt?.length
+                }
+                rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp?.length}
+                rawAsnSignalsRawPingSlash24Length={
+                  rawAsnSignalsRawPingSlash24?.length
+                }
+                rawAsnSignalsRawMeritNtLength={rawAsnSignalsRawMeritNt?.length}
+                handleGlobalAsnSignals={handleGlobalAsnSignals}
+                globalSwitch={globalSwitch}
+                globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
+                handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
+                rawAsnSignalsUpstreamDelayPenultAsnCount={
+                  rawAsnSignalsUpstreamDelayPenultAsnCount
+                }
+                rawAsnSignalsUpstreamDelayLatency={
+                  rawAsnSignalsUpstreamDelayLatency
+                }
+                rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
+                showApPacketGraph={entityCode && !entityCode.includes("-")}
+                isLoading={false}
+              />
+              // </div>
             )}
 
             {selectedView === "view3" && (
-              <div className="w-full p-4 card">
-                <EntityRelatedAsn
-                  entityName={entityName}
-                  entityType={entityTypeState}
-                  parentEntityName={parentEntityName}
-                  toggleModal={toggleModal}
-                  showMapModal={showMapModal}
-                  showTableModal={showTableModal}
-                  from={from}
-                  until={until}
-                  // to populate map
-                  topoData={topoData}
-                  topoScores={topoScores}
-                  bounds={bounds}
-                  handleEntityShapeClick={(entity) =>
-                    handleEntityShapeClick(entity)
-                  }
-                  // to populate asn summary table
-                  relatedToTableSummaryProcessed={
-                    relatedToTableSummaryProcessed
-                  }
-                  // handleEntityClick={(entity) => this.handleEntityClick(entity)}
-                  // raw signals tables for region modal
-                  handleSelectAndDeselectAllButtons={(event) =>
-                    handleSelectAndDeselectAllButtons(event)
-                  }
-                  regionalSignalsTableSummaryDataProcessed={
-                    regionalSignalsTableSummaryDataProcessed
-                  }
-                  toggleEntityVisibilityInHtsViz={(event) =>
-                    toggleEntityVisibilityInHtsViz(event, "region")
-                  }
-                  handleCheckboxEventLoading={(item) =>
-                    handleCheckboxEventLoading(item)
-                  }
-                  asnSignalsTableSummaryDataProcessed={
-                    asnSignalsTableSummaryDataProcessed
-                  }
-                  // Regional HTS methods
-                  regionalSignalsTableEntitiesChecked={
-                    regionalSignalsTableEntitiesChecked
-                  }
-                  asnSignalsTableEntitiesChecked={
-                    asnSignalsTableEntitiesChecked
-                  }
-                  initialTableLimit={initialTableLimit}
-                  rawRegionalSignalsProcessedPingSlash24={
-                    rawRegionalSignalsProcessedPingSlash24
-                  }
-                  rawRegionalSignalsProcessedBgp={
-                    rawRegionalSignalsProcessedBgp
-                  }
-                  rawRegionalSignalsProcessedMeritNt={
-                    rawRegionalSignalsProcessedMeritNt
-                  }
-                  rawAsnSignalsProcessedPingSlash24={
-                    rawAsnSignalsProcessedPingSlash24
-                  }
-                  rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
-                  rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
-                  summaryDataMapRaw={summaryDataMapRaw}
-                  rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
-                  // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
-                  asnSignalsTableTotalCount={asnSignalsTableTotalCount}
-                  regionalSignalsTableTotalCount={
-                    regionalSignalsTableTotalCount
-                  }
-                  // function used to call api to load remaining entities
-                  handleLoadAllEntitiesButton={(event) =>
-                    handleLoadAllEntitiesButton(event)
-                  }
-                  // Used to determine if load all message should display or not
-                  regionalRawSignalsLoadAllButtonClicked={
-                    regionalRawSignalsLoadAllButtonClicked
-                  }
-                  asnRawSignalsLoadAllButtonClicked={
-                    asnRawSignalsLoadAllButtonClicked
-                  }
-                  // modal loading icon for load all button
-                  loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
-                  handleAdditionalEntitiesLoading={() =>
-                    handleAdditionalEntitiesLoading()
-                  }
-                  additionalRawSignalRequestedPingSlash24={
-                    additionalRawSignalRequestedPingSlash24
-                  }
-                  additionalRawSignalRequestedBgp={
-                    additionalRawSignalRequestedBgp
-                  }
-                  additionalRawSignalRequestedMeritNt={
-                    additionalRawSignalRequestedMeritNt
-                  }
-                  // used for tracking when check max/uncheck all loading icon should appear and not
-                  checkMaxButtonLoading={checkMaxButtonLoading}
-                  uncheckAllButtonLoading={uncheckAllButtonLoading}
-                  // used to check if there are no entities available to load (to control when loading bar disappears)
-                  rawRegionalSignalsRawBgpLength={
-                    rawRegionalSignalsRawBgp?.length
-                  }
-                  rawRegionalSignalsRawPingSlash24Length={
-                    rawRegionalSignalsRawPingSlash24?.length
-                  }
-                  rawRegionalSignalsRawMeritNtLength={
-                    rawRegionalSignalsRawMeritNt?.length
-                  }
-                  rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp?.length}
-                  rawAsnSignalsRawPingSlash24Length={
-                    rawAsnSignalsRawPingSlash24?.length
-                  }
-                  rawAsnSignalsRawMeritNtLength={
-                    rawAsnSignalsRawMeritNt?.length
-                  }
-                  handleGlobalAsnSignals={handleGlobalAsnSignals}
-                  globalSwitch={globalSwitch}
-                  globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
-                  handleGlobalRegionalAsnSignals={
-                    handleGlobalRegionalAsnSignals
-                  }
-                  rawAsnSignalsUpstreamDelayPenultAsnCount={
-                    rawAsnSignalsUpstreamDelayPenultAsnCount
-                  }
-                  rawAsnSignalsUpstreamDelayLatency={
-                    rawAsnSignalsUpstreamDelayLatency
-                  }
-                  rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
-                  rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
-                  showApPacketGraph={entityCode && !entityCode.includes("-")}
-                  isLoading={false}
-                />{" "}
-              </div>
+              // <div className="w-full p-4 card">
+              <EntityRelatedAsn
+                inline
+                entityName={entityName}
+                entityType={entityTypeState}
+                parentEntityName={parentEntityName}
+                toggleModal={toggleModal} //0715
+                // toggleModal={() => {}}
+                showMapModal={showMapModal}
+                showTableModal={showTableModal}
+                // showMapModal={true}
+                // showTableModal={true}
+                from={from}
+                until={until}
+                // to populate map
+                topoData={topoData}
+                topoScores={topoScores}
+                bounds={bounds}
+                handleEntityShapeClick={(entity) =>
+                  handleEntityShapeClick(entity)
+                }
+                // to populate asn summary table
+                relatedToTableSummaryProcessed={relatedToTableSummaryProcessed}
+                // handleEntityClick={(entity) => this.handleEntityClick(entity)}
+                // raw signals tables for region modal
+                handleSelectAndDeselectAllButtons={(event) =>
+                  handleSelectAndDeselectAllButtons(event)
+                }
+                regionalSignalsTableSummaryDataProcessed={
+                  regionalSignalsTableSummaryDataProcessed
+                }
+                toggleEntityVisibilityInHtsViz={(event) =>
+                  toggleEntityVisibilityInHtsViz(event, "region")
+                }
+                handleCheckboxEventLoading={(item) =>
+                  handleCheckboxEventLoading(item)
+                }
+                asnSignalsTableSummaryDataProcessed={
+                  asnSignalsTableSummaryDataProcessed
+                }
+                // Regional HTS methods
+                regionalSignalsTableEntitiesChecked={
+                  regionalSignalsTableEntitiesChecked
+                }
+                asnSignalsTableEntitiesChecked={asnSignalsTableEntitiesChecked}
+                initialTableLimit={initialTableLimit}
+                rawRegionalSignalsProcessedPingSlash24={
+                  rawRegionalSignalsProcessedPingSlash24
+                }
+                rawRegionalSignalsProcessedBgp={rawRegionalSignalsProcessedBgp}
+                rawRegionalSignalsProcessedMeritNt={
+                  rawRegionalSignalsProcessedMeritNt
+                }
+                rawAsnSignalsProcessedPingSlash24={
+                  rawAsnSignalsProcessedPingSlash24
+                }
+                rawAsnSignalsProcessedBgp={rawAsnSignalsProcessedBgp}
+                rawAsnSignalsProcessedMeritNt={rawAsnSignalsProcessedMeritNt}
+                summaryDataMapRaw={summaryDataMapRaw}
+                rawSignalsMaxEntitiesHtsError={rawSignalsMaxEntitiesHtsError}
+                // count used to determine if text to populate remaining entities beyond the initial Table load limit should display
+                asnSignalsTableTotalCount={asnSignalsTableTotalCount}
+                regionalSignalsTableTotalCount={regionalSignalsTableTotalCount}
+                // function used to call api to load remaining entities
+                handleLoadAllEntitiesButton={(event) =>
+                  handleLoadAllEntitiesButton(event)
+                }
+                // Used to determine if load all message should display or not
+                regionalRawSignalsLoadAllButtonClicked={
+                  regionalRawSignalsLoadAllButtonClicked
+                }
+                asnRawSignalsLoadAllButtonClicked={
+                  asnRawSignalsLoadAllButtonClicked
+                }
+                // modal loading icon for load all button
+                loadAllButtonEntitiesLoading={loadAllButtonEntitiesLoading}
+                handleAdditionalEntitiesLoading={() =>
+                  handleAdditionalEntitiesLoading()
+                }
+                additionalRawSignalRequestedPingSlash24={
+                  additionalRawSignalRequestedPingSlash24
+                }
+                additionalRawSignalRequestedBgp={
+                  additionalRawSignalRequestedBgp
+                }
+                additionalRawSignalRequestedMeritNt={
+                  additionalRawSignalRequestedMeritNt
+                }
+                // used for tracking when check max/uncheck all loading icon should appear and not
+                checkMaxButtonLoading={checkMaxButtonLoading}
+                uncheckAllButtonLoading={uncheckAllButtonLoading}
+                // used to check if there are no entities available to load (to control when loading bar disappears)
+                rawRegionalSignalsRawBgpLength={
+                  rawRegionalSignalsRawBgp?.length
+                }
+                rawRegionalSignalsRawPingSlash24Length={
+                  rawRegionalSignalsRawPingSlash24?.length
+                }
+                rawRegionalSignalsRawMeritNtLength={
+                  rawRegionalSignalsRawMeritNt?.length
+                }
+                rawAsnSignalsRawBgpLength={rawAsnSignalsRawBgp?.length}
+                rawAsnSignalsRawPingSlash24Length={
+                  rawAsnSignalsRawPingSlash24?.length
+                }
+                rawAsnSignalsRawMeritNtLength={rawAsnSignalsRawMeritNt?.length}
+                handleGlobalAsnSignals={handleGlobalAsnSignals}
+                globalSwitch={globalSwitch}
+                globalRegionalAsnConnectivity={globalRegionalAsnConnectivity}
+                handleGlobalRegionalAsnSignals={handleGlobalRegionalAsnSignals}
+                rawAsnSignalsUpstreamDelayPenultAsnCount={
+                  rawAsnSignalsUpstreamDelayPenultAsnCount
+                }
+                rawAsnSignalsUpstreamDelayLatency={
+                  rawAsnSignalsUpstreamDelayLatency
+                }
+                rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                rawAsnSignalsApPacketDelay={rawAsnSignalsApPacketDelay}
+                showApPacketGraph={entityCode && !entityCode.includes("-")}
+                isLoading={false}
+              />
+              // </div>
             )}
           </div>
         </React.Fragment>
