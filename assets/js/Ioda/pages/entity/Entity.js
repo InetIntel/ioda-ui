@@ -1032,6 +1032,16 @@ const Entity = (props) => {
     }
     setConvertValuesForHtsVizCalled(null);
   }, [convertValuesForHtsVizCalled]);
+  useEffect(() => {
+    if (selectedView === "view2") {
+      toggleModal("map");
+    }
+  }, [selectedView, toggleModal]);
+  useEffect(() => {
+    if (selectedView === "view3") {
+      toggleModal("table");
+    }
+  }, [selectedView, toggleModal]);
 
   // Control Panel
   // manage the date selected in the input
@@ -3516,11 +3526,15 @@ const Entity = (props) => {
             {selectedView === "view2" && (
               <div className="w-full p-4 card">
                 <EntityRelatedRegion
+                  inline
                   entityName={entityName}
                   entityType={entityTypeState}
                   parentEntityName={parentEntityName}
-                  toggleModal={toggleModal}
-                  showMapModal={showMapModal}
+                  // toggleModal={toggleModal}
+                  // modalLocation="map"
+                  toggleModal={() => {}}
+                  // showMapModal={showMapModal}
+                  showMapModal={true}
                   showTableModal={showTableModal}
                   from={from}
                   until={until}

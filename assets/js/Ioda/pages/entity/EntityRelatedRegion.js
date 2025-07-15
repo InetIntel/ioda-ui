@@ -178,13 +178,15 @@ const EntityRelatedRegion = (props) => {
         </div>
         {showMapModal && (
           <RawSignalsModal
+            inline
             modalLocation={"map"}
             // entity name needed to populate text in headings
             entityName={entityName}
             // entity type needed to determine which time series count text to use
             entityType={entityType}
             // tracking when the modal should be visible
-            showModal={showMapModal}
+            // showModal={showMapModal}
+            showModal={true}
             // tracking when the close button is clicked
             toggleModal={toggleModal}
             // to populate outage map

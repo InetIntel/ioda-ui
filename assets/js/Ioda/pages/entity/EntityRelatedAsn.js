@@ -176,9 +176,11 @@ const EntityRelatedAsn = (props) => {
         </div>
         {showTableModal && (
           <RawSignalsModal
+            inline
             modalLocation={"table"}
             // tracking when the modal should be visible
-            showModal={showTableModal}
+            // showModal={showTableModal}
+            showModal={true}
             // entity name needed to populate text in headings
             entityName={entityName}
             // entity type needed to determine which time series count text to use
