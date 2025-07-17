@@ -654,17 +654,55 @@ class Table extends Component {
       });
     }
 
-    if (this.props.type === "event") {
-      // Event Table default sort
-      this.setState({
-        eventData: data,
-        sortedColumn: {
-          name: "fromDate",
-          position: "desc",
-          arrow: iconSortDesc,
-        },
-      });
-    }
+    setTableData = (data) => {
+      if (this.props.type === "alert") {
+        // Alert Table default sort
+        this.setState({
+          alertData: data,
+          sortedColumn: {
+            name: "dateStamp",
+            position: "desc",
+            arrow: iconSortDesc,
+          },
+        });
+      }
+
+      if (this.props.type === "event") {
+        // Event Table default sort
+        this.setState({
+          eventData: data,
+          sortedColumn: {
+            name: "fromDate",
+            position: "desc",
+            arrow: iconSortDesc,
+          },
+        });
+      }
+
+      if (this.props.type === "summary") {
+        // Summary Table default sort
+        this.setState({
+          summaryData: data,
+          sortedColumn: {
+            name: "score",
+            position: "desc",
+            arrow: iconSortDesc,
+          },
+        });
+      }
+
+      if (this.props.type === "signal") {
+        // Signal Table default sort
+        this.setState({
+          signalData: data,
+          sortedColumn: {
+            name: "score",
+            position: "desc",
+            arrow: iconSortDesc,
+          },
+        });
+      }
+    };
 
     if (this.props.type === "summary") {
       // Summary Table default sort

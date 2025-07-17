@@ -9,8 +9,7 @@ import {
 } from "../../utils/mapColors";
 import MapLegend from "./MapLegend";
 
-const mapAccessToken =
-  "pk.eyJ1Ijoid2ViZXIwMjUiLCJhIjoiY2tmNXp5bG0wMDAzaTMxbWQzcXQ1Y3k2eCJ9.NMu5bfrybATuYQ7HdYvq-g";
+const mapAccessToken = process.env.MAPBOX_TOKEN;
 
 const DEFAULT_NONE = "#f2f2f0";
 

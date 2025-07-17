@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import PostCard from "./PostCard";
 
 const BlueskyIodaFeed = ({ did }) => {
-  //   console.log(did);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,7 +26,6 @@ const BlueskyIodaFeed = ({ did }) => {
 
     fetchUserFeed();
   }, [did]);
-  // console.log(posts)
 
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error}</p>;
