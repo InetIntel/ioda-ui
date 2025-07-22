@@ -1069,8 +1069,7 @@ const UpstreamDelayComponent = ({
         // title: { text: "" },
         title: {
           reserveSpace: false,
-          text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
-          //   text: "Traceroute (# of observations of penultimate ASes)",
+          text: "<strong>Penultimate AS Count</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations</span>",
           x: 0,
           textAlign: "low",
           align: "high",
@@ -1754,9 +1753,20 @@ const UpstreamDelayComponent = ({
                       </Popover>
                     </div>
                   </div>
-                  <div>
+                  {/* <div>
                     <h4 className="text-xl mr-1 mt-0 mb-1">
                       {upstreamChartSubTitle}
+                    </h4>
+                  </div> */}
+                  <div>
+                    <h4
+                      className="text-xl mr-1 mt-2"
+                      style={{ color: "#8c8c8c" }}
+                    >
+                      This graph shows the latency and penultimate network used
+                      to reach {entityName.split(" ")[0]} as observed in
+                      traceroute measurements, making it easier pinpoint network
+                      delays.
                     </h4>
                   </div>
                 </div>

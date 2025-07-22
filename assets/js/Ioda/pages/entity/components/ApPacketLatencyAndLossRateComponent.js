@@ -217,7 +217,7 @@ const ApPacketLatencyAndLossRateComponent = ({
       color: "#7cb5ec",
     },
     {
-      name: "Packet Loss",
+      name: "Probe/Response Loss",
       color: "#52c41a",
     },
   ];
@@ -242,7 +242,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     if (chart && leftText) {
       if (displayLatency) {
         leftText.attr({
-          text: "<strong>Latency</strong> <span style='opacity: 0.8;'>(Round Trip Time (ms))</span>",
+          text: "<strong>RTT Latency</strong> <span style='opacity: 0.8;'> (ms)</span>",
         });
       } else {
         leftText.attr({ text: "" });
@@ -256,7 +256,7 @@ const ApPacketLatencyAndLossRateComponent = ({
     if (chart && rightText) {
       if (displayPctLoss) {
         rightText.attr({
-          text: "<strong> Packet Loss </strong> <span style='opacity: 0.8;'>(Percentage Loss Rate)</span>",
+          text: "<strong> Probe/Response Loss Rate</strong> <span style='opacity: 0.8;'> (%)</span>",
         });
       } else {
         rightText.attr({ text: "" });
@@ -584,7 +584,7 @@ const ApPacketLatencyAndLossRateComponent = ({
           data: navLoss,
           type: "line",
           color: "#D62782",
-          name: "Packet Loss",
+          name: "Probe/Response Loss",
           index: 1,
           visible: displayPctLoss,
         },
@@ -643,7 +643,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         // },
         showEmpty: false,
         title: {
-          text: '<strong>Latency</strong> <span style="opacity:0.8;">(Round Trip Time (ms))</span>',
+          text: '<strong>RTT Latency</strong> <span style="opacity:0.8;">(ms)</span>',
           useHTML: true,
           align: "high",
           textAlign: "left",
@@ -685,7 +685,7 @@ const ApPacketLatencyAndLossRateComponent = ({
         gridLineWidth: 1,
         gridLineDashStyle: "ShortDash",
         title: {
-          text: '<strong>Packet Loss</strong> <span style="opacity:0.8;">(Percentage Loss Rate)</span>',
+          text: '<strong>Probe/Response Loss</strong> <span style="opacity:0.8;">(%)</span>',
           useHTML: true,
           align: "high",
           textAlign: "right",
@@ -1104,7 +1104,7 @@ const ApPacketLatencyAndLossRateComponent = ({
             style={{ width: "30%", minWidth: "150px", marginTop: "10px" }}
           > */}
         <div className="flex mt-4" style={{ width: "100%" }}>
-          <div style={{ width: "40%" }}>
+          <div style={{ width: "50%" }}>
             <Cascader
               className="custom-tag-spacing"
               options={metricOptions}
