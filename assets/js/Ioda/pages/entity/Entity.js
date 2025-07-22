@@ -410,6 +410,10 @@ const Entity = (props) => {
   const initialTableLimit = 300;
   const initialHtsLimit = 100;
   const maxHtsLimit = 150;
+  const entityNameShort =
+    entityTypeState === "country" || entityTypeState === "region"
+      ? entityName
+      : entityName.split(" ")[0];
   const VIEW_ITEMS = [
     {
       key: "view1",
@@ -425,20 +429,79 @@ const Entity = (props) => {
     {
       key: "view2",
       label:
-        entityTypeState === "country" || entityTypeState === "asn"
-          ? "Regional Outages"
-          : entityTypeState === "region"
-            ? "Other Regional Outages"
-            : null,
+        entityTypeState === "country" || entityTypeState === "asn" ? (
+          // `Regional Outages \n related to ${entityName}`
+          // <span style={{ whiteSpace: "pre-line", textAlign: "center" }}>
+          //   {`Regional Outages\nrelated to ${entityNameShort}`}
+          // </span>
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              height: "100%",
+              textAlign: "center",
+              lineHeight: 1.2,
+            }}
+          >
+            Regional Outages
+            <br />
+            Related to {entityNameShort}
+          </span>
+        ) : entityTypeState === "region" ? (
+          // `Other Regional Outages \n related to ${entityNameShort}`
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              height: "100%",
+              textAlign: "center",
+              lineHeight: 1.2,
+            }}
+          >
+            Other Regional Outages
+            <br />
+            Related to {entityNameShort}
+          </span>
+        ) : null,
     },
     {
       key: "view3",
       label:
-        entityTypeState === "country" || entityTypeState === "region"
-          ? "ASN/ISP Outages"
-          : entityTypeState === "asn"
-            ? "Other ASN/ISP Outages"
-            : null,
+        entityTypeState === "country" || entityTypeState === "region" ? (
+          // "ASN/ISP Outages"
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              height: "100%",
+              textAlign: "center",
+              lineHeight: 1.2,
+            }}
+          >
+            ASN/ISP Outages
+            <br />
+            Related to {entityNameShort}
+          </span>
+        ) : entityTypeState === "asn" ? (
+          // "Other ASN/ISP Outages"
+          <span
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              height: "100%",
+              textAlign: "center",
+              lineHeight: 1.2,
+            }}
+          >
+            Country Outages
+            <br />
+            Related to {entityNameShort}
+          </span>
+        ) : null,
     },
   ];
   const dispatch = useDispatch();
@@ -3248,7 +3311,7 @@ const Entity = (props) => {
         style={{
           background: "transparent",
           borderBottom: "none",
-          height: "40px",
+          height: "60px",
         }}
       >
         {VIEW_ITEMS.map(({ key, label }) => (
