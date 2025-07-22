@@ -513,173 +513,7 @@ const RawSignalsModal = (props) => {
         </div>
       )}
       <div className="flex gap-6 modal__content">
-        <div className="col-1 mw-0">
-          <div className="modal__table-container rounded card p-3 mb-6">
-            <div className="flex items-center mb-3">
-              <h3 className="col text-2xl">
-                {modalLocation === "map" ? regionalTableTitle : asnTableTitle}
-              </h3>
-              {modalLocation === "map" &&
-              regionalSignalsTableTotalCount > initialTableLimit &&
-              regionalRawSignalsLoadAllButtonClicked === false ? (
-                <div className="modal__loadAll">
-                  {loadRemainingEntities1}
-                  {asnPlural}
-                  {loadRemainingEntities2}
-                  <strong>{initialTableLimit}</strong>
-                  {loadRemainingEntities3}
-                  <Button
-                    onClick={() =>
-                      handleAdditionalEntitiesLoading("asnLoadAllEntities")
-                    }
-                    size="small"
-                    loading={additionalEntitiesLoading}
-                  >
-                    {loadRemainingEntities4}
-                  </Button>
-                  {loadRemainingEntities5}
-                </div>
-              ) : null}
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={() =>
-                    handleSelectAndDeselectAllButtons(
-                      modalLocation === "map"
-                        ? "checkMaxRegional"
-                        : "checkMaxAsn"
-                    )
-                  }
-                  size="small"
-                  loading={checkMaxButtonLoading}
-                >
-                  {modalLocation === "map"
-                    ? regionalSignalsTableSummaryDataProcessed?.length <
-                      maxHtsLimit
-                      ? `${checkMaxButtonBelow150_1}${regionalSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
-                      : checkMaxButton
-                    : asnSignalsTableSummaryDataProcessed?.length < maxHtsLimit
-                      ? `${checkMaxButtonBelow150_1}${asnSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
-                      : checkMaxButton}
-                </Button>
-                <Button
-                  onClick={() =>
-                    handleSelectAndDeselectAllButtons(
-                      modalLocation === "map"
-                        ? "uncheckAllRegional"
-                        : "uncheckAllAsn"
-                    )
-                  }
-                  size="small"
-                  loading={uncheckAllButtonLoading}
-                >
-                  {uncheckAllButton}
-                </Button>
-              </div>
-            </div>
-            {modalLocation === "table" &&
-            asnSignalsTableTotalCount > initialTableLimit &&
-            asnRawSignalsLoadAllButtonClicked === false ? (
-              <div className="modal__loadAll">
-                {loadRemainingEntities1}
-                {asnPlural}
-                {loadRemainingEntities2}
-                <strong>{initialTableLimit}</strong>
-                {loadRemainingEntities3}
-                <Button
-                  size="small"
-                  onClick={() =>
-                    handleAdditionalEntitiesLoading("asnLoadAllEntities")
-                  }
-                  loading={additionalEntitiesLoading}
-                >
-                  {loadRemainingEntities4}
-                </Button>
-                {loadRemainingEntities5}
-              </div>
-            ) : null}
-            {rawSignalsMaxEntitiesHtsError ? (
-              <p className="modal__table-error">
-                {rawSignalsMaxEntitiesHtsError}
-              </p>
-            ) : null}
-            <div
-              className={
-                modalLocation === "map"
-                  ? "modal__table"
-                  : "modal__table modal__table--asn"
-              }
-            >
-              {modalLocation === "map" ? (
-                regionalSignalsTableSummaryDataProcessed ? (
-                  <Table
-                    type="signal"
-                    data={regionalSignalsTableSummaryDataProcessed}
-                    totalCount={
-                      regionalSignalsTableSummaryDataProcessed?.length
-                    }
-                    toggleEntityVisibilityInHtsViz={(event) =>
-                      toggleEntityVisibilityInHtsViz(event, "region")
-                    }
-                    handleCheckboxEventLoading={(item) =>
-                      handleCheckboxEventLoading(item)
-                    }
-                  />
-                ) : (
-                  <Loading />
-                )
-              ) : asnSignalsTableSummaryDataProcessed &&
-                asnSignalsTableTotalCount ? (
-                <Table
-                  type="signal"
-                  data={updatedAsnSignalsTableSummaryDataProcessed}
-                  totalCount={asnSignalsTableTotalCount}
-                  entityType={entityType === "asn" ? "country" : "asn"}
-                  toggleEntityVisibilityInHtsViz={(event) =>
-                    toggleEntityVisibilityInHtsViz(event, "asn")
-                  }
-                  handleCheckboxEventLoading={(item) =>
-                    handleCheckboxEventLoading(item)
-                  }
-                />
-              ) : (
-                <Loading />
-              )}
-            </div>
-          </div>
-          {modalLocation === "map" && showModal ? (
-            <div className="modal__map-container rounded card p-3 mb-6">
-              <h3 className="heading-h3">{regionalMapTitle}</h3>
-              <div
-                className="modal__map"
-                style={{ display: "block", height: "40.5rem" }}
-              >
-                {topoData && bounds && topoScores ? (
-                  <TopoMap
-                    topoData={topoData}
-                    bounds={bounds}
-                    scores={topoScores}
-                    handleEntityShapeClick={(entity) =>
-                      handleEntityShapeClick(entity)
-                    }
-                    entityType="region"
-                    hideLegend
-                  />
-                ) : summaryDataMapRaw &&
-                  topoScores &&
-                  topoScores.length === 0 ? (
-                  <div className="related__no-outages">
-                    <h2 className="related__no-outages-title">
-                      {noOutagesOnMapMessage}
-                    </h2>
-                  </div>
-                ) : (
-                  <Loading />
-                )}
-              </div>
-            </div>
-          ) : null}
-        </div>
-        <div className="col-2 mw-0 rounded card p-3">
+        <div className="col-2 mw-0 rounded card p-3 ">
           <h3 className="heading-h3" ref={titlePingSlash24}>
             {pingSlash24HtsLabel}
           </h3>
@@ -1086,6 +920,172 @@ const RawSignalsModal = (props) => {
               ) : null}
             </>
           )}
+        </div>
+        <div className="col-1 mw-0  ">
+          {modalLocation === "map" && showModal ? (
+            <div className="modal__map-container rounded card p-3 mb-6 h-[35.5rem]">
+              <h3 className="heading-h3">{regionalMapTitle}</h3>
+              <div
+                className="modal__map"
+                style={{ display: "block", height: "35.5rem" }}
+              >
+                {topoData && bounds && topoScores ? (
+                  <TopoMap
+                    topoData={topoData}
+                    bounds={bounds}
+                    scores={topoScores}
+                    handleEntityShapeClick={(entity) =>
+                      handleEntityShapeClick(entity)
+                    }
+                    entityType="region"
+                    hideLegend
+                  />
+                ) : summaryDataMapRaw &&
+                  topoScores &&
+                  topoScores.length === 0 ? (
+                  <div className="related__no-outages">
+                    <h2 className="related__no-outages-title">
+                      {noOutagesOnMapMessage}
+                    </h2>
+                  </div>
+                ) : (
+                  <Loading />
+                )}
+              </div>
+            </div>
+          ) : null}
+          <div className="modal__table-container rounded card p-3 mb-6 ">
+            <div className="flex items-center mb-3">
+              <h3 className="col text-2xl">
+                {modalLocation === "map" ? regionalTableTitle : asnTableTitle}
+              </h3>
+              {modalLocation === "map" &&
+              regionalSignalsTableTotalCount > initialTableLimit &&
+              regionalRawSignalsLoadAllButtonClicked === false ? (
+                <div className="modal__loadAll">
+                  {loadRemainingEntities1}
+                  {asnPlural}
+                  {loadRemainingEntities2}
+                  <strong>{initialTableLimit}</strong>
+                  {loadRemainingEntities3}
+                  <Button
+                    onClick={() =>
+                      handleAdditionalEntitiesLoading("asnLoadAllEntities")
+                    }
+                    size="small"
+                    loading={additionalEntitiesLoading}
+                  >
+                    {loadRemainingEntities4}
+                  </Button>
+                  {loadRemainingEntities5}
+                </div>
+              ) : null}
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() =>
+                    handleSelectAndDeselectAllButtons(
+                      modalLocation === "map"
+                        ? "checkMaxRegional"
+                        : "checkMaxAsn"
+                    )
+                  }
+                  size="small"
+                  loading={checkMaxButtonLoading}
+                >
+                  {modalLocation === "map"
+                    ? regionalSignalsTableSummaryDataProcessed?.length <
+                      maxHtsLimit
+                      ? `${checkMaxButtonBelow150_1}${regionalSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
+                      : checkMaxButton
+                    : asnSignalsTableSummaryDataProcessed?.length < maxHtsLimit
+                      ? `${checkMaxButtonBelow150_1}${asnSignalsTableSummaryDataProcessed.length}${checkMaxButtonBelow150_2}`
+                      : checkMaxButton}
+                </Button>
+                <Button
+                  onClick={() =>
+                    handleSelectAndDeselectAllButtons(
+                      modalLocation === "map"
+                        ? "uncheckAllRegional"
+                        : "uncheckAllAsn"
+                    )
+                  }
+                  size="small"
+                  loading={uncheckAllButtonLoading}
+                >
+                  {uncheckAllButton}
+                </Button>
+              </div>
+            </div>
+            {modalLocation === "table" &&
+            asnSignalsTableTotalCount > initialTableLimit &&
+            asnRawSignalsLoadAllButtonClicked === false ? (
+              <div className="modal__loadAll">
+                {loadRemainingEntities1}
+                {asnPlural}
+                {loadRemainingEntities2}
+                <strong>{initialTableLimit}</strong>
+                {loadRemainingEntities3}
+                <Button
+                  size="small"
+                  onClick={() =>
+                    handleAdditionalEntitiesLoading("asnLoadAllEntities")
+                  }
+                  loading={additionalEntitiesLoading}
+                >
+                  {loadRemainingEntities4}
+                </Button>
+                {loadRemainingEntities5}
+              </div>
+            ) : null}
+            {rawSignalsMaxEntitiesHtsError ? (
+              <p className="modal__table-error">
+                {rawSignalsMaxEntitiesHtsError}
+              </p>
+            ) : null}
+            <div
+              className={
+                modalLocation === "map"
+                  ? "modal__table"
+                  : "modal__table modal__table--asn"
+              }
+            >
+              {modalLocation === "map" ? (
+                regionalSignalsTableSummaryDataProcessed ? (
+                  <Table
+                    type="signal"
+                    data={regionalSignalsTableSummaryDataProcessed}
+                    totalCount={
+                      regionalSignalsTableSummaryDataProcessed?.length
+                    }
+                    toggleEntityVisibilityInHtsViz={(event) =>
+                      toggleEntityVisibilityInHtsViz(event, "region")
+                    }
+                    handleCheckboxEventLoading={(item) =>
+                      handleCheckboxEventLoading(item)
+                    }
+                  />
+                ) : (
+                  <Loading />
+                )
+              ) : asnSignalsTableSummaryDataProcessed &&
+                asnSignalsTableTotalCount ? (
+                <Table
+                  type="signal"
+                  data={updatedAsnSignalsTableSummaryDataProcessed}
+                  totalCount={asnSignalsTableTotalCount}
+                  entityType={entityType === "asn" ? "country" : "asn"}
+                  toggleEntityVisibilityInHtsViz={(event) =>
+                    toggleEntityVisibilityInHtsViz(event, "asn")
+                  }
+                  handleCheckboxEventLoading={(item) =>
+                    handleCheckboxEventLoading(item)
+                  }
+                />
+              ) : (
+                <Loading />
+              )}
+            </div>
+          </div>
         </div>
       </div>
       {/* </div> */}
