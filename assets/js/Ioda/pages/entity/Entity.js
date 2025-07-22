@@ -405,6 +405,9 @@ const Entity = (props) => {
   const [selectedView, setSelectedView] = useState("view1");
   const handleMenuClick = ({ key }) => {
     setSelectedView(key);
+    navigate(
+      `/${entityTypeState}/${entityCodeState}?from=${from}&until=${until}&view=${key}`
+    );
   };
 
   const initialTableLimit = 300;
@@ -528,6 +531,12 @@ const Entity = (props) => {
       );
     });
   }
+  useEffect(() => {
+    const urlView = searchParams.get("view");
+    if (urlView) {
+      setSelectedView(urlView);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     // Get Topo Data for relatedTo Map
