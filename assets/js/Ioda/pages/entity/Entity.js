@@ -3307,7 +3307,7 @@ const Entity = (props) => {
               <>
                 <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
                   <div className="col-2">
-                    <div className="p-4 card mb-6">
+                    <div className="p-4 card">
                       <div className="flex items-center mb-3">
                         <h3 className="text-2xl mr-1">
                           {xyChartTitle}
@@ -3508,7 +3508,7 @@ const Entity = (props) => {
                         until={tsDataLegendRangeUntil}
                       />
                     </div>
-                    <div className="p-4 card">
+                    {/* <div className="p-4 card">
                       {" "}
                       {entityCode && !entityCode.includes("-") && (
                         <ApPacketLatencyAndLossRateComponent
@@ -3521,7 +3521,7 @@ const Entity = (props) => {
                           until={until}
                         />
                       )}
-                    </div>
+                    </div> */}
 
                     {/* {entityType && entityType === "asn" && (
                       <div className="p-4 card mt-6">
@@ -3552,6 +3552,26 @@ const Entity = (props) => {
                       />
                     </div>
                   </div>
+                </div>
+
+                <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
+                  <div className="col-2">
+                    <div className="p-4 card">
+                      {" "}
+                      {entityCode && !entityCode.includes("-") && (
+                        <ApPacketLatencyAndLossRateComponent
+                          rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                          rawAsnSignalsApPacketDelay={
+                            rawAsnSignalsApPacketDelay
+                          }
+                          entityName={entityName}
+                          from={from}
+                          until={until}
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-1"></div>
                 </div>
                 {entityType && entityType === "asn" && (
                   // <div className="p-4 card mt-6">

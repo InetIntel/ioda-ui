@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 
 // Chart Libraries
 import Highcharts, { chart } from "highcharts/highstock";
@@ -32,7 +38,7 @@ import {
 import T from "i18n-react";
 import HighchartsNoData from "highcharts/modules/no-data-to-display";
 import TimeStamp from "../../../components/timeStamp/TimeStamp";
-
+import { fetchData } from "../../../data/ActionCommons";
 // Initialize the module
 if (typeof Highcharts === "object") {
   highchartsMore(Highcharts);
@@ -42,6 +48,7 @@ import ShareLinkModal from "../../../components/modal/ShareLinkModal";
 import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
 import { getUpstreamChartExportFileName } from "../utils/EntityUtils";
 import { secondsToUTC } from "../../../utils/timeUtils";
+import { active } from "d3";
 
 HighchartsNoData(Highcharts);
 
@@ -94,16 +101,18 @@ const UpstreamDelayComponent = ({
   const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] =
     useState("");
   // const [selectedAsns, setSelectedAsns] = useState("");
-  const asnListName =
-    jsonData?.values?.[0]?.map((item) => `AS${item.penultimate_as}`) || [];
-  const asnList = asnListName.map((name, i) => ({
-    name,
-    color: colorsArray[i],
-  }));
+  // const asnListName =
+  //   jsonData?.values?.[0]?.map((item) => `AS${item.penultimate_as}`) || [];
+  // const asnList = asnListName.map((name, i) => ({
+  //   name,
+  //   color: colorsArray[i],
+  //   // fullName:getASNFullName(name[2:]),
+  // }));
 
   // Initialize selectedAsns with all ASNs by default
   // const [selectedAsns, setSelectedAsns] = useState(asnList.map((a) => a.name));
   const [selectedAsns, setSelectedAsns] = useState([]);
+  const [asnList, setAsnList] = useState([]);
   const initialLoad = useRef(true);
 
   // useEffect(() => {
@@ -114,6 +123,48 @@ const UpstreamDelayComponent = ({
   //     setSelectedAsns(asnList.map((a) => a.name));
   //   }
   // }, [asnList]);
+  const asnNameCacheRef = useRef({});
+  const getASNFullName = useCallback(
+    async (asnCode) => {
+      if (asnNameCacheRef.current[asnCode]) {
+        return asnNameCacheRef.current[asnCode];
+      }
+      try {
+        const url = `/entities/query?entityType=asn&entityCode=${asnCode}`;
+        const fetched = await fetchData({ url });
+        const asnInfo = fetched?.data?.data ?? [];
+        if (asnInfo.length > 0) {
+          console.log("asn info", asnInfo);
+          const asnName = asnInfo[0].name;
+          asnNameCacheRef.current[asnCode] = asnName;
+          return asnName;
+        }
+      } catch (error) {
+        console.log("Error getting asn name");
+        return "";
+      }
+      return "";
+    },
+    [fetchData]
+  );
+  useEffect(() => {
+    if (!jsonData?.values?.[0]) return;
+
+    const base = jsonData.values[0].map((item, i) => ({
+      name: `AS${item.penultimate_as}`,
+      color: colorsArray[i],
+    }));
+    Promise.all(
+      base.map(async (row) => {
+        const code = row.name.slice(2);
+        const fullName = await getASNFullName(code);
+        return { ...row, fullName };
+      })
+    ).then((withNames) => {
+      setAsnList(withNames);
+    });
+    console.log("asnlist", asnList);
+  }, [jsonData, getASNFullName]);
 
   useEffect(() => {
     if (asnList.length > 0 && initialLoad.current) {
@@ -179,6 +230,83 @@ const UpstreamDelayComponent = ({
     const toMs = secondsToMilliseconds(tsDataLegendRangeUntil);
     chart.xAxis[0].setExtremes(fromMs, toMs, true);
   }, [tsDataLegendRangeFrom, tsDataLegendRangeUntil]);
+
+  // useEffect(() => {
+  //   // if (!traceData?.values) return;
+  //   if (!traceData?.values?.length || !asnList.length) return;
+
+  //   const countsMap = {};
+  //   traceData.values.forEach((slice) =>
+  //     slice.forEach((entry) => {
+  //       const asn = `AS${entry.penultimate_as}`;
+  //       countsMap[asn] = countsMap[asn] || [];
+  //       // countsMap[asn].push(entry.agg_values.penultimate_as_count);
+  //       const count = entry.agg_values.penultimate_as_count;
+  //       if (count != null) {
+  //         countsMap[asn] = countsMap[asn] || [];
+  //         countsMap[asn].push(count);
+  //       }
+  //     })
+  //   );
+
+  //   const avgMap = {};
+  //   Object.entries(countsMap).forEach(([asn, arr]) => {
+  //     const sum = arr.reduce((a, b) => a + b, 0);
+  //     avgMap[asn] = Math.round(sum / arr.length);
+  //   });
+  //   console.log("avgmap", avgMap);
+
+  //   setAsnList((old) =>
+  //     old.map((item) => ({
+  //       ...item,
+  //       avgTraceroute: avgMap[item.name] ?? 0,
+  //     }))
+  //   );
+  //   console.log("asnlist after avgmap", asnList);
+  // }, [traceData, asnList]);
+  const tableData = useMemo(() => {
+    if (!traceData?.values?.length) {
+      return asnList.map((item) => ({ ...item, avgTraceroute: null }));
+    }
+    const countsMap = {};
+    traceData.values.forEach((slice) =>
+      slice.forEach((entry) => {
+        const asn = `AS${entry.penultimate_as}`;
+        const count = entry.agg_values.penultimate_as_count;
+        if (count != null) {
+          countsMap[asn] = countsMap[asn] || [];
+          countsMap[asn].push(count);
+        }
+      })
+    );
+    const avgMap = {};
+    Object.entries(countsMap).forEach(([asn, arr]) => {
+      avgMap[asn] = arr.length
+        ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length)
+        : null;
+    });
+    return asnList.map((item) => ({
+      ...item,
+      avgTraceroute: avgMap[item.name] ?? null,
+    }));
+  }, [asnList, traceData]);
+  const sortedTableData = useMemo(() => {
+    return [...tableData].sort(
+      (a, b) => (b.avgTraceroute ?? 0) - (a.avgTraceroute ?? 0)
+    );
+  }, [tableData]);
+  const initialTop5 = useRef(true);
+  useEffect(() => {
+    if (
+      initialTop5.current &&
+      sortedTableData.length &&
+      sortedTableData[0].avgTraceroute != null
+    ) {
+      const top5Names = sortedTableData.slice(0, 4).map((r) => r.name);
+      setSelectedAsns(top5Names);
+      initialTop5.current = false;
+    }
+  }, [sortedTableData]);
 
   // function for when zoom/pan is used
   function xyPlotRangeChanged(event) {
@@ -253,13 +381,14 @@ const UpstreamDelayComponent = ({
   }
   const asnColumns = [
     {
-      title: "ASN",
+      // title: `Penultimate ASes to ${entityName}`,
+      title: `ASN/ISPs`,
       dataIndex: "name",
       key: "name",
-      width: 48,
+      width: 70,
       render: (_text, record) => (
         <span style={{ display: "flex", alignItems: "center" }}>
-          <span
+          {/* <span
             style={{
               width: 8,
               height: 8,
@@ -267,13 +396,43 @@ const UpstreamDelayComponent = ({
               backgroundColor: record.color,
               marginRight: 8,
             }}
+          /> */}
+          <div
+            style={{
+              width: "14px",
+              height: "14px",
+              backgroundColor: Highcharts.color(record.color)
+                .setOpacity(0.2)
+                .get(),
+              // fillOpacity: 0.2,
+              borderRadius: "50%",
+              borderColor: record.color,
+              borderStyle: "solid",
+              borderWidth: "1.5px",
+              marginRight: "5px",
+            }}
           />
-          {record.name}
+          {record.fullName}
         </span>
       ),
     },
-    // …any additional columns you want
+    // {
+    //   title: "Avg#Traceroutes",
+    //   dataIndex: "avgTraceroute",
+    //   key: "avgTraceroute",
+    //   // sorter: (a, b) => a.avgTraceroute - b.avgTraceroute,
+    //   // defaultSortOrder: "descend",
+    //   // render: (v) => v.toLocaleString(),
+    //   // width: 120,
+    //   sorter: (a, b) => (a.avgTraceroute || 0) - (b.avgTraceroute || 0),
+    //   defaultSortOrder: "descend",
+    //   render: (v) => (v != null ? v.toLocaleString() : "—"),
+    //   width: 120,
+    // },
   ];
+  // const displayColumns = asnColumns.filter(
+  //   (col) => col.dataIndex !== "avgTraceroute"
+  // );
 
   // const asnLatencyData =
   //   jsonData?.values?.map((obj) => {
@@ -329,7 +488,7 @@ const UpstreamDelayComponent = ({
   };
 
   const latencyAsnDict = {};
-  //   console.log("latency data", jsonData);
+  console.log("latency data", jsonData);
   // Process each entry in the values array
   jsonData?.values?.forEach((obj, timeIndex) => {
     const x = secondsToMilliseconds(jsonData.from + jsonData.step * timeIndex);
@@ -1128,11 +1287,7 @@ const UpstreamDelayComponent = ({
       panning: true,
       panKey: "shift",
     },
-    // title: {
-    //   text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
-    //   align: "left",
-    //   x: 10,
-    // },
+    title: { text: "" },
     exporting: {
       enabled: true,
       buttons: {
@@ -1179,7 +1334,7 @@ const UpstreamDelayComponent = ({
         // title: { text: "" },
         title: {
           reserveSpace: false,
-          text: "<strong>Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (ms)</span>",
+          text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (ms)</span>",
           x: 0,
           //   useHTML: true,
           textAlign: "low",
@@ -1217,6 +1372,7 @@ const UpstreamDelayComponent = ({
           text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
           textAlign: "low",
           align: "high",
+          rotation: 0,
           x: 0,
           //   useHTML: true,
           style: {
@@ -1605,7 +1761,10 @@ const UpstreamDelayComponent = ({
                   </div>
                 </div>
                 {/* {jsonData && ( */}
-                <div className="upstream__chart">
+                <div
+                  className="upstream__chart"
+                  style={{ position: "relative" }}
+                >
                   <div className="card">
                     <div
                       className="header-row"
@@ -1648,6 +1807,28 @@ const UpstreamDelayComponent = ({
                         )}
                       />
                     </div>
+                    {/* <Button.Group
+                      style={{
+                        position: "absolute",
+                        left: "250px",
+                        top: "10%",
+                        transform: "translateY(-50%)",
+                        zIndex: 8,
+                      }}
+                    >
+                      <Button
+                        type={activeTab === "1" ? "primary" : "default"}
+                        onClick={() => setActiveTab("1")}
+                      >
+                        Combined
+                      </Button>
+                      <Button
+                        type={activeTab === "2" ? "primary" : "default"}
+                        onClick={() => setActiveTab("2")}
+                      >
+                        Individual
+                      </Button>
+                    </Button.Group> */}
 
                     <div className="content-area px-0">
                       {selectedAsns.length === 0 && jsonData ? (
@@ -1704,8 +1885,11 @@ const UpstreamDelayComponent = ({
             <div className="p-4 card h-full mb-6">
               {/* <div style={{ padding: 12 }}> */}
               <div className="p-4">
-                <div className=" mb-3">
+                <div className="mb-3">
                   {/* <h3 className="text-2xl mr-1 mb-6">Select AS Signals</h3> */}
+                  <h3 className="text-2xl mr-1 mb-6">
+                    Penultimate ASes to {entityName}
+                  </h3>
                   {/* <Checkbox.Group
                     style={{
                       display: "flex",
@@ -1734,16 +1918,25 @@ const UpstreamDelayComponent = ({
                   /> */}
                   <div className="modal__table-container rounded card p-3 mb-6">
                     <Table
+                      className="no-selected-bg custom-checkbox-table"
                       rowKey="name"
                       pagination={false}
                       columns={asnColumns}
-                      dataSource={asnList}
+                      // columns={displayColumns}
+                      // dataSource={asnList}
+                      dataSource={sortedTableData}
                       rowSelection={{
                         selectedRowKeys: selectedAsns,
                         onChange: (keys) => setSelectedAsns(keys),
-                        columnTitle: "", // hides the header text above the checkboxes
-                        // You can also customize the checkbox props here if you need disabled, etc.
+                        columnTitle: "",
+                        // renderCell: (checked, record, index, node) => ({
+                        //   props: { style: { backgroundColor: "transparent" } },
+                        //   children: node,
+                        // }),
                       }}
+                      // onRow={(record) => ({
+                      //   style: { backgroundColor: "transparent !important" },
+                      // })}
                     />
                   </div>
                 </div>
