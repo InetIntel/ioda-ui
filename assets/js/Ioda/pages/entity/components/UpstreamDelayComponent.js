@@ -1368,7 +1368,7 @@ const UpstreamDelayComponent = ({
         // title: { text: "" },
         title: {
           reserveSpace: false,
-          text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
+          text: "<strong>Penultimate AS count</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations</span>",
           textAlign: "low",
           align: "high",
           rotation: 0,

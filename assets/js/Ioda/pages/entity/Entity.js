@@ -3630,7 +3630,8 @@ const Entity = (props) => {
                   <div className="col-2">
                     <div className="p-4 card">
                       {" "}
-                      {entityCode && !entityCode.includes("-") && (
+                      {/* {entityCode && !entityCode.includes("-") && ( */}
+                      {entityCode && (
                         <ApPacketLatencyAndLossRateComponent
                           rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
                           rawAsnSignalsApPacketDelay={

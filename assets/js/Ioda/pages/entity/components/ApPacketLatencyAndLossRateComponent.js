@@ -79,9 +79,9 @@ const ApPacketLatencyAndLossRateComponent = ({
           style={
             viewMode === "overlay"
               ? {
-                  backgroundColor: "#722ED133",
-                  color: "#722ED1",
-                  borderColor: "#722ED133",
+                  backgroundColor: "#1570EF33",
+                  color: "#1570EF",
+                  borderColor: "#1570EF33",
                   fontSize: 12,
                 }
               : { fontSize: 12 }
@@ -95,9 +95,9 @@ const ApPacketLatencyAndLossRateComponent = ({
           style={
             viewMode === "stacked"
               ? {
-                  backgroundColor: "#722ED133",
-                  color: "#722ED1",
-                  borderColor: "#722ED133",
+                  backgroundColor: "#1570EF33",
+                  color: "#1570EF",
+                  borderColor: "#1570EF33",
                   fontSize: 12,
                 }
               : { fontSize: 12 }
