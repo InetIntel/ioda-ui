@@ -142,7 +142,7 @@ const Dashboard = (props) => {
     if (!eventEndpointCalled) {
       setEventEndpointCalled(true);
     }
-  }, [summaryDataRaw, activeTabType, eventEndpointCalled]);
+  }, [summaryDataRaw, activeTabType, topoData, eventEndpointCalled]);
 
   useEffect(() => {
     if (props.totalOutages) {
