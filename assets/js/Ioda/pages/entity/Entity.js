@@ -403,6 +403,8 @@ const Entity = (props) => {
     useState(null);
   const [isStackedView, setIsStackedView] = useState(false);
   const [selectedView, setSelectedView] = useState("view1");
+  const [tsDataEntityCode, setTsDataEntityCode] = useState(null);
+
   const handleMenuClick = ({ key }) => {
     setSelectedView(key);
     navigate(
@@ -511,7 +513,6 @@ const Entity = (props) => {
 
   const getEntityName = (entityType, data) => {
     let entityName = data[0]["name"];
-    // console.log(entityName);
     if (entityType === "geoasn") {
       entityName = data[0]?.subnames?.asn + " " + entityName;
     }
@@ -520,7 +521,6 @@ const Entity = (props) => {
 
   function updateEntityMetaData(entityType, entityCode) {
     getEntityMetadata(entityType, entityCode).then((data) => {
-      // console.log(data);
       setEntityMetadata(data);
       setEntityName(getEntityName(entityType, data));
       setParentEntityName(
@@ -531,6 +531,7 @@ const Entity = (props) => {
       );
     });
   }
+
   useEffect(() => {
     const urlView = searchParams.get("view");
     if (urlView) {
@@ -789,7 +790,6 @@ const Entity = (props) => {
         // }
         // else {
         //   const filteredRegionData = relatedToMapSummary.filter(item => item.entity?.subnames?.region !== undefined);
-        //   console.log(filteredRegionData)
         setSummaryDataMapRaw(relatedToMapSummary);
         // }
       }
@@ -1058,7 +1058,9 @@ const Entity = (props) => {
   useEffect(() => {
     // Rerender chart and set navigator bounds
     if (xyChartOptions) {
+      console.log("before render chart");
       renderXyChart();
+      console.log("after render chart");
       const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
       const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
       setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
@@ -1068,8 +1070,6 @@ const Entity = (props) => {
   useEffect(() => {
     const fetchData = async () => {
       if (showTableModal && !rawAsnSignalsLoaded) {
-        //0715
-        // if (!rawAsnSignalsLoaded) {
         const entityTypeProp =
           entityTypeState === "asn"
             ? "country"
@@ -1244,6 +1244,7 @@ const Entity = (props) => {
     // Loop through available datasources to collect plot points
     tsDataRaw[0].forEach((datasource) => {
       let id = datasource.datasource;
+      console.log("datasource", datasource);
       id += datasource.subtype ? `.${datasource.subtype}` : "";
 
       // Only track the maxes of visible series. If we keep the maxes from
@@ -1284,6 +1285,7 @@ const Entity = (props) => {
         values: seriesDataValuesNormalized,
       });
     });
+    setTsDataEntityCode(tsDataRaw[0][0].entityCode);
 
     // Creates an array of [(series-id, series-max)...] sorted by max values
     const seriesSortedByMaxValues = Object.entries(seriesMaxes).sort(
@@ -1323,10 +1325,6 @@ const Entity = (props) => {
       maxFactorIncreaseIndex,
       seriesSortedByMaxValues.length
     );
-
-    // console.log("Sorted Series:", seriesSortedByMaxValues);
-    // console.log("Left Partition:", leftPartition);
-    // console.log("Right Partition:", rightPartition);
 
     // Get the max and min values for each partition. These will become the
     // max/mins for our two y-axes. We need to set axis mins because otherwise,
@@ -1632,6 +1630,8 @@ const Entity = (props) => {
         // Primary y-axis
         {
           floor: 0,
+          height: null,
+          top: null,
           min: tsDataNormalized ? 0 : leftPartitionMin,
           max: tsDataNormalized ? 110 : leftPartitionMax,
           alignTicks: true,
@@ -1661,6 +1661,8 @@ const Entity = (props) => {
         {
           opposite: true,
           floor: 0,
+          height: null,
+          top: null,
           min: rightPartitionMin,
           max: rightPartitionMax,
           alignTicks: true,
@@ -1686,10 +1688,8 @@ const Entity = (props) => {
           },
         },
       ],
-
       series: chartSignals,
     };
-    //0630
     const chartOptionsStacked = {
       chart: {
         type: "line",
@@ -1859,7 +1859,6 @@ const Entity = (props) => {
         },
       },
       yAxis: yAxes,
-      //0630
       series: [...chartSeriesStacked, ...navigatorSeriesStacked],
     };
     // Rerender chart and set navigator bounds
@@ -2042,14 +2041,18 @@ const Entity = (props) => {
 
   // populate xy chart UI
   function renderXyChart() {
+    if (!xyChartOptions || tsDataEntityCode !== entityCodeState) {
+      return <Loading />;
+    }
     return (
       xyChartOptions && (
         <div className="entity__chart">
           <HighchartsReact
+            key={JSON.stringify(xyChartOptions?.series?.map((s) => s.id))}
             highcharts={Highcharts}
             options={xyChartOptions}
             ref={timeSeriesChartRef}
-            immutable={true}
+            immutable={false}
           />
         </div>
       )
@@ -3332,7 +3335,7 @@ const Entity = (props) => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              width: "200px",
+              width: "300px",
             }}
           >
             {label}
@@ -3573,7 +3576,8 @@ const Entity = (props) => {
                           </Button.Group>
                         </div>
                       </div>
-                      {xyChartOptions ? renderXyChart() : <Loading />}
+                      {/* {xyChartOptions ? renderXyChart() : <Loading />} */}
+                      {renderXyChart()}
                       <TimeStamp
                         className="mt-4"
                         from={tsDataLegendRangeFrom}
@@ -3626,12 +3630,12 @@ const Entity = (props) => {
                   </div>
                 </div>
 
-                <div className="flex items-stretch gap-6 mb-6 entity__chart-layout">
+                <div className="flex items-stretch gap-6 entity__chart-layout">
                   <div className="col-2">
-                    <div className="p-4 card">
-                      {" "}
-                      {/* {entityCode && !entityCode.includes("-") && ( */}
-                      {entityCode && (
+                    {entityCode && !entityCode.includes("-") && (
+                      <div className="p-4 card mb-6 ">
+                        {" "}
+                        {/* {entityCode && !entityCode.includes("-") && ( */}
                         <ApPacketLatencyAndLossRateComponent
                           rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
                           rawAsnSignalsApPacketDelay={
@@ -3641,8 +3645,9 @@ const Entity = (props) => {
                           from={from}
                           until={until}
                         />
-                      )}
-                    </div>
+                        {/* )} */}
+                      </div>
+                    )}
                   </div>
                   <div className="col-1"></div>
                 </div>

@@ -605,7 +605,6 @@ const RawSignalsModal = (props) => {
                   titlePingSlash24.current.nextElementSibling !==
                     "div#asn-horizon-chart--pingSlash24.modal__chart"
                 ) {
-                  // console.log("Length found and also data")
                   return (
                     <div className="renderingDataPingSlash24">
                       <Loading text="Rendering Data..." />

@@ -59,15 +59,6 @@ const UpstreamDelayComponent = ({
   rawAsnSignalsUpstreamDelayPenultAsnCount,
   entityName,
 }) => {
-  //   console.log(
-  //     "rawAsnSignalsUpstreamDelayLatency",
-  //     rawAsnSignalsUpstreamDelayLatency
-  //   );
-  //   console.log(
-  //     "rawAsnSignalsUpstreamDelayPenultAsnCount",
-  //     rawAsnSignalsUpstreamDelayPenultAsnCount
-  //   );
-
   const [activeTab, setActiveTab] = useState("1");
   const [displayChartSharePopover, setDisplayChartSharePopover] =
     useState(false);
@@ -134,7 +125,6 @@ const UpstreamDelayComponent = ({
         const fetched = await fetchData({ url });
         const asnInfo = fetched?.data?.data ?? [];
         if (asnInfo.length > 0) {
-          console.log("asn info", asnInfo);
           const asnName = asnInfo[0].name;
           asnNameCacheRef.current[asnCode] = asnName;
           return asnName;
@@ -163,7 +153,6 @@ const UpstreamDelayComponent = ({
     ).then((withNames) => {
       setAsnList(withNames);
     });
-    console.log("asnlist", asnList);
   }, [jsonData, getASNFullName]);
 
   useEffect(() => {
@@ -231,39 +220,6 @@ const UpstreamDelayComponent = ({
     chart.xAxis[0].setExtremes(fromMs, toMs, true);
   }, [tsDataLegendRangeFrom, tsDataLegendRangeUntil]);
 
-  // useEffect(() => {
-  //   // if (!traceData?.values) return;
-  //   if (!traceData?.values?.length || !asnList.length) return;
-
-  //   const countsMap = {};
-  //   traceData.values.forEach((slice) =>
-  //     slice.forEach((entry) => {
-  //       const asn = `AS${entry.penultimate_as}`;
-  //       countsMap[asn] = countsMap[asn] || [];
-  //       // countsMap[asn].push(entry.agg_values.penultimate_as_count);
-  //       const count = entry.agg_values.penultimate_as_count;
-  //       if (count != null) {
-  //         countsMap[asn] = countsMap[asn] || [];
-  //         countsMap[asn].push(count);
-  //       }
-  //     })
-  //   );
-
-  //   const avgMap = {};
-  //   Object.entries(countsMap).forEach(([asn, arr]) => {
-  //     const sum = arr.reduce((a, b) => a + b, 0);
-  //     avgMap[asn] = Math.round(sum / arr.length);
-  //   });
-  //   console.log("avgmap", avgMap);
-
-  //   setAsnList((old) =>
-  //     old.map((item) => ({
-  //       ...item,
-  //       avgTraceroute: avgMap[item.name] ?? 0,
-  //     }))
-  //   );
-  //   console.log("asnlist after avgmap", asnList);
-  // }, [traceData, asnList]);
   const tableData = useMemo(() => {
     if (!traceData?.values?.length) {
       return asnList.map((item) => ({ ...item, avgTraceroute: null }));
@@ -488,7 +444,6 @@ const UpstreamDelayComponent = ({
   };
 
   const latencyAsnDict = {};
-  console.log("latency data", jsonData);
   // Process each entry in the values array
   jsonData?.values?.forEach((obj, timeIndex) => {
     const x = secondsToMilliseconds(jsonData.from + jsonData.step * timeIndex);
@@ -521,8 +476,6 @@ const UpstreamDelayComponent = ({
   }));
 
   const traceAsnDict = {};
-  //   console.log("trace data", traceData);
-
   // Process each entry in the values array
   traceData?.values?.forEach((timepoint, timeIndex) => {
     const x = secondsToMilliseconds(
@@ -537,8 +490,6 @@ const UpstreamDelayComponent = ({
       traceAsnDict[asName].push([x, count]);
     });
   });
-
-  //   console.log("traceAsnDict", traceAsnDict);
 
   // Format the result as required
   const traceAsnSeries =
@@ -1368,7 +1319,7 @@ const UpstreamDelayComponent = ({
         // title: { text: "" },
         title: {
           reserveSpace: false,
-          text: "<strong>Penultimate AS count</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations</span>",
+          text: "<strong>Penultimate AS Count</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations</span>",
           textAlign: "low",
           align: "high",
           rotation: 0,
@@ -1603,8 +1554,6 @@ const UpstreamDelayComponent = ({
     // if (!chartRef1.current?.chart || !chartRef2.current?.chart) {
     //   return;
     // }
-
-    // console.log(chartRef2);
 
     // Append watermark to image on download:
     // https://www.highcharts.com/forum/viewtopic.php?t=47368

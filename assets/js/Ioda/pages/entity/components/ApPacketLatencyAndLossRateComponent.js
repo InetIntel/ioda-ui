@@ -111,7 +111,6 @@ const ApPacketLatencyAndLossRateComponent = ({
 
   useEffect(() => {
     if (!rawAsnSignalsApPacketLoss?.[0]?.[0]) {
-      // console.log("null rawAsnSignalsApPacketLoss")
       return;
     }
     const { values, ...rest } = rawAsnSignalsApPacketLoss[0][0];
@@ -125,8 +124,6 @@ const ApPacketLatencyAndLossRateComponent = ({
           return null;
         })
         .filter((item) => item !== null) || [];
-
-    // console.log(newValues)
 
     setLossData({
       ...rest,
@@ -203,7 +200,6 @@ const ApPacketLatencyAndLossRateComponent = ({
     if (!chartRef || !chartRef.current) {
       return;
     }
-    // console.log(fromMs, untilMs);
     chartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
   }
 
@@ -298,8 +294,6 @@ const ApPacketLatencyAndLossRateComponent = ({
       return [x, obj[0]?.agg_values.loss_pct];
     }) || [];
 
-  // console.log(lossPackage)
-
   const lossRanges =
     latencyData?.values
       ?.map((obj, index) => {
@@ -317,7 +311,6 @@ const ApPacketLatencyAndLossRateComponent = ({
         ];
       })
       .filter((point) => point[1] != null) || [];
-  // console.log(lossRanges)
 
   const lossMedians =
     latencyData?.values
@@ -329,12 +322,10 @@ const ApPacketLatencyAndLossRateComponent = ({
       })
       .filter((point) => point[1] != null && !isNaN(point[1])) || [];
 
-  console.log("lossMedians series data for ap chart", lossMedians);
   const latencyHighs = lossRanges.map(([, range]) => range.high);
   const maxLatencyHigh =
     latencyHighs.length > 0 ? Math.max(...latencyHighs) : null;
   const latencyMax = maxLatencyHigh ? maxLatencyHigh * 1.1 : null;
-  // console.log("latencyhigh:", latencyMax);
   let navLatency = [],
     navLoss = [];
 
@@ -357,7 +348,6 @@ const ApPacketLatencyAndLossRateComponent = ({
   }
 
   // const rightPartitionMin = lossPackage?.length > 0 ? Math.min(...lossPackage) : null;
-  // console.log(rightPartitionMin)
   const rightPartitionMax =
     lossPackage?.length > 0 ? Math.max(...lossPackage) : null;
 
@@ -856,8 +846,6 @@ const ApPacketLatencyAndLossRateComponent = ({
       x: -5,
     };
   }
-  // console.log("check stacked series:", stackedOptions.series);
-  // console.log("check stacked y-axis:", stackedOptions.yAxis);
 
   function displayShareLinkModal() {
     setShowShareLinkModal(true);
@@ -872,7 +860,6 @@ const ApPacketLatencyAndLossRateComponent = ({
   }
 
   function handleDisplayPctLoss(show) {
-    // console.log(show)
     setDisplayPctLoss(show);
   }
 
