@@ -48,6 +48,7 @@ const ApPacketLatencyAndLossRateComponent = ({
   rawAsnSignalsApPacketLoss,
   rawAsnSignalsApPacketDelay,
   entityName,
+  loading,
 }) => {
   const [lossData, setLossData] = useState(null);
   const [latencyData, setLatencyData] = useState(null);
@@ -108,7 +109,9 @@ const ApPacketLatencyAndLossRateComponent = ({
       </Button.Group>
     </div>
   );
-
+  useEffect(() => {
+    console.log("loading?", loading);
+  }, [loading]);
   useEffect(() => {
     if (!rawAsnSignalsApPacketLoss?.[0]?.[0]) {
       return;
@@ -596,6 +599,8 @@ const ApPacketLatencyAndLossRateComponent = ({
       type: "datetime",
       minRange: secondsToMilliseconds(3 * 60),
       dateTimeLabelFormats: dateFormats,
+      min: secondsToMilliseconds(from),
+      max: secondsToMilliseconds(until),
       labels: {
         zIndex: 100,
         align: "center",
@@ -769,7 +774,7 @@ const ApPacketLatencyAndLossRateComponent = ({
   const stackedOptions = cloneDeep(options);
 
   stackedOptions.chart.height = displayLatency + displayPctLoss < 2 ? 350 : 400;
-  stackedOptions.chart.marginRight = 0;
+  stackedOptions.chart.marginRight = 10;
 
   //   stackedOptions.yAxis = [
   //     {
@@ -1132,58 +1137,27 @@ const ApPacketLatencyAndLossRateComponent = ({
         {/* 0612 */}
         {/* <div className="flex-grow" style={{ width: "100%" }}> */}
         <div className=" w-full">
-          {lossPackage && (
-            //   <div>
-            //     <HighchartsReact
-            //       highcharts={Highcharts}
-            //       options={options}
-            //       ref={chartRef}
-            //     />
-            //     <ViewModeToggle />
-            //     {viewMode === "overlay" ? (
-            //       <HighchartsReact
-            //         highcharts={Highcharts}
-            //         options={options}
-            //         ref={chartRef}
-            //       />
-            //     ) : (
-            //       <div className=" gap-4">
-            //         <div className="w-full">
-            //           <HighchartsReact
-            //             highcharts={Highcharts}
-            //             options={latencyOptions}
-            //           />
-            //         </div>
-            //         <div className="w-full">
-            //           <HighchartsReact
-            //             highcharts={Highcharts}
-            //             options={lossOptions}
-            //           />
-            //         </div>
-            //       </div>
-            //     )}
-            //     <TimeStamp
-            //       className="mt-4"
-            //       from={tsDataLegendRangeFrom}
-            //       until={tsDataLegendRangeUntil}
-            //     />
-            //   </div>
-            <div>
-              <HighchartsReact
-                key={viewMode}
-                highcharts={Highcharts}
-                options={
-                  viewMode === "overlay" ? overlayOptions : stackedOptions
-                }
-                ref={chartRef}
-              />
+          {loading ? (
+            <Loading />
+          ) : (
+            lossPackage && (
+              <div>
+                <HighchartsReact
+                  key={viewMode}
+                  highcharts={Highcharts}
+                  options={
+                    viewMode === "overlay" ? overlayOptions : stackedOptions
+                  }
+                  ref={chartRef}
+                />
 
-              <TimeStamp
-                className="mt-4"
-                from={tsDataLegendRangeFrom}
-                until={tsDataLegendRangeUntil}
-              />
-            </div>
+                <TimeStamp
+                  className="mt-4"
+                  from={tsDataLegendRangeFrom}
+                  until={tsDataLegendRangeUntil}
+                />
+              </div>
+            )
           )}
         </div>
       </div>

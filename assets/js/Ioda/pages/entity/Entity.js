@@ -404,6 +404,7 @@ const Entity = (props) => {
   const [isStackedView, setIsStackedView] = useState(false);
   const [selectedView, setSelectedView] = useState("view1");
   const [tsDataEntityCode, setTsDataEntityCode] = useState(null);
+  const [apLoading, setApLoading] = useState(true);
 
   const handleMenuClick = ({ key }) => {
     setSelectedView(key);
@@ -531,6 +532,13 @@ const Entity = (props) => {
       );
     });
   }
+  useEffect(() => {
+    if (rawAsnSignalsApPacketDelay) {
+      setApLoading(
+        rawAsnSignalsApPacketDelay[0][0].entityCode !== entityCodeState
+      );
+    }
+  }, [rawAsnSignalsApPacketDelay]); //0726
 
   useEffect(() => {
     const urlView = searchParams.get("view");
@@ -3632,10 +3640,9 @@ const Entity = (props) => {
 
                 <div className="flex items-stretch gap-6 entity__chart-layout">
                   <div className="col-2">
-                    {entityCode && !entityCode.includes("-") && (
+                    {/* {entityCode && !entityCode.includes("-") && (
                       <div className="p-4 card mb-6 ">
                         {" "}
-                        {/* {entityCode && !entityCode.includes("-") && ( */}
                         <ApPacketLatencyAndLossRateComponent
                           rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
                           rawAsnSignalsApPacketDelay={
@@ -3645,7 +3652,21 @@ const Entity = (props) => {
                           from={from}
                           until={until}
                         />
-                        {/* )} */}
+                      </div>
+                    )} */}
+                    {!entityCode.includes("-") && (
+                      <div className="p-4 card mb-6 ">
+                        {" "}
+                        <ApPacketLatencyAndLossRateComponent
+                          rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
+                          rawAsnSignalsApPacketDelay={
+                            rawAsnSignalsApPacketDelay
+                          }
+                          entityName={entityName}
+                          from={from}
+                          until={until}
+                          loading={apLoading}
+                        />
                       </div>
                     )}
                   </div>
