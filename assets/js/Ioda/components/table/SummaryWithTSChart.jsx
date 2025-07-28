@@ -286,6 +286,7 @@ const SummaryWithTSChart = ({
   until,
   tabType,
 }) => {
+  console.log("data", data);
   const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
   const dateRangeInUrl = hasDateRangeInUrl();
   const chartRef = useRef(null);
@@ -296,14 +297,16 @@ const SummaryWithTSChart = ({
     directions: {
       name: "asc",
       score: "desc",
+      ip: "desc",
     },
   });
   const tooltipRef = useRef(null);
   const scoreTooltipRef = useRef(null);
   const isASN = tabType === "asn";
-  const NAME_COL_WIDTH = isASN ? 120 : 160;
-  const SCORE_COL_WIDTH = isASN ? 60 : 80;
-  const LEFT_COL_TOTAL_WIDTH = NAME_COL_WIDTH + SCORE_COL_WIDTH;
+  const NAME_COL_WIDTH = 160;
+  const SCORE_COL_WIDTH = 70;
+  const IP_COL_WIDTH = isASN ? 80 : 0;
+  const LEFT_COL_TOTAL_WIDTH = NAME_COL_WIDTH + SCORE_COL_WIDTH + IP_COL_WIDTH;
   const styles = {
     container: {
       display: "flex",
@@ -396,7 +399,7 @@ const SummaryWithTSChart = ({
       background: "none",
       border: "none",
       padding: 2,
-      marginLeft: "4px",
+      marginLeft: "2px",
       cursor: "pointer",
       display: "inline-flex",
       alignItems: "center",
@@ -453,12 +456,39 @@ const SummaryWithTSChart = ({
 
   const sortedData = [...data].sort((a, b) => {
     const { criterion, directions } = sortConfig;
-    const valA = criterion === "name" ? a.name : a.score;
-    const valB = criterion === "name" ? b.name : b.score;
+    // const valA = criterion === "name" ? a.name : a.score;
+    // const valB = criterion === "name" ? b.name : b.score;
+    const valA =
+      criterion === "name"
+        ? a.name
+        : criterion === "ip"
+          ? parseHumanReadableFloat(a.ipCount)
+          : a.score;
+
+    const valB =
+      criterion === "name"
+        ? b.name
+        : criterion === "ip"
+          ? parseHumanReadableFloat(b.ipCount)
+          : b.score;
+
     return directions[criterion] === "asc"
       ? ascending(valA, valB)
       : descending(valA, valB);
   });
+
+  function parseHumanReadableFloat(value) {
+    let parsedValue = parseFloat(value.replace(/[A-Za-z]/g, ""));
+    if (value.includes("k")) {
+      parsedValue = parsedValue * 1000;
+    } else if (value.includes("M")) {
+      parsedValue = parsedValue * 1000000;
+    } else if (value.includes("G")) {
+      parsedValue = parsedValue * 1000000000;
+    }
+    return parsedValue;
+  }
+
   function ScorePopoverContent({ data }) {
     const flagEmoji = getFlagEmoji(data);
 
@@ -885,6 +915,40 @@ const SummaryWithTSChart = ({
                   {getSortIcon("name", sortConfig)}
                 </button>
               </div>
+              {isASN && (
+                <div>
+                  <div
+                    style={{
+                      width: `${IP_COL_WIDTH}px`,
+                      fontSize: `${FONT_SIZE}px`,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <span>IP COUNT</span>
+                    <button
+                      onClick={() =>
+                        setSortConfig((prev) => {
+                          if (prev.criterion === "ip") {
+                            const newDir =
+                              prev.directions.ip === "asc" ? "desc" : "asc";
+                            return {
+                              ...prev,
+                              directions: { ...prev.directions, ip: newDir },
+                            };
+                          }
+                          return { ...prev, criterion: "ip" };
+                        })
+                      }
+                      style={styles.iconButtonStyle}
+                    >
+                      {getSortIcon("ip", sortConfig)}
+                    </button>
+                  </div>
+                </div>
+              )}
               <div
                 style={{
                   // width: "80px",
@@ -894,6 +958,7 @@ const SummaryWithTSChart = ({
                   fontSize: `${FONT_SIZE}px`,
                   display: "flex",
                   alignItems: "center",
+                  paddingLeft: 6,
                 }}
               >
                 <span>SCORE</span>
@@ -959,6 +1024,17 @@ const SummaryWithTSChart = ({
                     {d.countryName ? `, ${d.countryName}` : null}
                   </Link>
                 </div>
+                {isASN && (
+                  <div
+                    style={{
+                      width: `${IP_COL_WIDTH}px`,
+                      textAlign: "center",
+                      fontSize: `${FONT_SIZE}px`,
+                    }}
+                  >
+                    {d.ipCount}
+                  </div>
+                )}
 
                 <div
                   style={{

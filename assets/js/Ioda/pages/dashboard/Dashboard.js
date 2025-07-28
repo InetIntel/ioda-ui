@@ -350,7 +350,7 @@ const Dashboard = (props) => {
     getDataTopo(activeTabType);
     getDataOutageSummary(activeTabType);
     getTotalOutages(activeTabType);
-    navigate(`/dashboard?from=${_from}&until=${_until}`);
+    navigate(`/dashboard/${activeTabType}/?from=${_from}&until=${_until}`);
   }
 
   function handleEntityChange(url) {

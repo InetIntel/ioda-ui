@@ -134,14 +134,15 @@ const DashboardTab = (props) => {
           ) : (
             <React.Fragment>
               {/* ───────────────────────── 1st ROW ───────────────────────── */}
-              <div className="flex items-stretch gap-6">
-                {/* LEFT 2 / 3 – Map (or Timeseries) */}
-                <div
-                  ref={mapCardRef}
-                  className="col-2 p-4 pt-2 card flex flex-col "
-                >
-                  <div className="col-2 mw-0">
-                    {/* <div className="flex items-center mb-4" ref={config}>
+              {activeTabType !== "asn" && (
+                <div className="flex items-stretch gap-6">
+                  {/* LEFT 2 / 3 – Map (or Timeseries) */}
+                  <div
+                    ref={mapCardRef}
+                    className="col-2 p-4 pt-2 card flex flex-col "
+                  >
+                    <div className="col-2 mw-0">
+                      {/* <div className="flex items-center mb-4" ref={config}>
                       <div className="font-medium text-2xl flex items-center gap-2">
                         <EnvironmentFilled style={{ color: "#8c8c8c" }} />
                         <span className="text-black">
@@ -160,108 +161,98 @@ const DashboardTab = (props) => {
                         text={tooltipDashboardHeadingText}
                       />
                     </div> */}
-                    {/* 0616 added */}
-                    <ShareLinkModal
-                      open={showShareLinkModal}
-                      link={window.location.href}
-                      hideModal={hideShareLinkModal}
-                      showModal={displayShareLinkModal}
-                      // entityName={entityName}
-                      // handleDownload={() => manuallyDownloadChart("image/jpeg")}
-                    />
-                    <div className="flex items-center mb-2" ref={config}>
-                      <div className="font-medium text-2xl flex items-center gap-2">
-                        <EnvironmentFilled style={{ color: "#8c8c8c" }} />
-                        <span className="text-black">
-                          {type === "country"
-                            ? countryOutages
-                            : type === "region"
-                              ? regionalOutages
-                              : type === "asn"
-                                ? asnOutages
-                                : null}
-                        </span>
-                      </div>
-
-                      <Tooltip
-                        title={tooltipDashboardHeadingTitle}
-                        text={tooltipDashboardHeadingText}
+                      {/* 0616 added */}
+                      <ShareLinkModal
+                        open={showShareLinkModal}
+                        link={window.location.href}
+                        hideModal={hideShareLinkModal}
+                        showModal={displayShareLinkModal}
+                        // entityName={entityName}
+                        // handleDownload={() => manuallyDownloadChart("image/jpeg")}
                       />
+                      <div className="flex items-center mb-2" ref={config}>
+                        <div className="font-medium text-2xl flex items-center gap-2">
+                          <EnvironmentFilled style={{ color: "#8c8c8c" }} />
+                          <span className="text-black">
+                            {type === "country"
+                              ? countryOutages
+                              : type === "region"
+                                ? regionalOutages
+                                : type === "asn"
+                                  ? asnOutages
+                                  : null}
+                          </span>
+                        </div>
 
-                      <div className="flex ml-auto">
-                        <ATooltip title="Share Link">
-                          <Button
-                            className="mr-3"
-                            icon={<ShareAltOutlined />}
-                            onClick={displayShareLinkModal}
-                          />
-                        </ATooltip>
-
-                        <Popover
-                          open={displayChartSharePopover1}
-                          onOpenChange={handleDisplayChartSharePopover1}
-                          trigger="click"
-                          placement="bottomRight"
-                          overlayStyle={{
-                            maxWidth: 180,
-                          }}
-                          content={
-                            <div
-                              onClick={() =>
-                                handleDisplayChartSharePopover1(false)
-                              }
-                            >
-                              <Button
-                                className="w-full mb-2"
-                                size="small"
-                                // onClick={() =>
-                                //   manuallyDownloadChart("image/jpeg")
-                                // }
-                              >
-                                Chart JPEG
-                              </Button>
-                              <Button
-                                className="w-full mb-2"
-                                size="small"
-                                // onClick={() =>
-                                //   manuallyDownloadChart("image/png")
-                                // }
-                              >
-                                Chart PNG
-                              </Button>
-                              <Button
-                                className="w-full"
-                                size="small"
-                                // onClick={() =>
-                                //   manuallyDownloadChart("image/svg+xml")
-                                // }
-                              >
-                                Chart SVG
-                              </Button>
-                            </div>
-                          }
-                        >
-                          <ATooltip
-                            title="Download"
-                            mouseEnterDelay={0}
-                            mouseLeaveDelay={0}
-                          >
-                            <Button icon={<DownloadOutlined />} />
-                          </ATooltip>
-                        </Popover>
-                      </div>
-                    </div>
-                    {/* 0616 added */}
-                    {activeTabType === asn.type ? (
-                      summaryDataWithTS && (
-                        <SummaryWithTSChart
-                          data={summaryDataWithTS}
-                          from={from}
-                          until={until}
-                          tabType={activeTabType}
+                        <Tooltip
+                          title={tooltipDashboardHeadingTitle}
+                          text={tooltipDashboardHeadingText}
                         />
-                      )
-                    ) : (
+
+                        <div className="flex ml-auto">
+                          <ATooltip title="Share Link">
+                            <Button
+                              className="mr-3"
+                              icon={<ShareAltOutlined />}
+                              onClick={displayShareLinkModal}
+                            />
+                          </ATooltip>
+
+                          <Popover
+                            open={displayChartSharePopover1}
+                            onOpenChange={handleDisplayChartSharePopover1}
+                            trigger="click"
+                            placement="bottomRight"
+                            overlayStyle={{
+                              maxWidth: 180,
+                            }}
+                            content={
+                              <div
+                                onClick={() =>
+                                  handleDisplayChartSharePopover1(false)
+                                }
+                              >
+                                <Button
+                                  className="w-full mb-2"
+                                  size="small"
+                                  // onClick={() =>
+                                  //   manuallyDownloadChart("image/jpeg")
+                                  // }
+                                >
+                                  Chart JPEG
+                                </Button>
+                                <Button
+                                  className="w-full mb-2"
+                                  size="small"
+                                  // onClick={() =>
+                                  //   manuallyDownloadChart("image/png")
+                                  // }
+                                >
+                                  Chart PNG
+                                </Button>
+                                <Button
+                                  className="w-full"
+                                  size="small"
+                                  // onClick={() =>
+                                  //   manuallyDownloadChart("image/svg+xml")
+                                  // }
+                                >
+                                  Chart SVG
+                                </Button>
+                              </div>
+                            }
+                          >
+                            <ATooltip
+                              title="Download"
+                              mouseEnterDelay={0}
+                              mouseLeaveDelay={0}
+                            >
+                              <Button icon={<DownloadOutlined />} />
+                            </ATooltip>
+                          </Popover>
+                        </div>
+                      </div>
+
                       <div
                         className="dashboard__tab-map"
                         style={
@@ -288,45 +279,47 @@ const DashboardTab = (props) => {
                             </div>
                           )}
                       </div>
-                    )}
-                    {/* <div className="flex mt-4 justify-end"> */}
-                    <div className="flex mt-2 justify-end">
-                      <TimeStamp from={from} until={until} />
+
+                      {/* <div className="flex mt-4 justify-end"> */}
+                      <div className="flex mt-2 justify-end">
+                        <TimeStamp from={from} until={until} />
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="col-1 card p-4 pt-4 flex flex-col"
+                    style={{
+                      height: mapHeight || "40rem",
+                      overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <div className="font-medium text-2xl flex items-center gap-2 mb-4">
+                      <img
+                        src={iconBsky}
+                        alt="Bluesky icon"
+                        style={{
+                          width: 15,
+                          height: 15,
+                          filter: "grayscale(1)",
+                          opacity: 0.8, // tweak until it visually matches #8c8c8c
+                        }}
+                      />
+                      <span className="text-black">News</span>
+                    </div>
+                    <div style={{ overflowY: "auto", flex: 1 }}>
+                      <BlueskyIodaFeed did="did:plc:3xessr3vu336mxean6zvfyjq" />
                     </div>
                   </div>
                 </div>
-                <div
-                  className="col-1 card p-4 pt-4 flex flex-col"
-                  style={{
-                    height: mapHeight || "40rem",
-                    overflow: "hidden",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <div className="font-medium text-2xl flex items-center gap-2 mb-4">
-                    <img
-                      src={iconBsky}
-                      alt="Bluesky icon"
-                      style={{
-                        width: 15,
-                        height: 15,
-                        filter: "grayscale(1)",
-                        opacity: 0.8, // tweak until it visually matches #8c8c8c
-                      }}
-                    />
-                    <span className="text-black">News</span>
-                  </div>
-                  <div style={{ overflowY: "auto", flex: 1 }}>
-                    <BlueskyIodaFeed did="did:plc:3xessr3vu336mxean6zvfyjq" />
-                  </div>
-                </div>
-              </div>
+              )}
+
               {/* ───────────────────────── 2nd ROW ───────────────────────── */}
-              {activeTabType !== asn.type && (
-                <div className="card p-4 pt-2">
-                  {/* <div className="flex items-center mb-4" ref={config}> */}
-                  {/* <div className="font-medium text-3xl">
+
+              <div className="card p-4 pt-2">
+                {/* <div className="flex items-center mb-4" ref={config}> */}
+                {/* <div className="font-medium text-3xl">
                       {type === "country"
                         ? "All " + countryOutages + " Timeline"
                         : type === "region"
@@ -335,7 +328,7 @@ const DashboardTab = (props) => {
                             ? "All " + asnOutages + " Timeline"
                             : null}
                     </div> */}
-                  {/* <div className="font-medium text-2xl flex items-center gap-2">
+                {/* <div className="font-medium text-2xl flex items-center gap-2">
                       <ClockCircleFilled style={{ color: "#8c8c8c" }} />
                       <span className="text-black">
                         {type === "country"
@@ -348,7 +341,7 @@ const DashboardTab = (props) => {
                       </span>
                     </div>
                   </div> */}
-                  {/* <ShareLinkModal
+                {/* <ShareLinkModal
                       open={showShareLinkModal}
                       link={window.location.href}
                       hideModal={hideShareLinkModal}
@@ -356,98 +349,95 @@ const DashboardTab = (props) => {
                       // entityName={entityName}
                       // handleDownload={() => manuallyDownloadChart("image/jpeg")}
                     /> */}
-                  <div className="flex items-center mb-2" ref={config}>
-                    <div className="font-medium text-2xl flex items-center gap-2">
-                      <ClockCircleFilled style={{ color: "#8c8c8c" }} />
-                      <span className="text-black">
-                        {type === "country"
-                          ? "All " + countryOutages + " Timeline"
-                          : type === "region"
-                            ? "All " + regionalOutages + " Timeline"
-                            : type === "asn"
-                              ? "All " + asnOutages + " Timeline"
-                              : null}
-                      </span>
-                    </div>
-
-                    <Tooltip
-                      title={tooltipDashboardHeadingTitle}
-                      text={tooltipDashboardHeadingText}
-                    />
-
-                    <div className="flex ml-auto">
-                      <ATooltip title="Share Link">
-                        <Button
-                          className="mr-3"
-                          icon={<ShareAltOutlined />}
-                          onClick={displayShareLinkModal}
-                        />
-                      </ATooltip>
-
-                      <Popover
-                        open={displayChartSharePopover2}
-                        onOpenChange={handleDisplayChartSharePopover2}
-                        trigger="click"
-                        placement="bottomRight"
-                        overlayStyle={{
-                          maxWidth: 180,
-                        }}
-                        content={
-                          <div
-                            onClick={() =>
-                              handleDisplayChartSharePopover2(false)
-                            }
-                          >
-                            <Button
-                              className="w-full mb-2"
-                              size="small"
-                              // onClick={() =>
-                              //   manuallyDownloadChart("image/jpeg")
-                              // }
-                            >
-                              Chart JPEG
-                            </Button>
-                            <Button
-                              className="w-full mb-2"
-                              size="small"
-                              // onClick={() =>
-                              //   manuallyDownloadChart("image/png")
-                              // }
-                            >
-                              Chart PNG
-                            </Button>
-                            <Button
-                              className="w-full"
-                              size="small"
-                              // onClick={() =>
-                              //   manuallyDownloadChart("image/svg+xml")
-                              // }
-                            >
-                              Chart SVG
-                            </Button>
-                          </div>
-                        }
-                      >
-                        <ATooltip
-                          title="Download"
-                          mouseEnterDelay={0}
-                          mouseLeaveDelay={0}
-                        >
-                          <Button icon={<DownloadOutlined />} />
-                        </ATooltip>
-                      </Popover>
-                    </div>
+                <div className="flex items-center mb-2" ref={config}>
+                  <div className="font-medium text-2xl flex items-center gap-2">
+                    <ClockCircleFilled style={{ color: "#8c8c8c" }} />
+                    <span className="text-black">
+                      {type === "country"
+                        ? "All " + countryOutages + " Timeline"
+                        : type === "region"
+                          ? "All " + regionalOutages + " Timeline"
+                          : type === "asn"
+                            ? "All " + asnOutages + " Timeline"
+                            : null}
+                    </span>
                   </div>
-                  {summaryDataWithTS && (
-                    <SummaryWithTSChart
-                      data={summaryDataWithTS}
-                      from={from}
-                      until={until}
-                      tabType={activeTabType}
-                    />
-                  )}
+
+                  <Tooltip
+                    title={tooltipDashboardHeadingTitle}
+                    text={tooltipDashboardHeadingText}
+                  />
+
+                  <div className="flex ml-auto">
+                    <ATooltip title="Share Link">
+                      <Button
+                        className="mr-3"
+                        icon={<ShareAltOutlined />}
+                        onClick={displayShareLinkModal}
+                      />
+                    </ATooltip>
+
+                    <Popover
+                      open={displayChartSharePopover2}
+                      onOpenChange={handleDisplayChartSharePopover2}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayStyle={{
+                        maxWidth: 180,
+                      }}
+                      content={
+                        <div
+                          onClick={() => handleDisplayChartSharePopover2(false)}
+                        >
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            // onClick={() =>
+                            //   manuallyDownloadChart("image/jpeg")
+                            // }
+                          >
+                            Chart JPEG
+                          </Button>
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            // onClick={() =>
+                            //   manuallyDownloadChart("image/png")
+                            // }
+                          >
+                            Chart PNG
+                          </Button>
+                          <Button
+                            className="w-full"
+                            size="small"
+                            // onClick={() =>
+                            //   manuallyDownloadChart("image/svg+xml")
+                            // }
+                          >
+                            Chart SVG
+                          </Button>
+                        </div>
+                      }
+                    >
+                      <ATooltip
+                        title="Download"
+                        mouseEnterDelay={0}
+                        mouseLeaveDelay={0}
+                      >
+                        <Button icon={<DownloadOutlined />} />
+                      </ATooltip>
+                    </Popover>
+                  </div>
                 </div>
-              )}
+                {summaryDataWithTS && (
+                  <SummaryWithTSChart
+                    data={summaryDataWithTS}
+                    from={from}
+                    until={until}
+                    tabType={activeTabType}
+                  />
+                )}
+              </div>
             </React.Fragment>
           )}
         </div>
