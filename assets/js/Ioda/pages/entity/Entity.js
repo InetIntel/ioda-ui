@@ -405,6 +405,7 @@ const Entity = (props) => {
   const [selectedView, setSelectedView] = useState("view1");
   const [tsDataEntityCode, setTsDataEntityCode] = useState(null);
   const [apLoading, setApLoading] = useState(true);
+  const [upstreamLoading, setUpstreamLoading] = useState(true);
 
   const handleMenuClick = ({ key }) => {
     setSelectedView(key);
@@ -534,11 +535,24 @@ const Entity = (props) => {
   }
   useEffect(() => {
     if (rawAsnSignalsApPacketDelay) {
-      setApLoading(
-        rawAsnSignalsApPacketDelay[0][0].entityCode !== entityCodeState
-      );
+      rawAsnSignalsApPacketDelay[0][0]
+        ? setApLoading(
+            rawAsnSignalsApPacketDelay[0][0].entityCode !== entityCodeState
+          )
+        : setApLoading(false); //empty data
     }
   }, [rawAsnSignalsApPacketDelay]); //0726
+
+  useEffect(() => {
+    if (rawAsnSignalsUpstreamDelayLatency) {
+      rawAsnSignalsUpstreamDelayLatency[0][0]
+        ? setUpstreamLoading(
+            rawAsnSignalsUpstreamDelayLatency[0][0].entityCode !==
+              entityCodeState
+          )
+        : setUpstreamLoading(false); //empty data
+    }
+  }, [rawAsnSignalsUpstreamDelayLatency]); //0726
 
   useEffect(() => {
     const urlView = searchParams.get("view");
@@ -1158,7 +1172,7 @@ const Entity = (props) => {
   // manage the date selected in the input
   function handleTimeFrame({ _from, _until }) {
     navigate(
-      `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}`
+      `/${entityTypeState}/${entityCodeState}?from=${_from}&until=${_until}&view=${selectedView}`
     );
   }
 
@@ -3640,21 +3654,7 @@ const Entity = (props) => {
 
                 <div className="flex items-stretch gap-6 entity__chart-layout">
                   <div className="col-2">
-                    {/* {entityCode && !entityCode.includes("-") && (
-                      <div className="p-4 card mb-6 ">
-                        {" "}
-                        <ApPacketLatencyAndLossRateComponent
-                          rawAsnSignalsApPacketLoss={rawAsnSignalsApPacketLoss}
-                          rawAsnSignalsApPacketDelay={
-                            rawAsnSignalsApPacketDelay
-                          }
-                          entityName={entityName}
-                          from={from}
-                          until={until}
-                        />
-                      </div>
-                    )} */}
-                    {!entityCode.includes("-") && (
+                    {entityCode && !entityCode.includes("-") && (
                       <div className="p-4 card mb-6 ">
                         {" "}
                         <ApPacketLatencyAndLossRateComponent
@@ -3684,6 +3684,7 @@ const Entity = (props) => {
                       rawAsnSignalsUpstreamDelayPenultAsnCount
                     }
                     entityName={entityName}
+                    loading={upstreamLoading}
                   />
                   // </div>
                 )}

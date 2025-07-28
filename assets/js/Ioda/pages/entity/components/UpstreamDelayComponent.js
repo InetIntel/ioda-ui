@@ -58,6 +58,7 @@ const UpstreamDelayComponent = ({
   rawAsnSignalsUpstreamDelayLatency,
   rawAsnSignalsUpstreamDelayPenultAsnCount,
   entityName,
+  loading,
 }) => {
   const [activeTab, setActiveTab] = useState("1");
   const [displayChartSharePopover, setDisplayChartSharePopover] =
@@ -1790,7 +1791,9 @@ const UpstreamDelayComponent = ({
                     </Button.Group> */}
 
                     <div className="content-area px-0">
-                      {selectedAsns.length === 0 && jsonData ? (
+                      {loading ? (
+                        <Loading />
+                      ) : selectedAsns.length === 0 && jsonData ? (
                         <div
                           style={{
                             padding: "2rem",

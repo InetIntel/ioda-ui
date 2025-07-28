@@ -110,9 +110,6 @@ const ApPacketLatencyAndLossRateComponent = ({
     </div>
   );
   useEffect(() => {
-    console.log("loading?", loading);
-  }, [loading]);
-  useEffect(() => {
     if (!rawAsnSignalsApPacketLoss?.[0]?.[0]) {
       return;
     }

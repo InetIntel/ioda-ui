@@ -63,7 +63,7 @@ const ChartTabCard = ({
   const eventTab = T.translate("entity.eventTab");
 
   return (
-    <div className="overview__table-config flex-column">
+    <div className="overview__table-config">
       <div className="tabs">
         <Radio.Group
           onChange={(e) => handleSelectTab(e?.target?.value)}
@@ -86,7 +86,15 @@ const ChartTabCard = ({
       )} */}
 
       {currentTab === 2 && (
-        <>{alertsData ? <AlertsTable data={alertsData} /> : <Loading />}</>
+        <>
+          {alertsData ? (
+            <div style={{ width: "100%", overflowX: "auto" }}>
+              <AlertsTable data={alertsData} />
+            </div>
+          ) : (
+            <Loading />
+          )}
+        </>
       )}
 
       {currentTab === 3 && (
