@@ -48,6 +48,7 @@ import ShareLinkModal from "../../../components/modal/ShareLinkModal";
 import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
 import { getUpstreamChartExportFileName } from "../utils/EntityUtils";
 import { secondsToUTC } from "../../../utils/timeUtils";
+import { handleTooltipPointClick } from "../../../utils/chartUtils";
 import { active } from "d3";
 
 HighchartsNoData(Highcharts);
@@ -73,9 +74,23 @@ const UpstreamDelayComponent = ({
     "#52c41a",
     "#eb2f96",
     "#722ed1",
-    "#722ed1",
     "#b5f5ec",
     "#ee9d1a",
+    "#1890ff",
+    "#f5222d",
+    "#13c2c2",
+    "#fa8c16",
+    "#2f54eb",
+    "#a0d911",
+    "#fa541c",
+    "#531dab",
+    "#73d13d",
+    "#9e1068",
+    "#3e8e41",
+    "#ffc53d",
+    "#40a9ff",
+    "#d46b08",
+    "#597ef7",
   ];
 
   const upstreamChartTitle = T.translate("entity.upstreamChartTitle");
@@ -106,6 +121,7 @@ const UpstreamDelayComponent = ({
   const [selectedAsns, setSelectedAsns] = useState([]);
   const [asnList, setAsnList] = useState([]);
   const initialLoad = useRef(true);
+  const tooltipEnabledRef = useRef(true);
 
   // useEffect(() => {
   //   setSelectedAsns(asnList.map((a) => a.name));
@@ -116,6 +132,7 @@ const UpstreamDelayComponent = ({
   //   }
   // }, [asnList]);
   const asnNameCacheRef = useRef({});
+
   const getASNFullName = useCallback(
     async (asnCode) => {
       if (asnNameCacheRef.current[asnCode]) {
@@ -186,7 +203,6 @@ const UpstreamDelayComponent = ({
   // useEffect(() => {
   //   setSelectedAsns(asnList.map((a) => a.name));
   // }, [asnList]);
-
   useEffect(() => {
     if (!rawAsnSignalsUpstreamDelayPenultAsnCount?.[0]?.[0]) return;
     const { values, ...rest } = rawAsnSignalsUpstreamDelayPenultAsnCount[0][0];
@@ -259,7 +275,7 @@ const UpstreamDelayComponent = ({
       sortedTableData.length &&
       sortedTableData[0].avgTraceroute != null
     ) {
-      const top5Names = sortedTableData.slice(0, 4).map((r) => r.name);
+      const top5Names = sortedTableData.slice(0, 5).map((r) => r.name);
       setSelectedAsns(top5Names);
       initialTop5.current = false;
     }
@@ -922,7 +938,7 @@ const UpstreamDelayComponent = ({
   const combineTrace = {
     chart: {
       //   type: "line",
-      height: 360,
+      height: 400,
       animation: false,
       spacingLeft: 5,
       spacingTop: 25,
@@ -978,7 +994,7 @@ const UpstreamDelayComponent = ({
         opposite: false,
         alignTicks: true,
         top: "5%",
-        height: "40%",
+        height: "35%",
         min: 0,
         endOnTick: false,
         maxPadding: 0.25,
@@ -1015,8 +1031,8 @@ const UpstreamDelayComponent = ({
         offset: 0,
         opposite: false,
         alignTicks: true,
-        top: "60%",
-        height: "40%",
+        top: "65%",
+        height: "35%",
         tickAmount: 5,
         // title: { text: "" },
         title: {
@@ -1158,6 +1174,11 @@ const UpstreamDelayComponent = ({
     },
     plotOptions: {
       series: {
+        point: {
+          events: {
+            click: handleTooltipPointClick(tooltipEnabledRef),
+          },
+        },
         animation: false,
         marker: {
           enabled: true,
@@ -1229,7 +1250,7 @@ const UpstreamDelayComponent = ({
   const indivTrace = {
     chart: {
       //   type: "line",
-      height: 360,
+      height: 400,
       animation: false,
       zoomType: "x",
       resetZoomButton: {
@@ -1277,7 +1298,7 @@ const UpstreamDelayComponent = ({
         opposite: false,
         alignTicks: true,
         top: "5%",
-        height: "40%",
+        height: "35%",
         min: 0,
         endOnTick: false,
         maxPadding: 0.25,
@@ -1314,8 +1335,8 @@ const UpstreamDelayComponent = ({
         offset: 0,
         opposite: false,
         alignTicks: true,
-        top: "60%",
-        height: "40%",
+        top: "65%",
+        height: "35%",
         tickAmount: 5,
         // title: { text: "" },
         title: {
@@ -1425,16 +1446,21 @@ const UpstreamDelayComponent = ({
       })),
     },
     plotOptions: {
-      //   series: {
-      //     animation: false,
-      //     marker: {
-      //       enabled: true,
-      //       radius: 2,
-      //     },
-      //     lineWidth: 0.9,
-      //     pointStart: jsonData?.from * 1000,
-      //     pointInterval: jsonData?.step * 1000,
-      //   },
+      series: {
+        point: {
+          events: {
+            click: handleTooltipPointClick(tooltipEnabledRef),
+          },
+        },
+        animation: false,
+        marker: {
+          enabled: true,
+          radius: 2,
+        },
+        lineWidth: 0.9,
+        pointStart: jsonData?.from * 1000,
+        pointInterval: jsonData?.step * 1000,
+      },
       line: {
         marker: {
           enabled: true,
@@ -1725,49 +1751,48 @@ const UpstreamDelayComponent = ({
                   className="upstream__chart"
                   style={{ position: "relative" }}
                 >
-                  <div className="card">
-                    <div
-                      className="header-row"
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Tabs
-                        defaultActiveKey="1"
-                        animated={false}
-                        // style={{ marginBottom: 0 }}
-                        tabBarStyle={{ marginBottom: 0 }}
-                        items={[
-                          {
-                            key: "1",
-                            label: (
-                              <span style={{ padding: "0 10px" }}>
-                                {" "}
-                                Combined{" "}
-                              </span>
-                            ),
-                          },
-                          {
-                            key: "2",
-                            label: (
-                              <span style={{ padding: "0 10px" }}>
-                                {" "}
-                                Individual{" "}
-                              </span>
-                            ),
-                          },
-                        ]}
-                        onChange={(key) => setActiveTab(key)}
-                      />
-                      <ASNLegend
-                        asnList={asnList.filter((a) =>
-                          selectedAsns.includes(a.name)
-                        )}
-                      />
-                    </div>
-                    {/* <Button.Group
+                  <div
+                    className="header-row"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tabs
+                      defaultActiveKey="1"
+                      animated={false}
+                      // style={{ marginBottom: 0 }}
+                      tabBarStyle={{ marginBottom: 0 }}
+                      items={[
+                        {
+                          key: "1",
+                          label: (
+                            <span style={{ padding: "0 10px" }}>
+                              {" "}
+                              Combined{" "}
+                            </span>
+                          ),
+                        },
+                        {
+                          key: "2",
+                          label: (
+                            <span style={{ padding: "0 10px" }}>
+                              {" "}
+                              Individual{" "}
+                            </span>
+                          ),
+                        },
+                      ]}
+                      onChange={(key) => setActiveTab(key)}
+                    />
+                    <ASNLegend
+                      asnList={asnList.filter((a) =>
+                        selectedAsns.includes(a.name)
+                      )}
+                    />
+                  </div>
+                  {/* <Button.Group
                       style={{
                         position: "absolute",
                         left: "250px",
@@ -1790,40 +1815,39 @@ const UpstreamDelayComponent = ({
                       </Button>
                     </Button.Group> */}
 
-                    <div className="content-area px-0">
-                      {loading ? (
-                        <Loading />
-                      ) : selectedAsns.length === 0 && jsonData ? (
-                        <div
-                          style={{
-                            padding: "2rem",
-                            textAlign: "center",
-                            color: "#666",
-                            // fontStyle: "italic",
-                          }}
-                        >
-                          No ASes selected.
-                        </div>
-                      ) : activeTab === "1" ? (
-                        <div style={{ marginLeft: "10px" }}>
-                          <HighchartsReact
-                            highcharts={Highcharts}
-                            // options={latencyCombined}
-                            options={combineTrace}
-                            ref={chartCombinedRef}
-                          />
-                        </div>
-                      ) : (
-                        <div style={{ marginLeft: "10px" }}>
-                          <HighchartsReact
-                            highcharts={Highcharts}
-                            // options={latencyIndividual}
-                            options={indivTrace}
-                            ref={chartIndividualRef}
-                          />
-                        </div>
-                      )}
-                    </div>
+                  <div className="content-area px-0">
+                    {loading ? (
+                      <Loading />
+                    ) : selectedAsns.length === 0 && jsonData ? (
+                      <div
+                        style={{
+                          padding: "2rem",
+                          textAlign: "center",
+                          color: "#666",
+                          // fontStyle: "italic",
+                        }}
+                      >
+                        No ASes selected.
+                      </div>
+                    ) : activeTab === "1" ? (
+                      <div style={{ marginLeft: "10px" }}>
+                        <HighchartsReact
+                          highcharts={Highcharts}
+                          // options={latencyCombined}
+                          options={combineTrace}
+                          ref={chartCombinedRef}
+                        />
+                      </div>
+                    ) : (
+                      <div style={{ marginLeft: "10px" }}>
+                        <HighchartsReact
+                          highcharts={Highcharts}
+                          // options={latencyIndividual}
+                          options={indivTrace}
+                          ref={chartIndividualRef}
+                        />
+                      </div>
+                    )}
                   </div>
                   {/* <div className="px-4 card">
                   <HighchartsReact

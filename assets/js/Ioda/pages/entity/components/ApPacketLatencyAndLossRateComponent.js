@@ -31,6 +31,7 @@ import {
   secondsToMilliseconds,
   secondsToUTC,
 } from "../../../utils/timeUtils";
+import { handleTooltipPointClick } from "../../../utils/chartUtils";
 import TimeStamp from "../../../components/timeStamp/TimeStamp";
 import HighchartsNoData from "highcharts/modules/no-data-to-display";
 
@@ -70,6 +71,7 @@ const ApPacketLatencyAndLossRateComponent = ({
   // exportingInit(Highcharts);
   // offlineExportingInit(Highcharts);
   const [viewMode, setViewMode] = useState("overlay");
+  const tooltipEnabledRef = useRef(true);
   const ViewModeToggle = () => (
     <div style={{ marginBottom: "16px" }}>
       <Button.Group>
@@ -585,6 +587,11 @@ const ApPacketLatencyAndLossRateComponent = ({
     },
     plotOptions: {
       series: {
+        point: {
+          events: {
+            click: handleTooltipPointClick(tooltipEnabledRef),
+          },
+        },
         animation: false,
         marker: {
           enabled: false,

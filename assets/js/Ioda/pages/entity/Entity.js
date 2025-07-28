@@ -122,6 +122,7 @@ import {
   secondsToUTC,
 } from "../../utils/timeUtils";
 import { getDateRangeFromUrl, hasDateRangeInUrl } from "../../utils/urlUtils";
+import { handleTooltipPointClick } from "../../utils/chartUtils";
 import { Button, Checkbox, Popover, Tooltip, Menu } from "antd";
 import {
   DownloadOutlined,
@@ -421,6 +422,8 @@ const Entity = (props) => {
     entityTypeState === "country" || entityTypeState === "region"
       ? entityName
       : entityName.split(" ")[0];
+  const tooltipEnabledRef = useRef(true);
+
   const VIEW_ITEMS = [
     {
       key: "view1",
@@ -1166,7 +1169,17 @@ const Entity = (props) => {
       toggleModal("table");
     }
   }, [selectedView, toggleModal]);
-  //0715
+
+  // function handlePointClick() {
+  //   const chart = this.series.chart;
+  //   tooltipEnabledRef.current = !tooltipEnabledRef.current;
+
+  //   chart.update({
+  //     tooltip: {
+  //       enabled: tooltipEnabledRef.current,
+  //     },
+  //   });
+  // }
 
   // Control Panel
   // manage the date selected in the input
@@ -1605,6 +1618,11 @@ const Entity = (props) => {
         },
         series: {
           //showInNavigator: true,
+          point: {
+            events: {
+              click: handleTooltipPointClick(tooltipEnabledRef),
+            },
+          },
           animation: false,
           states: {
             hover: {
@@ -1837,6 +1855,11 @@ const Entity = (props) => {
         },
         series: {
           //showInNavigator: true,
+          point: {
+            events: {
+              click: handleTooltipPointClick(tooltipEnabledRef),
+            },
+          },
           animation: false,
           states: {
             hover: {
