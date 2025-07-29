@@ -984,8 +984,8 @@ const UpstreamDelayComponent = ({
         spacing: [50, 10, 15, 10],
       },
       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-      sourceWidth: 960,
-      sourceHeight: 540,
+      sourceWidth: 1280,
+      sourceHeight: 720,
     },
     yAxis: [
       {
@@ -993,7 +993,7 @@ const UpstreamDelayComponent = ({
         offset: 0,
         opposite: false,
         alignTicks: true,
-        top: "5%",
+        top: "2%",
         height: "35%",
         min: 0,
         endOnTick: false,
@@ -1014,7 +1014,6 @@ const UpstreamDelayComponent = ({
           },
           y: -10,
           rotation: 0,
-          marginLeft: "10px",
         },
         labels: {
           x: -3,
@@ -1046,10 +1045,8 @@ const UpstreamDelayComponent = ({
             fontSize: "12px",
             color: "#333",
             whiteSpace: "nowrap",
-            position: "relative",
           },
           y: -10,
-          marginLeft: "10px",
         },
         labels: {
           x: -3,
@@ -1297,7 +1294,7 @@ const UpstreamDelayComponent = ({
         offset: 0,
         opposite: false,
         alignTicks: true,
-        top: "5%",
+        top: "2%",
         height: "35%",
         min: 0,
         endOnTick: false,
@@ -1318,7 +1315,6 @@ const UpstreamDelayComponent = ({
             whiteSpace: "nowrap",
           },
           y: -10,
-          marginLeft: "10px",
         },
         labels: {
           x: -3,
@@ -1532,7 +1528,7 @@ const UpstreamDelayComponent = ({
               alignItems: "center",
               gap: "5px",
               marginRight: "18px",
-              marginBottom: "6px",
+              marginBottom: "3px",
             }}
           >
             <div
@@ -1641,111 +1637,106 @@ const UpstreamDelayComponent = ({
         entityName={entityName}
       />
       <div>
-        <div className="flex items-stretch gap-6 entity__chart-layout">
+        <div className="flex items-stretch gap-6  entity__chart-layout">
           <div className="col-2">
             <div className="p-4 card ">
               <div className="col-3">
-                <div className="p-4">
-                  <div className="flex items-center mb-3">
-                    <h3 className="text-2xl mr-1">
-                      {upstreamChartTitle}
-                      {entityName}
-                    </h3>
-                    <div className="flex ml-auto">
-                      {showResetZoomButton && (
-                        <Tooltip title="Reset View">
-                          <Button
-                            className="mr-3"
-                            icon={<MagnifyExpandIcon />}
-                            onClick={setDefaultNavigatorTimeRange}
-                          />
-                        </Tooltip>
-                      )}
-                      <Tooltip title="Markup">
+                {/* <div className="p-4"> */}
+                <div className="flex items-center mb-3">
+                  <h3 className="text-2xl mr-1">
+                    {upstreamChartTitle}
+                    {entityName}
+                  </h3>
+                  <div className="flex ml-auto">
+                    {showResetZoomButton && (
+                      <Tooltip title="Reset View">
                         <Button
                           className="mr-3"
-                          icon={<EditOutlined />}
-                          onClick={handleShowMarkupStudioModal}
-                          disabled={!jsonData}
+                          icon={<MagnifyExpandIcon />}
+                          onClick={setDefaultNavigatorTimeRange}
                         />
                       </Tooltip>
-                      <Tooltip title="Share Link">
-                        <Button
-                          className="mr-3"
-                          icon={<ShareAltOutlined />}
-                          onClick={displayShareLinkModal}
-                        />
-                      </Tooltip>
+                    )}
+                    <Tooltip title="Markup">
+                      <Button
+                        className="mr-3"
+                        icon={<EditOutlined />}
+                        onClick={handleShowMarkupStudioModal}
+                        disabled={!jsonData}
+                      />
+                    </Tooltip>
+                    <Tooltip title="Share Link">
+                      <Button
+                        className="mr-3"
+                        icon={<ShareAltOutlined />}
+                        onClick={displayShareLinkModal}
+                      />
+                    </Tooltip>
 
-                      <Popover
-                        open={displayChartSharePopover}
-                        onOpenChange={handleDisplayChartSharePopover}
-                        trigger="click"
-                        placement="bottomRight"
-                        overlayStyle={{
-                          maxWidth: 180,
-                        }}
-                        content={
-                          <div
+                    <Popover
+                      open={displayChartSharePopover}
+                      onOpenChange={handleDisplayChartSharePopover}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayStyle={{
+                        maxWidth: 180,
+                      }}
+                      content={
+                        <div
+                          onClick={() => handleDisplayChartSharePopover(false)}
+                        >
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            onClick={() => manuallyDownloadChart("image/jpeg")}
+                          >
+                            Chart JPEG
+                          </Button>
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            onClick={() => manuallyDownloadChart("image/png")}
+                          >
+                            Chart PNG
+                          </Button>
+                          <Button
+                            className="w-full"
+                            size="small"
                             onClick={() =>
-                              handleDisplayChartSharePopover(false)
+                              manuallyDownloadChart("image/svg+xml")
                             }
                           >
-                            <Button
-                              className="w-full mb-2"
-                              size="small"
-                              onClick={() =>
-                                manuallyDownloadChart("image/jpeg")
-                              }
-                            >
-                              Chart JPEG
-                            </Button>
-                            <Button
-                              className="w-full mb-2"
-                              size="small"
-                              onClick={() => manuallyDownloadChart("image/png")}
-                            >
-                              Chart PNG
-                            </Button>
-                            <Button
-                              className="w-full"
-                              size="small"
-                              onClick={() =>
-                                manuallyDownloadChart("image/svg+xml")
-                              }
-                            >
-                              Chart SVG
-                            </Button>
-                          </div>
-                        }
+                            Chart SVG
+                          </Button>
+                        </div>
+                      }
+                    >
+                      <Tooltip
+                        title="Download"
+                        mouseEnterDelay={0}
+                        mouseLeaveDelay={0}
                       >
-                        <Tooltip
-                          title="Download"
-                          mouseEnterDelay={0}
-                          mouseLeaveDelay={0}
-                        >
-                          <Button icon={<DownloadOutlined />} />
-                        </Tooltip>
-                      </Popover>
-                    </div>
+                        <Button icon={<DownloadOutlined />} />
+                      </Tooltip>
+                    </Popover>
                   </div>
-                  {/* <div>
+                </div>
+                {/* <div>
                     <h4 className="text-xl mr-1 mt-0 mb-1">
                       {upstreamChartSubTitle}
                     </h4>
                   </div> */}
-                  <div>
-                    <h4
-                      className="text-xl mr-1 mt-2"
-                      style={{ color: "#8c8c8c" }}
-                    >
-                      This graph shows the latency and penultimate network used
-                      to reach {entityName.split(" ")[0]} as observed in
-                      traceroute measurements, making it easier pinpoint network
-                      delays.
-                    </h4>
-                  </div>
+                <div>
+                  <h4
+                    className="text-xl mr-1 mt-2"
+                    style={{ color: "#8c8c8c" }}
+                  >
+                    This graph shows the latency and penultimate network used to
+                    reach {entityName.split(" ")[0]} as observed in traceroute
+                    measurements, making it easier pinpoint network delays.
+                  </h4>
                 </div>
+                {/* </div> */}
                 {/* {jsonData && ( */}
                 <div
                   className="upstream__chart"
@@ -1757,9 +1748,16 @@ const UpstreamDelayComponent = ({
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      paddingLeft: 10,
+                      paddingTop: 6,
                     }}
                   >
-                    <Tabs
+                    <ASNLegend
+                      asnList={asnList.filter((a) =>
+                        selectedAsns.includes(a.name)
+                      )}
+                    />
+                    {/* <Tabs
                       defaultActiveKey="1"
                       animated={false}
                       // style={{ marginBottom: 0 }}
@@ -1785,12 +1783,44 @@ const UpstreamDelayComponent = ({
                         },
                       ]}
                       onChange={(key) => setActiveTab(key)}
-                    />
-                    <ASNLegend
-                      asnList={asnList.filter((a) =>
-                        selectedAsns.includes(a.name)
-                      )}
-                    />
+                    /> */}
+
+                    <div className="ml-auto">
+                      <Button.Group style={{ marginBottom: 4, marginLeft: 4 }}>
+                        <Button
+                          type={activeTab === "1" ? "primary" : "default"}
+                          onClick={() => setActiveTab("1")}
+                          style={
+                            activeTab === "1"
+                              ? {
+                                  backgroundColor: "#1570EF33",
+                                  color: "#1570EF",
+                                  borderColor: "#1570EF33",
+                                  fontSize: 12,
+                                }
+                              : { fontSize: 12 }
+                          }
+                        >
+                          Combined
+                        </Button>
+                        <Button
+                          type={activeTab === "2" ? "primary" : "default"}
+                          onClick={() => setActiveTab("2")}
+                          style={
+                            activeTab === "2"
+                              ? {
+                                  backgroundColor: "#1570EF33",
+                                  color: "#1570EF",
+                                  borderColor: "#1570EF33",
+                                  fontSize: 12,
+                                }
+                              : { fontSize: 12 }
+                          }
+                        >
+                          Individual
+                        </Button>
+                      </Button.Group>
+                    </div>
                   </div>
                   {/* <Button.Group
                       style={{
@@ -1814,7 +1844,6 @@ const UpstreamDelayComponent = ({
                         Individual
                       </Button>
                     </Button.Group> */}
-
                   <div className="content-area px-0">
                     {loading ? (
                       <Loading />
@@ -1830,22 +1859,48 @@ const UpstreamDelayComponent = ({
                         No ASes selected.
                       </div>
                     ) : activeTab === "1" ? (
-                      <div style={{ marginLeft: "10px" }}>
-                        <HighchartsReact
-                          highcharts={Highcharts}
-                          // options={latencyCombined}
-                          options={combineTrace}
-                          ref={chartCombinedRef}
+                      <div>
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "40%",
+                            left: "10px",
+                            width: "40%",
+                            borderTop: "1px dashed #ccc", // ← dashed line
+                            zIndex: 2,
+                          }}
                         />
+
+                        <div style={{ marginLeft: "10px" }}>
+                          <HighchartsReact
+                            highcharts={Highcharts}
+                            // options={latencyCombined}
+                            options={combineTrace}
+                            ref={chartCombinedRef}
+                          />
+                        </div>
                       </div>
                     ) : (
-                      <div style={{ marginLeft: "10px" }}>
-                        <HighchartsReact
-                          highcharts={Highcharts}
-                          // options={latencyIndividual}
-                          options={indivTrace}
-                          ref={chartIndividualRef}
+                      <div>
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "40%",
+                            left: "10px",
+                            width: "40%",
+                            borderTop: "1px dashed #ccc",
+                            zIndex: 2,
+                          }}
                         />
+
+                        <div style={{ marginLeft: "10px" }}>
+                          <HighchartsReact
+                            highcharts={Highcharts}
+                            // options={latencyIndividual}
+                            options={indivTrace}
+                            ref={chartIndividualRef}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
