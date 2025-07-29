@@ -1863,10 +1863,10 @@ const UpstreamDelayComponent = ({
                         <div
                           style={{
                             position: "absolute",
-                            top: "40%",
+                            top: "41%",
                             left: "10px",
                             width: "40%",
-                            borderTop: "1px dashed #ccc", // ← dashed line
+                            borderTop: "1px dashed #ccc",
                             zIndex: 2,
                           }}
                         />
@@ -1885,7 +1885,7 @@ const UpstreamDelayComponent = ({
                         <div
                           style={{
                             position: "absolute",
-                            top: "40%",
+                            top: "41%",
                             left: "10px",
                             width: "40%",
                             borderTop: "1px dashed #ccc",

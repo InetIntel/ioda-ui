@@ -16,114 +16,6 @@ import iconSortUnsort from "images/icons/icon-sortUnsort.png";
 import { Popover, Divider, Typography } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
-const FONT_SIZE = 12; // default text
-const AXIS_FONT_SIZE = 10; // axis label
-const SCORE_FONT_SIZE = 11; // the little score badge
-const HEADER_HEIGHT = 20;
-const HEADER_BASELINE = 16; // the 14-px font sits on this baseline
-const ROW_HEIGHT = 36;
-//helper: emoji flag map
-const countryFlagMap = countryData.reduce((acc, country) => {
-  acc[country.code] = country.emoji;
-  return acc;
-}, {});
-const getFlagEmoji = (d) => {
-  if (d.entityType === "country") return countryFlagMap[d.entityCode] ?? "";
-  if (d.entityType === "region") return countryFlagMap[d.countryCode] ?? "";
-  return "";
-};
-//helper: color conversion
-function convertHexToRgba(hex, alpha = 1) {
-  let r = 0,
-    g = 0,
-    b = 0;
-  hex = hex.replace("#", "");
-
-  if (hex.length === 3) {
-    r = parseInt(hex[0] + hex[0], 16);
-    g = parseInt(hex[1] + hex[1], 16);
-    b = parseInt(hex[2] + hex[2], 16);
-  } else if (hex.length === 6) {
-    r = parseInt(hex.substring(0, 2), 16);
-    g = parseInt(hex.substring(2, 4), 16);
-    b = parseInt(hex.substring(4, 6), 16);
-  }
-
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
-function wrap(text, width) {
-  text.each(function () {
-    const textElement = select(this);
-    const words = textElement.text().split(/\s+/).reverse();
-    let line = [];
-    let lineNumber = 0;
-    const lineHeight = 1.1;
-    const y = textElement.attr("y") || 0;
-    const dy = parseFloat(textElement.attr("dy")) || 0;
-
-    textElement.text(null);
-
-    let tspan = textElement
-      .append("tspan")
-      .attr("x", 0)
-      .attr("y", y)
-      .attr("dy", dy + "em");
-
-    while (words.length) {
-      const word = words.pop();
-      line.push(word);
-      tspan.text(line.join(" "));
-
-      if (tspan.node().getComputedTextLength() > width && line.length > 1) {
-        line.pop();
-        tspan.text(line.join(" "));
-        line = [word];
-        tspan = textElement
-          .append("tspan")
-          .attr("x", 0)
-          .attr("y", y)
-          .attr("dy", ++lineNumber * lineHeight + dy + "em")
-          .text(word);
-      }
-    }
-  });
-}
-
-function humanizeNumber(value, precisionDigits = 2) {
-  return format(
-    (isNaN(precisionDigits) ? "" : "." + precisionDigits) +
-      (Math.abs(value) < 1 ? "r" : "s")
-  )(value);
-}
-
-const getSortIcon = (column, sortConfig) => {
-  const isActive = sortConfig.criterion === column;
-  const dir = sortConfig.directions[column]; // "asc" | "desc"
-  let src,
-    alt,
-    extraStyle = {};
-
-  if (isActive) {
-    src = dir === "asc" ? iconAsc : iconDesc;
-    alt = dir === "asc" ? "ascending" : "descending";
-  } else {
-    src = iconSortUnsort;
-    alt = "unsorted";
-    extraStyle.opacity = 0.35;
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      style={{ width: 22, height: 22, pointerEvents: "none", ...extraStyle }}
-    />
-  );
-};
-
-const { Title, Text } = Typography;
-
 // function ScorePopoverContent({ data }) {
 //   const flagEmoji = getFlagEmoji(data);
 
@@ -286,8 +178,40 @@ const SummaryWithTSChart = ({
   until,
   tabType,
 }) => {
-  console.log("data", data);
+  const MOBILE_BREAKPOINT = 600;
+  // const FONT_SIZE = 12; // default text
+  // const AXIS_FONT_SIZE = 10; // axis label
+  // const SCORE_FONT_SIZE = 11; // the little score badge
+  // const HEADER_HEIGHT = 20;
+  // const HEADER_BASELINE = 16; // the 14-px font sits on this baseline
+  // const ROW_HEIGHT = 36;
+  // const NAME_COL_WIDTH = 160;
+  // const SCORE_COL_WIDTH = 70;
+  // const IP_COL_WIDTH = isASN ? 80 : 0;
+  // const LEFT_COL_TOTAL_WIDTH = NAME_COL_WIDTH + SCORE_COL_WIDTH + IP_COL_WIDTH;
+
+  const { Title, Text } = Typography;
   const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
+  const [winWidth, setWinWidth] = useState(window.innerWidth);
+  useEffect(() => {
+    const onResize = () => setWinWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const isMobile = winWidth <= MOBILE_BREAKPOINT;
+  const FONT_SIZE = isMobile ? 10 : 12;
+  const AXIS_FONT_SIZE = isMobile ? 8 : 10;
+  const SCORE_FONT_SIZE = isMobile ? 9 : 11;
+  const HEADER_HEIGHT = isMobile ? 15 : 20;
+  const HEADER_BASELINE = isMobile ? 12 : 16;
+  const ROW_HEIGHT = isMobile ? 30 : 36;
+
+  const NAME_COL_WIDTH = isMobile ? 100 : 160;
+  const SCORE_COL_WIDTH = isMobile ? 50 : 70;
+  const IP_COL_WIDTH = isASN ? (isMobile ? 50 : 80) : 0;
+  const LEFT_COL_TOTAL_WIDTH = NAME_COL_WIDTH + SCORE_COL_WIDTH + IP_COL_WIDTH;
+
+  const TIMESERIES_MIN_WIDTH = isMobile ? 300 : 600;
   const dateRangeInUrl = hasDateRangeInUrl();
   const chartRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -303,10 +227,6 @@ const SummaryWithTSChart = ({
   const tooltipRef = useRef(null);
   const scoreTooltipRef = useRef(null);
   const isASN = tabType === "asn";
-  const NAME_COL_WIDTH = 160;
-  const SCORE_COL_WIDTH = 70;
-  const IP_COL_WIDTH = isASN ? 80 : 0;
-  const LEFT_COL_TOTAL_WIDTH = NAME_COL_WIDTH + SCORE_COL_WIDTH + IP_COL_WIDTH;
   const styles = {
     container: {
       display: "flex",
@@ -372,11 +292,13 @@ const SummaryWithTSChart = ({
     timeseriesWrapper: {
       flex: 1,
       position: "relative",
-      minWidth: "600px",
+      // minWidth: "600px",
+      minWidth: `${TIMESERIES_MIN_WIDTH}px`,
     },
     timeseriesHeaderContainer: {
       flex: 1,
-      minWidth: "600px",
+      // minWidth: "600px",
+      minWidth: `${TIMESERIES_MIN_WIDTH}px`,
       display: "flex",
       flexDirection: "column",
       position: "relative",
@@ -454,6 +376,105 @@ const SummaryWithTSChart = ({
 
   const xAxisRef = useRef(null);
 
+  //helper: emoji flag map
+  const countryFlagMap = countryData.reduce((acc, country) => {
+    acc[country.code] = country.emoji;
+    return acc;
+  }, {});
+  const getFlagEmoji = (d) => {
+    if (d.entityType === "country") return countryFlagMap[d.entityCode] ?? "";
+    if (d.entityType === "region") return countryFlagMap[d.countryCode] ?? "";
+    return "";
+  };
+  //helper: color conversion
+  function convertHexToRgba(hex, alpha = 1) {
+    let r = 0,
+      g = 0,
+      b = 0;
+    hex = hex.replace("#", "");
+
+    if (hex.length === 3) {
+      r = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    } else if (hex.length === 6) {
+      r = parseInt(hex.substring(0, 2), 16);
+      g = parseInt(hex.substring(2, 4), 16);
+      b = parseInt(hex.substring(4, 6), 16);
+    }
+
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function wrap(text, width) {
+    text.each(function () {
+      const textElement = select(this);
+      const words = textElement.text().split(/\s+/).reverse();
+      let line = [];
+      let lineNumber = 0;
+      const lineHeight = 1.1;
+      const y = textElement.attr("y") || 0;
+      const dy = parseFloat(textElement.attr("dy")) || 0;
+
+      textElement.text(null);
+
+      let tspan = textElement
+        .append("tspan")
+        .attr("x", 0)
+        .attr("y", y)
+        .attr("dy", dy + "em");
+
+      while (words.length) {
+        const word = words.pop();
+        line.push(word);
+        tspan.text(line.join(" "));
+
+        if (tspan.node().getComputedTextLength() > width && line.length > 1) {
+          line.pop();
+          tspan.text(line.join(" "));
+          line = [word];
+          tspan = textElement
+            .append("tspan")
+            .attr("x", 0)
+            .attr("y", y)
+            .attr("dy", ++lineNumber * lineHeight + dy + "em")
+            .text(word);
+        }
+      }
+    });
+  }
+
+  function humanizeNumber(value, precisionDigits = 2) {
+    return format(
+      (isNaN(precisionDigits) ? "" : "." + precisionDigits) +
+        (Math.abs(value) < 1 ? "r" : "s")
+    )(value);
+  }
+
+  const getSortIcon = (column, sortConfig) => {
+    const isActive = sortConfig.criterion === column;
+    const dir = sortConfig.directions[column]; // "asc" | "desc"
+    let src,
+      alt,
+      extraStyle = {};
+
+    if (isActive) {
+      src = dir === "asc" ? iconAsc : iconDesc;
+      alt = dir === "asc" ? "ascending" : "descending";
+    } else {
+      src = iconSortUnsort;
+      alt = "unsorted";
+      extraStyle.opacity = 0.35;
+    }
+
+    return (
+      <img
+        src={src}
+        alt={alt}
+        style={{ width: 22, height: 22, pointerEvents: "none", ...extraStyle }}
+      />
+    );
+  };
   const sortedData = [...data].sort((a, b) => {
     const { criterion, directions } = sortConfig;
     // const valA = criterion === "name" ? a.name : a.score;
