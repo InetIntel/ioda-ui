@@ -1,0 +1,68 @@
+//.control-panel {
+//  @include respond(phone-lg) {
+//    flex-direction: column-reverse;
+//  }
+//
+//  &__controls {
+//    min-width: 46rem;
+//
+//    @include respond(phone) {
+//      min-width: unset;
+//    }
+//
+//    .searchbar {
+//      margin-bottom: 1rem;
+//
+//      &__heading {
+//        display: flex;
+//        align-items: center;
+//      }
+//
+//      &__label {
+//        padding-left: 1rem;
+//        font-style: italic;
+//        font-size: $control-panel-input-label-font-size;
+//        margin-right: 0.5rem;
+//      }
+//    }
+//  }
+//
+//  &__title {
+//    @include respond(phone-lg) {
+//      justify-content: space-between;
+//    }
+//  }
+//}
+
+.control-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  justify-content: space-between;
+}
+
+.control-panel__controls {
+  flex: 1 1 15rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-panel__label {
+  margin-bottom: 1.0rem;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: flex-start;
+}
+
+.control-panel .ant-picker {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding-top: 0;
+  padding-bottom: 0;
+}

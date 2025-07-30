@@ -1,0 +1,42 @@
+.entity {
+  padding-top: $header-height;
+  margin: $gutter-vertical auto;
+
+  @include respond(phone-440) {
+    margin: 1.5rem auto;
+  }
+
+  &__chart-layout {
+    @include respond(tab-port) {
+      flex-direction: column;
+    }
+  }
+
+  &__chart {
+    min-width: 0;
+    max-height: 614px;
+  }
+}
+
+.entity-related {
+  margin-bottom: $gutter-vertical;
+
+  @include respond(tab-port) {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .table--summary tbody {
+    max-height: 34rem;
+  }
+}
+
+.upstream__chart {
+  min-width: 0;
+  flex-grow: 1;
+}
+
+/* Antd tabs flickering issue fix */
+.ant-tabs-nav-operations {
+  display: none !important;
+}

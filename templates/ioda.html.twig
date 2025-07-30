@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>IODA</title>
+{% if app.request.server.get('APP_ENV') == 'dev' %}
+        <meta name="robots" content="noindex">
+{% endif %}
+        <meta charset="UTF-8">
+{#        Favicon #}
+        <link rel="apple-touch-icon" sizes="180x180"
+              href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32"
+              href="/icon-32-new.png">
+        <link rel="icon" type="image/png" sizes="16x16"
+              href="/icon-16-new.png">
+        <link rel="manifest" href="/site.webmanifest?v=69PqBbWL25">
+        <link rel="shortcut icon" href="/favicon.ico">
+        <meta name="apple-mobile-web-app-title" content="IODA">
+        <meta name="application-name" content="IODA">
+        <meta name="theme-color" content="#ffffff">
+{#        Viewport #}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+{#        Stylesheet #}
+        <link rel="stylesheet" href="{{ asset('build/ioda.css') }}">
+{#        Open Graph Metadata #}
+        <meta name="description" content="IODA (Internet Outage Detection and Analysis) monitors Internet infrastructure connectivity to identify outages.">
+
+        <!-- Facebook Meta Tags -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="">
+        <meta property="og:title" content="IODA">
+        <meta property="og:description" content="IODA (Internet Outage Detection and Analysis) monitors Internet infrastructure connectivity to identify outages.">
+        <meta property="og:image" content="https://ioda.inetintel.cc.gatech.edu/ioda-og.jpg">
+        <meta property="og:image:alt" content="IODA Banner" />
+
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta property="twitter:domain" content="ioda-dev.inetintel.cc.gatech.edu/country/SZ">
+        <meta property="twitter:url" content="">
+        <meta name="twitter:title" content="IODA">
+        <meta name="twitter:description" content="IODA (Internet Outage Detection and Analysis) monitors Internet infrastructure connectivity to identify outages.">
+        <meta name="twitter:image" content="https://ioda.inetintel.cc.gatech.edu/ioda-og.jpg">
+    </head>
+    <body>
+        <div id="root">
+            <div class="contentLoading">
+                <img width="180" src="/apple-touch-icon.png" alt="IODA logo" />
+            </div>
+        </div>
+        <script src="{{ asset('build/runtime.js') }}"></script>
+        <script>
+            const div = document.querySelector('.contentLoading');
+            /* documentMode is an IE-only property */
+            let msie = document.documentMode;
+            let html;
+            // IF IE, serve browser not supported statement
+            if (div && msie) {
+                html = '<h1 class="u-full-max-width u-text-align-center">Browser&nbsp;not&nbsp;Supported</h1>';
+                div.insertAdjacentHTML('beforeend', html);
+            } else if (div) {
+                html = '<div class="contentLoading__progressBar progress-bar-striped"><div style="width:100%;"><strong>Loading...</strong></div></div>';
+                div.insertAdjacentHTML('beforeend', html);
+            }
+        </script>
+        <script src="{{ asset('build/ioda.js') }}"></script>
+    </body>
+</html>

@@ -1,0 +1,308 @@
+{
+    "header": {
+      "dashboard": "داشبورد",
+      "reports": "گزارش‌ها",
+      "iodaLogoAltText": " IODA لوگو",
+      "help": "راهنما",
+      "projectInfo": "اطلاعات پروژه",
+      "explorer": "کاوشگر",
+      "acknowledgements": "تایید و تصدیق ",
+      "api": "رابط برنامه‌نویسی کاربردی"
+    },
+    "home": {
+      "title": "IODA",
+      "subheader": "بستری برای تحلیل داده‌های شبکه اینترنت",
+      "searchBarTitle": " (انتخاب کشور، منطقه یا شرکت ارائه دهنده اینترنت/سیستم مستقل(سامانه خودگردان",
+      "searchBarPlaceholder":
+   "سامانه خودگردان،جستجو بر اساس کشور، استان یا شرکت ارائه دهنده اینترنت/سیستم مستقل",
+      "searchBarDashboardText": "یا ادامه دهید با",
+      "searchBarDashboardLink": "داشبورد قطعی‌ها >>",
+      "recentOutages": "قطعی‌های اخیر",
+      "mapTimeFrame": "۲۴ ساعت اخیر",
+      "twitterWidgetTitle": "آخرین خبرها",
+      "about": "IODA که کوتاه شده Internet Outage Detection and Analysis به معنی تشخیص و تجزیه و تحلیل قطعی اینترنت است، یک نمونه سیستم اولیه است که وضعیت ارتباطات اینترنتی را به صورت زنده تحت نظر دارد و قطعی یا اختلال را شناسایی می‌کند.",
+    "aboutButtonText": "داشبورد",
+      "partnersSectionTitle": "شرکا",
+     "otf": "This platform was supported by the Open Technology Fund under contract number 1002-2018-027.", "dhs": "This platform was supported by Department of Homeland Security Science and Technology Directorate (DHS S&T) contract 70RSAT18CB0000015 (IODA-NP: Multi-source Realtime Detection of Macroscopic Internet Connectivity Disruption), and DHS S&T cooperative agreement FA8750-12-2-0326 (Supporting Research and Development of Security Technologies through Network and Security Data Collection).",
+      "comcast": "Additional funding to work on visualization interfaces was generously provided by a Comcast research grant.",
+      "nsf": "This platform was supported by NSF grant CNS-1228994 (Detection and Analysis of Large-scale Internet Infrastructure Outages (IODA)).",
+      "isoc": "Additional funding to support this platform was generously provided by a grant from the Internet Society.",
+      "dos1": "This platform was supported by ",
+      "dos2": "U.S. Department of State, Bureau of Democracy, Human Rights, and Labor",
+      "dos3": " and ",
+      "dos4": "Bureau of Near Eastern Affairs",
+      "dos5": ".",
+      "examples": {
+        "syria": {
+          "title": "Syria, Jun 2020 (Exam-related)",
+          "text1": "Government-ordered Internet shutdowns in conjunction with national exams have been occurring in Syria for ",
+          "text2": "several years",
+          "text3": ". These shutdowns disconnect most of the country from the rest of the Internet. In this example from June 2020, IODA's data and visualizations clearly show the pattern of these outages."
+        },
+        "africa": {
+          "title": "West Africa, Jan 2020 (Cable cut)",
+          "text1": "On January 16 2020, ",
+          "text2": "undersea cable infrastructure problems",
+          "text3": " severely disrupted Internet connectivity in several West African countries. IODA detected significant outages affecting ",
+          "text4": "the Republic of Congo",
+          "text5": ", ",
+          "text6": "Namibia",
+          "text7": "the Democratic Republic of Congo",
+          "text8": ", and ",
+          "text9": "Angola",
+          "text10": " during this time."
+        },
+        "iran": {
+          "title": "Iran, Nov 2019 (Government-mandated)",
+          "text1": "Amid ",
+          "text2": "widespread protests",
+          "text3": " against the government, on November 16 2019, Iran experienced one of the most severe government-ordered ",
+          "text4": "Internet outages",
+          "text5": ". This ",
+          "text6": "detailed analysis",
+          "text7": " shows how most Iranian users were affected for nearly a week. Amnesty International used IODA's data in an ",
+          "text8": "investigation",
+          "text9": " correlating this Internet shutdown with the killing of hundreds of Iranians."
+        },
+        "as37680": {
+          "title": "COOL-IDEAS (AS 37680), Sep 2019 (DDoS attack)",
+          "text1": "A distributed denial-of-service (DDoS) amplification attack leveraging the DNS and CLDAP protocols and ",
+          "text2": "using the \"carpet bombing\" approach",
+          "text3": " resulted in a ",
+          "text4": "multi-hour Internet outage",
+          "text5": " for South Africa's largest Internet service provider on September 21, 2019."
+        },
+        "china": {
+          "title": "China, May 2019",
+          "text1": "On May 13 2019, IODA detected a significant Internet outage affecting China that began at 7:30 PM UTC and continued for several hours. The outage was reported by several sources, including ",
+          "text2": "ThousandEyes",
+          "text3": " and ",
+          "text4": "Internet Intelligence",
+          "text5": " but its cause remains unclear."
+        },
+        "venezuela": {
+          "title": "Venezuela, Mar 2019 (Power outage)",
+          "text1": "In March 2019, Venezuela was affected by ",
+          "text2": "several power outages",
+          "text3": ". IODA's data also shows the cascading failures affecting the power grid as repeated efforts at restoration obtained temporary success."
+        },
+        "as209": {
+          "title": "CenturyLink (AS209), Dec 2018 (Network misconfiguration)",
+          "text1": "In late December 2018, IODA detected a large-scale Internet outage affecting CenturyLink, a major residential Internet Service Provider (ISP) in the U.S. The outage lasted for more than a day and reportedly affected ",
+          "text2": "millions of users",
+          "text3": " and was caused by \"malformed management packets\", according to an ",
+          "text4": "FCC report",
+          "text5": "."
+        },
+        "iraq": {
+          "title": "Iraq, Oct 2016 (Exam-related)",
+          "text1": "In the first week of October 2016, IODA detected nearly daily outages that significantly affected Iraqi Internet connectivity."
+        },
+        "gabon": {
+          "title": "Gabon, Sep 2016 (Government-mandated)",
+          "text1": "In early September 2016, IODA detected daily outages in Gabon that significantly affected Internet connectivity. These outages were widely reported (e.g., by ",
+          "text2": "CNN",
+          "text3": "Cloudflare",
+          "text4": "Akamai",
+          "text5": ", ",
+          "text6": "etc.) and were \"initially imposed amid clashes between opposition protesters and security forces following the announcement that incumbent President Ali Bongo had won reelection by a slim margin\"."
+        }
+      }
+    },
+    "dashboard": {
+      "countryTabTitle": "نمایش کشور",
+      "regionTabTitle": "نمایش منطقه",
+      "countryOutages": "قطعی‌های کشوری",
+      "regionalOutages": "قطعی‌های منطقه‌ای",
+      "asnOutages": "قطعی ها بر اساس شماره سامانه خودگردان/شرکت ارائه دهنده خدمات اینترنت ",
+      "asnTabTitle": "شماره سامانه خودگردان/شرکت ارائه دهنده خدمات اینترنت",
+      "viewTitleMap": "نمای نمودار",
+      "viewTitleChart": "نمای نقشه",
+      "viewChangeIconAltTextHts":"تغییر نمای نمودار",
+      "viewChangeIconAltTextMap": "تغییر نمای نقشه",
+      "timeDurationTooHighErrorMessage": "مدت زمان برای نمودارهای سیگنال باید کمتر از ۹۰ روز باشد. درخواست فعلی برای",
+      "dashDurationTooHighErrorMessage": "مدت زمان برای نقشه‌های داشبورد باید کمتر از ۷ روز باشد. درخواست فعلی برای",
+      "summaryLegendTelescope": "تلسکوپ",
+      "summaryLegendActiveProbing": "ردیاب فعال",
+      "summaryLegendBgp": "مسیریابی بین‌المللی (بی‌جی‌پی)"
+    },
+    "entity": {
+      "pageTitle": "بررسی اجمالی شدت خاموشی",
+      "timeRangeTitle": "قطعی‌های امروز",
+      "xyChartTitle": "  برای IODA سیگنال‌های ",
+      "xyChartXAxisTitle": "زمان بر اساس گرینویچ",
+      "toggleOn": "روشن",
+      "toggleOff": "خاموش",
+      "xyChartAlertToggleLabel": "باندهای هشدار",
+      "xyChartNormalizedToggleLabel": ",مقادیر عادی شده",
+      "activeProbingLegendText": " (#/24s Up) ردیاب فعال",
+      "bgpLegendText": "(/24s مسیریابی بین‌المللی (بی‌جی‌پی) (# قابل رویت ", 
+      "darknetLegendText": "اسکن (# منابع منحصر به فرد نشانه پروتکل اینترنت(آی پي) )",
+      "meritLegendText": " اسکن (# منابع منحصر به فرد نشانه پروتکل اینترنت (آی پی))",
+      "eventAlertButtonText1": "نما ",
+      "eventAlertButtonOption1": "هشدار",
+      "eventAlertButtonOption2": "رویداد",
+      "eventAlertButtonText2": " جدول",
+      "eventFeedTitle": "خوراک رویداد برای",
+      "alertFeedTitle": "خوراک هشدار برای",
+      "regionalModalButtonText": "سیگنال‌های خام منطقه ای",
+      "asnModalButtonText": "سیگنال های خام ارائه دهنده اینترنت/شماره سیستم خودمختار ",
+      "regionalSectionTitleCountryType": "قطعی‌های منطقه ای در ",
+      "regionalSectionTitleRegionType": "سایر مناطق تحت تأثیر ",
+      "regionalSectionTitleAsnType": "مناطقی که {(asn) شماره سیستم خودمختار} در آن‌ها فعالیت می‌کند که با قطعی مواجه شدند"
+  
+    },
+    "controlPanel": {
+      "timeRange": "یک محدوده زمانی را انتخاب کنید",
+      "utc": "گرینویچ",
+      "timeInputCheckbox": "کل روز",
+      "applyButtonText": "درخواست دادن",
+      "searchBarPlaceholder":
+  " جستجو برای کشور، منطقه، یا شماره سامانه خودگردان/شرکت ارائه دهنده خدمات اینترنت",
+      "wholeDay": "کل روز",
+      "apply": "درخواست دادن",
+      "cancel": "لغو کردن",
+      "calendarIconAltText": "نماد تقویم"
+    },
+    "loadingBar": {
+      "loading": "بارگذاری..."
+    },
+    "entityModal": {
+      "regionSingular": " منطقه",
+      "regionPlural": " منطقه",
+      "asnSingular": " ارائه دهنده اینترنت/شماره سیستم خودمختار", 
+      "asnPlural": " ارائه دهنده اینترنت/شماره سیستم خودمختار",
+      "regionTitle": "سیگنال‌های خام منطقه‌ای مربوط به ",
+      "regionalTableTitle": "سیگنال‌های خام منطقه‌ای",
+      "regionalMapTitle": "نقشه قطعی‌های منطقه‌ای",
+      "noOutagesOnMapMessage": "هیچ قطعی منطقه‌ای شناسایی نشد",
+      "checkMaxButton": "حداکثر ۱۵۰ چک باکس را بررسی کنید",
+      "checkMaxButtonBelow150_1": "(حداکثر بررسی (۱۵۰",
+      "checkMaxButtonBelow150_2": "حداکثر بررسی",
+      "uncheckAllButton": "همه موارد را از حالت انتخاب خارج کنید",
+      "loadRemainingEntities1": "تعداد",
+      "loadRemainingEntities2": " در ابتدا محدود شد ",
+      "loadRemainingEntities3": " (",
+      "loadRemainingEntities4": "بارگیری همه",
+      "loadRemainingEntities5": " - ممکن است کمی طول بکشد",
+      "currentCountInHts1": "در حال نمایش ",
+      "currentCountInHts2": "در یک سری محدوده زمانی - از چک باکس‌ها استفاده کنید",
+      "currentCountInHts3": " جدول سیگنال‌های خام برای تغییر انتخاب.",
+      "maxEntitiesPopulatedMessage": "حداکثر تعداد جمعیت. لطفاً قبل از افزودن موارد دیگر، علامت نمایان بودن برخی از یونیت‌ها را بردارید",
+      "asnTitle": "سیگنال های خام ارائه دهنده اینترنت/شماره سیستم خودمختار مربوط به",
+      "asnTableTitle": "سیگنال های خام ارائه دهنده اینترنت/شماره سیستم خودمختار",
+      "pingSlash24HtsLabel": "ردیاب فعال",
+      "bgpHtsLabel": "مسیریابی بین‌المللی (بی‌جی‌پی)",
+      "ucsdNtHtsLabel": "تلسکوپ شبکه",
+      "meritNtHtsLabel": "تلسکوپ شبکه"
+    },
+    "table": {
+      "alertHeaders": {
+        "level": "هشدار",
+        "timeStamp": "زمان بر اساس گرینویچ",
+        "dataSource": "نوع",
+        "actualValue": "ارزش واقعی",
+        "baselineValue": "ارزش پایه"
+      },
+      "alertLabels": {
+        "activeProbing": "ردیاب فعال",
+        "bgp": "مسیریابی بین‌المللی (بی‌جی‌پی)",
+        "darknet": "تلسکوپ",
+        "merit": "تلسکوپ"
+      },
+      "eventHeaders": {
+        "fromDate": "از",
+        "untilDate": "تا زمان",
+        "duration": "مدت زمان",
+        "score": "سطح"
+      },
+      "summaryHeaders": {
+        "name": "نام",
+        "ipCount": "تعداد نشانه پروتکل اینترنت(آی پي)",
+        "score": "سطح"
+      },
+      "signalHeaders": {
+        "visibility": "",
+        "nameCountry": "کشور",
+        "nameRegion": "منطقه",
+        "nameAsn": "ارائه دهنده اینترنت/شماره سیستم خودمختار",
+        "ipCount": "IPتعداد",
+        "score": "سطح قطعی"
+      },
+      "unsortedIconAltText": "مرتب نشده",
+      "scoresTable": {
+        "dataSourceHeading": "منبع",
+        "scoreHeading": "سطح"
+      },
+      "displayCountShowing": "در حال نمایش ",
+      "displayCountOf": " از ",
+      "displayCountEntries": " ورودی‌های",
+      "prevButtonText": "قبلی",
+      "nextButtonText": "بعدی",
+      "eventNoOutagesMessage": "داده‌ای در جدول وجود ندارد",
+      "alertNoOutagesMessage": "داده‌ای در جدول وجود ندارد",
+      "summaryNoOutagesMessage": "داده‌ای در جدول وجود ندارد",
+      "signalNoOutagesMessage": "داده‌ای در جدول وجود ندارد"
+    },
+    "tooltip": {
+      "timeRange": {
+        "title": "محدوده زمانی",
+        "text": "این منوی کشویی به شما این  امکان را  می‌دهد محدوده زمانی داده‌هایی را که می‌خواهید بررسی کنید انتخاب کنید. توجه داشته باشید که داشبورد، داده‌ها را به ۶۰ روز محدود می‌کند."
+      },
+      "searchBar": {
+        "title": "جستجو",
+        "text": "این نوار جستجو امکان پیمایش سریع به یک کشور، منطقه یا  ارائه دهنده اینترنت/شماره سیستم خودمختار."
+      },
+      "dashboardHeading": {
+        "title": "سطح جزییات", 
+        "text": "IODA می‌تواند خاموشی‌ها را در سه سطح جزئیات شناسایی کند: کشورها، مناطق، و ارائه دهنده اینترنت/شماره سیستم خودمختار"
+      },
+      "xyPlotTimeSeriesTitle": {
+        "title": "IODA سیگنال‌های",
+        "text": "این پنل به شما این امکان را  می‌دهد که سری زمانی سه سیگنال IODA را بررسی کنید: ردیاب فعال، مسیریابی بین‌المللی (بی‌جی‌پی) و تلسکوپ."
+      },
+      "alertFeed": {
+        "title": "قسمت هشدار" ,
+        "text": "این جدول شامل قطعی‌های احتمالی است که IODA به آن پی‌برده است. علت قطعی می‌تواند متفاوت باشد که  شامل پیکربندی نادرست، بلایای طبیعی و خاموش شدن می‌شود."
+      },
+      "entityRegionalSummaryMap": {
+        "title": "سطوح شدت خاموشی",
+        "text": "این نقشه خاموشی‌های منطقه‌ای بالقوه را بر اساس شدت نسبی آنها نشان می‌دهد. هر چه قطعی شدیدتر باشد، پوشش ناحیه مربوطه قرمزتر است."
+      },
+      "entityAsnSummaryTable": {
+        "title": "سطوح شدت خاموشی",
+        "text": "این جدول قطعی‌های احتمالی ارائه دهنده اینترنت/شماره سیستم خودمختار را بر اساس شدت نسبی نشان می‌دهد. هر چه قطعی شدیدتر باشد، قسمت جدول مربوطه قرمزتر است."
+      },
+      "entityRawSignalsHeading": {
+        "title": "سیگنال های خام IODA",
+        "text": "این تجسم سیگنال‌های IODA را در طول زمان نشان می‌دهد. با کاهش سیگنال، \"نمودار افقی انباشته\" از سبز تیره به سفید تبدیل می‌شود."
+      }
+    },
+    "timestamp": {
+      "hoverTitle": "کپی را کلیک کنید",
+      "copyToClipboardMessage": "محدوده تاریخ کپی شد"
+    },
+    "reports": {
+      "title": "گزارش‌ها",
+      "text": "ما اغلب گزارش‌هایی می‌نویسیم که حاوی تجزیه و تحلیل دقیق سیگنال‌های IODA در طول رویدادهای قطعی اینترنت هستند.",
+  
+  
+      "link1": "Jan 2021 Uganda",
+      "link2": "Feb to Apr 2020 Iran",
+      "link3": "Nov 2019 Iran",
+      "link4": "Apr 2019 Benin",
+      "link5": "Jan 2019 Gabon"
+    },
+    "about": {
+      "title": "درباره",
+      "text": "IODA (تشخیص و تجزیه و تحلیل قطعی اینترنت) پروژه‌ای است که در ابتدا در CAIDA (پروژه مرکز تحلیل کاربردی داده های اینترنتی) در دانشگاه کالیفرنیا سن دیگو آغاز شد (همچنین به صفحه تایید و تصدیق مراجعه کنید).از سال ۲۰۲۲ این پروژه در موسسه فناوری جورجیا ادامه دارد",
+  
+  
+      "link1": " CAIDA صفحه اصلی پروژه"
+    },
+    "iranReport2020": {
+      "title": "تحلیل قطعی‌های بزرگ اینترنت که شبکه‌های ایرانی را در اوایل سال ۲۰۲۰ تحت تاثیر قرار می‌دهد",
+      "authors": "Ramakrishna Padmanabhan (CAIDA, UC San Diego), Anant Shah (Verizon Media Platform), Nima Fatemi (Kandoo), Alberto Dainotti (CAIDA, UC San Diego)"
+    }
+  }
+  

@@ -1,0 +1,43 @@
+.header {
+  background-color: $color-primary;
+  box-shadow: 0 1px 2px #9f9d9d;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  &__language-select {
+    z-index: 1001;
+  }
+
+  &__item {
+    margin-left: 12px;
+    margin-right: 12px;
+    color: #fff;
+    font-size: 16px;
+  }
+
+  &__drawer-icon {
+    display: none;
+  }
+
+  &__drawer-body {
+    background-color: $color-primary !important;
+    color: #fff;
+  }
+
+  &__drawer-item {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 18px;
+  }
+
+  @include respond(screen-870) {
+    &__item {
+      display: none;
+    }
+
+    &__drawer-icon {
+      display: block;
+    }
+  }
+}

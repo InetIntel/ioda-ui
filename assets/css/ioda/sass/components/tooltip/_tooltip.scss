@@ -1,0 +1,10 @@
+.ioda-help-tooltip {
+  // Nothing should EVER appear above a tooltip
+  z-index: 10000000000;
+  .ant-popover-title {
+    color: #fff !important;
+  }
+  .ant-popover-inner-content {
+    color: #fff !important;
+  }
+}

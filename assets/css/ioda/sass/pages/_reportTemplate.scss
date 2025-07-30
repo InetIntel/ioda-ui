@@ -1,0 +1,11 @@
+.report {
+  @include staticPageFormatting;
+  & p,& ul li{
+    font-size: 2rem;
+
+    & a{
+      font-size: 2rem;
+    }
+  }
+  
+}

@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+body {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-weight: 400;
+}
+
+.section-header {
+  font-size: 2.6rem;
+}
+
+.heading-h1 {
+  color: $color-primary;
+  font-size: 3rem;
+}
+
+.heading-h2 {
+  font-size: 1.8rem;
+  color: $color-primary;
+}
+
+.heading-h3 {
+  font-size: 1.5rem;
+  color: $color-primary;
+  margin-bottom: 1rem;
+}

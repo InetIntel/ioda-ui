@@ -1,0 +1,50 @@
+.map-legend {
+  z-index: 10;
+  width: 60%;
+
+  --extreme-width: 15%;
+
+  &__title {
+    margin-bottom: -0.3rem;
+  }
+
+  &__labels {
+    &-extreme {
+      width: var(--extreme-width);
+    }
+  }
+
+  &__bar {
+    &-background {
+      background: #efefee;
+      position: relative;
+      border-radius: 0.5rem;
+    }
+
+    &-wrapper {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+    }
+
+    &-gradient {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 204, 48, 1) 0%,
+        rgba(238, 105, 91, 1) 100%
+      );
+      border-top-left-radius: 0.5rem;
+      border-bottom-left-radius: 0.5rem;
+    }
+
+    &-extreme {
+      height: 100%;
+      width: var(--extreme-width);
+      background-color: #ea5362;
+      border-top-right-radius: 0.5rem;
+      border-bottom-right-radius: 0.5rem;
+    }
+  }
+}

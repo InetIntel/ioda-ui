@@ -1,0 +1,57 @@
+.dashboard {
+  padding-top: $header-height;
+  margin: $gutter-vertical auto;
+
+  @include respond(phone-440) {
+    margin: 3rem auto;
+  }
+
+  &__tab {
+    height: auto;
+
+    .horizon-series {
+      border-bottom: 1px solid #ccc;
+    }
+
+    & .horizon-series .label {
+      background-color: rgba(255, 255, 255, 0.4);
+      padding: 0 0.4rem;
+      border-radius: 0.3rem;
+      max-height: 100%;
+    }
+
+    &-layout {
+      @include respond(tab-port) {
+        flex-direction: column;
+      }
+    }
+
+    &-map {
+      height: 52.9rem;
+    }
+
+    &-table {
+      & .table {
+        margin-bottom: 0;
+        height: inherit;
+
+        & tbody {
+          max-height: 54.3rem;
+        }
+      }
+    }
+
+    &-error {
+      font-size: 1.3rem;
+
+      &--noOutagesFound {
+        background-color: $color-error-background;
+        color: $color-white;
+        padding: 1rem;
+        border-radius: 0.4rem;
+        font-family: $font-lato-bold;
+        text-transform: capitalize;
+      }
+    }
+  }
+}

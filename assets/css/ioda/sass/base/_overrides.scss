@@ -1,0 +1,20 @@
+// Overrides for ANTD Design Components
+
+// Ensure notification messages are on top of everything
+// Ex: copy and paste success messages
+.ant-message {
+  z-index: 100000;
+}
+
+.ant-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-btn-icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min-content;
+}

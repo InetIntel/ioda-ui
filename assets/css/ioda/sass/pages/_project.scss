@@ -1,0 +1,284 @@
+//.project-info {
+//  padding-top: $header-height;
+//}
+//
+//.acknowledgements {
+//  &__support-grid {
+//    display: grid;
+//    grid-template-columns: repeat(4, 1fr);
+//    gap: 12px;
+//
+//    @include respond(screen-870) {
+//      grid-template-columns: repeat(3, 1fr);
+//    }
+//
+//    @include respond(phone-md) {
+//      grid-template-columns: repeat(1, 1fr);
+//    }
+//  }
+//}
+//
+//.ioda-container {
+//  position: relative;
+//  height: 565px;
+//  align-items: center;
+//  display: flex;
+//  flex-direction: column;
+//}
+//
+//.background-image {
+//  width: 840px;
+//  height: 525px;
+//  object-fit: cover;
+//}
+//
+//.overlay-text {
+//  position: absolute;
+//  top: 20%;
+//  left: 50%;
+//  transform: translate(-50%, -50%);
+//  text-align: center;
+//  color: white;
+//  //background-color: rgba(0, 0, 0, 0.5);
+//  padding: 20px;
+//  border-radius: 10px;
+//}
+//
+//.overlay-text h2 {
+//  font-size: 2rem;
+//  margin-bottom: 1rem;
+//}
+//
+//.overlay-text p {
+//  font-size: 1rem;
+//  line-height: 1.5;
+//  max-width: 600px;
+//  margin: 0 auto;
+//}
+//
+//
+//.ioda-header {
+//  text-align: center;
+//  margin-bottom: 32px;
+//  //position: relative;
+//}
+//
+//.ioda-mission {
+//  margin-bottom: 32px;
+//}
+//
+//.ioda-cards {
+//  margin-top: 20px;
+//}
+//
+//.ioda-card {
+//  text-align: center;
+//  height: 100%;
+//  display: flex;
+//  flex-direction: column;
+//  justify-content: center;
+//}
+//
+//.ioda-card .icon {
+//  font-size: 3em;
+//  margin-bottom: 16px;
+//}
+//
+//@media (max-width: 768px) {
+//  .ioda-header {
+//    text-align: left;
+//  }
+//}
+
+.project-info {
+  padding-top: $header-height;
+}
+
+.acknowledgements {
+  &__support-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+
+    @include respond(screen-870) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include respond(phone-md) {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+}
+
+.ioda-container {
+  position: relative;
+  height: 565px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.world-map-container {
+  width: 100%;
+}
+
+.world-map-section {
+  width: 100%;
+}
+
+.world-map-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+}
+
+.world-map-image {
+  max-width: 90%;
+  object-fit: cover; //cover
+}
+
+.world-map-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 80%;
+  max-width: 700px; // 600px
+  z-index: 2;
+}
+
+.world-map-title {
+  font-size: 2rem;
+  font-weight: 300;
+  color: #1F2937;
+  margin-bottom: 3rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.world-map-paragraph {
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: #494545;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  margin-top: 40px;
+}
+
+/* Responsive styles */
+@media screen and (max-width: 1440px) {
+  .world-map-image {
+    max-width: 1000px;
+  }
+  .world-map-content {
+    max-width: 750px;
+  }
+  .world-map-title {
+    font-size: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .world-map-paragraph {
+    font-size: 1.75rem;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .world-map-container {
+    padding: 4rem 2rem;
+  }
+
+  .world-map-image {
+    max-width: 600px;
+  }
+
+  .world-map-content {
+    max-width: 500px;
+  }
+
+  .world-map-title {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .world-map-paragraph {
+    font-size: 1.5rem;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .world-map-container {
+    padding: 3rem 1.5rem;
+  }
+
+  .world-map-content {
+    max-width: 500px;
+  }
+
+  .world-map-title {
+    font-size: 1.60rem;
+  }
+
+  .world-map-paragraph {
+    font-size: 1.35rem;
+  }
+}
+.overlay-text {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  //background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.overlay-text h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.overlay-text p {
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.ioda-header {
+  text-align: center;
+  margin-bottom: 32px;
+  //position: relative;
+}
+
+.ioda-mission {
+  margin-bottom: 32px;
+}
+
+.ioda-cards {
+  margin-top: 20px;
+}
+
+.ioda-card {
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ioda-card .icon {
+  font-size: 3em;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .ioda-header {
+    text-align: left;
+  }
+}
+

@@ -1,0 +1,425 @@
+{
+  "type": "signals",
+  "metadata": {
+    "requestTime": "2025-01-29T04:24:14+00:00",
+    "responseTime": "2025-01-29T04:24:14+00:00"
+  },
+  "requestParameters": {
+    "from": 1727740800,
+    "until": 1727827200,
+    "datasource": "upstream-delay-penult-asns",
+    "sourceParams": null,
+    "maxPoints": 3000
+  },
+  "error": null,
+  "perf": [
+    {
+      "datasource": "upstream-delay-penult-asns",
+      "backend": "influxv2",
+      "timeUsed": 0.17463994026184082
+    }
+  ],
+  "data": [
+    [
+      {
+        "entityType": "asn",
+        "entityCode": "1299",
+        "entityName": "AS1299 (TWELVE99)",
+        "entityFqid": "asn.1299",
+        "datasource": "upstream-delay-penult-asns",
+        "subtype": "",
+        "from": 1727740800,
+        "until": 1727827200,
+        "step": 3600,
+        "nativeStep": 3600,
+        "values": [
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": null
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 11
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 20
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 21
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 12
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 14
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 19
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 18
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 16
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 18
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 17
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 14
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 20
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 21
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 19
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 14
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 11
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 16
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 11
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 15
+              }
+            }
+          ],
+          [
+            {
+              "penultimate_as": "21334",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 1
+              }
+            },
+            {
+              "penultimate_as": "2637",
+              "target_as": "1299",
+              "agg_values": {
+                "penultimate_as_count": 12
+              }
+            }
+          ]
+        ]
+      }
+    ]
+  ],
+  "copyright": "This data is Copyright (c) 2021-2024 Georgia Tech Research Corporation. All Rights Reserved."
+}
