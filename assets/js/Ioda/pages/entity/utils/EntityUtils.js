@@ -2,8 +2,12 @@ import { registerAnalyticsEvent } from "../../../utils/analytics";
 import { secondsToUTC } from "../../../utils/timeUtils";
 import T from "i18n-react";
 import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
-
-export function handleCSVDownload(timeSeriesChartRef, isNormalized) {
+export function handleCSVDownload(
+  timeSeriesChartRef,
+  isNormalized,
+  from,
+  entityName
+) {
   if (!timeSeriesChartRef.current) {
     return;
   }
@@ -27,7 +31,8 @@ export function handleCSVDownload(timeSeriesChartRef, isNormalized) {
     .join("\n");
 
   const fileName =
-    getChartExportFileName() + (isNormalized ? "-normalized" : "-raw");
+    getChartExportFileName(from, entityName) +
+    (isNormalized ? "-normalized" : "-raw");
 
   const blob = new Blob([parsedCSV], { type: "text/csv;charset=utf-8," });
   const objUrl = URL.createObjectURL(blob);

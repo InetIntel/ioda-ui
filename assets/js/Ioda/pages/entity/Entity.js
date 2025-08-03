@@ -2173,13 +2173,13 @@ const Entity = (props) => {
     );
   }
 
-  // function handleCSVDownload(){
+  // function handleCSVDownload() {
   //   if (!timeSeriesChartRef.current) {
   //     return;
   //   }
-  //
+
   //   const csvString = timeSeriesChartRef.current.chart.getCSV();
-  //
+
   //   // The first column is the timestamp, and each following column is
   //   // duplicated because we duplicate each series for the navigator to always
   //   // show the normalized data. As such, we need to remove the duplicates.
@@ -2195,11 +2195,12 @@ const Entity = (props) => {
   //       });
   //     })
   //     .join("\n");
-  //
+
   //   const isNormalized = !!tsDataNormalized;
   //   const fileName =
-  //     getChartExportFileName(from, entityName) + (isNormalized ? "-normalized" : "-raw");
-  //
+  //     getChartExportFileName(from, entityName) +
+  //     (isNormalized ? "-normalized" : "-raw");
+
   //   const blob = new Blob([parsedCSV], { type: "text/csv;charset=utf-8," });
   //   const objUrl = URL.createObjectURL(blob);
   //   const link = document.createElement("a");
@@ -2208,7 +2209,7 @@ const Entity = (props) => {
   //   document.body.appendChild(link);
   //   link.click();
   //   document.body.removeChild(link);
-  //
+
   //   registerAnalyticsEvent("Entity", "DownloadDataCSV");
   // }
 
@@ -3555,7 +3556,12 @@ const Entity = (props) => {
                                 className="w-full mb-2"
                                 size="small"
                                 onClick={() =>
-                                  handleCSVDownload(timeSeriesChartRef)
+                                  handleCSVDownload(
+                                    timeSeriesChartRef,
+                                    !!tsDataNormalized,
+                                    from,
+                                    entityName
+                                  )
                                 }
                                 disabled={xyChartOptions == null}
                               >
