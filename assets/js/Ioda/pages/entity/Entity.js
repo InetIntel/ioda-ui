@@ -1083,9 +1083,7 @@ const Entity = (props) => {
   useEffect(() => {
     // Rerender chart and set navigator bounds
     if (xyChartOptions) {
-      console.log("before render chart");
       renderXyChart();
-      console.log("after render chart");
       const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
       const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
       setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
@@ -1279,7 +1277,6 @@ const Entity = (props) => {
     // Loop through available datasources to collect plot points
     tsDataRaw[0].forEach((datasource) => {
       let id = datasource.datasource;
-      console.log("datasource", datasource);
       id += datasource.subtype ? `.${datasource.subtype}` : "";
 
       // Only track the maxes of visible series. If we keep the maxes from
@@ -1729,6 +1726,16 @@ const Entity = (props) => {
         },
       ],
       series: chartSignals,
+      lang: {
+        noData: "No data available for selected time range",
+      },
+      noData: {
+        style: {
+          fontWeight: "normal",
+          fontSize: "14px",
+          color: "#666",
+        },
+      },
     };
     const chartOptionsStacked = {
       chart: {
@@ -1905,6 +1912,16 @@ const Entity = (props) => {
       },
       yAxis: yAxes,
       series: [...chartSeriesStacked, ...navigatorSeriesStacked],
+      lang: {
+        noData: "No data available for selected time range",
+      },
+      noData: {
+        style: {
+          fontWeight: "normal",
+          fontSize: "14px",
+          color: "#666",
+        },
+      },
     };
     // Rerender chart and set navigator bounds
     setXyChartOptions(
@@ -3263,6 +3280,17 @@ const Entity = (props) => {
     setTsDataSeriesVisibleMap(tmpVisibleSeries);
   }
 
+  function clearAllSignals() {
+    setTsDataSeriesVisibleMap((prev) => {
+      const newMap = { ...prev };
+      Object.keys(newMap).forEach((key) => {
+        newMap[key] = false;
+      });
+      return newMap;
+    });
+    setSourceParams([]);
+  }
+
   const handleGlobalAsnSignals = useCallback(() => {
     setRawAsnSignalsLoaded((prev) => !prev);
     setGlobalSwitch((globalSwitch) => !globalSwitch);
@@ -3581,6 +3609,7 @@ const Entity = (props) => {
                           checkedMap={tsDataSeriesVisibleMap}
                           updateSourceParams={updateSourceParams}
                           simplifiedView={simplifiedView}
+                          clearAllSignals={clearAllSignals}
                         />
                         <div className="ml-auto">
                           <Button.Group

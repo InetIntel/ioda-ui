@@ -199,6 +199,7 @@ const SummaryWithTSChart = ({
     return () => window.removeEventListener("resize", onResize);
   }, []);
   const isMobile = winWidth <= MOBILE_BREAKPOINT;
+  const isASN = tabType === "asn";
   const FONT_SIZE = isMobile ? 10 : 12;
   const AXIS_FONT_SIZE = isMobile ? 8 : 10;
   const SCORE_FONT_SIZE = isMobile ? 9 : 11;
@@ -226,7 +227,6 @@ const SummaryWithTSChart = ({
   });
   const tooltipRef = useRef(null);
   const scoreTooltipRef = useRef(null);
-  const isASN = tabType === "asn";
   const styles = {
     container: {
       display: "flex",

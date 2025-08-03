@@ -213,7 +213,9 @@ const ChartLegendCard = ({
   checkedMap,
   updateSourceParams,
   simplifiedView,
+  clearAllSignals,
 }) => {
+  const [selectedPaths, setSelectedPaths] = useState([]);
   const { entityType } = useParams();
   const isCountryView = entityType === "country";
 
@@ -222,7 +224,9 @@ const ChartLegendCard = ({
   );
   const allGoogleSeries = legend.filter((item) => item.key.startsWith("gtr."));
   const googleLeaves = !simplifiedView && isCountryView ? allGoogleSeries : [];
-
+  const handleClearAll = () => {
+    clearAllSignals();
+  };
   const cascaderOptions = [
     ...baseItems.map((item) => {
       const tip = item.tooltip;
@@ -294,7 +298,6 @@ const ChartLegendCard = ({
       : []),
   ];
 
-  const [selectedPaths, setSelectedPaths] = useState([]);
   useEffect(() => {
     const init = [];
     baseItems.forEach((item) => {
@@ -319,10 +322,12 @@ const ChartLegendCard = ({
     fullTagText[item.key] = `Google (${item.title})`;
     colorMap[item.key] = item.color;
   });
-  // console.log("fullTagText:", fullTagText);
-  // console.log("colorMap:", colorMap);
 
-  const onCascaderChange = (newPaths) => {
+  const onCascaderChange = (newPaths = []) => {
+    if (newPaths.length === 0) {
+      handleClearAll();
+      return;
+    }
     const newLeaves = newPaths.map((p) => p[p.length - 1]);
     baseItems.forEach((item) => {
       const was = !!checkedMap[item.key];
@@ -339,7 +344,6 @@ const ChartLegendCard = ({
     });
     setSelectedPaths(newPaths);
   };
-  // console.log("SelectedPaths", selectedPaths);
 
   return (
     <Cascader
@@ -349,8 +353,8 @@ const ChartLegendCard = ({
       onChange={onCascaderChange}
       multiple
       placeholder="Select series…"
-      // maxTagCount="responsive"
       showCheckedStrategy={Cascader.SHOW_CHILD}
+      allowClear
       style={{
         width: "73%",
       }}

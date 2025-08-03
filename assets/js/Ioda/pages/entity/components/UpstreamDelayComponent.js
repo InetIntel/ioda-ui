@@ -486,7 +486,7 @@ const UpstreamDelayComponent = ({
     tooltip: {
       pointFormatter: function () {
         const val = (this.y / 1000).toFixed(3);
-        return `<b>TTL</b> = ${val} ms`;
+        return `<b>RTT</b> = ${val} ms`;
       },
     },
     showInNavigator: false,
@@ -981,11 +981,11 @@ const UpstreamDelayComponent = ({
           itemDistance: 40,
           enabled: true,
         },
-        spacing: [50, 10, 15, 10],
+        chart: { spacing: [50, 10, 15, 10], marginTop: 100 },
       },
       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-      sourceWidth: 1280,
-      sourceHeight: 720,
+      sourceWidth: 960,
+      sourceHeight: 540,
     },
     yAxis: [
       {
@@ -1096,7 +1096,7 @@ const UpstreamDelayComponent = ({
     series: [
       {
         showInNavigator: false,
-        name: "Mean TTL",
+        name: "Mean RTT",
         data: asnLatencyDataFiltered,
         type: "line",
         color: "#1890ff",
@@ -1104,7 +1104,7 @@ const UpstreamDelayComponent = ({
         tooltip: {
           pointFormatter: function () {
             const val = (this.y / 1000).toFixed(3);
-            return `<b>Mean TTL</b> = ${val} ms`;
+            return `<b>Mean RTT</b> = ${val} ms`;
           },
         },
         yAxis: 0,
@@ -1282,7 +1282,7 @@ const UpstreamDelayComponent = ({
           itemDistance: 40,
           enabled: true,
         },
-        spacing: [50, 10, 15, 10],
+        chart: { spacing: [50, 10, 15, 10], marginTop: 100 },
       },
       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
       sourceWidth: 960,
@@ -1570,6 +1570,10 @@ const UpstreamDelayComponent = ({
    */
   function manuallyDownloadChart(imageType) {
     const chartRef = activeTab === "1" ? chartCombinedRef : chartIndividualRef;
+    // console.log("chartref", chartRef);
+    // if (chartRef.current?.chart) {
+    //   chartRef.current.chart.redraw();
+    // }
     // const chartRef = chartCombinedRef.current
     //   ? chartCombinedRef
     //   : chartIndividualRef;
@@ -1577,6 +1581,65 @@ const UpstreamDelayComponent = ({
     // if (!chartRef1.current?.chart || !chartRef2.current?.chart) {
     //   return;
     // }
+    // Debug: Log current state before export
+    console.group("Chart Export Debug");
+    console.log("Active Tab:", activeTab);
+    console.log("Selected ASNs:", selectedAsns);
+
+    if (chartRef.current?.chart) {
+      // Log chart series data
+      console.log(
+        "Chart Series:",
+        chartRef.current.chart.series.map((s) => ({
+          name: s.name,
+          type: s.type,
+          visible: s.visible,
+          dataLength: s.data.length,
+          firstPoint: s.data[0]?.y,
+          lastPoint: s.data[s.data.length - 1]?.y,
+          processedData: s.data.map((point) => ({
+            x: point.x,
+            y: point.y,
+            timestamp: new Date(point.x).toISOString(),
+          })),
+        }))
+      );
+
+      // Log the data we're about to use for export
+      if (activeTab === "1") {
+        console.log("Combined Chart Data - Average Latency:", {
+          length: asnLatencyDataFiltered?.length,
+          firstPoint: asnLatencyDataFiltered?.[0],
+          lastPoint:
+            asnLatencyDataFiltered?.[asnLatencyDataFiltered.length - 1],
+        });
+        console.log(
+          "Combined Chart Data - Trace Series:",
+          filteredTraceSeries.map((s) => ({
+            name: s.name,
+            dataLength: s.data.length,
+          }))
+        );
+      } else {
+        console.log(
+          "Individual Chart Data - Latency Series:",
+          filteredLatencySeries.map((s) => ({
+            name: s.name,
+            dataLength: s.data.length,
+          }))
+        );
+        console.log(
+          "Individual Chart Data - Trace Series:",
+          filteredTraceSeries.map((s) => ({
+            name: s.name,
+            dataLength: s.data.length,
+          }))
+        );
+      }
+    } else {
+      console.warn("Chart reference not available");
+    }
+    console.groupEnd();
 
     // Append watermark to image on download:
     // https://www.highcharts.com/forum/viewtopic.php?t=47368
@@ -1584,35 +1647,67 @@ const UpstreamDelayComponent = ({
       {
         type: imageType,
         filename: exportFileName,
-      },
-      {
-        // chart: {}
-        chart: {
-          // spacingTop: 70,
-          events: {
-            load: function () {
-              const chart = this;
-              const watermarkAspectRatio = 0.184615;
-              const watermarkWidth = Math.floor(chart.chartWidth / 6);
-              const watermarkHeight = Math.floor(
-                watermarkWidth * watermarkAspectRatio
-              );
-              const padding = 12;
+        chartOptions: {
+          chart: {
+            // spacingTop: 70,
+            events: {
+              load: function () {
+                const chart = this;
+                // Ensure all series are properly rendered
+                chart.series.forEach((series) => {
+                  if (series.visible) series.redraw();
+                });
 
-              chart.watermarkImage = chart.renderer
-                .image(
-                  iodaWatermark,
-                  chart.chartWidth - watermarkWidth - padding,
-                  padding,
-                  watermarkWidth,
-                  watermarkHeight
-                )
-                .add()
-                .toFront();
+                const watermarkAspectRatio = 0.184615;
+                const watermarkWidth = Math.floor(chart.chartWidth / 6);
+                const watermarkHeight = Math.floor(
+                  watermarkWidth * watermarkAspectRatio
+                );
+                const padding = 12;
+
+                chart.watermarkImage = chart.renderer
+                  .image(
+                    iodaWatermark,
+                    chart.chartWidth - watermarkWidth - padding,
+                    padding,
+                    watermarkWidth,
+                    watermarkHeight
+                  )
+                  .add()
+                  .toFront();
+              },
             },
           },
         },
       }
+      // {
+      //   // chart: {}
+      //   chart: {
+      //     // spacingTop: 70,
+      //     events: {
+      //       load: function () {
+      //         const chart = this;
+      //         const watermarkAspectRatio = 0.184615;
+      //         const watermarkWidth = Math.floor(chart.chartWidth / 6);
+      //         const watermarkHeight = Math.floor(
+      //           watermarkWidth * watermarkAspectRatio
+      //         );
+      //         const padding = 12;
+
+      //         chart.watermarkImage = chart.renderer
+      //           .image(
+      //             iodaWatermark,
+      //             chart.chartWidth - watermarkWidth - padding,
+      //             padding,
+      //             watermarkWidth,
+      //             watermarkHeight
+      //           )
+      //           .add()
+      //           .toFront();
+      //       },
+      //     },
+      //   },
+      // }
     );
   }
 
