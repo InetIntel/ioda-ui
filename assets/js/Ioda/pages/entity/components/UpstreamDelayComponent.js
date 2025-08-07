@@ -490,6 +490,7 @@ const UpstreamDelayComponent = ({
       },
     },
     showInNavigator: false,
+    showInLegend: false,
   }));
 
   const traceAsnDict = {};
@@ -521,6 +522,7 @@ const UpstreamDelayComponent = ({
       type: "area",
       yAxis: 1,
       showInNavigator: false,
+      showInLegend: true,
       tooltip: {
         pointFormatter: function () {
           return `<b>${name}</b>: ${this.y}`;
@@ -1096,6 +1098,7 @@ const UpstreamDelayComponent = ({
     series: [
       {
         showInNavigator: false,
+        showInLegend: true,
         name: "Mean RTT",
         data: asnLatencyDataFiltered,
         type: "line",
@@ -1730,6 +1733,7 @@ const UpstreamDelayComponent = ({
         exportFileName={() => getChartExportFileName(from, entityName)}
         shareLink={window.location.href}
         entityName={entityName}
+        extraTopMargin
       />
       <div>
         <div className="flex items-stretch gap-6  entity__chart-layout">

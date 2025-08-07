@@ -194,6 +194,7 @@ export default function MarkupStudioModal({
   exportFileName,
   entityName,
   shareLink,
+  extraTopMargin,
 }) {
   const fabricCanvas = React.useRef(null);
   const canvasContainer = React.useRef(null);
@@ -241,7 +242,7 @@ export default function MarkupStudioModal({
 
   const initCanvas = () => {
     const canvas = new fabric.Canvas(fabricCanvas.current, {
-      height: 480,
+      height: extraTopMargin ? 500 : 480,
       width: 800,
       backgroundColor: "#fff",
       uniformScaling: false,
@@ -273,7 +274,7 @@ export default function MarkupStudioModal({
         chartImage
           .scaleToWidth(canvas.width)
           .set({
-            top: 28,
+            top: extraTopMargin ? 45 : 28,
             left: 0,
             selectable: false,
             evented: false,
