@@ -178,6 +178,7 @@ const SummaryWithTSChart = ({
   until,
   tabType,
 }) => {
+  console.log("tschart data", data);
   const MOBILE_BREAKPOINT = 600;
   // const FONT_SIZE = 12; // default text
   // const AXIS_FONT_SIZE = 10; // axis label
@@ -375,6 +376,42 @@ const SummaryWithTSChart = ({
   };
 
   const xAxisRef = useRef(null);
+  const boxConfig = [
+    { key: "ping-slash24.median", color: "#1677ff", name: "Active Probing" },
+    { key: "bgp.median", color: "#52c41a", name: "BGP" },
+    { key: "merit-nt.median", color: "#fa8c16", name: "Telescope" },
+  ];
+
+  function SourceTriplet({ scores }) {
+    return (
+      <div
+        aria-label="score sources"
+        style={{
+          display: "inline-flex",
+          flexDirection: "column",
+          gap: 2,
+          // marginRight: 6,
+        }}
+      >
+        {boxConfig.map(({ key, color }, idx) => {
+          const hasIt =
+            Array.isArray(scores) &&
+            scores.some((s) => s.source === key && s.score != null);
+          return (
+            <div
+              key={idx}
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 1,
+                background: hasIt ? color : "#d9d9d9",
+              }}
+            />
+          );
+        })}
+      </div>
+    );
+  }
 
   //helper: emoji flag map
   const countryFlagMap = countryData.reduce((acc, country) => {
@@ -1061,10 +1098,14 @@ const SummaryWithTSChart = ({
                   style={{
                     // width: "70px",
                     width: `${SCORE_COL_WIDTH}px`,
-                    textAlign: "center",
+                    // textAlign: "center",
+
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <Popover
+                  {/* <Popover
                     trigger="hover"
                     placement="right"
                     content={<ScorePopoverContent data={d} />}
@@ -1123,6 +1164,76 @@ const SummaryWithTSChart = ({
                         {humanizeNumber(d.score, 2)}
                       </span>
                     </div>
+                  </Popover> */}
+                  <Popover
+                    trigger="hover"
+                    placement="right"
+                    content={<ScorePopoverContent data={d} />}
+                    overlayClassName="score-popover"
+                    overlayInnerStyle={{
+                      padding: 0,
+                      boxShadow: "none",
+                      border: "none",
+                      borderRadius: 0,
+                      background: "transparent",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 3,
+                        height: "100%",
+                      }}
+                    >
+                      <SourceTriplet scores={d.scores} />
+                      <div
+                        style={{
+                          position: "relative",
+                          width: 45,
+                          height: 22,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            backgroundColor: convertHexToRgba(
+                              getEntityScaleColor(
+                                d.score,
+                                isASN ? "region" : tabType
+                              ) || "#d0d0d0",
+                              0.2
+                            ),
+                            borderRadius: 2,
+                            zIndex: 1,
+                            border: "1px solid",
+                            borderColor:
+                              getEntityScaleColor(
+                                d.score,
+                                isASN ? "region" : tabType
+                              ) || "#d0d0d0",
+                            boxSizing: "border-box",
+                          }}
+                        />
+                        <span
+                          style={{
+                            position: "relative",
+                            fontSize: `${SCORE_FONT_SIZE}px`,
+                            color: "#000",
+                            zIndex: 2,
+                            textAlign: "center",
+                            fontVariantNumeric: "tabular-nums",
+                          }}
+                        >
+                          {humanizeNumber(d.score, 2)}
+                        </span>
+                      </div>
+                    </div>
                   </Popover>
                 </div>
               </div>
@@ -1137,6 +1248,35 @@ const SummaryWithTSChart = ({
             />
           </div>
         </div>
+      </div>
+      {/* Bottom row - Legend */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          marginTop: 6,
+          marginLeft: 6,
+          fontSize: `${FONT_SIZE}px`,
+        }}
+      >
+        {boxConfig.map(({ color, name }) => {
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <div
+                style={{
+                  width: 6,
+                  height: 6,
+                  backgroundColor: `${color}`,
+                  borderRadius: 1,
+                }}
+              />
+              <span style={{ fontStyle: "italic" }} n>
+                {name}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
