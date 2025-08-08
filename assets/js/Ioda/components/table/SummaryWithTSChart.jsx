@@ -377,9 +377,9 @@ const SummaryWithTSChart = ({
 
   const xAxisRef = useRef(null);
   const boxConfig = [
-    { key: "ping-slash24.median", color: "#1677ff", name: "Active Probing" },
-    { key: "bgp.median", color: "#52c41a", name: "BGP" },
-    { key: "merit-nt.median", color: "#fa8c16", name: "Telescope" },
+    { key: "ping-slash24.median", color: "#2078B4", name: "Active Probing" },
+    { key: "bgp.median", color: "#32a02d", name: "BGP" },
+    { key: "merit-nt.median", color: "#ED9B40", name: "Telescope" },
   ];
 
   function SourceTriplet({ scores }) {
