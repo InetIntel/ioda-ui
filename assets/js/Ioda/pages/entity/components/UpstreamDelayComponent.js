@@ -389,35 +389,9 @@ const UpstreamDelayComponent = ({
         </span>
       ),
     },
-    // {
-    //   title: "Avg#Traceroutes",
-    //   dataIndex: "avgTraceroute",
-    //   key: "avgTraceroute",
-    //   // sorter: (a, b) => a.avgTraceroute - b.avgTraceroute,
-    //   // defaultSortOrder: "descend",
-    //   // render: (v) => v.toLocaleString(),
-    //   // width: 120,
-    //   sorter: (a, b) => (a.avgTraceroute || 0) - (b.avgTraceroute || 0),
-    //   defaultSortOrder: "descend",
-    //   render: (v) => (v != null ? v.toLocaleString() : "—"),
-    //   width: 120,
-    // },
   ];
-  // const displayColumns = asnColumns.filter(
-  //   (col) => col.dataIndex !== "avgTraceroute"
-  // );
-
-  // const asnLatencyData =
-  //   jsonData?.values?.map((obj) => {
-  //     const geometric_mean_e2e_latency_array = obj.map(
-  //       (item) => item?.agg_values?.geometric_mean_e2e_latency
-  //     );
-  //     return geometricMean(geometric_mean_e2e_latency_array) === null
-  //       ? null
-  //       : Math.round(geometricMean(geometric_mean_e2e_latency_array));
-  //   }) || [];
-  const asnLatencyDataFiltered =
-    jsonData?.values?.map((timeSlice) => {
+  const asnLatencyDataFiltered = (jsonData?.values || []).map(
+    (timeSlice, i) => {
       const filtered = timeSlice.filter((item) =>
         selectedAsns.includes(`AS${item.penultimate_as}`)
       );
@@ -425,8 +399,10 @@ const UpstreamDelayComponent = ({
         .map((item) => item.agg_values.geometric_mean_e2e_latency)
         .filter((v) => v != null);
       const gm = geometricMean(latencies);
-      return gm == null ? null : Math.round(gm);
-    }) || [];
+      const x = (jsonData?.from + jsonData?.step * i) * 1000;
+      return [x, gm == null ? null : Math.round(gm)];
+    }
+  );
 
   const exportChartTitle = getChartExportTitle();
 
@@ -1585,64 +1561,64 @@ const UpstreamDelayComponent = ({
     //   return;
     // }
     // Debug: Log current state before export
-    console.group("Chart Export Debug");
-    console.log("Active Tab:", activeTab);
-    console.log("Selected ASNs:", selectedAsns);
+    // console.group("Chart Export Debug");
+    // console.log("Active Tab:", activeTab);
+    // console.log("Selected ASNs:", selectedAsns);
 
-    if (chartRef.current?.chart) {
-      // Log chart series data
-      console.log(
-        "Chart Series:",
-        chartRef.current.chart.series.map((s) => ({
-          name: s.name,
-          type: s.type,
-          visible: s.visible,
-          dataLength: s.data.length,
-          firstPoint: s.data[0]?.y,
-          lastPoint: s.data[s.data.length - 1]?.y,
-          processedData: s.data.map((point) => ({
-            x: point.x,
-            y: point.y,
-            timestamp: new Date(point.x).toISOString(),
-          })),
-        }))
-      );
+    // if (chartRef.current?.chart) {
+    //   // Log chart series data
+    //   console.log(
+    //     "Chart Series:",
+    //     chartRef.current.chart.series.map((s) => ({
+    //       name: s.name,
+    //       type: s.type,
+    //       visible: s.visible,
+    //       dataLength: s.data.length,
+    //       firstPoint: s.data[0]?.y,
+    //       lastPoint: s.data[s.data.length - 1]?.y,
+    //       processedData: s.data.map((point) => ({
+    //         x: point.x,
+    //         y: point.y,
+    //         timestamp: new Date(point.x).toISOString(),
+    //       })),
+    //     }))
+    //   );
 
-      // Log the data we're about to use for export
-      if (activeTab === "1") {
-        console.log("Combined Chart Data - Average Latency:", {
-          length: asnLatencyDataFiltered?.length,
-          firstPoint: asnLatencyDataFiltered?.[0],
-          lastPoint:
-            asnLatencyDataFiltered?.[asnLatencyDataFiltered.length - 1],
-        });
-        console.log(
-          "Combined Chart Data - Trace Series:",
-          filteredTraceSeries.map((s) => ({
-            name: s.name,
-            dataLength: s.data.length,
-          }))
-        );
-      } else {
-        console.log(
-          "Individual Chart Data - Latency Series:",
-          filteredLatencySeries.map((s) => ({
-            name: s.name,
-            dataLength: s.data.length,
-          }))
-        );
-        console.log(
-          "Individual Chart Data - Trace Series:",
-          filteredTraceSeries.map((s) => ({
-            name: s.name,
-            dataLength: s.data.length,
-          }))
-        );
-      }
-    } else {
-      console.warn("Chart reference not available");
-    }
-    console.groupEnd();
+    //   // Log the data we're about to use for export
+    //   if (activeTab === "1") {
+    //     console.log("Combined Chart Data - Average Latency:", {
+    //       length: asnLatencyDataFiltered?.length,
+    //       firstPoint: asnLatencyDataFiltered?.[0],
+    //       lastPoint:
+    //         asnLatencyDataFiltered?.[asnLatencyDataFiltered.length - 1],
+    //     });
+    //     console.log(
+    //       "Combined Chart Data - Trace Series:",
+    //       filteredTraceSeries.map((s) => ({
+    //         name: s.name,
+    //         dataLength: s.data.length,
+    //       }))
+    //     );
+    //   } else {
+    //     console.log(
+    //       "Individual Chart Data - Latency Series:",
+    //       filteredLatencySeries.map((s) => ({
+    //         name: s.name,
+    //         dataLength: s.data.length,
+    //       }))
+    //     );
+    //     console.log(
+    //       "Individual Chart Data - Trace Series:",
+    //       filteredTraceSeries.map((s) => ({
+    //         name: s.name,
+    //         dataLength: s.data.length,
+    //       }))
+    //     );
+    //   }
+    // } else {
+    //   console.warn("Chart reference not available");
+    // }
+    // console.groupEnd();
 
     // Append watermark to image on download:
     // https://www.highcharts.com/forum/viewtopic.php?t=47368
