@@ -79,6 +79,7 @@
         "react-dom": "^18.2.0",
         "react-ga4": "^2.1.0",
         "react-helmet": "^6.1.0",
+        "react-html-parser": "^2.0.2",
         "react-leaflet": "^2.7.0",
         "react-preload-image": "^1.0.7",
         "react-redux": "^7.1.3",
