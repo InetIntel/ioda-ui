@@ -1,5 +1,6 @@
 import React from "react";
 import { Alert } from "antd";
+import  ReactHtmlParser from "react-html-parser";
 
 const GlobalAlert = ({ title, description, type }) => {
   // Only render the Alert if both title and type are provided
@@ -7,7 +8,7 @@ const GlobalAlert = ({ title, description, type }) => {
     return (
       <Alert
         message={title}
-        description={description} // description is optional
+        description={ReactHtmlParser(description)} // description is optional
         type={type}
         closable
         showIcon

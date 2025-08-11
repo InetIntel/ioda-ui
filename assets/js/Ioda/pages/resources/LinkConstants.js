@@ -110,7 +110,6 @@ const link_resources = [
       community: ["Internet Measurement"],
     },
   },
-
   {
     title: "Why IODA is important in the Internet Freedom Community",
     type: "Video",
