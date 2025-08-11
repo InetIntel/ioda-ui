@@ -150,7 +150,7 @@ const DashboardTab = (props) => {
                         // entityName={entityName}
                         // handleDownload={() => manuallyDownloadChart("image/jpeg")}
                       /> */}
-                      <div className="flex items-center mb-2" ref={config}>
+                      <div className="flex items-center mb-3" ref={config}>
                         <div className="font-medium text-2xl flex items-center gap-2">
                           <EnvironmentFilled style={{ color: "#8c8c8c" }} />
                           <span className="text-black">
@@ -275,7 +275,7 @@ const DashboardTab = (props) => {
                       flexDirection: "column",
                     }}
                   >
-                    <div className="font-medium text-2xl flex items-center gap-2 mb-4">
+                    <div className="font-medium text-2xl flex items-center gap-2 mb-3">
                       <img
                         src={iconBsky}
                         alt="Bluesky icon"
@@ -306,7 +306,7 @@ const DashboardTab = (props) => {
                   // entityName={entityName}
                   // handleDownload={() => manuallyDownloadChart("image/jpeg")}
                 /> */}
-                <div className="flex items-center mb-2" ref={config}>
+                <div className="flex items-center mb-3" ref={config}>
                   <div className="font-medium text-2xl flex items-center gap-2">
                     <ClockCircleFilled style={{ color: "#8c8c8c" }} />
                     <span className="text-black">
