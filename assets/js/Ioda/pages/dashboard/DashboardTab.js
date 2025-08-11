@@ -142,34 +142,14 @@ const DashboardTab = (props) => {
                     className="col-2 p-4 pt-2 card flex flex-col "
                   >
                     <div className="col-2 mw-0">
-                      {/* <div className="flex items-center mb-4" ref={config}>
-                      <div className="font-medium text-2xl flex items-center gap-2">
-                        <EnvironmentFilled style={{ color: "#8c8c8c" }} />
-                        <span className="text-black">
-                          {type === "country"
-                            ? countryOutages
-                            : type === "region"
-                              ? regionalOutages
-                              : type === "asn"
-                                ? asnOutages
-                                : null}
-                        </span>
-                      </div>
-
-                      <Tooltip
-                        title={tooltipDashboardHeadingTitle}
-                        text={tooltipDashboardHeadingText}
-                      />
-                    </div> */}
-                      {/* 0616 added */}
-                      <ShareLinkModal
+                      {/* <ShareLinkModal
                         open={showShareLinkModal}
                         link={window.location.href}
                         hideModal={hideShareLinkModal}
                         showModal={displayShareLinkModal}
                         // entityName={entityName}
                         // handleDownload={() => manuallyDownloadChart("image/jpeg")}
-                      />
+                      /> */}
                       <div className="flex items-center mb-2" ref={config}>
                         <div className="font-medium text-2xl flex items-center gap-2">
                           <EnvironmentFilled style={{ color: "#8c8c8c" }} />
@@ -189,7 +169,7 @@ const DashboardTab = (props) => {
                           text={tooltipDashboardHeadingText}
                         />
 
-                        <div className="flex ml-auto">
+                        {/* <div className="flex ml-auto">
                           <ATooltip title="Share Link">
                             <Button
                               className="mr-3"
@@ -250,7 +230,7 @@ const DashboardTab = (props) => {
                               <Button icon={<DownloadOutlined />} />
                             </ATooltip>
                           </Popover>
-                        </div>
+                        </div> */}
                       </div>
 
                       <div
@@ -318,37 +298,14 @@ const DashboardTab = (props) => {
               {/* ───────────────────────── 2nd ROW ───────────────────────── */}
 
               <div className="card p-4 pt-2">
-                {/* <div className="flex items-center mb-4" ref={config}> */}
-                {/* <div className="font-medium text-3xl">
-                      {type === "country"
-                        ? "All " + countryOutages + " Timeline"
-                        : type === "region"
-                          ? "All " + regionalOutages + " Timeline"
-                          : type === "asn"
-                            ? "All " + asnOutages + " Timeline"
-                            : null}
-                    </div> */}
-                {/* <div className="font-medium text-2xl flex items-center gap-2">
-                      <ClockCircleFilled style={{ color: "#8c8c8c" }} />
-                      <span className="text-black">
-                        {type === "country"
-                          ? "All " + countryOutages + " Timeline"
-                          : type === "region"
-                            ? "All " + regionalOutages + " Timeline"
-                            : type === "asn"
-                              ? "All " + asnOutages + " Timeline"
-                              : null}
-                      </span>
-                    </div>
-                  </div> */}
                 {/* <ShareLinkModal
-                      open={showShareLinkModal}
-                      link={window.location.href}
-                      hideModal={hideShareLinkModal}
-                      showModal={displayShareLinkModal}
-                      // entityName={entityName}
-                      // handleDownload={() => manuallyDownloadChart("image/jpeg")}
-                    /> */}
+                  open={showShareLinkModal}
+                  link={window.location.href}
+                  hideModal={hideShareLinkModal}
+                  showModal={displayShareLinkModal}
+                  // entityName={entityName}
+                  // handleDownload={() => manuallyDownloadChart("image/jpeg")}
+                /> */}
                 <div className="flex items-center mb-2" ref={config}>
                   <div className="font-medium text-2xl flex items-center gap-2">
                     <ClockCircleFilled style={{ color: "#8c8c8c" }} />
@@ -368,7 +325,7 @@ const DashboardTab = (props) => {
                     text={tooltipDashboardHeadingText}
                   />
 
-                  <div className="flex ml-auto">
+                  {/* <div className="flex ml-auto">
                     <ATooltip title="Share Link">
                       <Button
                         className="mr-3"
@@ -427,7 +384,7 @@ const DashboardTab = (props) => {
                         <Button icon={<DownloadOutlined />} />
                       </ATooltip>
                     </Popover>
-                  </div>
+                  </div> */}
                 </div>
                 {summaryDataWithTS && (
                   <SummaryWithTSChart

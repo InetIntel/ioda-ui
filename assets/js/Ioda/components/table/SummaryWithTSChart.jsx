@@ -16,161 +16,6 @@ import iconSortUnsort from "images/icons/icon-sortUnsort.png";
 import { Popover, Divider, Typography } from "antd";
 import { InfoCircleOutlined } from "@ant-design/icons";
 
-// function ScorePopoverContent({ data }) {
-//   const flagEmoji = getFlagEmoji(data);
-
-//   return (
-//     <div
-//       style={{
-//         width: 240,
-//         backgroundColor: "#ffffff",
-//         // borderRadius: 4,
-//         boxShadow: "0 3px 6px rgba(0,0,0,0.16)",
-//         overflow: "hidden",
-//         fontSize: `${FONT_SIZE}px`,
-//       }}
-//     >
-//       {/* ───────────── HEADER ───────────── */}
-//       <div
-//         style={{
-//           display: "flex",
-//           alignItems: "center",
-//           padding: "8px 12px",
-//           backgroundColor: "#f5f5f5",
-//           borderBottom: "1px solid #e8e8e8",
-//         }}
-//       >
-//         <span style={{ fontSize: "16px", marginRight: 8 }}>{flagEmoji}</span>
-//         <Title
-//           level={5}
-//           style={{ margin: 0, fontSize: "14px", fontWeight: 600 }}
-//         >
-//           {data.name}
-//           {data.countryName ? `, ${data.countryName}` : null}
-//         </Title>
-//       </div>
-
-//       {/* ───────────── BODY (list of each source) ───────────── */}
-//       <div style={{ padding: "8px 12px" }}>
-//         {data.scores.map((row) => {
-//           const isNoData = row.score == null || row.score === 0;
-//           const displayValue = isNoData
-//             ? "No Data"
-//             : humanizeNumber(row.score, 2);
-//           const baseColor =
-//             getEntityScaleColor(row.score, "country") || "#d0d0d0";
-
-//           const badgeBackground = isNoData
-//             ? "#f5f5f5"
-//             : convertHexToRgba(baseColor, 0.2);
-//           const badgeBorder = isNoData ? "#d9d9d9" : baseColor;
-//           const badgeColor = isNoData ? "#bfbfbf" : "#000000";
-
-//           return (
-//             <div
-//               key={row.source}
-//               style={{
-//                 display: "flex",
-//                 justifyContent: "space-between",
-//                 alignItems: "center",
-//                 // marginBottom: 6,
-//                 marginBottom:
-//                   data.scores[data.scores.length - 1] === row ? 0 : 6,
-//               }}
-//             >
-//               {/* Source name */}
-//               <Text
-//                 style={{
-//                   color: isNoData ? "#bfbfbf" : "#000000",
-//                   fontSize: "12px",
-//                 }}
-//               >
-//                 {row.source === "merit-nt.median"
-//                   ? "Telescope"
-//                   : row.source === "ping-slash24.median"
-//                     ? "Active Probing"
-//                     : row.source === "bgp.median"
-//                       ? "BGP"
-//                       : row.source}
-//               </Text>
-
-//               {/* “Badge” with score number  */}
-//               <span
-//                 style={{
-//                   display: "inline-block",
-//                   fontSize: "12px",
-//                   minWidth: 36,
-//                   textAlign: "center",
-//                   lineHeight: "1.2",
-//                   padding: "2px 6px",
-//                   borderRadius: 2,
-//                   backgroundColor: badgeBackground,
-//                   border: `1px solid ${badgeBorder}`,
-//                   color: badgeColor,
-//                 }}
-//               >
-//                 {displayValue}
-//               </span>
-//             </div>
-//           );
-//         })}
-//       </div>
-
-//       {/* ───────────── DIVIDER ───────────── */}
-//       <Divider style={{ margin: "0" }} />
-
-//       {/* ───────────── FOOTER: Total score ───────────── */}
-//       <div
-//         style={{
-//           display: "flex",
-//           justifyContent: "space-between",
-//           alignItems: "center",
-//           padding: "8px 12px",
-//           backgroundColor: "#fafafa",
-//         }}
-//       >
-//         <div style={{ display: "flex", alignItems: "center" }}>
-//           <Text strong style={{ fontSize: "12px" }}>
-//             Total Severity Score
-//           </Text>
-//           <InfoCircleOutlined
-//             style={{
-//               color: "rgba(0,0,0,0.45)",
-//               fontSize: "12px",
-//               marginLeft: 4,
-//             }}
-//           />
-//         </div>
-//         {(() => {
-//           const totalBaseColor =
-//             getEntityScaleColor(data.score, "country") || "#d0d0d0";
-//           const totalBackground = convertHexToRgba(totalBaseColor, 0.2);
-//           const totalBorder = totalBaseColor;
-//           const totalColor = "#000000";
-//           return (
-//             <span
-//               style={{
-//                 display: "inline-block",
-//                 fontSize: "12px",
-//                 minWidth: 36,
-//                 textAlign: "center",
-//                 lineHeight: "1.2",
-//                 padding: "2px 6px",
-//                 borderRadius: 2,
-//                 backgroundColor: totalBackground,
-//                 border: `1px solid ${totalBorder}`,
-//                 color: totalColor,
-//               }}
-//             >
-//               {humanizeNumber(data.score, 2)}
-//             </span>
-//           );
-//         })()}
-//       </div>
-//     </div>
-//   );
-// }
-
 const SummaryWithTSChart = ({
   data,
   width: containerWidth = 1000,
@@ -178,18 +23,7 @@ const SummaryWithTSChart = ({
   until,
   tabType,
 }) => {
-  console.log("tschart data", data);
   const MOBILE_BREAKPOINT = 600;
-  // const FONT_SIZE = 12; // default text
-  // const AXIS_FONT_SIZE = 10; // axis label
-  // const SCORE_FONT_SIZE = 11; // the little score badge
-  // const HEADER_HEIGHT = 20;
-  // const HEADER_BASELINE = 16; // the 14-px font sits on this baseline
-  // const ROW_HEIGHT = 36;
-  // const NAME_COL_WIDTH = 160;
-  // const SCORE_COL_WIDTH = 70;
-  // const IP_COL_WIDTH = isASN ? 80 : 0;
-  // const LEFT_COL_TOTAL_WIDTH = NAME_COL_WIDTH + SCORE_COL_WIDTH + IP_COL_WIDTH;
 
   const { Title, Text } = Typography;
   const { urlFromDate, urlUntilDate } = getDateRangeFromUrl();
@@ -829,12 +663,11 @@ const SummaryWithTSChart = ({
       .call(xAxis.tickSize(0).tickSizeOuter(0))
       .call((g) => g.select(".domain").remove())
       .call((g) => g.selectAll(".tick line").remove())
-      .call(
-        (g) =>
-          g
-            .selectAll(".tick text")
-            .attr("dy", "0") // baseline-align text
-            .style("font-size", `${FONT_SIZE}px`) // keep the 14 px size
+      .call((g) =>
+        g
+          .selectAll(".tick text")
+          .attr("dy", "0") // baseline-align text
+          .style("font-size", `${FONT_SIZE}px`)
       )
       .attr("font-size", `${FONT_SIZE}px`)
       .call((g) =>
@@ -861,8 +694,7 @@ const SummaryWithTSChart = ({
       .attr("stroke", "#f0f0f0")
       .attr("stroke-width", 1);
 
-    // Add bars only (remove axis and labels)
-    const BAR_HEIGHT = yScale.bandwidth() * 0.5; // 60 % of band height
+    const BAR_HEIGHT = yScale.bandwidth() * 0.5;
     sortedData.forEach((country) => {
       svg
         .selectAll(`.bar-${country.entityCode}`)
@@ -871,8 +703,6 @@ const SummaryWithTSChart = ({
         .append("rect")
         .attr("class", `bar bar-${country.entityCode}`)
         .attr("x", (d) => xScale(d.ts) - 3)
-        // .attr("y", () => yScale(country.name))
-        // .attr("height", yScale.bandwidth() / 2)
         .attr(
           "y",
           () => yScale(country.name) + (yScale.bandwidth() - BAR_HEIGHT) / 2
@@ -885,7 +715,6 @@ const SummaryWithTSChart = ({
             "#d0d0d0"
         )
         .on("mouseover", function (event, d) {
-          // select(this).attr("fill", "#e8e9eb"); //0603
           crosshair.raise();
           crosshair
             .attr("x1", xScale(d.ts))
@@ -893,7 +722,6 @@ const SummaryWithTSChart = ({
             .style("visibility", "visible");
           const tooltip = tooltipRef.current;
           tooltip.style.visibility = "visible";
-          // Use UTC date formatting here too
           const utcTooltipFormat = utcFormat("%b %d, %H:%M UTC");
           tooltip.innerHTML = `
                                   <div style="font-size: ${FONT_SIZE}px;">
@@ -909,10 +737,6 @@ const SummaryWithTSChart = ({
           tooltip.style.top = event.pageY + 10 + "px";
         })
         .on("mouseout", function () {
-          // select(this).attr( //0603
-          //   "fill",
-          //   getEntityScaleColor(country.score, "country") || "#d0d0d0"
-          // ); // Restore original color
           const tooltip = tooltipRef.current;
           tooltip.style.visibility = "hidden";
           crosshair.style("visibility", "hidden");
@@ -922,20 +746,7 @@ const SummaryWithTSChart = ({
 
   return (
     <div style={{ fontSize: `${FONT_SIZE}px` }}>
-      {/* all existing markup stays the same */}
-      {/* <h3
-        style={{
-          fontSize: "20px",
-          fontWeight: "600",
-          marginBottom: "8px",
-          marginTop: "16px",
-          paddingLeft: "4px",
-        }}
-      >
-        All Countries Outage Timeline
-      </h3> */}
       <div style={styles.container}>
-        {/* Header row - stays fixed during scrolling */}
         <div style={styles.header}>
           {/* Left column header */}
           <div style={styles.countryScoreHeader}>
@@ -1105,66 +916,6 @@ const SummaryWithTSChart = ({
                     justifyContent: "center",
                   }}
                 >
-                  {/* <Popover
-                    trigger="hover"
-                    placement="right"
-                    content={<ScorePopoverContent data={d} />}
-                    overlayClassName="score-popover"
-                    overlayInnerStyle={{
-                      padding: 0,
-                      boxShadow: "none",
-                      border: "none",
-                      borderRadius: 0,
-                      background: "transparent",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "45px",
-                        height: "20px",
-                        position: "relative",
-                      }}
-                    >
-                      <div
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          backgroundColor: convertHexToRgba(
-                            getEntityScaleColor(
-                              d.score,
-                              isASN ? "region" : tabType
-                            ) || "#d0d0d0",
-                            0.2
-                          ),
-                          borderRadius: "2px",
-                          zIndex: 1,
-                          border: "1px solid",
-                          borderColor:
-                            getEntityScaleColor(
-                              d.score,
-                              isASN ? "region" : tabType
-                            ) || "#d0d0d0",
-                          boxSizing: "border-box",
-                        }}
-                      ></div>
-                      <span
-                        style={{
-                          position: "relative",
-                          display: "inline-block",
-                          fontSize: `${SCORE_FONT_SIZE}px`,
-                          color: "#000",
-                          zIndex: 2,
-                          textAlign: "center",
-                          fontVariantNumeric: "tabular-nums",
-                        }}
-                      >
-                        {humanizeNumber(d.score, 2)}
-                      </span>
-                    </div>
-                  </Popover> */}
                   <Popover
                     trigger="hover"
                     placement="right"

@@ -25,8 +25,6 @@ import {
   secondsToMilliseconds,
 } from "../../../utils/timeUtils";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
-// exportingInit(Highcharts);
-// offlineExportingInit(Highcharts);
 
 import { Tabs, Tooltip, Button, Popover, Checkbox, Table } from "antd";
 import {
@@ -49,7 +47,6 @@ import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
 import { getUpstreamChartExportFileName } from "../utils/EntityUtils";
 import { secondsToUTC } from "../../../utils/timeUtils";
 import { handleTooltipPointClick } from "../../../utils/chartUtils";
-import { active } from "d3";
 
 HighchartsNoData(Highcharts);
 
@@ -107,30 +104,11 @@ const UpstreamDelayComponent = ({
   const [showMarkupStudioModal, setShowMarkupStudioModal] = useState(false);
   const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] =
     useState("");
-  // const [selectedAsns, setSelectedAsns] = useState("");
-  // const asnListName =
-  //   jsonData?.values?.[0]?.map((item) => `AS${item.penultimate_as}`) || [];
-  // const asnList = asnListName.map((name, i) => ({
-  //   name,
-  //   color: colorsArray[i],
-  //   // fullName:getASNFullName(name[2:]),
-  // }));
-
-  // Initialize selectedAsns with all ASNs by default
-  // const [selectedAsns, setSelectedAsns] = useState(asnList.map((a) => a.name));
   const [selectedAsns, setSelectedAsns] = useState([]);
   const [asnList, setAsnList] = useState([]);
   const initialLoad = useRef(true);
   const tooltipEnabledRef = useRef(true);
 
-  // useEffect(() => {
-  //   setSelectedAsns(asnList.map((a) => a.name));
-  // }, [asnList]);
-  // useEffect(() => {
-  //   if (asnList.length > 0 && selectedAsns.length === 0) {
-  //     setSelectedAsns(asnList.map((a) => a.name));
-  //   }
-  // }, [asnList]);
   const asnNameCacheRef = useRef({});
 
   const getASNFullName = useCallback(
@@ -198,11 +176,6 @@ const UpstreamDelayComponent = ({
     });
   }, [rawAsnSignalsUpstreamDelayLatency]);
 
-  // const allAsns = asnList.map((a) => a.name);
-  // const [selectedAsns, setSelectedAsns] = useState(allAsns);
-  // useEffect(() => {
-  //   setSelectedAsns(asnList.map((a) => a.name));
-  // }, [asnList]);
   useEffect(() => {
     if (!rawAsnSignalsUpstreamDelayPenultAsnCount?.[0]?.[0]) return;
     const { values, ...rest } = rawAsnSignalsUpstreamDelayPenultAsnCount[0][0];
@@ -511,409 +484,8 @@ const UpstreamDelayComponent = ({
   const filteredTraceSeries = traceAsnSeries.filter((s) =>
     selectedAsns.includes(s.name)
   );
-  // const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
-  // const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
-  // setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
-  // useEffect(() => {
-  //   console.log("SET Inital Navigator Range");
-  //   // Rerender chart and set navigator bounds
-  //   if (chartCombinedRef.current || chartIndividualRef.current) {
-  //     const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
-  //     const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
-  //     setChartNavigatorTimeRange(navigatorLowerBound, navigatorUpperBound);
-  //     console.log("SET Inital Navigator Range", navigatorLowerBound);
-  //   }
-  // }, [chartCombinedRef, chartIndividualRef]);
-  //   console.log("traceAsnSeries data for traceroute chart", traceAsnSeries);
 
-  //   const latencyCombined = {
-  //     chart: {
-  //       type: "line",
-  //       height: 180,
-  //       animation: false,
-  //     },
-  //     title: {
-  //       text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
-  //       align: "left",
-  //       x: 10,
-  //     },
-  //     exporting: {
-  //       enabled: true,
-  //       buttons: {
-  //         contextButton: {
-  //           enabled: false,
-  //         },
-  //       },
-  //       fallbackToExportServer: false,
-  //       filename: exportFileName,
-  //       chartOptions: {
-  //         title: {
-  //           align: "left",
-  //           text: exportChartTitle,
-  //           style: {
-  //             fontWeight: "bold",
-  //           },
-  //         },
-  //         subtitle: {
-  //           align: "left",
-  //           text: exportChartSubtitle,
-  //         },
-  //         legend: {
-  //           itemDistance: 40,
-  //           enabled: true,
-  //         },
-  //         spacing: [50, 10, 15, 10],
-  //       },
-  //       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-  //       sourceWidth: 960,
-  //       sourceHeight: 240,
-  //     },
-  //     yAxis: {
-  //       min: 0,
-  //       endOnTick: false,
-  //       maxPadding: 0.25,
-  //       tickAmount: 5,
-  //       title: { text: "" },
-  //       labels: {
-  //         style: {
-  //           fontSize: "10px",
-  //         },
-  //         formatter: function () {
-  //           return Math.round(this.value / 1000).toLocaleString();
-  //         },
-  //       },
-  //     },
-  //     xAxis: {
-  //       visible: false,
-  //       type: "datetime",
-  //     },
-  //     series: [
-  //       {
-  //         name: "TTL ",
-  //         data: asnLatencyData,
-  //         color: "#1890ff",
-  //         lineColor: "#1890ff",
-  //       },
-  //     ], // TODO - done
-  //     legend: {
-  //       enabled: false,
-  //     },
-  //     plotOptions: {
-  //       series: {
-  //         animation: false,
-  //         marker: {
-  //           enabled: true,
-  //           radius: 2,
-  //         },
-  //         lineWidth: 0.9,
-  //         pointStart: jsonData?.from * 1000,
-  //         pointInterval: jsonData?.step * 1000,
-  //       },
-  //     },
-  //     tooltip: {
-  //       xDateFormat: "%a, %b %e %l:%M%p",
-  //       borderWidth: 1,
-  //       borderRadius: 0,
-  //       style: {
-  //         fontSize: "14px",
-  //         fontFamily: CUSTOM_FONT_FAMILY,
-  //       },
-  //       headerFormat: "{point.key}<br>",
-  //       pointFormatter: function () {
-  //         return `<b>Mean TTL</b> = ${this.y} ms`;
-  //       },
-  //     },
-  //     responsive: {
-  //       rules: [
-  //         {
-  //           condition: {
-  //             maxWidth: 600,
-  //           },
-  //           chartOptions: {
-  //             chart: {
-  //               width: 400,
-  //               height: 300,
-  //             },
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     lang: {
-  //       noData: "No Latency data available for selected time range",
-  //     },
-  //     noData: {
-  //       style: {
-  //         fontWeight: "bold",
-  //         fontSize: "14px",
-  //         color: "#666",
-  //       },
-  //     },
-  //     credits: {
-  //       enabled: false,
-  //     },
-  //   };
-
-  //   const latencyIndividual = {
-  //     chart: {
-  //       type: "line",
-  //       height: 180,
-  //       animation: false,
-  //     },
-  //     title: {
-  //       text: "<strong>Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
-  //       align: "left",
-  //       x: 10,
-  //       // useHTML: true
-  //     },
-  //     exporting: {
-  //       enabled: true,
-  //       buttons: {
-  //         contextButton: {
-  //           enabled: false,
-  //         },
-  //       },
-  //       fallbackToExportServer: false,
-  //       filename: exportFileName,
-  //       chartOptions: {
-  //         title: {
-  //           align: "left",
-  //           text: exportChartTitle,
-  //           style: {
-  //             fontWeight: "bold",
-  //           },
-  //         },
-  //         subtitle: {
-  //           align: "left",
-  //           text: exportChartSubtitle,
-  //         },
-  //         legend: {
-  //           itemDistance: 40,
-  //           enabled: true,
-  //         },
-  //         spacing: [50, 10, 15, 10],
-  //       },
-  //       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-  //       sourceWidth: 960,
-  //       sourceHeight: 240,
-  //     },
-  //     yAxis: {
-  //       endOnTick: false,
-  //       maxPadding: 0.25,
-  //       tickAmount: 5,
-  //       title: { text: "" },
-  //       labels: {
-  //         style: {
-  //           fontSize: "10px",
-  //         },
-  //         formatter: function () {
-  //           return Math.round(this.value / 1000).toLocaleString();
-  //         },
-  //       },
-  //     },
-  //     xAxis: {
-  //       visible: false,
-  //       type: "datetime",
-  //     },
-  //     series: latencyAsnSeries,
-  //     legend: {
-  //       enabled: false,
-  //     },
-
-  //     plotOptions: {
-  //       series: {
-  //         animation: false,
-  //         marker: {
-  //           enabled: true,
-  //           radius: 2,
-  //         },
-  //         lineWidth: 0.9,
-  //         pointStart: jsonData?.from * 1000,
-  //         pointInterval: jsonData?.step * 1000,
-  //       },
-  //     },
-  //     tooltip: {
-  //       xDateFormat: "%a, %b %e %l:%M%p",
-  //       borderWidth: 1,
-  //       borderRadius: 0,
-  //       style: {
-  //         fontSize: "14px",
-  //         fontFamily: CUSTOM_FONT_FAMILY,
-  //       },
-  //       headerFormat: "{point.key}<br>",
-  //       pointFormatter: function () {
-  //         return `<b>TTL</b> = ${this.y} ms`;
-  //       },
-  //     },
-  //     responsive: {
-  //       rules: [
-  //         {
-  //           condition: {
-  //             maxWidth: 600,
-  //           },
-  //           chartOptions: {
-  //             chart: {
-  //               width: 400,
-  //               height: 300,
-  //             },
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     lang: {
-  //       noData: "No Latency data available for selected time range",
-  //     },
-  //     noData: {
-  //       style: {
-  //         fontWeight: "bold",
-  //         fontSize: "14px",
-  //         color: "#666",
-  //       },
-  //     },
-  //     credits: {
-  //       enabled: false,
-  //     },
-  //   };
-
-  //   const traceRouteOptions = {
-  //     chart: {
-  //       type: "area",
-  //       height: 220,
-  //       animation: false,
-  //     },
-  //     title: {
-  //       text: "<strong>Traceroute</strong> <span style='font-weight: normal; opacity: 0.8;'># of observations of penultimate ASes</span>",
-  //       align: "left",
-  //       x: 0,
-  //       useHTML: true,
-  //     },
-  //     exporting: {
-  //       enabled: true,
-  //       buttons: {
-  //         contextButton: {
-  //           enabled: false,
-  //         },
-  //       },
-  //       fallbackToExportServer: false,
-  //       filename: exportFileName,
-  //       chartOptions: {
-  //         title: {
-  //           align: "left",
-  //           text: exportChartTitle,
-  //           style: {
-  //             fontWeight: "bold",
-  //           },
-  //         },
-  //         subtitle: {
-  //           align: "left",
-  //           text: exportChartSubtitle,
-  //         },
-  //         legend: {
-  //           itemDistance: 40,
-  //           enabled: true,
-  //         },
-  //         spacing: [50, 10, 15, 10],
-  //       },
-  //       // Maintain a 16:9 aspect ratio: https://calculateaspectratio.com/
-  //       sourceWidth: 960,
-  //       sourceHeight: 240,
-  //     },
-  //     yAxis: {
-  //       tickAmount: 5,
-  //       title: { text: "" },
-  //       labels: {
-  //         style: {
-  //           fontSize: "10px",
-  //         },
-  //         formatter: function () {
-  //           return this.value;
-  //         },
-  //       },
-  //     },
-  //     xAxis: {
-  //       type: "datetime",
-  //       gridLineColor: "#666",
-  //       gridLineDashStyle: "Dash",
-  //       tickPixelInterval: 100,
-  //       dateTimeLabelFormats: dateFormats,
-  //       labels: {
-  //         // format: '{value:%H:%M}',
-  //         zIndex: 100,
-  //         align: "center",
-  //         y: 24,
-  //         style: {
-  //           //textOutline: "2px solid #fff",
-  //           color: "#666",
-  //           fontSize: "10px",
-  //           fontFamily: CUSTOM_FONT_FAMILY,
-  //         },
-  //       },
-  //       title: {
-  //         text: "Time (UTC)",
-  //         style: {
-  //           fontSize: "12px",
-  //           fontFamily: CUSTOM_FONT_FAMILY,
-  //         },
-  //       },
-  //     },
-  //     series: traceAsnSeries,
-  //     legend: {
-  //       enabled: false,
-  //     },
-  //     responsive: {
-  //       rules: [
-  //         {
-  //           condition: {
-  //             maxWidth: 600,
-  //           },
-  //           chartOptions: {
-  //             chart: {
-  //               width: 400,
-  //               height: 300,
-  //             },
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     lang: {
-  //       noData: "No trace data available for selected time range",
-  //     },
-  //     noData: {
-  //       style: {
-  //         fontWeight: "bold",
-  //         fontSize: "14px",
-  //         color: "#666",
-  //       },
-  //     },
-  //     plotOptions: {
-  //       // series: {
-  //       //     marker: {
-  //       //         enabled: true
-  //       //     },
-  //       //     pointStart: traceData?.from * 1000,
-  //       //     pointInterval: traceData?.step * 1000
-  //       // },
-  //       area: {
-  //         stacking: "normal",
-  //         lineWidth: 1,
-  //         marker: {
-  //           enabled: false,
-  //         },
-  //       },
-  //     },
-  //     tooltip: {
-  //       xDateFormat: "%a, %b %e %l:%M%p",
-  //       borderWidth: 1.5,
-  //       borderRadius: 0,
-  //       style: {
-  //         fontSize: "14px",
-  //         fontFamily: CUSTOM_FONT_FAMILY,
-  //       },
-  //     },
-  //     credits: {
-  //       enabled: false,
-  //     },
-  //   };
-  const combineTrace = {
+  const combineOpts = {
     chart: {
       //   type: "line",
       height: 400,
@@ -927,11 +499,6 @@ const UpstreamDelayComponent = ({
       panning: true,
       panKey: "shift",
     },
-    // title: {
-    //   text: "<strong>Average Latency</strong> <span style='font-weight: normal; opacity: 0.8;'>Round Trip Time (s)</span>",
-    //   align: "left",
-    //   x: 10,
-    // },
     title: { text: "" },
     exporting: {
       enabled: true,
@@ -1047,12 +614,10 @@ const UpstreamDelayComponent = ({
       tickPixelInterval: 100,
       dateTimeLabelFormats: dateFormats,
       labels: {
-        // format: '{value:%H:%M}',
         zIndex: 100,
         align: "center",
         y: 24,
         style: {
-          //textOutline: "2px solid #fff",
           color: "#666",
           fontSize: "10px",
           fontFamily: CUSTOM_FONT_FAMILY,
@@ -1087,23 +652,9 @@ const UpstreamDelayComponent = ({
           },
         },
         yAxis: 0,
-        // tooltip: {
-        //   xDateFormat: "%a, %b %e %l:%M%p",
-        //   borderWidth: 1,
-        //   borderRadius: 0,
-        //   style: {
-        //     fontSize: "14px",
-        //     fontFamily: CUSTOM_FONT_FAMILY,
-        //   },
-        //   headerFormat: "{point.key}<br>",
-        //   pointFormatter: function () {
-        //     return `<b>Mean TTL</b> = ${this.y} ms`;
-        //   },
-        // },
       },
-      // ...traceAsnSeries,
       ...filteredTraceSeries,
-    ], // TODO - done
+    ],
     legend: {
       enabled: false,
     },
@@ -1189,10 +740,6 @@ const UpstreamDelayComponent = ({
         fontSize: "14px",
         fontFamily: CUSTOM_FONT_FAMILY,
       },
-      //   headerFormat: "{point.key}<br>",
-      //   pointFormatter: function () {
-      //     return `<b>Mean TTL</b> = ${this.y} ms`;
-      //   },
     },
     responsive: {
       rules: [
@@ -1223,7 +770,7 @@ const UpstreamDelayComponent = ({
       enabled: false,
     },
   };
-  const indivTrace = {
+  const indivOpts = {
     chart: {
       //   type: "line",
       height: 400,
@@ -1374,7 +921,6 @@ const UpstreamDelayComponent = ({
         },
       },
     },
-    // series: [...latencyAsnSeries, ...traceAsnSeries],
     series: [...filteredLatencySeries, ...filteredTraceSeries],
     legend: {
       enabled: false,
@@ -1398,7 +944,6 @@ const UpstreamDelayComponent = ({
           align: "center",
           y: 12,
           style: {
-            //textOutline: "2px solid #fff",
             color: "#666",
             fontSize: "10px",
             fontFamily: CUSTOM_FONT_FAMILY,
@@ -1408,8 +953,6 @@ const UpstreamDelayComponent = ({
       yAxis: {
         min: 0,
       },
-      //   series: [{}], 0711
-      // series: traceAsnSeries.map((s) => ({
       series: filteredTraceSeries.map((s) => ({
         name: s.name,
         data: s.data,
@@ -1461,10 +1004,6 @@ const UpstreamDelayComponent = ({
         fontSize: "14px",
         fontFamily: CUSTOM_FONT_FAMILY,
       },
-      //   headerFormat: "{point.key}<br>",
-      //   pointFormatter: function () {
-      //     return `<b>Mean TTL</b> = ${this.y} ms`;
-      //   },
     },
     responsive: {
       rules: [
@@ -1549,145 +1088,45 @@ const UpstreamDelayComponent = ({
    */
   function manuallyDownloadChart(imageType) {
     const chartRef = activeTab === "1" ? chartCombinedRef : chartIndividualRef;
-    // console.log("chartref", chartRef);
-    // if (chartRef.current?.chart) {
-    //   chartRef.current.chart.redraw();
-    // }
-    // const chartRef = chartCombinedRef.current
-    //   ? chartCombinedRef
-    //   : chartIndividualRef;
-    // const chartRef2 = chartTraceRouteRef;
-    // if (!chartRef1.current?.chart || !chartRef2.current?.chart) {
-    //   return;
-    // }
-    // Debug: Log current state before export
-    // console.group("Chart Export Debug");
-    // console.log("Active Tab:", activeTab);
-    // console.log("Selected ASNs:", selectedAsns);
-
-    // if (chartRef.current?.chart) {
-    //   // Log chart series data
-    //   console.log(
-    //     "Chart Series:",
-    //     chartRef.current.chart.series.map((s) => ({
-    //       name: s.name,
-    //       type: s.type,
-    //       visible: s.visible,
-    //       dataLength: s.data.length,
-    //       firstPoint: s.data[0]?.y,
-    //       lastPoint: s.data[s.data.length - 1]?.y,
-    //       processedData: s.data.map((point) => ({
-    //         x: point.x,
-    //         y: point.y,
-    //         timestamp: new Date(point.x).toISOString(),
-    //       })),
-    //     }))
-    //   );
-
-    //   // Log the data we're about to use for export
-    //   if (activeTab === "1") {
-    //     console.log("Combined Chart Data - Average Latency:", {
-    //       length: asnLatencyDataFiltered?.length,
-    //       firstPoint: asnLatencyDataFiltered?.[0],
-    //       lastPoint:
-    //         asnLatencyDataFiltered?.[asnLatencyDataFiltered.length - 1],
-    //     });
-    //     console.log(
-    //       "Combined Chart Data - Trace Series:",
-    //       filteredTraceSeries.map((s) => ({
-    //         name: s.name,
-    //         dataLength: s.data.length,
-    //       }))
-    //     );
-    //   } else {
-    //     console.log(
-    //       "Individual Chart Data - Latency Series:",
-    //       filteredLatencySeries.map((s) => ({
-    //         name: s.name,
-    //         dataLength: s.data.length,
-    //       }))
-    //     );
-    //     console.log(
-    //       "Individual Chart Data - Trace Series:",
-    //       filteredTraceSeries.map((s) => ({
-    //         name: s.name,
-    //         dataLength: s.data.length,
-    //       }))
-    //     );
-    //   }
-    // } else {
-    //   console.warn("Chart reference not available");
-    // }
-    // console.groupEnd();
 
     // Append watermark to image on download:
     // https://www.highcharts.com/forum/viewtopic.php?t=47368
-    chartRef.current.chart.exportChartLocal(
-      {
-        type: imageType,
-        filename: exportFileName,
-        chartOptions: {
-          chart: {
-            // spacingTop: 70,
-            events: {
-              load: function () {
-                const chart = this;
-                // Ensure all series are properly rendered
-                chart.series.forEach((series) => {
-                  if (series.visible) series.redraw();
-                });
+    chartRef.current.chart.exportChartLocal({
+      type: imageType,
+      filename: exportFileName,
+      chartOptions: {
+        chart: {
+          // spacingTop: 70,
+          events: {
+            load: function () {
+              const chart = this;
+              // Ensure all series are properly rendered
+              chart.series.forEach((series) => {
+                if (series.visible) series.redraw();
+              });
 
-                const watermarkAspectRatio = 0.184615;
-                const watermarkWidth = Math.floor(chart.chartWidth / 6);
-                const watermarkHeight = Math.floor(
-                  watermarkWidth * watermarkAspectRatio
-                );
-                const padding = 12;
+              const watermarkAspectRatio = 0.184615;
+              const watermarkWidth = Math.floor(chart.chartWidth / 6);
+              const watermarkHeight = Math.floor(
+                watermarkWidth * watermarkAspectRatio
+              );
+              const padding = 12;
 
-                chart.watermarkImage = chart.renderer
-                  .image(
-                    iodaWatermark,
-                    chart.chartWidth - watermarkWidth - padding,
-                    padding,
-                    watermarkWidth,
-                    watermarkHeight
-                  )
-                  .add()
-                  .toFront();
-              },
+              chart.watermarkImage = chart.renderer
+                .image(
+                  iodaWatermark,
+                  chart.chartWidth - watermarkWidth - padding,
+                  padding,
+                  watermarkWidth,
+                  watermarkHeight
+                )
+                .add()
+                .toFront();
             },
           },
         },
-      }
-      // {
-      //   // chart: {}
-      //   chart: {
-      //     // spacingTop: 70,
-      //     events: {
-      //       load: function () {
-      //         const chart = this;
-      //         const watermarkAspectRatio = 0.184615;
-      //         const watermarkWidth = Math.floor(chart.chartWidth / 6);
-      //         const watermarkHeight = Math.floor(
-      //           watermarkWidth * watermarkAspectRatio
-      //         );
-      //         const padding = 12;
-
-      //         chart.watermarkImage = chart.renderer
-      //           .image(
-      //             iodaWatermark,
-      //             chart.chartWidth - watermarkWidth - padding,
-      //             padding,
-      //             watermarkWidth,
-      //             watermarkHeight
-      //           )
-      //           .add()
-      //           .toFront();
-      //       },
-      //     },
-      //   },
-      // }
-    );
+      },
+    });
   }
 
   return (
@@ -1796,11 +1235,6 @@ const UpstreamDelayComponent = ({
                     </Popover>
                   </div>
                 </div>
-                {/* <div>
-                    <h4 className="text-xl mr-1 mt-0 mb-1">
-                      {upstreamChartSubTitle}
-                    </h4>
-                  </div> */}
                 <div>
                   <h4
                     className="text-xl mr-1 mt-2"
@@ -1811,8 +1245,6 @@ const UpstreamDelayComponent = ({
                     measurements, making it easier pinpoint network delays.
                   </h4>
                 </div>
-                {/* </div> */}
-                {/* {jsonData && ( */}
                 <div
                   className="upstream__chart"
                   style={{ position: "relative" }}
@@ -1832,33 +1264,6 @@ const UpstreamDelayComponent = ({
                         selectedAsns.includes(a.name)
                       )}
                     />
-                    {/* <Tabs
-                      defaultActiveKey="1"
-                      animated={false}
-                      // style={{ marginBottom: 0 }}
-                      tabBarStyle={{ marginBottom: 0 }}
-                      items={[
-                        {
-                          key: "1",
-                          label: (
-                            <span style={{ padding: "0 10px" }}>
-                              {" "}
-                              Combined{" "}
-                            </span>
-                          ),
-                        },
-                        {
-                          key: "2",
-                          label: (
-                            <span style={{ padding: "0 10px" }}>
-                              {" "}
-                              Individual{" "}
-                            </span>
-                          ),
-                        },
-                      ]}
-                      onChange={(key) => setActiveTab(key)}
-                    /> */}
 
                     <div className="ml-auto">
                       <Button.Group style={{ marginBottom: 4, marginLeft: 4 }}>
@@ -1897,28 +1302,6 @@ const UpstreamDelayComponent = ({
                       </Button.Group>
                     </div>
                   </div>
-                  {/* <Button.Group
-                      style={{
-                        position: "absolute",
-                        left: "250px",
-                        top: "10%",
-                        transform: "translateY(-50%)",
-                        zIndex: 8,
-                      }}
-                    >
-                      <Button
-                        type={activeTab === "1" ? "primary" : "default"}
-                        onClick={() => setActiveTab("1")}
-                      >
-                        Combined
-                      </Button>
-                      <Button
-                        type={activeTab === "2" ? "primary" : "default"}
-                        onClick={() => setActiveTab("2")}
-                      >
-                        Individual
-                      </Button>
-                    </Button.Group> */}
                   <div className="content-area px-0">
                     {loading ? (
                       <Loading />
@@ -1949,8 +1332,7 @@ const UpstreamDelayComponent = ({
                         <div style={{ marginLeft: "10px" }}>
                           <HighchartsReact
                             highcharts={Highcharts}
-                            // options={latencyCombined}
-                            options={combineTrace}
+                            options={combineOpts}
                             ref={chartCombinedRef}
                           />
                         </div>
@@ -1971,21 +1353,13 @@ const UpstreamDelayComponent = ({
                         <div style={{ marginLeft: "10px" }}>
                           <HighchartsReact
                             highcharts={Highcharts}
-                            // options={latencyIndividual}
-                            options={indivTrace}
+                            options={indivOpts}
                             ref={chartIndividualRef}
                           />
                         </div>
                       </div>
                     )}
                   </div>
-                  {/* <div className="px-4 card">
-                  <HighchartsReact
-                    highcharts={Highcharts}
-                    options={traceRouteOptions}
-                    ref={chartTraceRouteRef}
-                  />
-                </div> */}
                   <TimeStamp
                     className="mt-4"
                     from={tsDataLegendRangeFrom}
@@ -1994,70 +1368,30 @@ const UpstreamDelayComponent = ({
                 </div>
               </div>
             </div>
-            {/* )}
-        {!jsonData && <Loading />} */}
           </div>
           <div className="col-1">
             <div className="p-4 card h-full mb-6">
-              {/* <div style={{ padding: 12 }}> */}
               <div className="p-4">
                 <div className="mb-3">
-                  {/* <h3 className="text-2xl mr-1 mb-6">Select AS Signals</h3> */}
                   <h3 className="text-2xl mr-1 mb-6">
                     Penultimate ASes to {entityName}
                   </h3>
-                  {/* <Checkbox.Group
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                    options={asnList.map((a) => ({
-                      label: (
-                        <span style={{ fontSize: 14 }}>
-                          <span
-                            style={{
-                              display: "inline-block",
-                              width: 8,
-                              height: 8,
-                              backgroundColor: a.color,
-                              borderRadius: 4,
-                              marginRight: 4,
-                            }}
-                          />
-                          {a.name}
-                        </span>
-                      ),
-                      value: a.name,
-                    }))}
-                    value={selectedAsns}
-                    onChange={(vals) => setSelectedAsns(vals)}
-                  /> */}
                   <div className="modal__table-container rounded card p-3 mb-6">
                     <Table
                       className="no-selected-bg custom-checkbox-table"
                       rowKey="name"
                       pagination={false}
                       columns={asnColumns}
-                      // columns={displayColumns}
-                      // dataSource={asnList}
                       dataSource={sortedTableData}
                       rowSelection={{
                         selectedRowKeys: selectedAsns,
                         onChange: (keys) => setSelectedAsns(keys),
                         columnTitle: "",
-                        // renderCell: (checked, record, index, node) => ({
-                        //   props: { style: { backgroundColor: "transparent" } },
-                        //   children: node,
-                        // }),
                       }}
-                      // onRow={(record) => ({
-                      //   style: { backgroundColor: "transparent !important" },
-                      // })}
                     />
                   </div>
                 </div>
               </div>
-              {/* </div> */}
             </div>
           </div>
         </div>

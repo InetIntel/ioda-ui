@@ -150,9 +150,6 @@ const Dashboard = (props) => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log("eventSignals from API", eventSignals);
-  // }, [eventSignals]);
   useEffect(() => {
     const timeDiff = until - from;
     if (timeDiff <= 0) {
