@@ -409,10 +409,10 @@ const Entity = (props) => {
   const [upstreamLoading, setUpstreamLoading] = useState(true);
 
   const handleMenuClick = ({ key }) => {
+    const url = new URL(window.location);
     setSelectedView(key);
-    navigate(
-      `/${entityTypeState}/${entityCodeState}?from=${from}&until=${until}&view=${key}`
-    );
+    url.searchParams.set('view', key);
+    history.replaceState({}, '', url);
   };
 
   const initialTableLimit = 300;
