@@ -411,8 +411,8 @@ const Entity = (props) => {
   const handleMenuClick = ({ key }) => {
     const url = new URL(window.location);
     setSelectedView(key);
-    url.searchParams.set('view', key);
-    history.replaceState({}, '', url);
+    url.searchParams.set("view", key);
+    history.replaceState({}, "", url);
   };
 
   const initialTableLimit = 300;
@@ -4455,16 +4455,36 @@ const mapDispatchToProps = (dispatch) => {
 const EntityFn = (props) => {
   const navigate = useNavigate();
   // using useRef to avoid re-rendering between renders
-  const previousFullPath = useRef(window.location.href);
+  // const previousFullPath = useRef(window.location.href);
   const { entityCode, entityType } = useParams();
   const [searchParams] = useSearchParams();
 
   // Reload page if the URL changes.
-  useEffect(() => {
-    if (previousFullPath.current !== window.location.href) {
-      previousFullPath.current = window.location.href;
+  // useEffect(() => {
+  //   if (previousFullPath.current !== window.location.href) {
+  //     previousFullPath.current = window.location.href;
 
+  //     window.location.reload();
+  //   }
+  // }, [window.location.href]);
+
+  // Reload page when the URL changes in any way except when only "view" query changes.
+  const previousFullPath = useRef(null);
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    sp.delete("view");
+    const normalized = Array.from(sp.entries())
+      .sort(([a, b], [c, d]) => a.localeCompare(c))
+      .map(([k, v]) => `${k}=${v}`)
+      .join("&");
+    const updatedPath =
+      window.location.pathname + (normalized ? `?${normalized}` : "");
+
+    if (previousFullPath.current && previousFullPath.current !== updatedPath) {
+      previousFullPath.current = updatedPath;
       window.location.reload();
+    } else {
+      previousFullPath.current = updatedPath;
     }
   }, [window.location.href]);
 
