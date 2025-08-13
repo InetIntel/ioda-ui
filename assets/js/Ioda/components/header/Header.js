@@ -83,10 +83,9 @@ import {
 } from "../../utils/storage";
 import { CloseOutlined, MenuOutlined } from "@ant-design/icons";
 
-const languageOptions = [
-  { value: "en", label: "English" },
-  { value: "fa", label: "Farsi" },
-];
+import languages from "../../constants/strings/languages.json"
+
+const languageOptions = Object.entries(languages).map(([label, value]) => ({ label, value }));
 
 const Header = () => {
   const [language, setLanguage] = useState(getSavedLanguagePreference());
