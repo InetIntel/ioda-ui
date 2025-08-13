@@ -525,6 +525,7 @@ const UpstreamDelayComponent = ({
         legend: {
           itemDistance: 40,
           enabled: true,
+          y: 6,
         },
         chart: { spacing: [50, 10, 15, 10], marginTop: 100 },
       },
@@ -807,6 +808,7 @@ const UpstreamDelayComponent = ({
         legend: {
           itemDistance: 40,
           enabled: true,
+          y: 6,
         },
         chart: { spacing: [50, 10, 15, 10], marginTop: 100 },
       },
