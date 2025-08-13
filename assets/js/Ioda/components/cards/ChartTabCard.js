@@ -35,7 +35,7 @@
  * MODIFICATIONS.
  */
 import React from "react";
-import {useState} from "react";
+import { useState } from "react";
 import Loading from "../loading/Loading";
 import { Radio } from "antd";
 import T from "i18n-react";
@@ -43,9 +43,16 @@ import ChartLegendCard from "./ChartLegendCard";
 import AlertsTable from "../table/AlertsTable";
 import EventsTable from "../table/EventsTable";
 
-const ChartTabCard = ({ simplifiedView, legendHandler,tsDataSeriesVisibleMap,  updateSourceParams, alertsData,eventData  }) => {
-
-  const [currentTab, setCurrentTab] = useState(1);
+const ChartTabCard = ({
+  simplifiedView,
+  legendHandler,
+  tsDataSeriesVisibleMap,
+  updateSourceParams,
+  alertsData,
+  eventData,
+}) => {
+  // const [currentTab, setCurrentTab] = useState(1);
+  const [currentTab, setCurrentTab] = useState(simplifiedView ? 1 : 2);
 
   const handleSelectTab = (selectedKey) => {
     setCurrentTab(selectedKey);
@@ -56,53 +63,45 @@ const ChartTabCard = ({ simplifiedView, legendHandler,tsDataSeriesVisibleMap,  u
   const eventTab = T.translate("entity.eventTab");
 
   return (
-      <div className="overview__table-config flex-column">
-        <div className="tabs">
-          <Radio.Group
-              onChange={(e) => handleSelectTab(e?.target?.value)}
-              value={currentTab}
-              style={{ marginBottom: 8 }}
-          >
-            <Radio.Button value={1}>{selectedSignal}</Radio.Button>
-            {!simplifiedView && (
-                <Radio.Button value={2}>{alertTab}</Radio.Button>
-            )}
-            {!simplifiedView && (
-                <Radio.Button value={3}>{eventTab}</Radio.Button>
-            )}
-          </Radio.Group>
-        </div>
-
-        {currentTab === 1 && (
-            <ChartLegendCard
-                legendHandler={legendHandler}
-                checkedMap={tsDataSeriesVisibleMap}
-                updateSourceParams={updateSourceParams}
-                simplifiedView={simplifiedView}
-            />
-        )}
-
-        {currentTab === 2 && (
-            <>
-              {alertsData ? (
-                  <AlertsTable data={alertsData} />
-              ) : (
-                  <Loading />
-              )}
-            </>
-        )}
-
-        {currentTab === 3 && (
-            <>
-              {eventData ? (
-                  <EventsTable data={eventData} />
-              ) : (
-                  <Loading />
-              )}
-            </>
-        )}
+    <div className="overview__table-config">
+      <div className="tabs">
+        <Radio.Group
+          onChange={(e) => handleSelectTab(e?.target?.value)}
+          value={currentTab}
+          style={{ marginBottom: 8 }}
+        >
+          {/* <Radio.Button value={1}>{selectedSignal}</Radio.Button> */}
+          {!simplifiedView && <Radio.Button value={2}>{alertTab}</Radio.Button>}
+          {!simplifiedView && <Radio.Button value={3}>{eventTab}</Radio.Button>}
+        </Radio.Group>
       </div>
+
+      {/* {currentTab === 1 && (
+        <ChartLegendCard
+          legendHandler={legendHandler}
+          checkedMap={tsDataSeriesVisibleMap}
+          updateSourceParams={updateSourceParams}
+          simplifiedView={simplifiedView}
+        />
+      )} */}
+
+      {currentTab === 2 && (
+        <>
+          {alertsData ? (
+            <div style={{ width: "100%", overflowX: "auto" }}>
+              <AlertsTable data={alertsData} />
+            </div>
+          ) : (
+            <Loading />
+          )}
+        </>
+      )}
+
+      {currentTab === 3 && (
+        <>{eventData ? <EventsTable data={eventData} /> : <Loading />}</>
+      )}
+    </div>
   );
-}
+};
 
 export default ChartTabCard;

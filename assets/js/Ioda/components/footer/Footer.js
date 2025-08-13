@@ -128,7 +128,10 @@ const AppFooter = () => {
                 <Link href="/reports" style={{ color: "white" }}>
                   Reports
                 </Link>
-                <Link href="/resources?tab=terms" style={{ color: "white" }}>
+                <Link
+                  href="/resources?tab=repositories"
+                  style={{ color: "white" }}
+                >
                   Data Sources
                 </Link>
               </Space>

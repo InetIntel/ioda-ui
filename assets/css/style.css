@@ -4421,7 +4421,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 2rem;
+  padding: 1.5rem;
   background-color: #f9f9f9;
   border-radius: 8px;
   justify-content: space-between;
@@ -4450,6 +4450,44 @@ body {
   padding-bottom: 0;
 }
 
+@media (max-width: 768px) {
+  .control-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .control-panel__controls {
+    flex: none;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .control-panel__label {
+    width: 100%;
+    text-align: left;
+  }
+
+  .control-panel__controls .ant-select,
+.control-panel__controls .ant-input-number {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  .time-range-wrapper {
+    width: 100%;
+  }
+
+  .time-range-wrapper .ant-btn {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: 32px;
+  }
+
+  .time-range-wrapper .ant-picker {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
 .error {
   padding: 1.5rem;
   background-color: #E74C3C;
@@ -5439,19 +5477,22 @@ body {
 
 .map-legend {
   z-index: 10;
-  width: 60%;
+  width: 100%;
   --extreme-width: 15%;
-}
-.map-legend__title {
-  margin-bottom: -0.3rem;
 }
 .map-legend__labels-extreme {
   width: var(--extreme-width);
 }
+.map-legend__labels .label-indicator {
+  position: absolute;
+  top: -20px;
+  width: 1px;
+  height: 15px;
+  background-color: white;
+}
 .map-legend__bar-background {
   background: #efefee;
   position: relative;
-  border-radius: 0.5rem;
 }
 .map-legend__bar-wrapper {
   position: absolute;
@@ -5462,15 +5503,11 @@ body {
   height: 100%;
   width: 100%;
   background: linear-gradient(90deg, #ffcc30 0%, #ee695b 100%);
-  border-top-left-radius: 0.5rem;
-  border-bottom-left-radius: 0.5rem;
 }
 .map-legend__bar-extreme {
   height: 100%;
   width: var(--extreme-width);
   background-color: #ea5362;
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
 }
 
 .progress-bar-striped {
@@ -5504,6 +5541,12 @@ body {
   .modal__content {
     flex-direction: column;
   }
+}
+.modal__content .col-2,
+.modal__content .col-1 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 .modal__content .col-2 .horizon-series .label {
   background-color: rgba(255, 255, 255, 0.4);
@@ -5703,6 +5746,8 @@ body {
 }
 .modal__table {
   margin-bottom: 1.5rem;
+  flex-grow: 1;
+  overflow: auto;
 }
 .modal__table-heading {
   display: flex;
@@ -6184,10 +6229,6 @@ button[class*=searchButton] {
   object-fit: contain;
 }
 
-.dashboard {
-  padding-top: 5rem;
-  margin: 1.5rem auto;
-}
 @media only screen and (max-width: 27.5em) {
   .dashboard {
     margin: 3rem auto;
@@ -6205,13 +6246,8 @@ button[class*=searchButton] {
   border-radius: 0.3rem;
   max-height: 100%;
 }
-@media only screen and (max-width: 64em) {
-  .dashboard__tab-layout {
-    flex-direction: column;
-  }
-}
-.dashboard__tab-map {
-  height: 52.9rem;
+.dashboard__tab-layout {
+  flex-direction: column;
 }
 .dashboard__tab-table .table {
   margin-bottom: 0;
@@ -6232,14 +6268,51 @@ button[class*=searchButton] {
   text-transform: capitalize;
 }
 
-.entity {
-  padding-top: 5rem;
-  margin: 1.5rem auto;
+.mt-container,
+.mt-container * {
+  font-size: 14px !important;
 }
-@media only screen and (max-width: 27.5em) {
-  .entity {
-    margin: 1.5rem auto;
-  }
+
+.mastodon-embed-container {
+  height: 52.9rem;
+  overflow-y: auto;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.table-cell--sticky-1 {
+  position: sticky;
+  left: 0;
+  background: white;
+  z-index: 2;
+}
+
+.table-cell--sticky-2 {
+  position: sticky;
+  left: 150px;
+  background: white;
+  z-index: 2;
+}
+
+.entity__chart-layout {
+  min-height: 100%;
 }
 @media only screen and (max-width: 64em) {
   .entity__chart-layout {
@@ -6248,7 +6321,6 @@ button[class*=searchButton] {
 }
 .entity__chart {
   min-width: 0;
-  max-height: 614px;
 }
 
 .entity-related {
@@ -6272,6 +6344,22 @@ button[class*=searchButton] {
 /* Antd tabs flickering issue fix */
 .ant-tabs-nav-operations {
   display: none !important;
+}
+
+.custom-tag-spacing .ant-tag {
+  margin: 2px 2px 2px 2px;
+}
+
+.no-selected-bg .ant-table-tbody > tr.ant-table-row-selected > td {
+  background-color: transparent !important;
+}
+
+.custom-checkbox-table .ant-table-selection-column {
+  padding-right: 5px !important;
+}
+
+.custom-checkbox-table .ant-checkbox-wrapper {
+  margin-right: 0px;
 }
 
 .project-info {

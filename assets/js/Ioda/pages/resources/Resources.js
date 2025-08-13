@@ -59,7 +59,12 @@ import download_icon from "images/resources/download-icon.png";
 import link_resources from "./LinkConstants";
 import text_resources from "./TextConstants";
 import { useLocation, useNavigate } from "react-router-dom";
+import { registerAnalyticsEvent } from "../../utils/analytics";
 
+const analyticsEvents = {
+  "IODA for Journalists": "journalist_pdf_download",
+  "IODA Journalist Infographic": "journalist_png_download",
+};
 const FilterComponent = ({
   resources,
   onFilterChange,
@@ -468,6 +473,15 @@ const Resources = () => {
                     href={resource.link}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={
+                      analyticsEvents[resource.title]
+                        ? () =>
+                            registerAnalyticsEvent(
+                              "resource",
+                              analyticsEvents[resource.title]
+                            )
+                        : undefined
+                    }
                     style={{
                       position: "absolute",
                       top: "155px",
