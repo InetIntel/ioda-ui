@@ -3,7 +3,12 @@
     @include respond(tab-port) {
       flex-direction: column;
     }
-
+    .col-2,
+    .col-1 {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
     .col-2 {
       & .horizon-series .label {
         background-color: rgba(255, 255, 255, 0.4);
@@ -84,6 +89,8 @@
 
   &__table {
     margin-bottom: 1.5rem;
+    flex-grow: 1;
+    overflow: auto;
 
     &-heading {
       display: flex;

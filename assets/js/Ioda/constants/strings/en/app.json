@@ -163,12 +163,12 @@
     "selectedSignal": "Selected Signal",
     "eventTab": "Event",
     "alertTab": "Alert",
-    "upstreamChartTitle": "Upstream Delay Connectivity ",
-    "upstreamChartSubTitle": "This graph maps latency from traceroute pings, making it easier to spot where network delays occur.",
-    "activeProbingChartTitle": "Active Probing Latency and Loss Rate",
-    "activeProbingChartSubTitle": "This graph uses active probing to calculate latency based on Round-Trip Time (RTT) and packet loss based on Percentage Loss Rate.",
-    "apChartLatencyLabel": "Latency",
-    "apChartPctLossLabel": "Packet Loss"
+    "upstreamChartTitle": "Network Path Details for ",
+    "upstreamChartSubTitle": "This graph shows the latency and penultimate network used to reach the AS as observed in traceroute measurements, making it easier pinpoint network delays.",
+    "activeProbingChartTitle": "Active Probing Details for ",
+    "activeProbingChartSubTitle": "This graph shows additional details related to IODA's Active Probing measurements, including Round-Trip Time (RTT) Latency and the percentage of IODA's probe packets that did not get a response.",
+    "apChartLatencyLabel": "RTT Latency",
+    "apChartPctLossLabel": "Probe/Response Loss"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",

@@ -1,20 +1,21 @@
 .entity {
-  padding-top: $header-height;
-  margin: $gutter-vertical auto;
+  // padding-top: $header-height;
+  // margin: $gutter-vertical auto;
 
-  @include respond(phone-440) {
-    margin: 1.5rem auto;
-  }
+  // @include respond(phone-440) {
+  //   margin: 1.5rem auto;
+  // }
 
   &__chart-layout {
     @include respond(tab-port) {
       flex-direction: column;
     }
+    min-height: 100%;
   }
 
   &__chart {
     min-width: 0;
-    max-height: 614px;
+    // max-height: 614px;
   }
 }
 
@@ -39,4 +40,18 @@
 /* Antd tabs flickering issue fix */
 .ant-tabs-nav-operations {
   display: none !important;
+}
+
+.custom-tag-spacing .ant-tag {
+  margin: 2px 2px 2px 2px;
+}
+
+.no-selected-bg .ant-table-tbody > tr.ant-table-row-selected > td {
+  background-color: transparent !important;
+}
+.custom-checkbox-table .ant-table-selection-column {
+  padding-right: 5px !important;
+}
+.custom-checkbox-table .ant-checkbox-wrapper {
+  margin-right: 0px;
 }

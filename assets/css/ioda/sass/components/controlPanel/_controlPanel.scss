@@ -38,7 +38,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 2rem;
+  padding: 1.5rem;
   background-color: #f9f9f9;
   border-radius: 8px;
   justify-content: space-between;
@@ -53,7 +53,7 @@
 }
 
 .control-panel__label {
-  margin-bottom: 1.0rem;
+  margin-bottom: 1rem;
   font-size: 1.125rem;
   display: flex;
   align-items: flex-start;
@@ -65,4 +65,38 @@
   height: 32px;
   padding-top: 0;
   padding-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .control-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .control-panel__controls {
+    flex: none;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .control-panel__label {
+    width: 100%;
+    text-align: left;
+  }
+  .control-panel__controls .ant-select,
+  .control-panel__controls .ant-input-number {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  .time-range-wrapper {
+    width: 100%;
+  }
+  .time-range-wrapper .ant-btn {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: 32px;
+  }
+  .time-range-wrapper .ant-picker {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }

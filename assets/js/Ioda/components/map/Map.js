@@ -124,10 +124,76 @@ const TopoMap = (props) => {
     thresholdBounds = getThresholdBoundsForRegion();
   }
 
+  // return (
+  //     <div
+  //         className="topo-map"
+  //         style={{ position: "relative", height: "inherit", width: "100%" }}
+  //     >
+  //       <div
+  //           className={
+  //             hoverTooltipDisplay
+  //                 ? "topo-map__tooltip topo-map__tooltip-visible"
+  //                 : "topo-map__tooltip"
+  //           }
+  //       >
+  //         <p>
+  //           {hoverName}
+  //           {hoverScore !== 0 ? ` - ${hoverScore}` : null}
+  //         </p>
+  //       </div>
+
+  //       {!hideLegend && (
+  //           <MapLegend
+  //               style={{ position: "absolute", bottom: "1rem", left: "1rem" }}
+  //               highThreshold={thresholdBounds.high ?? 0}
+  //               lowThreshold={thresholdBounds.low ?? 0}
+  //           />
+  //       )}
+
+  //       <Map
+  //           key={mapKey}
+  //           ref={mapRef}
+  //           center={bounds ? null : position}
+  //           zoom={bounds ? null : zoom}
+  //           bounds={bounds ? bounds : null}
+  //           minZoom={1}
+  //           scrollWheelZoom={false}
+  //           touchZoom={true}
+  //           dragging={!screenWidthBelow680}
+  //           style={{ width: "inherit", height: "inherit", overflow: "hidden" }}
+  //       >
+  //         <TileLayer
+  //             id="mapbox/light-v10"
+  //             url={`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapAccessToken}`}
+  //         />
+  //         <GeoJSON
+  //             data={topoData}
+  //             onEachFeature={onEachFeature}
+  //             style={(feature) => ({
+  //               color: "transparent",
+  //               weight: 2,
+  //               fillColor: !scores
+  //                   ? DEFAULT_NONE
+  //                   : !feature.properties.score
+  //                       ? DEFAULT_NONE
+  //                       : getEntityScaleColor(feature.properties.score, entityType),
+  //               fillOpacity: !feature.properties.score ? 0.2 : 0.5,
+  //               dashArray: "2",
+  //             })}
+  //         />
+  //       </Map>
+  //     </div>
+  // );
   return (
     <div
       className="topo-map"
-      style={{ position: "relative", height: "inherit", width: "100%" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+        position: "relative",
+      }}
     >
       <div
         className={
@@ -142,46 +208,49 @@ const TopoMap = (props) => {
         </p>
       </div>
 
-      {!hideLegend && (
-        <MapLegend
-          style={{ position: "absolute", bottom: "1rem", left: "1rem" }}
-          highThreshold={thresholdBounds.high ?? 0}
-          lowThreshold={thresholdBounds.low ?? 0}
-        />
-      )}
-
-      <Map
-        key={mapKey}
-        ref={mapRef}
-        center={bounds ? null : position}
-        zoom={bounds ? null : zoom}
-        bounds={bounds ? bounds : null}
-        minZoom={1}
-        scrollWheelZoom={false}
-        touchZoom={true}
-        dragging={!screenWidthBelow680}
-        style={{ width: "inherit", height: "inherit", overflow: "hidden" }}
-      >
-        <TileLayer
-          id="mapbox/light-v10"
-          url={`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapAccessToken}`}
-        />
-        <GeoJSON
-          data={topoData}
-          onEachFeature={onEachFeature}
-          style={(feature) => ({
-            color: "transparent",
-            weight: 2,
-            fillColor: !scores
-              ? DEFAULT_NONE
-              : !feature.properties.score
+      <div style={{ flexGrow: 1 }}>
+        <Map
+          key={mapKey}
+          ref={mapRef}
+          center={bounds ? null : position}
+          zoom={bounds ? null : zoom}
+          bounds={bounds ? bounds : null}
+          minZoom={1}
+          scrollWheelZoom={false}
+          touchZoom={true}
+          dragging={!screenWidthBelow680}
+          style={{ width: "100%", height: "100%", overflow: "hidden" }}
+        >
+          <TileLayer
+            id="mapbox/light-v10"
+            url={`https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${mapAccessToken}`}
+          />
+          <GeoJSON
+            data={topoData}
+            onEachFeature={onEachFeature}
+            style={(feature) => ({
+              color: "transparent",
+              weight: 2,
+              fillColor: !scores
                 ? DEFAULT_NONE
-                : getEntityScaleColor(feature.properties.score, entityType),
-            fillOpacity: !feature.properties.score ? 0.2 : 0.5,
-            dashArray: "2",
-          })}
-        />
-      </Map>
+                : !feature.properties.score
+                  ? DEFAULT_NONE
+                  : getEntityScaleColor(feature.properties.score, entityType),
+              fillOpacity: !feature.properties.score ? 0.2 : 0.5,
+              dashArray: "2",
+            })}
+          />
+        </Map>
+      </div>
+
+      {!hideLegend && (
+        <div style={{ width: "100%" }}>
+          <MapLegend
+            highThreshold={thresholdBounds.high ?? 0}
+            lowThreshold={thresholdBounds.low ?? 0}
+          />
+        </div>
+      )}
     </div>
   );
 };

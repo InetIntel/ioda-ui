@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import T from "i18n-react";
 import {
   dashboardTimeRangeLimit,
@@ -11,11 +11,15 @@ import Table from "../../components/table/Table";
 import HorizonTSChart from "horizon-timeseries-chart";
 import * as d3 from "d3-shape";
 import TopoMap from "../../components/map/Map";
-import { Button } from "antd";
-import { asn } from "./DashboardConstants";
-import { AreaChartOutlined, GlobalOutlined } from "@ant-design/icons";
+import { EnvironmentFilled, ClockCircleFilled } from "@ant-design/icons";
 import { getSecondsAsErrorDurationString } from "../../utils/timeUtils";
-
+import SummaryWithTSChart from "../../components/table/SummaryWithTSChart";
+import { country, region, asn } from "./DashboardConstants";
+import BlueskyIodaFeed from "../../components/widget/BlueskyIodaFeed";
+import iconBsky from "images/icons/icon-bsky.png";
+import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
+import ShareLinkModal from "../../components/modal/ShareLinkModal";
+import { Button, Popover, Tooltip as ATooltip } from "antd";
 const DashboardTab = (props) => {
   const {
     eventDataProcessed,
@@ -28,17 +32,14 @@ const DashboardTab = (props) => {
     totalOutages,
     type,
     tabCurrentView,
-    handleTabChangeViewButton,
     summaryDataRaw,
-    genSummaryTableDataProcessed,
-    summaryDataProcessed
+    summaryDataWithTS,
   } = props;
-
 
   const config = React.createRef();
 
   useEffect(() => {
-    if(eventDataProcessed != null && config.current) {
+    if (eventDataProcessed != null && config.current) {
       genChart();
     }
   }, [eventDataProcessed]);
@@ -88,133 +89,329 @@ const DashboardTab = (props) => {
     "tooltip.dashboardHeading.text"
   );
 
+  const mapCardRef = useRef(null);
+  const [mapHeight, setMapHeight] = useState(null);
+  const [showShareLinkModal, setShowShareLinkModal] = useState(false);
+  const [displayChartSharePopover1, setDisplayChartSharePopover1] =
+    useState(false);
+  const [displayChartSharePopover2, setDisplayChartSharePopover2] =
+    useState(false);
+  function displayShareLinkModal() {
+    setShowShareLinkModal(true);
+  }
+
+  function hideShareLinkModal() {
+    setShowShareLinkModal(false);
+  }
+  function handleDisplayChartSharePopover1(val) {
+    setDisplayChartSharePopover1(val);
+  }
+  function handleDisplayChartSharePopover2(val) {
+    setDisplayChartSharePopover2(val);
+  }
+  // useEffect(() => {
+  useLayoutEffect(() => {
+    if (!mapCardRef.current) return;
+    if (mapCardRef.current) {
+      if (activeTabType !== "asn") {
+        setMapHeight(mapCardRef.current.offsetHeight);
+      }
+      if (activeTabType === "asn" && summaryDataWithTS) {
+        setMapHeight(mapCardRef.current.offsetHeight);
+      }
+    }
+  }, [tabCurrentView, topoData, summaryDataWithTS, activeTabType]); // re-measure if layout can change
+
   return (
-      <div className="card p-8 dashboard__tab">
-        {until - from < dashboardTimeRangeLimit ? (
-          <div className="flex items-stretch gap-4 dashboard__tab-layout">
-            {totalOutages === 0 ? (
-              <div className="col-1-of-1 tab__error tab__error--noOutagesFound">
-                No {activeTabType} Outages found
-              </div>
-            ) : (
-              <React.Fragment>
-                <div className="col-2 mw-0">
-                  <div className="flex items-center mb-4" ref={config}>
-                    <div className="font-medium text-3xl">
-                      {type === "country"
-                        ? countryOutages
-                        : type === "region"
-                        ? regionalOutages
-                        : type === "asn"
-                        ? asnOutages
-                        : null}
-                    </div>
-                    <Tooltip
-                      title={tooltipDashboardHeadingTitle}
-                      text={tooltipDashboardHeadingText}
-                    />
-                    <div className="col" />
-                    {type !== asn.type && (
-                      <>
-                        <div className="text-lg mr-4">
-                          {tabCurrentView === "timeSeries"
-                            ? viewTitleChart
-                            : viewTitleMap}
+    // <div className="card p-8 dashboard__tab">
+    <div className="w-full dashboard__tab">
+      {until - from < dashboardTimeRangeLimit ? (
+        <div className="flex items-stretch gap-6 dashboard__tab-layout">
+          {totalOutages === 0 ? (
+            <div className="col-1-of-1 tab__error tab__error--noOutagesFound">
+              No {activeTabType} Outages found
+            </div>
+          ) : (
+            <React.Fragment>
+              {/* ───────────────────────── 1st ROW ───────────────────────── */}
+              {activeTabType !== "asn" && (
+                <div className="flex items-stretch gap-6">
+                  {/* LEFT 2 / 3 – Map (or Timeseries) */}
+                  <div
+                    ref={mapCardRef}
+                    className="col-2 p-4 pt-2 card flex flex-col "
+                  >
+                    <div className="col-2 mw-0">
+                      {/* <ShareLinkModal
+                        open={showShareLinkModal}
+                        link={window.location.href}
+                        hideModal={hideShareLinkModal}
+                        showModal={displayShareLinkModal}
+                        // entityName={entityName}
+                        // handleDownload={() => manuallyDownloadChart("image/jpeg")}
+                      /> */}
+                      <div className="flex items-center mb-3" ref={config}>
+                        <div className="font-medium text-2xl flex items-center gap-2">
+                          <EnvironmentFilled style={{ color: "#8c8c8c" }} />
+                          <span className="text-black">
+                            {type === "country"
+                              ? countryOutages
+                              : type === "region"
+                                ? regionalOutages
+                                : type === "asn"
+                                  ? asnOutages
+                                  : null}
+                          </span>
                         </div>
-                        <Button
-                          type="primary"
-                          onClick={handleTabChangeViewButton}
-                          icon={
-                            tabCurrentView === "timeSeries" ? (
-                              <GlobalOutlined />
-                            ) : (
-                              <AreaChartOutlined />
-                            )
-                          }
-                          aria-label={
-                            tabCurrentView === "timeSeries"
-                              ? viewChangeIconAltTextHts
-                              : viewChangeIconAltTextMap
-                          }
+
+                        <Tooltip
+                          title={tooltipDashboardHeadingTitle}
+                          text={tooltipDashboardHeadingText}
                         />
-                      </>
-                    )}
+
+                        {/* <div className="flex ml-auto">
+                          <ATooltip title="Share Link">
+                            <Button
+                              className="mr-3"
+                              icon={<ShareAltOutlined />}
+                              onClick={displayShareLinkModal}
+                            />
+                          </ATooltip>
+
+                          <Popover
+                            open={displayChartSharePopover1}
+                            onOpenChange={handleDisplayChartSharePopover1}
+                            trigger="click"
+                            placement="bottomRight"
+                            overlayStyle={{
+                              maxWidth: 180,
+                            }}
+                            content={
+                              <div
+                                onClick={() =>
+                                  handleDisplayChartSharePopover1(false)
+                                }
+                              >
+                                <Button
+                                  className="w-full mb-2"
+                                  size="small"
+                                  // onClick={() =>
+                                  //   manuallyDownloadChart("image/jpeg")
+                                  // }
+                                >
+                                  Chart JPEG
+                                </Button>
+                                <Button
+                                  className="w-full mb-2"
+                                  size="small"
+                                  // onClick={() =>
+                                  //   manuallyDownloadChart("image/png")
+                                  // }
+                                >
+                                  Chart PNG
+                                </Button>
+                                <Button
+                                  className="w-full"
+                                  size="small"
+                                  // onClick={() =>
+                                  //   manuallyDownloadChart("image/svg+xml")
+                                  // }
+                                >
+                                  Chart SVG
+                                </Button>
+                              </div>
+                            }
+                          >
+                            <ATooltip
+                              title="Download"
+                              mouseEnterDelay={0}
+                              mouseLeaveDelay={0}
+                            >
+                              <Button icon={<DownloadOutlined />} />
+                            </ATooltip>
+                          </Popover>
+                        </div> */}
+                      </div>
+
+                      <div
+                        className="dashboard__tab-map"
+                        style={
+                          tabCurrentView === "map"
+                            ? { display: "block" }
+                            : { display: "none" }
+                        }
+                      >
+                        {topoData &&
+                          summaryDataRaw &&
+                          totalOutages &&
+                          topoScores && (
+                            <div
+                              style={{
+                                height: "460px",
+                              }}
+                            >
+                              <TopoMap
+                                topoData={topoData}
+                                scores={topoScores}
+                                handleEntityShapeClick={handleEntityShapeClick}
+                                entityType={activeTabType?.toLowerCase()}
+                              />
+                            </div>
+                          )}
+                      </div>
+
+                      {/* <div className="flex mt-4 justify-end"> */}
+                      <div className="flex mt-2 justify-end">
+                        <TimeStamp from={from} until={until} />
+                      </div>
+                    </div>
                   </div>
-                  {type !== "asn" ? (
-                    <div
-                      className="dashboard__tab-map"
-                      style={
-                        tabCurrentView === "map"
-                          ? { display: "block" }
-                          : { display: "none" }
+                  <div
+                    className="col-1 card p-4 pt-4 flex flex-col"
+                    style={{
+                      height: mapHeight || "40rem",
+                      overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <div className="font-medium text-2xl flex items-center gap-2 mb-3">
+                      <img
+                        src={iconBsky}
+                        alt="Bluesky icon"
+                        style={{
+                          width: 15,
+                          height: 15,
+                          filter: "grayscale(1)",
+                          opacity: 0.8, // tweak until it visually matches #8c8c8c
+                        }}
+                      />
+                      <span className="text-black">News</span>
+                    </div>
+                    <div style={{ overflowY: "auto", flex: 1 }}>
+                      <BlueskyIodaFeed did="did:plc:3xessr3vu336mxean6zvfyjq" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ───────────────────────── 2nd ROW ───────────────────────── */}
+
+              <div className="card p-4 pt-2">
+                {/* <ShareLinkModal
+                  open={showShareLinkModal}
+                  link={window.location.href}
+                  hideModal={hideShareLinkModal}
+                  showModal={displayShareLinkModal}
+                  // entityName={entityName}
+                  // handleDownload={() => manuallyDownloadChart("image/jpeg")}
+                /> */}
+                <div className="flex items-center mb-3" ref={config}>
+                  <div className="font-medium text-2xl flex items-center gap-2">
+                    <ClockCircleFilled style={{ color: "#8c8c8c" }} />
+                    <span className="text-black">
+                      {type === "country"
+                        ? "All " + countryOutages + " Timeline"
+                        : type === "region"
+                          ? "All " + regionalOutages + " Timeline"
+                          : type === "asn"
+                            ? "All " + asnOutages + " Timeline"
+                            : null}
+                    </span>
+                  </div>
+
+                  <Tooltip
+                    title={tooltipDashboardHeadingTitle}
+                    text={tooltipDashboardHeadingText}
+                  />
+
+                  {/* <div className="flex ml-auto">
+                    <ATooltip title="Share Link">
+                      <Button
+                        className="mr-3"
+                        icon={<ShareAltOutlined />}
+                        onClick={displayShareLinkModal}
+                      />
+                    </ATooltip>
+
+                    <Popover
+                      open={displayChartSharePopover2}
+                      onOpenChange={handleDisplayChartSharePopover2}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayStyle={{
+                        maxWidth: 180,
+                      }}
+                      content={
+                        <div
+                          onClick={() => handleDisplayChartSharePopover2(false)}
+                        >
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            // onClick={() =>
+                            //   manuallyDownloadChart("image/jpeg")
+                            // }
+                          >
+                            Chart JPEG
+                          </Button>
+                          <Button
+                            className="w-full mb-2"
+                            size="small"
+                            // onClick={() =>
+                            //   manuallyDownloadChart("image/png")
+                            // }
+                          >
+                            Chart PNG
+                          </Button>
+                          <Button
+                            className="w-full"
+                            size="small"
+                            // onClick={() =>
+                            //   manuallyDownloadChart("image/svg+xml")
+                            // }
+                          >
+                            Chart SVG
+                          </Button>
+                        </div>
                       }
                     >
-                      {topoData &&
-                      summaryDataRaw &&
-                      totalOutages &&
-                      topoScores
-                        ? <TopoMap
-                            topoData={topoData}
-                            scores={topoScores}
-                            handleEntityShapeClick={(entity) => handleEntityShapeClick(entity)}
-                            entityType={activeTabType?.toLowerCase()}
-                          />
-                        : null}
-                    </div>
-                  ) : null}
-                  <div
-                    id="horizon-chart"
-                    style={
-                      tabCurrentView === "timeSeries" ||
-                      type === "asn"
-                        ? { display: "block" }
-                        : { display: "none" }
-                    }
-                  >
-                    {config.current &&
-                    eventDataProcessed &&
-                    eventDataProcessed.length > 0
-                      ? genChart()
-                      : null}
-                  </div>
-                  <TimeStamp
-                    className="mt-4"
+                      <ATooltip
+                        title="Download"
+                        mouseEnterDelay={0}
+                        mouseLeaveDelay={0}
+                      >
+                        <Button icon={<DownloadOutlined />} />
+                      </ATooltip>
+                    </Popover>
+                  </div> */}
+                </div>
+                {summaryDataWithTS && (
+                  <SummaryWithTSChart
+                    data={summaryDataWithTS}
                     from={from}
                     until={until}
+                    tabType={activeTabType}
                   />
-                </div>
-                <div className="col-1 mw-0">
-                  <div className="dashboard__tab-table">
-                    {activeTabType &&
-                    totalOutages &&
-                    genSummaryTableDataProcessed ? (
-                      <Table
-                        type={"summary"}
-                        data={summaryDataProcessed}
-                        totalCount={totalOutages}
-                        entityType={activeTabType}
-                      />
-                        // <></>
-                    ) : null}
-                  </div>
-                </div>
-              </React.Fragment>
-            )}
-          </div>
-        ) : (
-          <div className="w-full">
-            <p className="dashboard__tab-error">
-              {timeDurationTooHighErrorMessage}
-              {getSecondsAsErrorDurationString(
-                until - from
-              )}
-              .
-            </p>
-          </div>
-        )}
-      </div>
-
-    );
-}
+                )}
+              </div>
+            </React.Fragment>
+          )}
+        </div>
+      ) : (
+        // <div className="w-full">
+        //   <p className="dashboard__tab-error">
+        //     {timeDurationTooHighErrorMessage}
+        //     {getSecondsAsErrorDurationString(until - from)}.
+        //   </p>
+        // </div>
+        <div className="p-6 text-lg card">
+          {timeDurationTooHighErrorMessage}
+          {getSecondsAsErrorDurationString(until - from)}.
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default DashboardTab;
