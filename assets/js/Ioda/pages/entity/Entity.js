@@ -3710,7 +3710,7 @@ const Entity = (props) => {
                   </div>
                 </div>
 
-                {/* <div className="flex items-stretch gap-6 entity__chart-layout">
+                <div className="flex items-stretch gap-6 entity__chart-layout">
                   <div className="col-2">
                     {entityCode && !entityCode.includes("-") && (
                       <div className="p-4 card mb-6 ">
@@ -3729,8 +3729,8 @@ const Entity = (props) => {
                     )}
                   </div>
                   <div className="col-1"></div>
-                </div> */}
-                {/* {entityType && entityType === "asn" && (
+                </div>
+                {entityType && entityType === "asn" && (
                   // <div className="p-4 card mt-6">
                   <UpstreamDelayComponent
                     from={from}
@@ -3745,7 +3745,7 @@ const Entity = (props) => {
                     loading={upstreamLoading}
                   />
                   // </div>
-                )} */}
+                )}
               </>
             )}
             {/* <div className="flex items-stretch gap-6 entity-related">

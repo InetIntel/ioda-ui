@@ -525,6 +525,7 @@ const UpstreamDelayComponent = ({
         legend: {
           itemDistance: 40,
           enabled: true,
+          y: 6,
         },
         chart: { spacing: [50, 10, 15, 10], marginTop: 100 },
       },
@@ -807,6 +808,7 @@ const UpstreamDelayComponent = ({
         legend: {
           itemDistance: 40,
           enabled: true,
+          y: 6,
         },
         chart: { spacing: [50, 10, 15, 10], marginTop: 100 },
       },
@@ -1318,16 +1320,18 @@ const UpstreamDelayComponent = ({
                       </div>
                     ) : activeTab === "1" ? (
                       <div>
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: "41%",
-                            left: "10px",
-                            width: "40%",
-                            borderTop: "1px dashed #ccc",
-                            zIndex: 2,
-                          }}
-                        />
+                        {jsonData?.values?.length > 0 && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "41%",
+                              left: "10px",
+                              width: "40%",
+                              borderTop: "1px dashed #ccc",
+                              zIndex: 2,
+                            }}
+                          />
+                        )}
 
                         <div style={{ marginLeft: "10px" }}>
                           <HighchartsReact
@@ -1339,16 +1343,18 @@ const UpstreamDelayComponent = ({
                       </div>
                     ) : (
                       <div>
-                        <div
-                          style={{
-                            position: "absolute",
-                            top: "41%",
-                            left: "10px",
-                            width: "40%",
-                            borderTop: "1px dashed #ccc",
-                            zIndex: 2,
-                          }}
-                        />
+                        {jsonData?.values?.length > 0 && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "41%",
+                              left: "10px",
+                              width: "40%",
+                              borderTop: "1px dashed #ccc",
+                              zIndex: 2,
+                            }}
+                          />
+                        )}
 
                         <div style={{ marginLeft: "10px" }}>
                           <HighchartsReact
