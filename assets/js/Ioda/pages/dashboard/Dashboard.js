@@ -706,13 +706,31 @@ const DashboardFn = (props) => {
   const { entityType, tab } = useParams();
   const navigate = useNavigate();
 
-  const previousFullPath = useRef(window.location.href);
+  // const previousFullPath = useRef(window.location.href);
 
+  // useEffect(() => {
+  //   if (previousFullPath.current !== window.location.href) {
+  //     previousFullPath.current = window.location.href;
+
+  //     window.location.reload();
+  //   }
+  // }, [window.location.href]);
+
+  // Reload page when the URL changes in any way except when only dashboard view changes.
+  const previousFullPath = useRef(null);
   useEffect(() => {
-    if (previousFullPath.current !== window.location.href) {
-      previousFullPath.current = window.location.href;
+    const url = new URL(window.location.href);
+    const normalizedPath = url.pathname.replace(
+      /^\/dashboard\/(country|region|asn)(?=\/|$)/,
+      "/dashboard/__VIEW__"
+    );
+    const updatedPath = normalizedPath + url.search;
 
+    if (previousFullPath.current && previousFullPath.current !== updatedPath) {
+      previousFullPath.current = updatedPath;
       window.location.reload();
+    } else {
+      previousFullPath.current = updatedPath;
     }
   }, [window.location.href]);
 
