@@ -1725,7 +1725,7 @@ const Entity = (props) => {
           },
         },
       ],
-      series: chartSignals,
+      series: chartSignals, //0818
       lang: {
         noData: "No data available for selected time range",
       },
@@ -1911,7 +1911,7 @@ const Entity = (props) => {
         },
       },
       yAxis: yAxes,
-      series: [...chartSeriesStacked, ...navigatorSeriesStacked],
+      series: [...chartSeriesStacked, ...navigatorSeriesStacked], //0818
       lang: {
         noData: "No data available for selected time range",
       },
@@ -1945,14 +1945,18 @@ const Entity = (props) => {
 
   function getSeriesNameFromSource(source) {
     const legendDetails = legend.find((elem) => elem.key === source);
-
+    console.log("legend", legend);
+    console.log("legendDetails", legendDetails);
     if (!legendDetails) {
       return "";
     }
 
-    return legendDetails.key.includes(".")
+    return legendDetails.key.includes("gtr.")
       ? `Google (${legendDetails.title})`
-      : legendDetails.title;
+      : // Mozilla
+        legendDetails.key.includes("mozilla.")
+        ? `Mozilla (${legendDetails.title})`
+        : legendDetails.title;
   }
 
   // format data used to draw the lines in the chart, called from convertValuesForXyViz()
@@ -1997,7 +2001,7 @@ const Entity = (props) => {
       const navigatorData = navigatorSignal.values.map((point) => {
         return [point.x, point.y];
       });
-
+      console.log("primarySignal", primarySignal);
       const seriesName = getSeriesNameFromSource(primarySignal.dataSource);
 
       // Either place series on primary y-axis (left = 0) or secondary (right =
@@ -2065,7 +2069,7 @@ const Entity = (props) => {
       navigatorSeriesStacked.push(navigatorChartSeries);
       axisIndex++;
     }
-
+    console.log("chartSignals", chartSignals); //0818
     return {
       alertBands,
       chartSignals,

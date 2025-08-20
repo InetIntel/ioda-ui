@@ -120,6 +120,22 @@ export const legend = [
     key: "gtr.SITES",
     color: "#426984",
   },
+  // Mozilla
+  {
+    title: T.translate("entity.mozillaTimeoutText"),
+    key: "mozilla.TIMEOUT",
+    color: "#3e8e41",
+  },
+  {
+    title: T.translate("entity.mozillaUnreachableText"),
+    key: "mozilla.UNREACHABLE",
+    color: "#d46b08",
+  },
+  {
+    title: T.translate("entity.mozillaCityText"),
+    key: "mozilla.CITY_COUNT",
+    color: "#b5f5ec",
+  },
 ];
 
 // Humanize number with rounding, abbreviations, etc.
@@ -166,7 +182,7 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
 
     // If entity type has ip_count/is an ASN
     let summaryItem;
-    console.log(summary)
+    console.log(summary);
     summary.entity.type === "asn" || summary.entity.type === "geoasn"
       ? (summaryItem = {
           entityType: "asn",
@@ -226,7 +242,8 @@ export function combineValuesForSignalsTable(
     entity.entity.type === "asn" || entity.entity.type === "geoasn"
       ? (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
+          entityType:
+            entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
           entityCode: entity["entity"].code,
           name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
@@ -236,7 +253,8 @@ export function combineValuesForSignalsTable(
         })
       : (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
+          entityType:
+            entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
           entityCode: entity["entity"].code,
           name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
@@ -246,7 +264,6 @@ export function combineValuesForSignalsTable(
     summaryData.push(summaryItem);
   });
   outageCount = summaryData.length;
-
 
   // Display scoreless entities on signal table, if asn add ip count property
   duplicatesRemoved.map((entity, index) => {
