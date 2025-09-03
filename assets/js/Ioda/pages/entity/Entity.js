@@ -3730,7 +3730,7 @@ const Entity = (props) => {
                   </div>
                   <div className="col-1"></div>
                 </div>
-                {entityType && entityType === "asn" && (
+                {/* {entityType && entityType === "asn" && (
                   // <div className="p-4 card mt-6">
                   <UpstreamDelayComponent
                     from={from}
@@ -3745,7 +3745,7 @@ const Entity = (props) => {
                     loading={upstreamLoading}
                   />
                   // </div>
-                )}
+                )} */}
               </>
             )}
             {/* <div className="flex items-stretch gap-6 entity-related">
