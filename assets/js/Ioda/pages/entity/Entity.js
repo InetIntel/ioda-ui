@@ -138,7 +138,13 @@ import UpstreamDelayComponent from "./components/UpstreamDelayComponent";
 import ChartLegendCard from "../../components/cards/ChartLegendCard";
 
 const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
-const dataSource = ["bgp", "ping-slash24", "merit-nt", "gtr.WEB_SEARCH"];
+const dataSource = [
+  "bgp",
+  "ping-slash24",
+  "merit-nt",
+  "gtr.WEB_SEARCH",
+  "mozilla.proportion_timeout",
+];
 
 /**
  * Calculate the time range for the time series chart. The range shown in the
@@ -1276,6 +1282,68 @@ const Entity = (props) => {
 
     // Loop through available datasources to collect plot points
     tsDataRaw[0].forEach((datasource) => {
+      //0923
+      //special case for mozilla data
+      if (datasource.datasource === "mozilla") {
+        const fromMs = secondsToMilliseconds(datasource.from || 0);
+        const stepMs = secondsToMilliseconds(datasource.step || 0);
+        const keys = [
+          "city_count",
+          "proportion_timeout",
+          "proportion_unreachable",
+        ];
+
+        keys.forEach((k) => {
+          const id = `mozilla.${k}`;
+          const seriesDataValues = [];
+          const seriesDataValuesNormalized = [];
+          let localMax = -Infinity;
+          let localMin = Infinity;
+
+          if (Array.isArray(datasource.values)) {
+            for (let i = 0; i < datasource.values.length; i++) {
+              const bucket = datasource.values[i];
+              const rec = Array.isArray(bucket) && bucket[0] ? bucket[0] : null;
+              const agg = rec && rec.agg_values ? rec.agg_values : null;
+              const y = agg && typeof agg[k] === "number" ? agg[k] : null;
+
+              const x = fromMs + i * stepMs;
+              if (y !== null && isFinite(y)) {
+                localMax = Math.max(localMax, y);
+                localMin = Math.min(localMin, y);
+              }
+              seriesDataValues.push({ x, y });
+            }
+          }
+
+          if (localMax === -Infinity) localMax = 0;
+          if (localMin === Infinity) localMin = 0;
+
+          const normMax = localMax || 1;
+          for (let i = 0; i < seriesDataValues.length; i++) {
+            const { x, y } = seriesDataValues[i];
+            const normalY = y === null ? null : normalize(y, normMax);
+            seriesDataValuesNormalized.push({ x, y: normalY });
+          }
+
+          const finalSeriesValues = tsDataNormalized
+            ? seriesDataValuesNormalized
+            : seriesDataValues;
+
+          if (tsDataSeriesVisibleMap[id]) {
+            seriesMaxes[id] = tsDataNormalized ? 100 : localMax;
+            seriesMins[id] = tsDataNormalized ? 0 : localMin;
+          }
+
+          signalValues.push({ dataSource: id, values: finalSeriesValues });
+          normalizedValues.push({
+            dataSource: id,
+            values: seriesDataValuesNormalized,
+          });
+        });
+        return;
+      }
+
       let id = datasource.datasource;
       id += datasource.subtype ? `.${datasource.subtype}` : "";
 
@@ -1317,6 +1385,7 @@ const Entity = (props) => {
         values: seriesDataValuesNormalized,
       });
     });
+
     setTsDataEntityCode(tsDataRaw[0][0].entityCode);
 
     // Creates an array of [(series-id, series-max)...] sorted by max values
@@ -1945,8 +2014,6 @@ const Entity = (props) => {
 
   function getSeriesNameFromSource(source) {
     const legendDetails = legend.find((elem) => elem.key === source);
-    console.log("legend", legend);
-    console.log("legendDetails", legendDetails);
     if (!legendDetails) {
       return "";
     }
@@ -2001,7 +2068,6 @@ const Entity = (props) => {
       const navigatorData = navigatorSignal.values.map((point) => {
         return [point.x, point.y];
       });
-      console.log("primarySignal", primarySignal);
       const seriesName = getSeriesNameFromSource(primarySignal.dataSource);
 
       // Either place series on primary y-axis (left = 0) or secondary (right =
@@ -2707,7 +2773,9 @@ const Entity = (props) => {
         break;
     }
   }
+
   // function that decides what data will populate in the horizon time series
+
   function convertValuesForHtsViz(
     dataSource,
     entityType,

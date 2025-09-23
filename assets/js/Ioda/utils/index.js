@@ -93,7 +93,7 @@ export const legend = [
   {
     title: T.translate("entity.googleMailText"),
     key: "gtr.GMAIL",
-    color: "#A02C2C",
+    color: "#b5f5ec",
   },
   {
     title: T.translate("entity.googleSearchText"),
@@ -108,7 +108,7 @@ export const legend = [
   {
     title: T.translate("entity.googleYoutubeText"),
     key: "gtr.YOUTUBE",
-    color: "#B65DFC",
+    color: "#3e8e41",
   },
   {
     title: T.translate("entity.googleSpreadsheetText"),
@@ -118,23 +118,23 @@ export const legend = [
   {
     title: T.translate("entity.googleSitesText"),
     key: "gtr.SITES",
-    color: "#426984",
+    color: "#A02C2C",
   },
   // Mozilla
   {
     title: T.translate("entity.mozillaTimeoutText"),
-    key: "mozilla.TIMEOUT",
-    color: "#3e8e41",
+    key: "mozilla.proportion_timeout",
+    color: "#B65DFC",
   },
   {
     title: T.translate("entity.mozillaUnreachableText"),
-    key: "mozilla.UNREACHABLE",
+    key: "mozilla.proportion_unreachable",
     color: "#d46b08",
   },
   {
     title: T.translate("entity.mozillaCityText"),
-    key: "mozilla.CITY_COUNT",
-    color: "#b5f5ec",
+    key: "mozilla.city_count",
+    color: "#426984",
   },
 ];
 
