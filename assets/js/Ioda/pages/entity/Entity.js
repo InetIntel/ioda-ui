@@ -143,7 +143,7 @@ const dataSource = [
   "ping-slash24",
   "merit-nt",
   "gtr.WEB_SEARCH",
-  "mozilla.proportion_timeout",
+  "mozilla.city_count",
 ];
 
 /**
@@ -1289,8 +1289,8 @@ const Entity = (props) => {
         const stepMs = secondsToMilliseconds(datasource.step || 0);
         const keys = [
           "city_count",
-          "proportion_timeout",
-          "proportion_unreachable",
+          // "proportion_timeout",
+          // "proportion_unreachable",
         ];
 
         keys.forEach((k) => {

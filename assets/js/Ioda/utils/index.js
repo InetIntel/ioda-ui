@@ -121,16 +121,16 @@ export const legend = [
     color: "#A02C2C",
   },
   // Mozilla
-  {
-    title: T.translate("entity.mozillaTimeoutText"),
-    key: "mozilla.proportion_timeout",
-    color: "#B65DFC",
-  },
-  {
-    title: T.translate("entity.mozillaUnreachableText"),
-    key: "mozilla.proportion_unreachable",
-    color: "#d46b08",
-  },
+  // {
+  //   title: T.translate("entity.mozillaTimeoutText"),
+  //   key: "mozilla.proportion_timeout",
+  //   color: "#B65DFC",
+  // },
+  // {
+  //   title: T.translate("entity.mozillaUnreachableText"),
+  //   key: "mozilla.proportion_unreachable",
+  //   color: "#d46b08",
+  // },
   {
     title: T.translate("entity.mozillaCityText"),
     key: "mozilla.city_count",
