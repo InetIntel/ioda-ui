@@ -72,6 +72,7 @@ import {
   getRawAsnSignalsUpstreamDelayPenultAsnCount,
   getRawAsnSignalsApPacketLoss,
   getRawAsnSignalsApPacketDelay,
+  getRawAsnSignalsGtrSarima,
   setRawAsnSignalsPingSlash24Action,
   setRawAsnSignalsMeritNtAction,
   setRawAsnSignalsBgpAction,
@@ -134,6 +135,7 @@ import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
 import { getChartExportFileName, handleCSVDownload } from "./utils/EntityUtils";
 import { setTimeRange } from "../../data/TimeRangeAction";
 import ApPacketLatencyAndLossRateComponent from "./components/ApPacketLatencyAndLossRateComponent";
+import GtrSarimaComponent from "./components/GtrSarimaComponent.js";
 import UpstreamDelayComponent from "./components/UpstreamDelayComponent";
 import ChartLegendCard from "../../components/cards/ChartLegendCard";
 
@@ -143,7 +145,7 @@ const dataSource = [
   "ping-slash24",
   "merit-nt",
   "gtr.WEB_SEARCH",
-  "mozilla.proportion_timeout",
+  "mozilla.city_count",
 ];
 
 /**
@@ -230,6 +232,7 @@ const Entity = (props) => {
     rawAsnSignalsUpstreamDelayLatency,
     rawAsnSignalsApPacketLoss,
     rawAsnSignalsApPacketDelay,
+    rawAsnSignalsGtrSarima,
   } = props;
   const timeSeriesChartRef = useRef();
 
@@ -413,6 +416,7 @@ const Entity = (props) => {
   const [tsDataEntityCode, setTsDataEntityCode] = useState(null);
   const [apLoading, setApLoading] = useState(true);
   const [upstreamLoading, setUpstreamLoading] = useState(true);
+  const [gtrLoading, setGtrLoading] = useState(true);
 
   const handleMenuClick = ({ key }) => {
     const url = new URL(window.location);
@@ -550,6 +554,7 @@ const Entity = (props) => {
           )
         : setApLoading(false); //empty data
     }
+    console.log("ap delay data: ", rawAsnSignalsApPacketDelay);
   }, [rawAsnSignalsApPacketDelay]); //0726
 
   useEffect(() => {
@@ -562,6 +567,17 @@ const Entity = (props) => {
         : setUpstreamLoading(false); //empty data
     }
   }, [rawAsnSignalsUpstreamDelayLatency]); //0726
+
+  useEffect(() => {
+    if (rawAsnSignalsGtrSarima) {
+      rawAsnSignalsGtrSarima[0][0]
+        ? setGtrLoading(
+            rawAsnSignalsGtrSarima[0][0].entityCode !== entityCodeState
+          )
+        : setGtrLoading(false);
+    }
+    console.log("gtr sarima data: ", rawAsnSignalsGtrSarima);
+  }, [rawAsnSignalsGtrSarima]);
 
   useEffect(() => {
     const urlView = searchParams.get("view");
@@ -734,6 +750,15 @@ const Entity = (props) => {
         null,
         "desc",
         "ping-slash24-latency"
+      );
+      props.getRawAsnSignalsGtrSarima(
+        entityTypeState,
+        [entityCodeState],
+        timeSignalFrom,
+        timeSignalUntil,
+        null,
+        "desc",
+        "gtr-sarima"
       );
     }
 
@@ -3802,6 +3827,24 @@ const Entity = (props) => {
                   </div>
                   <div className="col-1"></div>
                 </div>
+                <div className="flex items-stretch gap-6 entity__chart-layout">
+                  <div className="col-2">
+                    {entityCode && !entityCode.includes("-") && (
+                      <div className="p-4 card mb-6 ">
+                        {" "}
+                        <GtrSarimaComponent
+                          rawAsnSignalsGtrSarima={rawAsnSignalsGtrSarima}
+                          entityName={entityName}
+                          from={from}
+                          until={until}
+                          loading={apLoading}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="col-1"></div>
+                </div>
+
                 {entityType && entityType === "asn" && (
                   // <div className="p-4 card mt-6">
                   <UpstreamDelayComponent
@@ -4113,6 +4156,7 @@ const mapStateToProps = (state) => {
       state.iodaApi.rawAsnSignalsUpstreamDelayLatency,
     rawAsnSignalsApPacketLoss: state.iodaApi.rawAsnSignalsApPacketLoss,
     rawAsnSignalsApPacketDelay: state.iodaApi.rawAsnSignalsApPacketDelay,
+    rawAsnSignalsGtrSarima: state.iodaApi.rawAsnSignalsGtrSarima,
   };
 };
 
@@ -4492,6 +4536,28 @@ const mapDispatchToProps = (dispatch) => {
       maxPoints
     ) => {
       getRawAsnSignalsApPacketDelay(
+        dispatch,
+        entityType,
+        entities,
+        from,
+        until,
+        attr,
+        order,
+        dataSource,
+        maxPoints
+      );
+    },
+    getRawAsnSignalsGtrSarima: (
+      entityType,
+      entities,
+      from,
+      until,
+      attr,
+      order,
+      dataSource,
+      maxPoints
+    ) => {
+      getRawAsnSignalsGtrSarima(
         dispatch,
         entityType,
         entities,
