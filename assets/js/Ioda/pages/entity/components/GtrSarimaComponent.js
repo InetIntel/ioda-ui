@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 
 import highchartsMore from "highcharts/highcharts-more";
 import iodaWatermark from "../../../../../images/ioda-canvas-watermark.svg";
@@ -11,8 +11,6 @@ import HighchartsReact from "highcharts-react-official";
 require("highcharts/modules/exporting")(Highcharts);
 require("highcharts/modules/export-data")(Highcharts);
 require("highcharts/modules/offline-exporting")(Highcharts);
-// import exportingInit from "highcharts/modules/exporting";
-// import offlineExportingInit from "highcharts/modules/offline-exporting";
 import cloneDeep from "lodash/cloneDeep";
 import Loading from "../../../components/loading/Loading";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
@@ -42,8 +40,6 @@ if (typeof Highcharts === "object") {
   highchartsMore(Highcharts);
 }
 
-// exportingInit(Highcharts);
-// offlineExportingInit(Highcharts);
 HighchartsNoData(Highcharts);
 
 const GtrSarimaComponent = ({
@@ -53,11 +49,7 @@ const GtrSarimaComponent = ({
   entityName,
   loading,
 }) => {
-  // const [lossData, setLossData] = useState(null);
-  // const [latencyData, setLatencyData] = useState(null);
   const [sarimaData, setSarimaData] = useState(null);
-  // const [displayLatency, setDisplayLatency] = useState(true);
-  // const [displayPctLoss, setDisplayPctLoss] = useState(true);
   const [showShareLinkModal, setShowShareLinkModal] = useState(false);
   const rightYAxisTitleRef = useRef(null);
   const leftYAxisTitleRef = useRef(null);
@@ -71,90 +63,58 @@ const GtrSarimaComponent = ({
   const [showMarkupStudioModal, setShowMarkupStudioModal] = useState(false);
   const [markupStudioSvgBaseString, setMarkupStudioSvgBaseString] =
     useState("");
-  // const [viewMode, setViewMode] = useState("overlay");
+  const [seriesBySubtype, setSeriesBySubtype] = useState({});
+  const [availableSubtypes, setAvailableSubtypes] = useState([]);
+  const [selectedMetricPaths, setSelectedMetricPaths] = useState([]);
+  useEffect(() => {
+    const initial = [];
+    initial.push(["WEB_SEARCH"]);
+    setSelectedMetricPaths(initial);
+  }, []);
+
   const tooltipEnabledRef = useRef(true);
-  // const ViewModeToggle = () => (
-  //   <div style={{ marginBottom: "16px" }}>
-  //     <Button.Group>
-  //       <Button
-  //         type={viewMode === "overlay" ? "primary" : "default"}
-  //         onClick={() => setViewMode("overlay")}
-  //         //   style={{ fontSize: 12 }}
-  //         style={
-  //           viewMode === "overlay"
-  //             ? {
-  //                 backgroundColor: "#1570EF33",
-  //                 color: "#1570EF",
-  //                 borderColor: "#1570EF33",
-  //                 fontSize: 12,
-  //               }
-  //             : { fontSize: 12 }
-  //         }
-  //       >
-  //         Overlay View
-  //       </Button>
-  //       <Button
-  //         type={viewMode === "stacked" ? "primary" : "default"}
-  //         onClick={() => setViewMode("stacked")}
-  //         style={
-  //           viewMode === "stacked"
-  //             ? {
-  //                 backgroundColor: "#1570EF33",
-  //                 color: "#1570EF",
-  //                 borderColor: "#1570EF33",
-  //                 fontSize: 12,
-  //               }
-  //             : { fontSize: 12 }
-  //         }
-  //       >
-  //         Stacked View
-  //       </Button>
-  //     </Button.Group>
-  //   </div>
-  // );
-  // useEffect(() => {
-  //   if (!rawAsnSignalsApPacketLoss?.[0]?.[0]) {
-  //     return;
-  //   }
-  //   const { values, ...rest } = rawAsnSignalsApPacketLoss[0][0];
-
-  //   const newValues =
-  //     values
-  //       ?.map((item) => {
-  //         if (item && typeof item.slice === "function") {
-  //           return item.slice(0, 5);
-  //         }
-  //         return null;
-  //       })
-  //       .filter((item) => item !== null) || [];
-
-  //   setLossData({
-  //     ...rest,
-  //     values: newValues,
-  //   });
-  // }, [rawAsnSignalsApPacketLoss]);
 
   useEffect(() => {
-    if (!rawAsnSignalsGtrSarima?.[0]?.[0]) {
+    const groups = rawAsnSignalsGtrSarima?.[0] || [];
+    if (!Array.isArray(groups) || groups.length === 0) {
+      setSeriesBySubtype({});
+      setAvailableSubtypes([]);
       return;
     }
-    const { values, ...rest } = rawAsnSignalsGtrSarima[0][0];
-    const newValues =
-      values
-        ?.map((item) => {
-          if (item && typeof item.slice === "function") {
-            return item.slice(0, 5);
-          }
-          return null;
+
+    const bucket = {};
+    const subtypeSet = new Set();
+
+    groups.forEach((group) => {
+      const subtype = group?.subtype || group?.product || "UNKNOWN";
+      subtypeSet.add(subtype);
+
+      const from = group?.from;
+      const step = group?.step;
+      const arr = group?.values || [];
+
+      const relErr = arr
+        .map((item, idx) => {
+          const row = item?.[0];
+          const observed = row?.agg_values?.observed;
+          const predicted = row?.agg_values?.predicted;
+
+          if (observed == null || predicted == null) return null;
+          const denom = observed === 0 ? 1 : observed; // avoid /0
+          const y = (observed - predicted) / denom;
+          if (!Number.isFinite(y)) return null;
+
+          const x = secondsToMilliseconds(from + step * idx);
+          return [x, y];
         })
-        .filter((item) => item !== null) || [];
-    setSarimaData({
-      ...rest,
-      values: newValues,
+        .filter(Boolean);
+
+      bucket[subtype] = relErr;
     });
+    setSeriesBySubtype(bucket);
+    setAvailableSubtypes([...subtypeSet]);
   }, [rawAsnSignalsGtrSarima]);
 
-  // function for when zoom/pan is used
   function xyPlotRangeChanged(event) {
     if (!event.target.series) {
       return;
@@ -206,66 +166,7 @@ const GtrSarimaComponent = ({
     chartRef.current.chart.xAxis[0].setExtremes(fromMs, untilMs);
   }
 
-  // const asnListFull = [
-  //   {
-  //     name: "Median Latency",
-  //     color: "#0000FF",
-  //   },
-  //   {
-  //     name: "90th and 10th Percentile",
-  //     color: "#7cb5ec",
-  //   },
-  //   {
-  //     name: "Probe/Response Loss",
-  //     color: "#52c41a",
-  //   },
-  // ];
   const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
-
-  // const [asnList, setAsnList] = useState([]);
-  // useEffect(() => {
-  //   let newAsnList = [];
-  //   if (displayLatency) {
-  //     newAsnList = newAsnList.concat(asnListFull[0]);
-  //     newAsnList = newAsnList.concat(asnListFull[1]);
-  //   }
-  //   if (displayPctLoss) {
-  //     newAsnList = newAsnList.concat(asnListFull[2]);
-  //   }
-  //   setAsnList(newAsnList);
-  // }, [displayPctLoss, displayLatency]);
-
-  // useEffect(() => {
-  //   const chart = chartRef.current?.chart;
-  //   const leftText = leftYAxisTitleRef.current;
-  //   if (chart && leftText) {
-  //     if (displayLatency) {
-  //       leftText.attr({
-  //         text: "<strong>RTT Latency</strong> <span style='opacity: 0.8;'> (ms)</span>",
-  //       });
-  //     } else {
-  //       leftText.attr({ text: "" });
-  //     }
-  //   }
-  // }, [displayLatency, leftYAxisTitleRef]);
-
-  // useEffect(() => {
-  //   const chart = chartRef.current?.chart;
-  //   const rightText = rightYAxisTitleRef.current;
-  //   if (chart && rightText) {
-  //     if (displayPctLoss) {
-  //       rightText.attr({
-  //         text: "<strong> Probe/Response Loss Rate</strong> <span style='opacity: 0.8;'> (%)</span>",
-  //       });
-  //     } else {
-  //       rightText.attr({ text: "" });
-  //     }
-  //     const bbox = rightText.getBBox();
-  //     rightText.attr({
-  //       x: chart.chartWidth - chart.marginRight - bbox.width,
-  //     });
-  //   }
-  // }, [displayPctLoss, rightYAxisTitleRef]);
 
   const navigatorLowerBound = secondsToMilliseconds(tsDataLegendRangeFrom);
   const navigatorUpperBound = secondsToMilliseconds(tsDataLegendRangeUntil);
@@ -284,44 +185,6 @@ const GtrSarimaComponent = ({
     month: "%b %Y",
     year: "%Y",
   };
-
-  // all Data sources - lossPackage, lossRanges, lossMedians
-
-  // const lossPackage =
-  //   lossData?.values?.map((obj, index) => {
-  //     const x = secondsToMilliseconds(
-  //       latencyData?.from + latencyData?.step * index
-  //     );
-  //     return [x, obj[0]?.agg_values.loss_pct];
-  //   }) || [];
-
-  // const lossRanges =
-  //   latencyData?.values
-  //     ?.map((obj, index) => {
-  //       const x = secondsToMilliseconds(
-  //         latencyData?.from + latencyData?.step * index
-  //       );
-  //       return [
-  //         x,
-  //         obj[0]?.agg_values
-  //           ? {
-  //               low: obj[0].agg_values.p10_latency,
-  //               high: obj[0].agg_values.p90_latency,
-  //             }
-  //           : null,
-  //       ];
-  //     })
-  //     .filter((point) => point[1] != null) || [];
-
-  const gtrSarima =
-    sarimaData?.values
-      ?.map((obj, index) => {
-        const x = secondsToMilliseconds(
-          sarimaData?.from + sarimaData?.step * index
-        );
-        return [x, obj[0].agg_values.observed];
-      })
-      .filter((point) => point[1] != null && !isNaN(point[1])) || [];
 
   const relErrSeries =
     sarimaData?.values
@@ -345,52 +208,13 @@ const GtrSarimaComponent = ({
       })
       .filter((point) => point != null) || [];
 
-  // const latencyHighs = lossRanges.map(([, range]) => range.high);
-  // const maxLatencyHigh =
-  //   latencyHighs.length > 0 ? Math.max(...latencyHighs) : null;
-  // const latencyMax = maxLatencyHigh ? maxLatencyHigh * 1.1 : null;
-  // let navLatency = [],
-  //   navLoss = [];
-  let navSarima = [];
-
-  if (gtrSarima.length > 0) {
-    // const valsLat = lossMedians.map(([, v]) => v);
-    // const valsLoss = lossPackage.map(([, v]) => v);
-    const valsSarima = gtrSarima.map(([, v]) => v);
-
-    // const minLat = Math.min(...valsLat),
-    //   maxLat = Math.max(...valsLat);
-    // const minLoss = Math.min(...valsLoss),
-    //   maxLoss = Math.max(...valsLoss);
-    const minSarima = Math.min(...valsSarima),
-      maxSarima = Math.max(...valsSarima);
-
-    // navLatency = lossMedians.map(([t, v]) => [t, v / latencyMax]);
-
-    navSarima = gtrSarima.map(([t, v]) => [t, v]);
-
-    // navLoss = lossPackage.map(([t, v]) => [
-    //   t,
-    //   //   (v - minLoss) / (maxLoss - minLoss),
-    //   v / 100,
-    // ]);
-  }
-
-  let navRel = [];
-
   if (relErrSeries.length > 0) {
     navRel = relErrSeries.map(([t, v]) => [t, v]);
   }
 
   const relValsOnly = relErrSeries.map(([, v]) => v);
-  const relMin = relValsOnly.length ? Math.min(...relValsOnly) : 0;
-  // const yMin = Math.min(-10, relMin);
-  const yMin = Math.min(-1, relMin * 1.1);
-  const yMax = 1;
-
-  // const rightPartitionMin = lossPackage?.length > 0 ? Math.min(...lossPackage) : null;
-  const rightPartitionMax =
-    gtrSarima?.length > 0 ? Math.max(...gtrSarima) : null;
+  // const rightPartitionMax =
+  //   gtrSarima?.length > 0 ? Math.max(...gtrSarima) : null;
 
   function getChartExportTitle() {
     return `${T.translate("entity.gtrSarimaChartTitle")} ${entityName?.trim()}`;
@@ -412,6 +236,42 @@ const GtrSarimaComponent = ({
   const exportChartSubtitle = getChartExportSubtitle();
 
   const exportFileName = getSarimaChartExportFileName(from, entityName);
+  const selectedSubtypes = selectedMetricPaths.map((p) => p[p.length - 1]);
+
+  const palette = Highcharts.getOptions().colors;
+
+  const subtypeColorMap = useMemo(() => {
+    const sorted = [...availableSubtypes].sort();
+    const map = {};
+    sorted.forEach((s, i) => {
+      map[s] = palette[i % palette.length];
+    });
+    return map;
+  }, [availableSubtypes]);
+
+  const getSubtypeColor = (s) => subtypeColorMap[s] || "#999";
+  const seriesToPlot = selectedSubtypes.map((s, i) => ({
+    name: `GTR-Sarima (${s})`,
+    data: seriesBySubtype[s] || [],
+    type: "line",
+    lineWidth: 1,
+    marker: { enabled: false },
+    color: getSubtypeColor(s),
+    showInNavigator: false,
+    zIndex: 0,
+    tooltip: { valueDecimals: 4 },
+  }));
+
+  const navigatorData = selectedSubtypes.length
+    ? seriesBySubtype[selectedSubtypes[0]] || []
+    : [];
+
+  const allVals = selectedSubtypes.flatMap((s) =>
+    (seriesBySubtype[s] || []).map(([, v]) => v)
+  );
+  const relMin = allVals.length ? Math.min(...allVals) : 0;
+  const yMin = Math.min(-1, relMin * 1.1);
+  const yMax = 1;
 
   const options = {
     chart: {
@@ -431,65 +291,6 @@ const GtrSarimaComponent = ({
       events: {
         load: function () {
           const chart = this;
-
-          //   // Left-aligned title
-          //   leftYAxisTitleRef.current = chart.renderer
-          //     .text(
-          //       "<strong>Latency</strong> <span style='opacity: 0.8;'>(Round Trip Time (ms))</span>",
-          //       chart.plotLeft,
-          //       chart.plotTop - 20,
-          //       true
-          //     )
-          //     .css({
-          //       color: "#333",
-          //       fontSize: "12px",
-          //     })
-          //     .add();
-
-          //   // Right-aligned title
-          //   // if(displayPctLoss) {
-
-          //   const rightText = chart.renderer
-          //     .text(
-          //       displayPctLoss
-          //         ? "<strong> Packet Loss </strong> <span style='opacity: 0.8;'>(Percentage Loss Rate)</span>"
-          //         : "",
-          //       0,
-          //       chart.plotTop - 20,
-          //       true
-          //     )
-          //     .css({
-          //       color: "#333",
-          //       fontSize: "12px",
-          //       textAlign: "right",
-          //     })
-          //     .add();
-
-          //   // Align it to the right
-          //   const textBBox = rightText.getBBox();
-          //   // rightText.attr({
-          //   //     x: chart.chartWidth - chart.marginRight - textBBox.width - 20
-          //   // });
-          //   rightText.attr({
-          //     // x: chart.plotLeft + chart.plotWidth - textBBox.width,
-          //     x: chart.chartWidth - chart.marginRight - textBBox.width,
-          //   });
-
-          //   rightYAxisTitleRef.current = rightText;
-          //   //   // }
-          //   //   const axisMax = chart.yAxis[0].getExtremes().max;
-
-          //   //   //    (make sure lossMedians and lossPackage are in scope)
-          //   //   const navLatency = lossMedians.map(([t, v]) => [
-          //   //     t,
-          //   //     (v * 100) / axisMax,
-          //   //   ]);
-          //   //   const navLoss = lossPackage.map(([t, v]) => [t, v]);
-
-          //   //   chart.navigator.series[0].setData(navLatency, false);
-          //   //   chart.navigator.series[1].setData(navLoss, false);
-
-          //   //   chart.redraw();
         },
       },
       spacingBottom: 0,
@@ -559,7 +360,7 @@ const GtrSarimaComponent = ({
       },
     },
     legend: {
-      enabled: sarimaData,
+      enabled: true,
       margin: 10,
       className: "ap-latency-loss-legend",
       itemStyle: {
@@ -569,7 +370,7 @@ const GtrSarimaComponent = ({
       alignColumns: true,
     },
     navigator: {
-      enabled: sarimaData,
+      enabled: true,
 
       adaptToUpdatedData: false,
 
@@ -601,27 +402,13 @@ const GtrSarimaComponent = ({
         max: yMax,
       },
       series: [
-        // {
-        //   data: navLatency,
-        //   type: "line",
-        //   color: "#722ED1",
-        //   name: "Latency (normalized)",
-        //   index: 0,
-        //   visible: displayLatency,
-        // },
-        // {
-        //   data: navLoss,
-        //   type: "line",
-        //   color: "#D62782",
-        //   name: "Probe/Response Loss",
-        //   index: 1,
-        //   visible: displayPctLoss,
-        // },
         {
-          data: navRel,
+          data: navigatorData,
           type: "line",
-          color: "#0077B6",
-          name: "GTR-Sarima",
+          color: getSubtypeColor(selectedSubtypes[0] || ""),
+          name: selectedSubtypes.length
+            ? `Navigator — ${selectedSubtypes[0]}`
+            : "Navigator",
           index: 0,
           visible: true,
         },
@@ -661,12 +448,6 @@ const GtrSarimaComponent = ({
           fontFamily: CUSTOM_FONT_FAMILY,
         },
       },
-      //   lineColor: "#eeeeee",
-      //   tickColor: "#eeeeee",
-      //   gridLineWidth: 1,
-      //   gridLineColor: "#eeeeee",
-      //   gridLineDashStyle: "dash",
-      // minRange: secondsToMilliseconds(5 * 60),
       title: {
         text: "Time (UTC)",
         style: {
@@ -682,25 +463,18 @@ const GtrSarimaComponent = ({
     },
     yAxis: [
       {
-        // title: {
-        //   text: null,
-        // },
         showEmpty: false,
-        // title: {
-        //   text: '<strong>Observed</strong> ',
-        //   useHTML: true,
-        //   align: "high",
-        //   textAlign: "left",
-        //   rotation: 0,
-        //   x: 0,
-        //   y: -15,
-        //   style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
-        // },
+        title: {
+          text: "<strong>Relative Error</strong> ",
+          useHTML: true,
+          align: "high",
+          textAlign: "left",
+          rotation: 0,
+          x: 0,
+          y: -15,
+          style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
+        },
         tickAmount: 5,
-        // lineColor: "#eeeeee",
-        // tickColor: "#eeeeee",
-        // gridLineColor: "#eeeeee",
-        // gridLineDashStyle: "dash",
         gridLineColor: "#E6E6E6",
         gridLineDashStyle: "ShortDash",
         labels: {
@@ -712,131 +486,12 @@ const GtrSarimaComponent = ({
             return this.value;
           },
         },
-        // endOnTick: false,
         min: yMin,
         max: yMax,
-        // visible: displayLatency,
         visible: true,
       },
-      // {
-      //   showEmpty: false,
-      //   opposite: true,
-      //   min: 0,
-      //   max: 100,
-      //   tickAmount: 5,
-      //   lineColor: "#eeeeee",
-      //   tickColor: "#eeeeee",
-      //   gridLineColor: "#eeeeee",
-      //   gridLineWidth: 1,
-      //   gridLineDashStyle: "ShortDash",
-      //   title: {
-      //     text: '<strong>Probe/Response Loss</strong> <span style="opacity:0.8;">(%)</span>',
-      //     useHTML: true,
-      //     align: "high",
-      //     textAlign: "right",
-      //     rotation: 0,
-      //     x: -30,
-      //     y: -15,
-      //     style: { fontSize: "12px", color: "#333", whiteSpace: "nowrap" },
-      //   },
-      //   // title: {
-      //   //   text: null,
-      //   // },
-      //   labels: {
-      //     x: 5,
-      //     style: {
-      //       colors: "#111",
-      //       fontSize: "10px",
-      //       fontFamily: CUSTOM_FONT_FAMILY,
-      //     },
-      //     formatter: function () {
-      //       return this.value + "%";
-      //     },
-      //   },
-      //   visible: displayPctLoss,
-      // },
     ],
-    series: [
-      // {
-      //   name: "Range",
-      //   data: lossRanges?.map((range) => [
-      //     range[0],
-      //     range[1].low,
-      //     range[1].high,
-      //   ]),
-      //   type: "arearange",
-      //   color: "#EACBED",
-      //   zIndex: 0,
-      //   visible: displayLatency,
-      //   showInNavigator: false,
-      // },
-      // {
-      //   name: "Median",
-      //   data: lossMedians,
-      //   type: "line",
-      //   color: "#722ED1",
-      //   zIndex: 0,
-      //   visible: displayLatency,
-      //   lineWidth: 1,
-      //   marker: {
-      //     enabled: true,
-      //     radius: 0.05,
-      //     symbol: "circle",
-      //     fillColor: "rgba(67, 67, 72, 0.9)",
-      //     lineWidth: 1,
-      //     lineColor: "#FFFFFF",
-      //   },
-      //   // showInNavigator: true,
-      //   showInNavigator: false,
-      // },
-      // {
-      //   name: "Loss",
-      //   data: lossPackage,
-      //   type: "line",
-      //   color: "#D62782",
-      //   zIndex: 0,
-      //   lineWidth: 1,
-      //   yAxis: 1,
-      //   marker: {
-      //     // enabled: true,
-      //     // radius: 3,
-      //     // symbol: 'circle',
-      //     enabled: false,
-      //   },
-      //   visible: displayPctLoss,
-      //   // showInNavigator: true,
-      //   showInNavigator: false,
-      // },
-      // {
-      //   name: "Observed",
-      //   data: gtrSarima,
-      //   type: "line",
-      //   color: "#D62782",
-      //   zIndex: 0,
-      //   lineWidth: 1,
-      //   // yAxis: 1,
-      //   marker: {
-      //     // enabled: true,
-      //     // radius: 3,
-      //     // symbol: 'circle',
-      //     enabled: false,
-      //   },
-      //   visible: true,
-      //   // showInNavigator: true,
-      //   showInNavigator: false,
-      // },
-      {
-        name: "Relative Error",
-        data: relErrSeries,
-        type: "line",
-        color: "#0077B6",
-        zIndex: 0,
-        lineWidth: 1,
-        marker: { enabled: false },
-        visible: true,
-        showInNavigator: false,
-      },
-    ],
+    series: seriesToPlot,
     lang: {
       noData: "No data available for selected time range",
     },
@@ -850,87 +505,6 @@ const GtrSarimaComponent = ({
   };
   const overlayOptions = options;
 
-  // const stackedOptions = cloneDeep(options);
-
-  // stackedOptions.chart.height = displayLatency + displayPctLoss < 2 ? 350 : 400;
-  // stackedOptions.chart.marginRight = 10;
-
-  //   stackedOptions.yAxis = [
-  //     {
-  //       ...stackedOptions.yAxis[0],
-  //       top: "0%",
-  //       height: "45%",
-  //       offset: 0,
-  //     },
-  //     {
-  //       ...stackedOptions.yAxis[1],
-  //       top: "55%",
-  //       height: "45%",
-  //       offset: 0,
-  //       opposite: false,
-  //     },
-  //   ];
-  //   stackedOptions.yAxis[1].title.textAlign = "left";
-  //   stackedOptions.yAxis[1].title.x = 5;
-
-  // stackedOptions.yAxis = [];
-  // stackedOptions.series = [];
-
-  // let yAxisIndex = 0;
-
-  // if (displayLatency) {
-  //   stackedOptions.yAxis.push({
-  //     ...options.yAxis[0],
-  //     max: null,
-  //     top: displayPctLoss ? "0%" : "0%",
-  //     height: displayPctLoss ? "40%" : "100%",
-  //     offset: 0,
-  //   });
-
-  //   stackedOptions.series.push(
-  //     {
-  //       ...options.series.find((s) => s.name === "Range"),
-  //       yAxis: yAxisIndex,
-  //       visible: true,
-  //     },
-  //     {
-  //       ...options.series.find((s) => s.name === "Median"),
-  //       yAxis: yAxisIndex,
-  //       visible: true,
-  //     }
-  //   );
-
-  //   yAxisIndex++;
-  // }
-
-  // if (displayPctLoss) {
-  //   stackedOptions.yAxis.push({
-  //     ...options.yAxis[1],
-  //     top: displayLatency ? "60%" : "0%",
-  //     height: displayLatency ? "40%" : "100%",
-  //     offset: 0,
-  //     opposite: false,
-  //   });
-
-  //   stackedOptions.series.push({
-  //     ...options.series.find((s) => s.name === "Loss"),
-  //     yAxis: yAxisIndex,
-  //     visible: true,
-  //   });
-  //   // stackedOptions.yAxis[yAxisIndex].title.textAlign = "left";
-  //   stackedOptions.yAxis[yAxisIndex].title = {
-  //     ...stackedOptions.yAxis[yAxisIndex].title,
-  //     align: "high",
-  //     textAlign: "left",
-  //     x: 5,
-  //     y: -15,
-  //   };
-  //   stackedOptions.yAxis[yAxisIndex].labels = {
-  //     ...stackedOptions.yAxis[yAxisIndex].labels,
-  //     x: -5,
-  //   };
-  // }
-
   function displayShareLinkModal() {
     setShowShareLinkModal(true);
   }
@@ -938,14 +512,6 @@ const GtrSarimaComponent = ({
   function hideShareLinkModal() {
     setShowShareLinkModal(false);
   }
-
-  // function handleDisplayLatencyBands(show) {
-  //   setDisplayLatency(show);
-  // }
-
-  // function handleDisplayPctLoss(show) {
-  //   setDisplayPctLoss(show);
-  // }
 
   function handleDisplayChartSharePopover(val) {
     setDisplayChartSharePopover(val);
@@ -994,77 +560,12 @@ const GtrSarimaComponent = ({
     );
   }
 
-  // const apChartLatencyLabel = T.translate("entity.apChartLatencyLabel");
-  // const apChartPctLossLabel = T.translate("entity.apChartPctLossLabel");
-  const sarimaChartLabel = T.translate("entity.sarimaChartLabel");
-  // const ASNLegend = () => (
-  //   <div style={{ display: "flex", justifyContent: "flex-end" }}>
-  //     <div style={{ display: "flex", flexWrap: "wrap" }}>
-  //       {asnList.map((item) => (
-  //         <div
-  //           key={item.name}
-  //           style={{
-  //             display: "flex",
-  //             alignItems: "center",
-  //             gap: "5px",
-  //             marginRight: "18px",
-  //             marginBottom: "6px",
-  //           }}
-  //         >
-  //           <div
-  //             style={{
-  //               width: "14px",
-  //               height: "14px",
-  //               backgroundColor: Highcharts.color(item.color)
-  //                 .setOpacity(0.4)
-  //                 .get(),
-  //               borderRadius: "50%",
-  //               borderColor: item.color,
-  //               borderStyle: "solid",
-  //               borderWidth: "1.5px",
-  //             }}
-  //           />
-  //           <span style={{ color: "#333", fontSize: "14px" }}>{item.name}</span>
-  //         </div>
-  //       ))}
-  //     </div>
-  //   </div>
-  // );
-  const [selectedMetricPaths, setSelectedMetricPaths] = useState([]);
+  // const sarimaChartLabel = T.translate("entity.sarimaChartLabel");
 
-  // const metricOptions = [
-  //   {
-  //     value: "observed",
-  //     label: sarimaChartLabel,
-  //   },
-  //   // {
-  //   //   value: "loss",
-  //   //   label: apChartPctLossLabel,
-  //   // },
-  // ];
-  const metricOptions = [
-    {
-      value: "relative_error",
-      label: "Relative Error ((obs - pred)/obs)",
-    },
-  ];
-
-  useEffect(() => {
-    const initial = [];
-
-    // if (displayLatency) {
-    //   initial.push(["latency"]);
-    // }
-    // if (displayPctLoss) {
-    //   initial.push(["loss"]);
-    // }
-    initial.push(["relative_error"]);
-    setSelectedMetricPaths(initial);
-  }, []);
-  const tagColors = {
-    latency: "#722ED1",
-    loss: "#D62782",
-  };
+  const cascaderOptions = availableSubtypes.map((s) => ({
+    value: s,
+    label: s,
+  }));
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -1118,7 +619,7 @@ const GtrSarimaComponent = ({
               className="mr-3"
               icon={<EditOutlined />}
               onClick={handleShowMarkupStudioModal}
-              disabled={!sarimaData}
+              disabled={!relErrSeries}
             />
           </Tooltip>
           <Tooltip title="Share Link">
@@ -1189,55 +690,40 @@ const GtrSarimaComponent = ({
           <div style={{ width: "50%" }}>
             <Cascader
               className="custom-tag-spacing"
-              options={metricOptions}
+              options={cascaderOptions}
               value={selectedMetricPaths}
-              onChange={(paths) => {
-                setSelectedMetricPaths(paths);
-                const flat = paths.map((p) => p[p.length - 1]);
-                // handleDisplayLatencyBands(flat.includes("latency"));
-                // handleDisplayPctLoss(flat.includes("loss"));
-              }}
+              onChange={(paths) => setSelectedMetricPaths(paths)}
               multiple
-              placeholder="Show metrics…"
-              // maxTagCount="responsive"
+              placeholder="Select subtypes…"
               style={{ width: "100%" }}
               tagRender={({ label, value, closable, onClose }) => {
-                const color = tagColors[value] || "#999";
+                const c = getSubtypeColor(value);
                 return (
                   <Tag
                     closable={closable}
                     onClose={onClose}
                     style={{
-                      backgroundColor: `${color}33`,
-                      borderColor: color,
+                      backgroundColor: `${c}33`,
+                      borderColor: c,
                       color: "#000",
                       fontWeight: 500,
                     }}
                   >
-                    {label}
+                    GTR-Sarima ({label})
                   </Tag>
                 );
               }}
             />
           </div>
-          {/* <div className="ml-auto">
-            <ViewModeToggle />
-          </div> */}
         </div>
-        {/* 0612 */}
-        {/* <div className="flex-grow" style={{ width: "100%" }}> */}
         <div className=" w-full">
           {loading ? (
             <Loading />
           ) : (
-            sarimaData && (
+            relErrSeries && (
               <div>
                 <HighchartsReact
-                  // key={viewMode}
                   highcharts={Highcharts}
-                  // options={
-                  //   viewMode === "overlay" ? overlayOptions : stackedOptions
-                  // }
                   options={overlayOptions}
                   ref={chartRef}
                 />

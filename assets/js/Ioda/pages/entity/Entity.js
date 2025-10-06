@@ -554,7 +554,6 @@ const Entity = (props) => {
           )
         : setApLoading(false); //empty data
     }
-    console.log("ap delay data: ", rawAsnSignalsApPacketDelay);
   }, [rawAsnSignalsApPacketDelay]); //0726
 
   useEffect(() => {
@@ -576,7 +575,6 @@ const Entity = (props) => {
           )
         : setGtrLoading(false);
     }
-    console.log("gtr sarima data: ", rawAsnSignalsGtrSarima);
   }, [rawAsnSignalsGtrSarima]);
 
   useEffect(() => {
@@ -2160,7 +2158,6 @@ const Entity = (props) => {
       navigatorSeriesStacked.push(navigatorChartSeries);
       axisIndex++;
     }
-    console.log("chartSignals", chartSignals); //0818
     return {
       alertBands,
       chartSignals,
