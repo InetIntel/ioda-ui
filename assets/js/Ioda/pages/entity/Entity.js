@@ -2135,7 +2135,6 @@ const Entity = (props) => {
       navigatorSeriesStacked.push(navigatorChartSeries);
       axisIndex++;
     }
-    console.log("chartSignals", chartSignals); //0818
     return {
       alertBands,
       chartSignals,
