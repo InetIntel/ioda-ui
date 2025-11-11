@@ -93,7 +93,7 @@ export const legend = [
   {
     title: T.translate("entity.googleMailText"),
     key: "gtr.GMAIL",
-    color: "#A02C2C",
+    color: "#b5f5ec",
   },
   {
     title: T.translate("entity.googleSearchText"),
@@ -108,7 +108,7 @@ export const legend = [
   {
     title: T.translate("entity.googleYoutubeText"),
     key: "gtr.YOUTUBE",
-    color: "#B65DFC",
+    color: "#3e8e41",
   },
   {
     title: T.translate("entity.googleSpreadsheetText"),
@@ -118,6 +118,22 @@ export const legend = [
   {
     title: T.translate("entity.googleSitesText"),
     key: "gtr.SITES",
+    color: "#A02C2C",
+  },
+  // Mozilla
+  // {
+  //   title: T.translate("entity.mozillaTimeoutText"),
+  //   key: "mozilla.proportion_timeout",
+  //   color: "#B65DFC",
+  // },
+  // {
+  //   title: T.translate("entity.mozillaUnreachableText"),
+  //   key: "mozilla.proportion_unreachable",
+  //   color: "#d46b08",
+  // },
+  {
+    title: T.translate("entity.mozillaCityText"),
+    key: "mozilla.city_count",
     color: "#426984",
   },
 ];
@@ -166,7 +182,7 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
 
     // If entity type has ip_count/is an ASN
     let summaryItem;
-    console.log(summary)
+    console.log(summary);
     summary.entity.type === "asn" || summary.entity.type === "geoasn"
       ? (summaryItem = {
           entityType: "asn",
@@ -226,7 +242,8 @@ export function combineValuesForSignalsTable(
     entity.entity.type === "asn" || entity.entity.type === "geoasn"
       ? (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
+          entityType:
+            entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
           entityCode: entity["entity"].code,
           name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
@@ -236,7 +253,8 @@ export function combineValuesForSignalsTable(
         })
       : (summaryItem = {
           visibility: index < initialLimit,
-          entityType: entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
+          entityType:
+            entity["entity"].type === "geoasn" ? "asn" : entity["entity"].type,
           entityCode: entity["entity"].code,
           name: entity["entity"].name.replace(/--/g, "|"),
           score: overallScore,
@@ -246,7 +264,6 @@ export function combineValuesForSignalsTable(
     summaryData.push(summaryItem);
   });
   outageCount = summaryData.length;
-
 
   // Display scoreless entities on signal table, if asn add ip count property
   duplicatesRemoved.map((entity, index) => {

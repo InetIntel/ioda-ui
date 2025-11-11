@@ -218,12 +218,17 @@ const ChartLegendCard = ({
   const [selectedPaths, setSelectedPaths] = useState([]);
   const { entityType } = useParams();
   const isCountryView = entityType === "country";
+  const isAsnView = entityType === "asn";
 
   const baseItems = legend.filter(
     (item) => !item.key.includes(".") && checkedMap[item.key] != null
   );
   const allGoogleSeries = legend.filter((item) => item.key.startsWith("gtr."));
+  const allMozillaSeries = legend.filter((item) =>
+    item.key.startsWith("mozilla.")
+  );
   const googleLeaves = !simplifiedView && isCountryView ? allGoogleSeries : [];
+  const mozillaLeaves = !simplifiedView && !isAsnView ? allMozillaSeries : [];
   const handleClearAll = () => {
     clearAllSignals();
   };
@@ -296,6 +301,24 @@ const ChartLegendCard = ({
           },
         ]
       : []),
+    ...(mozillaLeaves.length
+      ? [
+          {
+            value: "mozilla",
+            label: (
+              <span style={{ display: "inline-flex", alignItems: "center" }}>
+                <span
+                  style={{ marginRight: 4 }}
+                >{`Mozilla (${mozillaLeaves.length})`}</span>
+              </span>
+            ),
+            children: mozillaLeaves.map((item) => ({
+              value: item.key,
+              label: item.title,
+            })),
+          },
+        ]
+      : []),
   ];
 
   useEffect(() => {
@@ -305,6 +328,9 @@ const ChartLegendCard = ({
     });
     googleLeaves.forEach((item) => {
       if (checkedMap[item.key]) init.push(["google", item.key]);
+    });
+    mozillaLeaves.forEach((item) => {
+      if (checkedMap[item.key]) init.push(["mozilla", item.key]);
     });
     setSelectedPaths(init);
   }, [checkedMap, simplifiedView, isCountryView]);
@@ -316,10 +342,11 @@ const ChartLegendCard = ({
     colorMap[item.key] = item.color;
   });
   googleLeaves.forEach((item) => {
-    // fullTagText["google__RC_CASCADER_SPLIT__" + item.key] =
-    //   `Google (${item.title})`;
-    // colorMap["google__RC_CASCADER_SPLIT__" + item.key] = item.color;
     fullTagText[item.key] = `Google (${item.title})`;
+    colorMap[item.key] = item.color;
+  });
+  mozillaLeaves.forEach((item) => {
+    fullTagText[item.key] = `Mozilla (${item.title})`;
     colorMap[item.key] = item.color;
   });
 
@@ -335,6 +362,14 @@ const ChartLegendCard = ({
       if (was !== now) legendHandler(item.key);
     });
     googleLeaves.forEach((item) => {
+      const was = !!checkedMap[item.key];
+      const now = newLeaves.includes(item.key);
+      if (was !== now) {
+        legendHandler(item.key);
+        updateSourceParams(item.key.split(".")[1]);
+      }
+    });
+    mozillaLeaves.forEach((item) => {
       const was = !!checkedMap[item.key];
       const now = newLeaves.includes(item.key);
       if (was !== now) {
