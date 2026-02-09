@@ -474,6 +474,39 @@ const link_resources = [
       community: ["Internet Freedom"],
     },
   },
+  {
+    title:
+      "Kenya Internet Disruption Case Study June 24, 2024 - IODA Walkthrough",
+    type: "Video",
+    link: "https://www.youtube.com/embed/RaSe1ExWLMY",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+    },
+  },    
+  {
+    title:
+      "Mozambique Internet Disruption Case Study October 2024 - IODA Walkthrough",
+    type: "Video",
+    link: "https://www.youtube.com/embed/eJp6LX6ZK2s",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+    },
+  },
+  {
+    title:
+      "Iran Case Study - Connectivity During Conflict June - July 2025 - IODA Walkthrough",
+    type: "Video",
+    link: "https://www.youtube.com/embed/jbC5bDV-rnA",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+    },
+  },
 ];
 
 export default link_resources;
