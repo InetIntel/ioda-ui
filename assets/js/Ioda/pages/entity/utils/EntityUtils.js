@@ -64,6 +64,15 @@ export function getApLatencyChartExportFileName(from, entityName) {
   return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
 }
 
+export function getSarimaChartExportFileName(from, entityName) {
+  const fromDayjs = secondsToUTC(from);
+
+  const formatCompact = "YY-MM-DD-HH-mm";
+
+  const exportFileNameBase = `ioda-gtr-sarima-${entityName}-${fromDayjs.format(formatCompact)}`;
+  return exportFileNameBase.replace(/\s+/g, "-").toLowerCase();
+}
+
 export function getUpstreamChartExportFileName(from, entityName) {
   const fromDayjs = secondsToUTC(from);
 
