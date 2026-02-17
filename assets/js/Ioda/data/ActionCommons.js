@@ -33,7 +33,7 @@
  */
 
 import axios from "axios";
-import { merge } from "lodash";
+import { merge } from 'lodash';
 
 // Action for getting search-result results based on query
 export const ENTITIES_SEARCH = "ENTITIES_SEARCH";
@@ -43,71 +43,54 @@ export const OUTAGE_ALERTS_SEARCH = "OUTAGE_ALERTS_SEARCH";
 export const OUTAGE_EVENTS_SEARCH = "OUTAGE_EVENTS_SEARCH";
 export const OUTAGE_OVERALL_EVENTS_SEARCH = "OUTAGE_OVERALL_EVENTS_SEARCH";
 export const OUTAGE_SUMMARY_SEARCH = "OUTAGE_SUMMARY_SEARCH";
-export const OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH =
-  "OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH";
-export const SET_OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH =
-  "SET_OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH";
-export const OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH =
-  "OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH";
+export const OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH = "OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH";
+export const SET_OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH = "SET_OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH";
+export const OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH = "OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH";
 export const OUTAGE_TOTAL_COUNT = "OUTAGE_TOTAL_COUNT";
 export const GET_DATASOURCES = "GET_DATASOURCES";
 export const GET_TOPO_DATA = "GET_TOPO_DATA";
 export const GET_SIGNALS = "GET_SIGNALS";
 export const GET_EVENT_SIGNALS = "GET_EVENT_SIGNALS";
-export const GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA =
-  "GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA";
-export const SET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA =
-  "SET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA";
-export const GET_ASN_SIGNALS_TABLE_SUMMARY_DATA =
-  "GET_ASN_SIGNALS_TABLE_SUMMARY_DATA";
-export const SET_ASN_SIGNALS_TABLE_SUMMARY_DATA =
-  "SET_ASN_SIGNALS_TABLE_SUMMARY_DATA";
-export const GET_RAW_REGIONAL_SIGNALS_PINGSLASH24 =
-  "GET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
+export const GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA = "GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA";
+export const SET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA = "SET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA";
+export const GET_ASN_SIGNALS_TABLE_SUMMARY_DATA = "GET_ASN_SIGNALS_TABLE_SUMMARY_DATA";
+export const SET_ASN_SIGNALS_TABLE_SUMMARY_DATA = "SET_ASN_SIGNALS_TABLE_SUMMARY_DATA";
+export const GET_RAW_REGIONAL_SIGNALS_PINGSLASH24 = "GET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
 export const GET_RAW_REGIONAL_SIGNALS_BGP = "GET_RAW_REGIONAL_SIGNALS_BGP";
-export const GET_RAW_REGIONAL_SIGNALS_UCSDNT =
-  "GET_RAW_REGIONAL_SIGNALS_UCSDNT";
-export const GET_RAW_REGIONAL_SIGNALS_MERITNT =
-  "GET_RAW_REGIONAL_SIGNALS_MERITNT";
-export const GET_RAW_ASN_SIGNALS_PINGSLASH24 =
-  "GET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
-export const SET_RAW_ASN_SIGNALS_PINGSLASH24 =
-  "SET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
+export const GET_RAW_REGIONAL_SIGNALS_UCSDNT = "GET_RAW_REGIONAL_SIGNALS_UCSDNT";
+export const GET_RAW_REGIONAL_SIGNALS_MERITNT = "GET_RAW_REGIONAL_SIGNALS_MERITNT";
+export const GET_RAW_ASN_SIGNALS_PINGSLASH24 = "GET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
+export const SET_RAW_ASN_SIGNALS_PINGSLASH24 = "SET_RAW_REGIONAL_SIGNALS_PINGSLASH24";
 export const GET_RAW_ASN_SIGNALS_BGP = "GET_RAW_REGIONAL_SIGNALS_BGP";
 export const SET_RAW_ASN_SIGNALS_BGP = "SET_RAW_REGIONAL_SIGNALS_BGP";
 export const GET_RAW_ASN_SIGNALS_UCSDNT = "GET_RAW_REGIONAL_SIGNALS_UCSDNT";
 export const GET_RAW_ASN_SIGNALS_MERITNT = "GET_RAW_REGIONAL_SIGNALS_MERITNT";
 export const SET_RAW_ASN_SIGNALS_MERITNT = "SET_RAW_REGIONAL_SIGNALS_MERITNT";
 export const GET_ADDITIONAL_RAW_SIGNAL = "GET_ADDITIONAL_RAW_SIGNAL";
-export const GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY =
-  "GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY";
-export const GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT =
-  "GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT";
-export const GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY =
-  "GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY";
-export const GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS =
-  "GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS";
-export const GET_RAW_ASN_SIGNALS_GTR_SARIMA = "GET_RAW_ASN_SIGNALS_GTR_SARIMA";
+export const GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY = "GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY";
+export const GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT = "GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT";
+export const GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY = "GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY";
+export const GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS = "GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS";
 
 export const fetchData = (config) => {
-  const baseURL = "https://api.ioda.inetintel.cc.gatech.edu/v2";
-  let concatURL = `${baseURL}${config.url}`;
-  const configHeader = merge({}, config, {
-    headers: {
-      "x-requested-with": "XMLHttpRequest",
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    url: concatURL,
-  });
-  return axios(configHeader)
-    .then((response) => {
-      return Promise.resolve(response);
-    })
-    .then((response) => {
-      return response;
-    })
-    .catch((error) => {
-      return Promise.reject(error);
+    const baseURL = 'https://api.ioda.inetintel.cc.gatech.edu/v2';
+    let concatURL = `${baseURL}${config.url}`;
+    const configHeader = merge({}, config, {
+        headers: {
+            "x-requested-with": "XMLHttpRequest",
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        url: concatURL
     });
+    return axios(configHeader)
+        .then(response => {
+            return Promise.resolve(response);
+        })
+        .then(response => {
+            return response;
+        })
+        .catch(error => {
+            return Promise.reject(error);
+        });
 };

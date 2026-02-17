@@ -41,7 +41,7 @@
  * three paragraphs appear in all copies. Permission to make use of this
  * software for other than academic research and education purposes may be
  * obtained by contacting:
- *
+*
  *  Office of Technology Licensing
  *  Georgia Institute of Technology
  *  926 Dalney Street, NW
@@ -67,202 +67,195 @@
  * HEREUNDER IS ON AN "AS IS" BASIS, AND  GEORGIA TECH RESEARCH CORPORATION HAS
  * NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
  * MODIFICATIONS.
- */
+*/
 
 import {
-  ENTITIES_SEARCH,
-  GET_RELATED_ENTITIES,
-  ENTITY_METADATA,
-  GET_DATASOURCES,
-  GET_SIGNALS,
-  GET_EVENT_SIGNALS,
-  GET_TOPO_DATA,
-  OUTAGE_ALERTS_SEARCH,
-  OUTAGE_EVENTS_SEARCH,
-  OUTAGE_OVERALL_EVENTS_SEARCH,
-  OUTAGE_SUMMARY_SEARCH,
-  OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH,
-  OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH,
-  OUTAGE_TOTAL_COUNT,
-  GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA,
-  GET_ASN_SIGNALS_TABLE_SUMMARY_DATA,
-  GET_RAW_REGIONAL_SIGNALS_PINGSLASH24,
-  GET_RAW_REGIONAL_SIGNALS_BGP,
-  GET_RAW_REGIONAL_SIGNALS_UCSDNT,
-  GET_RAW_REGIONAL_SIGNALS_MERITNT,
-  GET_RAW_ASN_SIGNALS_PINGSLASH24,
-  GET_RAW_ASN_SIGNALS_BGP,
-  GET_RAW_ASN_SIGNALS_UCSDNT,
-  GET_RAW_ASN_SIGNALS_MERITNT,
-  GET_ADDITIONAL_RAW_SIGNAL,
-  GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT,
-  GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY,
-  GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS,
-  GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY,
-  GET_RAW_ASN_SIGNALS_GTR_SARIMA,
-} from "./ActionCommons";
+    ENTITIES_SEARCH,
+    GET_RELATED_ENTITIES,
+    ENTITY_METADATA,
+    GET_DATASOURCES,
+    GET_SIGNALS,
+    GET_EVENT_SIGNALS,
+    GET_TOPO_DATA,
+    OUTAGE_ALERTS_SEARCH,
+    OUTAGE_EVENTS_SEARCH,
+    OUTAGE_OVERALL_EVENTS_SEARCH,
+    OUTAGE_SUMMARY_SEARCH,
+    OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH,
+    OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH,
+    OUTAGE_TOTAL_COUNT,
+    GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA,
+    GET_ASN_SIGNALS_TABLE_SUMMARY_DATA,
+    GET_RAW_REGIONAL_SIGNALS_PINGSLASH24,
+    GET_RAW_REGIONAL_SIGNALS_BGP,
+    GET_RAW_REGIONAL_SIGNALS_UCSDNT,
+    GET_RAW_REGIONAL_SIGNALS_MERITNT,
+    GET_RAW_ASN_SIGNALS_PINGSLASH24,
+    GET_RAW_ASN_SIGNALS_BGP,
+    GET_RAW_ASN_SIGNALS_UCSDNT,
+    GET_RAW_ASN_SIGNALS_MERITNT,
+    GET_ADDITIONAL_RAW_SIGNAL,
+    GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT,
+    GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY,
+    GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS,
+    GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY
+} from './ActionCommons';
 
 const initialState = {
-  entities: null,
-  relatedToMapSummary: null,
-  relatedToTableSummary: null,
-  entityMetadata: null,
-  signals: null,
-  eventSignals: null,
-  alerts: null,
-  events: null,
-  overallEvents: null,
-  summary: null,
-  summaryTotalCount: null,
-  topo: null,
-  datasources: null,
-  // Map RawSignalsModal
-  regionalSignalsTableSummaryData: null,
-  rawRegionalSignalsPingSlash24: null,
-  rawRegionalSignalsBgp: null,
-  rawRegionalSignalsUcsdNt: null,
-  rawRegionalSignalsMeritNt: null,
-  // Table RawSignalsModal
-  asnSignalsTableSummaryData: null,
-  rawAsnSignalsPingSlash24: null,
-  rawAsnSignalsBgp: null,
-  rawAsnSignalsUcsdNt: null,
-  rawAsnSignalsMeritNt: null,
-  additionalRawSignal: null,
-  // Entity ASN UpStream Delay
-  rawAsnSignalsUpstreamDelayPenultAsnCount: null,
-  rawAsnSignalsUpstreamDelayLatency: null,
-  rawAsnSignalsApPacketLoss: null,
-  rawAsnSignalsApPacketDelay: null,
-
-  rawAsnSignalsGtrSarima: null,
-};
+    entities: null,
+    relatedToMapSummary: null,
+    relatedToTableSummary: null,
+    entityMetadata: null,
+    signals: null,
+    eventSignals: null,
+    alerts: null,
+    events: null,
+    overallEvents: null,
+    summary: null,
+    summaryTotalCount: null,
+    topo: null,
+    datasources: null,
+    // Map RawSignalsModal
+    regionalSignalsTableSummaryData: null,
+    rawRegionalSignalsPingSlash24: null,
+    rawRegionalSignalsBgp: null,
+    rawRegionalSignalsUcsdNt: null,
+    rawRegionalSignalsMeritNt: null,
+    // Table RawSignalsModal
+    asnSignalsTableSummaryData: null,
+    rawAsnSignalsPingSlash24: null,
+    rawAsnSignalsBgp: null,
+    rawAsnSignalsUcsdNt: null,
+    rawAsnSignalsMeritNt: null,
+    additionalRawSignal: null,
+    // Entity ASN UpStream Delay
+    rawAsnSignalsUpstreamDelayPenultAsnCount: null,
+    rawAsnSignalsUpstreamDelayLatency: null,
+    rawAsnSignalsApPacketLoss: null,
+    rawAsnSignalsApPacketDelay: null
+}
 
 export function iodaApiReducer(state = initialState, action) {
-  switch (action.type) {
-    case ENTITIES_SEARCH:
-      return Object.assign({}, state, {
-        entities: action.payload,
-      });
-    case GET_RELATED_ENTITIES:
-      return Object.assign({}, state, {
-        relatedEntities: action.payload,
-      });
-    case ENTITY_METADATA:
-      return Object.assign({}, state, {
-        entityMetadata: action.payload,
-      });
-    case OUTAGE_ALERTS_SEARCH:
-      return Object.assign({}, state, {
-        alerts: action.payload,
-      });
-    case OUTAGE_EVENTS_SEARCH:
-      return Object.assign({}, state, {
-        events: action.payload,
-      });
-    case OUTAGE_OVERALL_EVENTS_SEARCH:
-      return Object.assign({}, state, {
-        overallEvents: action.payload,
-      });
-    case OUTAGE_SUMMARY_SEARCH:
-      return Object.assign({}, state, {
-        summary: action.payload,
-      });
-    case OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH:
-      return Object.assign({}, state, {
-        relatedToMapSummary: action.payload,
-      });
-    case OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH:
-      return Object.assign({}, state, {
-        relatedToTableSummary: action.payload,
-      });
-    case OUTAGE_TOTAL_COUNT:
-      return Object.assign({}, state, {
-        summaryTotalCount: action.payload,
-      });
-    case GET_TOPO_DATA:
-      return Object.assign({}, state, {
-        topo: {
-          [action.subtype]: action.payload,
-        },
-      });
-    case GET_DATASOURCES:
-      return Object.assign({}, state, {
-        datasources: action.payload,
-      });
-    case GET_SIGNALS:
-      return Object.assign({}, state, {
-        signals: action.payload,
-      });
-    case GET_RAW_REGIONAL_SIGNALS_PINGSLASH24:
-      return Object.assign({}, state, {
-        rawRegionalSignalsPingSlash24: action.payload,
-      });
-    case GET_RAW_REGIONAL_SIGNALS_BGP:
-      return Object.assign({}, state, {
-        rawRegionalSignalsBgp: action.payload,
-      });
-    case GET_RAW_REGIONAL_SIGNALS_UCSDNT:
-      return Object.assign({}, state, {
-        rawRegionalSignalsUcsdNt: action.payload,
-      });
-    case GET_RAW_REGIONAL_SIGNALS_MERITNT:
-      return Object.assign({}, state, {
-        rawRegionalSignalsMeritNt: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_PINGSLASH24:
-      return Object.assign({}, state, {
-        rawAsnSignalsPingSlash24: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_BGP:
-      return Object.assign({}, state, {
-        rawAsnSignalsBgp: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_UCSDNT:
-      return Object.assign({}, state, {
-        rawAsnSignalsUcsdNt: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_MERITNT:
-      return Object.assign({}, state, {
-        rawAsnSignalsMeritNt: action.payload,
-      });
-    case GET_EVENT_SIGNALS:
-      return Object.assign({}, state, {
-        eventSignals: action.payload,
-      });
-    case GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA:
-      return Object.assign({}, state, {
-        regionalSignalsTableSummaryData: action.payload,
-      });
-    case GET_ASN_SIGNALS_TABLE_SUMMARY_DATA:
-      return Object.assign({}, state, {
-        asnSignalsTableSummaryData: action.payload,
-      });
-    case GET_ADDITIONAL_RAW_SIGNAL:
-      return Object.assign({}, state, {
-        additionalRawSignal: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT:
-      return Object.assign({}, state, {
-        rawAsnSignalsUpstreamDelayPenultAsnCount: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY:
-      return Object.assign({}, state, {
-        rawAsnSignalsUpstreamDelayLatency: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS:
-      return Object.assign({}, state, {
-        rawAsnSignalsApPacketLoss: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY:
-      return Object.assign({}, state, {
-        rawAsnSignalsApPacketDelay: action.payload,
-      });
-    case GET_RAW_ASN_SIGNALS_GTR_SARIMA:
-      return Object.assign({}, state, {
-        rawAsnSignalsGtrSarima: action.payload,
-      });
-    default:
-      return state;
-  }
+    switch (action.type) {
+        case ENTITIES_SEARCH:
+            return Object.assign({}, state, {
+                entities: action.payload
+            });
+        case GET_RELATED_ENTITIES:
+            return Object.assign({}, state, {
+                relatedEntities: action.payload
+            });
+        case ENTITY_METADATA:
+            return Object.assign({}, state, {
+                entityMetadata: action.payload
+            });
+        case OUTAGE_ALERTS_SEARCH:
+            return Object.assign({}, state, {
+                alerts: action.payload
+            });
+        case OUTAGE_EVENTS_SEARCH:
+            return Object.assign({}, state, {
+                events: action.payload
+            });
+        case OUTAGE_OVERALL_EVENTS_SEARCH:
+            return Object.assign({}, state, {
+                overallEvents: action.payload
+            });
+        case OUTAGE_SUMMARY_SEARCH:
+            return Object.assign({}, state, {
+                summary: action.payload
+            });
+        case OUTAGE_RELATED_TO_MAP_SUMMARY_SEARCH:
+            return Object.assign({}, state, {
+                relatedToMapSummary: action.payload
+            });
+        case OUTAGE_RELATED_TO_TABLE_SUMMARY_SEARCH:
+            return Object.assign({}, state, {
+                relatedToTableSummary: action.payload
+            });
+        case OUTAGE_TOTAL_COUNT:
+            return Object.assign({}, state, {
+                summaryTotalCount: action.payload
+            });
+        case GET_TOPO_DATA:
+            return Object.assign({}, state, {
+                topo: {
+                    [action.subtype]: action.payload
+                }
+            });
+        case GET_DATASOURCES:
+            return Object.assign({}, state, {
+                datasources: action.payload
+            });
+        case GET_SIGNALS:
+            return Object.assign({}, state, {
+                signals: action.payload
+            });
+        case GET_RAW_REGIONAL_SIGNALS_PINGSLASH24:
+            return Object.assign({}, state, {
+                rawRegionalSignalsPingSlash24: action.payload
+            });
+        case GET_RAW_REGIONAL_SIGNALS_BGP:
+            return Object.assign({}, state, {
+                rawRegionalSignalsBgp: action.payload
+            });
+        case GET_RAW_REGIONAL_SIGNALS_UCSDNT:
+            return Object.assign({}, state, {
+                rawRegionalSignalsUcsdNt: action.payload
+            });
+        case GET_RAW_REGIONAL_SIGNALS_MERITNT:
+            return Object.assign({}, state, {
+                rawRegionalSignalsMeritNt: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_PINGSLASH24:
+            return Object.assign({}, state, {
+                rawAsnSignalsPingSlash24: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_BGP:
+            return Object.assign({}, state, {
+                rawAsnSignalsBgp: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_UCSDNT:
+            return Object.assign({}, state, {
+                rawAsnSignalsUcsdNt: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_MERITNT:
+            return Object.assign({}, state, {
+                rawAsnSignalsMeritNt: action.payload
+            });
+        case GET_EVENT_SIGNALS:
+            return Object.assign({}, state, {
+                eventSignals: action.payload
+            });
+        case GET_REGIONAL_SIGNALS_TABLE_SUMMARY_DATA:
+            return Object.assign({}, state, {
+                regionalSignalsTableSummaryData: action.payload
+            });
+        case GET_ASN_SIGNALS_TABLE_SUMMARY_DATA:
+            return Object.assign({}, state, {
+                asnSignalsTableSummaryData: action.payload
+            });
+        case GET_ADDITIONAL_RAW_SIGNAL:
+            return Object.assign({}, state, {
+                additionalRawSignal: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_PENULT_ASN_COUNT:
+            return Object.assign({}, state, {
+                rawAsnSignalsUpstreamDelayPenultAsnCount: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_UPSTREAM_DELAY_LATENCY:
+            return Object.assign({}, state, {
+                rawAsnSignalsUpstreamDelayLatency: action.payload
+            });
+        case GET_RAW_ASN_SIGNALS_AP_PACKET_LOSS:
+            return Object.assign({}, state, {
+                rawAsnSignalsApPacketLoss: action.payload
+            })
+        case GET_RAW_ASN_SIGNALS_AP_PACKET_DELAY:
+            return Object.assign({}, state, {
+                rawAsnSignalsApPacketDelay: action.payload
+            })
+        default:
+            return state;
+    }
 }

@@ -171,10 +171,7 @@
     "activeProbingChartTitle": "Active Probing Details for ",
     "activeProbingChartSubTitle": "This graph shows additional details related to IODA's Active Probing measurements, including Round-Trip Time (RTT) Latency and the percentage of IODA's probe packets that did not get a response.",
     "apChartLatencyLabel": "RTT Latency",
-    "apChartPctLossLabel": "Probe/Response Loss",
-    "sarimaChartLabel": "Observed Value",
-    "gtrSarimaChartTitle": "Experimental Prediction-based visualization for ",
-    "gtrSarimaChartSubTitle": "This graph shows an experimental visualization of IODA data that compares a signal to predicted values based on historical observations to make it easier to spot disruptions in connectivity. "
+    "apChartPctLossLabel": "Probe/Response Loss"
   },
   "controlPanel": {
     "timeRange": "Select a Time Range",
