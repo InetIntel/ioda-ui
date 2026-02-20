@@ -355,6 +355,7 @@ const Resources = () => {
     research: 0,
     glossary: 0,
     repositories: 0,
+    notebooks: 0,
   });
 
   useEffect(() => {
@@ -362,12 +363,14 @@ const Resources = () => {
     const researchCount = filteredResources("research", filters).count;
     const glossaryCount = countTextMatches("glossary", filters);
     const repositoriesCount = countTextMatches("repo", filters);
+    const notebooksCount = filteredResources("notebooks", filters).count;
 
     setResourceCounts({
       tutorials: tutorialsCount,
       research: researchCount,
       glossary: glossaryCount,
       repositories: repositoriesCount,
+      notebooks: notebooksCount,
     });
   }, [filters]);
 
@@ -602,6 +605,13 @@ const Resources = () => {
             key="research"
           >
             {renderLinkResources("research")}
+          </Tabs.TabPane>
+
+          <Tabs.TabPane
+            tab={`Data Exploration Notebooks (${resourceCounts.notebooks})`}
+            key="notebooks"
+          >
+            {renderLinkResources("notebooks")}
           </Tabs.TabPane>
 
           <Tabs.TabPane

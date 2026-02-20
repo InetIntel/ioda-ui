@@ -58,6 +58,7 @@ import tutorial_10 from "images/resources/tutorial-10.png";
 import tutorial_11 from "images/resources/tutorial-11.png";
 import tutorial_12 from "images/resources/tutorial-12.png";
 import tutorial_13 from "images/resources/tutorial-13.png";
+import ioda from "images/resources/ioda.png";
 
 const link_resources = [
   {
@@ -474,6 +475,76 @@ const link_resources = [
       community: ["Internet Freedom"],
     },
   },
+  {
+    title:
+      "Kenya Internet Disruption Case Study June 24, 2024 - IODA Walkthrough",
+    type: "Video",
+    link: "https://www.youtube.com/embed/RaSe1ExWLMY",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+    },
+  },    
+  {
+    title:
+      "Mozambique Internet Disruption Case Study October 2024 - IODA Walkthrough",
+    type: "Video",
+    link: "https://www.youtube.com/embed/eJp6LX6ZK2s",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+    },
+  },
+  {
+    title:
+      "Iran Case Study - Connectivity During Conflict June - July 2025 - IODA Walkthrough",
+    type: "Video",
+    link: "https://www.youtube.com/embed/jbC5bDV-rnA",
+    category: "video",
+    tab: "tutorials",
+    tags: {
+      community: ["Internet Freedom"],
+    },
+  },
+  {
+    title:
+      "Exporting IODA data to CSV",
+    type: "Notebook",
+    thumbnail: ioda,
+    link: "https://deepnote.com/workspace/Internet-Intelligence-Lab-Collaborators-e7724bc9-6255-4419-a248-0602280e1f81/project/IODA-signals-to-CSV-1487c5cb-3243-43ef-97a2-0149dbbdf05f/notebook/91b212e2adcd4cd5b42056a93387a857?utm_content=1487c5cb-3243-43ef-97a2-0149dbbdf05f&secondary-sidebar-autoopen=true&secondary-sidebar=agent",
+    category: "file",
+    tab: "notebooks",
+    tags: {
+      community: ["Internet Freedom","Internet Measurement"],
+    },
+  },
+  {
+    title:
+      "Obtaining and Analyzing IODA alert data",
+    type: "Notebook",
+    thumbnail: ioda,
+    link: "https://deepnote.com/workspace/Internet-Intelligence-Lab-Collaborators-e7724bc9-6255-4419-a248-0602280e1f81/project/Outage-Score-Investigation-77d1f6bd-78d8-4f70-a8c1-be50d6433ef0/notebook/Analysis-253745d5f76949db9da04a81967613ed?utm_source=share-modal&utm_medium=product-shared-content&utm_campaign=notebook&utm_content=77d1f6bd-78d8-4f70-a8c1-be50d6433ef0&secondary-sidebar-autoopen=true&secondary-sidebar=agent",
+    category: "file",
+    tab: "notebooks",
+    tags: {
+      community: ["Internet Freedom","Internet Measurement"],
+    },
+  },
+  {
+    title:
+      "Destination Unreachable (Sigcomm '23) paper comparing outages and shutdowns",
+    type: "Notebook",
+    thumbnail: ioda,
+    link: "https://deepnote.com/workspace/Internet-Intelligence-Lab-Collaborators-e7724bc9-6255-4419-a248-0602280e1f81/project/DestinationUnreachable-2b9a2535-ed0e-48ec-8277-3dc0993a1e10/notebook/notebooks-merge-kio-ioda-d7d812cfb7be40e1ba031031f7850178?utm_source=share-modal&utm_medium=product-shared-content&utm_campaign=notebook&utm_content=2b9a2535-ed0e-48ec-8277-3dc0993a1e10&secondary-sidebar-autoopen=true&secondary-sidebar=agent",
+    category: "file",
+    tab: "notebooks",
+    tags: {
+      community: ["Internet Freedom","Internet Measurement"],
+    },
+  },
+
 ];
 
 export default link_resources;
