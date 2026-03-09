@@ -1065,8 +1065,13 @@ export default function MarkupStudioModal({
       open={open}
       closeIcon={null}
       title={
-        <div className="flex items-center">
-          <div className="col-1 truncate">Markup Studio</div>
+        <div className="flex items-start">
+          <div className="col-1">
+            <div className="truncate">Markup Studio</div>
+            <div className="markupMobileLandscapeHint">
+              Switch to horizontal view for optimal use of the studio.
+            </div>
+          </div>
 
           <Button
             className="ml-4"

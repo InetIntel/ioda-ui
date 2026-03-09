@@ -5817,7 +5817,21 @@ body {
   border-radius: 16px;
   color: #fff;
 }
+.markupStudioModal .markupMobileLandscapeHint {
+  display: none;
+  margin-top: 2px;
+  /* color: #6b7280; */
+  color: #1e1e1e;
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 400;
+}
 
+@media (max-width: 768px) {
+  .markupStudioModal .markupMobileLandscapeHint {
+    display: block;
+  }
+}
 .post-card {
   background-color: #1e1e1e;
   border: 1.5px solid #333;
