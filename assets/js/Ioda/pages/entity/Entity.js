@@ -3680,7 +3680,10 @@ const Entity = (props) => {
                           </Tooltip>
                         </Popover>
                       </div>
-                      <div className="flex mt-4" style={{ width: "100%" }}>
+                      <div
+                        className="flex mt-4 entity-connectivity-controls"
+                        style={{ width: "100%" }}
+                      >
                         <ChartLegendCard
                           legendHandler={handleSelectedSignal}
                           checkedMap={tsDataSeriesVisibleMap}
@@ -3688,8 +3691,9 @@ const Entity = (props) => {
                           simplifiedView={simplifiedView}
                           clearAllSignals={clearAllSignals}
                         />
-                        <div className="ml-auto">
+                        <div className="ml-auto entity-connectivity-view-toggle">
                           <Button.Group
+                            className="entity-connectivity-view-toggle__group"
                             style={{ marginBottom: 4, marginLeft: 4 }}
                           >
                             <Button

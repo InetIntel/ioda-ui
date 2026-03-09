@@ -6398,6 +6398,55 @@ button[class*=searchButton] {
   margin-right: 0px;
 }
 
+.entity-connectivity-controls {
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.ap-packet-controls {
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.entity-connectivity-view-toggle {
+  max-width: 100%;
+}
+
+.ap-packet-view-toggle-wrapper,
+.ap-packet-view-toggle {
+  max-width: 100%;
+}
+
+@media only screen and (max-width: 40em) {
+  .entity-connectivity-controls,
+.ap-packet-controls {
+    flex-wrap: wrap;
+  }
+
+  .entity-connectivity-view-toggle,
+.ap-packet-view-toggle-wrapper {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .entity-connectivity-view-toggle__group.ant-btn-group,
+.ap-packet-view-toggle__group.ant-btn-group {
+    display: flex;
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .entity-connectivity-view-toggle__group .ant-btn,
+.ap-packet-view-toggle__group .ant-btn {
+    flex: 1 1 50%;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.25;
+    height: auto;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
 .project-info {
   padding-top: 5rem;
 }

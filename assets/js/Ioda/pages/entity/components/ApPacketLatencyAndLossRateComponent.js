@@ -73,8 +73,11 @@ const ApPacketLatencyAndLossRateComponent = ({
   const [viewMode, setViewMode] = useState("overlay");
   const tooltipEnabledRef = useRef(true);
   const ViewModeToggle = () => (
-    <div style={{ marginBottom: "16px" }}>
-      <Button.Group>
+    <div
+      className="ap-packet-view-toggle"
+      style={{ marginBottom: "16px", maxWidth: "100%" }}
+    >
+      <Button.Group className="ap-packet-view-toggle__group">
         <Button
           type={viewMode === "overlay" ? "primary" : "default"}
           onClick={() => setViewMode("overlay")}
@@ -1099,7 +1102,10 @@ const ApPacketLatencyAndLossRateComponent = ({
             className="p-4"
             style={{ width: "30%", minWidth: "150px", marginTop: "10px" }}
           > */}
-        <div className="flex mt-4" style={{ width: "100%" }}>
+        <div
+          className="flex mt-4 ap-packet-controls"
+          style={{ width: "100%" }}
+        >
           <div style={{ width: "50%" }}>
             <Cascader
               className="custom-tag-spacing"
@@ -1134,7 +1140,7 @@ const ApPacketLatencyAndLossRateComponent = ({
               }}
             />
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto ap-packet-view-toggle-wrapper">
             <ViewModeToggle />
           </div>
         </div>
