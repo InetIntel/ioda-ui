@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Map, TileLayer, GeoJSON } from "react-leaflet";
+import countryData from "../../constants/countries.json";
 import { humanizeNumber } from "../../utils";
+import Tooltip from "../tooltip/Tooltip";
 import {
   shadeColor,
   getEntityScaleColor,
@@ -12,6 +14,10 @@ import MapLegend from "./MapLegend";
 const mapAccessToken = process.env.MAPBOX_TOKEN;
 
 const DEFAULT_NONE = "#f2f2f0";
+const countryFlagMap = countryData.reduce((acc, country) => {
+  acc[country.code] = country.emoji;
+  return acc;
+}, {});
 
 const TopoMap = (props) => {
   const {
@@ -21,14 +27,19 @@ const TopoMap = (props) => {
     entityType,
     hideLegend,
     handleEntityShapeClick,
+    enableClickPopover = false,
   } = props;
-
   // State declarations
+  const [hoverFlag, setHoverFlag] = useState("");
   const [hoverName, setHoverName] = useState("");
   const [hoverScore, setHoverScore] = useState(0);
   const [hoverTooltipDisplay, setHoverTooltipDisplay] = useState(false);
   const [screenWidthBelow680, setScreenWidthBelow680] = useState(false);
   const [mapKey, setMapKey] = useState(Date.now()); // Key for forcing re-renders
+  const [activeFeature, setActiveFeature] = useState(null);
+  const [clickTooltipDisplay, setClickTooltipDisplay] = useState(false);
+  const [clickTooltipPos, setClickTooltipPos] = useState({ x: 0, y: 0 });
+  const [clickTooltipKey, setClickTooltipKey] = useState(0);
 
   const mapRef = useRef(null);
 
@@ -60,11 +71,15 @@ const TopoMap = (props) => {
 
   // GeoJSON feature interactions
   const mouseOverFeature = useCallback((e, feature) => {
-    setHoverName(feature.properties.name);
-    setHoverScore(
-      feature.properties.score ? humanizeNumber(feature.properties.score) : 0
-    );
-    setHoverTooltipDisplay(true);
+    if (!enableClickPopover) {
+      const iso2cc = feature.properties?.iso2cc?.toUpperCase();
+      setHoverFlag(iso2cc ? countryFlagMap[iso2cc] ?? "" : "");
+      setHoverName(feature.properties.name);
+      setHoverScore(
+        feature.properties.score ? humanizeNumber(feature.properties.score) : 0
+      );
+      setHoverTooltipDisplay(true);
+    }
 
     let hoverColor =
       e.target.options && e.target.options.fillColor
@@ -79,34 +94,73 @@ const TopoMap = (props) => {
       weight: 3,
       dashArray: "2",
     });
-  }, []);
+  }, [enableClickPopover]);
 
-  const mouseOutFeature = useCallback((e) => {
+  const mouseOutFeature = useCallback((e, feature) => {
+    const baseFillColor = !feature.properties?.score
+        ? DEFAULT_NONE
+        : getEntityScaleColor(feature.properties.score, entityType);
+
     e.target.setStyle({
+      color: "transparent",
       weight: 2,
-      fillOpacity: 0.7,
+      fillColor: baseFillColor,
+      fillOpacity: !feature.properties?.score ? 0.2 : 0.5,
+      dashArray: "2",
     });
 
-    setHoverName("");
-    setHoverScore(0);
-    setHoverTooltipDisplay(false);
-  }, []);
+    if (!enableClickPopover) {
+      setHoverFlag("");
+      setHoverName("");
+      setHoverScore(0);
+      setHoverTooltipDisplay(false);
+    }
+  }, [enableClickPopover, entityType]);
 
   const clickFeature = useCallback(
-    (feature) => {
+    (e, feature) => {
+      if (enableClickPopover) {
+        if (e?.originalEvent?.stopPropagation) {
+          e.originalEvent.stopPropagation();
+        }
+        setActiveFeature(feature);
+        setClickTooltipPos({
+          x: e.containerPoint?.x ?? 0,
+          y: e.containerPoint?.y ?? 0,
+        });
+        // Force popover to realign to the newly clicked feature.
+        setClickTooltipDisplay(false);
+        setClickTooltipKey((prev) => prev + 1);
+        window.requestAnimationFrame(() => {
+          setClickTooltipDisplay(true);
+        });
+        return;
+      }
+
       if (handleEntityShapeClick) {
         handleEntityShapeClick(feature);
       }
     },
-    [handleEntityShapeClick]
+    [enableClickPopover, handleEntityShapeClick]
   );
+
+  const closeClickTooltip = useCallback(() => {
+    setClickTooltipDisplay(false);
+  }, []);
+
+  const showEntityDetails = useCallback(() => {
+    if (handleEntityShapeClick && activeFeature) {
+      handleEntityShapeClick(activeFeature);
+    }
+    setClickTooltipDisplay(false);
+  }, [activeFeature, handleEntityShapeClick]);
 
   const onEachFeature = useCallback(
     (feature, layer) => {
       layer.on({
         mouseover: (e) => mouseOverFeature(e, feature),
-        mouseout: (e) => mouseOutFeature(e),
-        click: () => clickFeature(feature),
+        mouseout: (e) => mouseOutFeature(e, feature),
+        click: (e) => clickFeature(e, feature),
       });
     },
     [mouseOverFeature, mouseOutFeature, clickFeature]
@@ -197,18 +251,66 @@ const TopoMap = (props) => {
     >
       <div
         className={
-          hoverTooltipDisplay
+          !enableClickPopover && hoverTooltipDisplay
             ? "topo-map__tooltip topo-map__tooltip-visible"
             : "topo-map__tooltip"
         }
       >
         <p>
+          {hoverFlag ? `${hoverFlag} ` : null}
           {hoverName}
           {hoverScore !== 0 ? ` - ${hoverScore}` : null}
         </p>
       </div>
 
       <div style={{ flexGrow: 1 }}>
+        {enableClickPopover && activeFeature && (
+          <div
+            className="topo-map__click-tooltip-anchor"
+            style={{
+              left: `${clickTooltipPos.x}px`,
+              top: `${clickTooltipPos.y}px`,
+            }}
+          >
+            <Tooltip
+              key={clickTooltipKey}
+              trigger="click"
+              placement="top"
+              open={clickTooltipDisplay}
+              onOpenChange={(open) => setClickTooltipDisplay(open)}
+              title=""
+              customCode={
+                <div className="topo-map__click-tooltip-content">
+                  <p>
+                    {activeFeature.properties?.iso2cc
+                      ? `${countryFlagMap[activeFeature.properties.iso2cc.toUpperCase()] ?? ""} `
+                      : ""}
+                    {activeFeature.properties?.name}
+                    {activeFeature.properties?.score
+                      ? ` - ${humanizeNumber(activeFeature.properties.score)}`
+                      : ""}
+                  </p>
+                  <a
+                    href="#"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      showEntityDetails();
+                    }}
+                  >
+                    Show details
+                  </a>
+                </div>
+              }
+              overlayStyle={{ maxWidth: "275px" }}
+            >
+              <button
+                type="button"
+                className="topo-map__click-tooltip-trigger"
+                aria-label="Selected entity details"
+              />
+            </Tooltip>
+          </div>
+        )}
         <Map
           key={mapKey}
           ref={mapRef}
@@ -219,6 +321,7 @@ const TopoMap = (props) => {
           scrollWheelZoom={false}
           touchZoom={true}
           dragging={!screenWidthBelow680}
+          onClick={enableClickPopover ? closeClickTooltip : undefined}
           style={{ width: "100%", height: "100%", overflow: "hidden" }}
         >
           <TileLayer

@@ -23,6 +23,7 @@ const SummaryWithTSChart = ({
   until,
   tabType,
 }) => {
+  console.log("data:",data)
   const MOBILE_BREAKPOINT = 600;
 
   const { Title, Text } = Typography;

@@ -243,6 +243,7 @@ class Home extends Component {
                   topoData={this.state.topoData}
                   scores={this.state.topoScores ?? null}
                   handleEntityShapeClick={this.handleEntityShapeClick}
+                  enableClickPopover={true}
                   entityType="country"
                 />
               </div>

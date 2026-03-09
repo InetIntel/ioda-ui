@@ -21,4 +21,26 @@
       display: flex;
     }
   }
+
+  &__click-tooltip-anchor {
+    position: absolute;
+    z-index: 1200;
+    transform: translate(-50%, -110%);
+  }
+
+  &__click-tooltip-trigger {
+    width: 1px;
+    height: 1px;
+    border: 0;
+    padding: 0;
+    opacity: 0;
+    background: transparent;
+  }
+
+  &__click-tooltip-content {
+    p {
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+  }
 }

@@ -135,7 +135,7 @@ const DashboardTab = (props) => {
             <React.Fragment>
               {/* ───────────────────────── 1st ROW ───────────────────────── */}
               {activeTabType !== "asn" && (
-                <div className="flex items-stretch gap-6">
+                <div className="flex items-stretch gap-6 dashboard__tab-top-row">
                   {/* LEFT 2 / 3 – Map (or Timeseries) */}
                   <div
                     ref={mapCardRef}
@@ -254,6 +254,7 @@ const DashboardTab = (props) => {
                                 topoData={topoData}
                                 scores={topoScores}
                                 handleEntityShapeClick={handleEntityShapeClick}
+                                enableClickPopover={true}
                                 entityType={activeTabType?.toLowerCase()}
                               />
                             </div>

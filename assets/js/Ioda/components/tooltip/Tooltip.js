@@ -1,28 +1,43 @@
-import React, { Component } from "react";
+import React from "react";
 import { Button, Popover } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 
-const Tooltip = ({ title, text, customCode, className }) => {
+const Tooltip = ({
+  title,
+  text,
+  customCode,
+  className,
+  children,
+  trigger = "hover",
+  placement = "right",
+  open,
+  onOpenChange,
+  overlayStyle,
+  overlayClassName = "ioda-help-tooltip",
+  color = "rgba(0, 0, 0, 0.9)",
+}) => {
   return (
     <Popover
-      placement="right"
+      placement={placement}
       title={title}
       content={customCode ?? text}
-      trigger="hover"
-      overlayStyle={{
-        maxWidth: "275px",
-      }}
-      overlayClassName="ioda-help-tooltip"
-      color="rgba(0, 0, 0, 0.9)"
+      trigger={trigger}
+      open={open}
+      onOpenChange={onOpenChange}
+      overlayStyle={overlayStyle ?? { maxWidth: "275px" }}
+      overlayClassName={overlayClassName}
+      color={color}
     >
-      <Button
-        className={className}
-        type="link"
-        color="primary"
-        shape="circle"
-        icon={<QuestionCircleOutlined />}
-        size="small"
-      />
+      {children ?? (
+        <Button
+          className={className}
+          type="link"
+          color="primary"
+          shape="circle"
+          icon={<QuestionCircleOutlined />}
+          size="small"
+        />
+      )}
     </Popover>
   );
 };

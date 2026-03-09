@@ -113,6 +113,12 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .dashboard__tab-top-row {
+    flex-direction: column;
+  }
+}
 .mt-container,
 .mt-container * {
   font-size: 14px !important;

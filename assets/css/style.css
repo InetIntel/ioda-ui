@@ -5474,6 +5474,23 @@ body {
 .topo-map__tooltip-visible {
   display: flex;
 }
+.topo-map__click-tooltip-anchor {
+  position: absolute;
+  z-index: 1200;
+  transform: translate(-50%, -110%);
+}
+.topo-map__click-tooltip-trigger {
+  width: 1px;
+  height: 1px;
+  border: 0;
+  padding: 0;
+  opacity: 0;
+  background: transparent;
+}
+.topo-map__click-tooltip-content p {
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
 
 .map-legend {
   z-index: 10;
@@ -6268,6 +6285,11 @@ button[class*=searchButton] {
   text-transform: capitalize;
 }
 
+@media (max-width: 768px) {
+  .dashboard__tab-top-row {
+    flex-direction: column;
+  }
+}
 .mt-container,
 .mt-container * {
   font-size: 14px !important;
