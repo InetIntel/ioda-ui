@@ -131,6 +131,7 @@ import {
   ShareAltOutlined,
 } from "@ant-design/icons";
 import MagnifyExpandIcon from "@2fd/ant-design-icons/lib/MagnifyExpand";
+import HandPointingUpIcon from "@2fd/ant-design-icons/lib/HandPointingUp";
 import { getChartExportFileName, handleCSVDownload } from "./utils/EntityUtils";
 import { setTimeRange } from "../../data/TimeRangeAction";
 import ApPacketLatencyAndLossRateComponent from "./components/ApPacketLatencyAndLossRateComponent";
@@ -260,6 +261,7 @@ const Entity = (props) => {
   const [tsDataLegendRangeUntil, setTsDataLegendRangeUntil] =
     useState(untilDate);
   const [showResetZoomButton, setShowResetZoomButton] = useState(false);
+  const [showChartIntroOverlay, setShowChartIntroOverlay] = useState(false);
   // Used for responsively styling the xy chart
   const [tsDataScreenBelow970, setTsDataScreenBelow970] = useState(
     window.innerWidth <= 970
@@ -2170,6 +2172,15 @@ const Entity = (props) => {
     setShowResetZoomButton(!isDefaultRange);
   }
 
+  useEffect(() => {
+    if (!xyChartOptions || tsDataEntityCode !== entityCodeState) {
+      setShowChartIntroOverlay(false);
+      return;
+    }
+
+    setShowChartIntroOverlay(true);
+  }, [xyChartOptions, tsDataEntityCode, entityCodeState]);
+
   // populate xy chart UI
   function renderXyChart() {
     if (!xyChartOptions || tsDataEntityCode !== entityCodeState) {
@@ -2177,7 +2188,7 @@ const Entity = (props) => {
     }
     return (
       xyChartOptions && (
-        <div className="entity__chart">
+        <div className="entity__chart entity__chart--with-intro">
           <HighchartsReact
             key={JSON.stringify(xyChartOptions?.series?.map((s) => s.id))}
             highcharts={Highcharts}
@@ -2185,6 +2196,29 @@ const Entity = (props) => {
             ref={timeSeriesChartRef}
             immutable={false}
           />
+          <div
+            className={
+              showChartIntroOverlay
+                ? "entity__chart-intro entity__chart-intro--visible"
+                : "entity__chart-intro"
+            }
+            aria-hidden={!showChartIntroOverlay}
+            onClick={() => setShowChartIntroOverlay(false)}
+          >
+            <div className="entity__chart-intro__mask" />
+            <div className="entity__chart-intro__tooltip-anchor">
+              <HandPointingUpIcon className="entity__chart-intro__icon" />
+              <CustomToolip
+                open={showChartIntroOverlay}
+                trigger="hover"
+                placement="right"
+                overlayStyle={{ maxWidth: "320px" }}
+                text="This graph is interactive, you can explore it."
+              >
+                <span className="entity__chart-intro__tooltip-target" />
+              </CustomToolip>
+            </div>
+          </div>
         </div>
       )
     );

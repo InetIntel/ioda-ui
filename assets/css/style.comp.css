@@ -6147,6 +6147,47 @@ button[class*=searchButton] {
   min-width: 0;
   max-height: 614px;
 }
+.entity__chart--with-intro {
+  position: relative;
+}
+.entity__chart-intro {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease;
+  z-index: 3;
+}
+.entity__chart-intro--visible {
+  opacity: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.entity__chart-intro__mask {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.18);
+}
+.entity__chart-intro__tooltip-anchor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(calc(-50% - 11rem), -50%);
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.entity__chart-intro__icon {
+  font-size: 4.2rem;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+.entity__chart-intro__tooltip-target {
+  display: block;
+  width: 1px;
+  height: 1px;
+}
 
 .entity-related {
   margin-bottom: 1.5rem;

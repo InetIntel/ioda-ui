@@ -297,7 +297,7 @@ const TopoMap = (props) => {
                       showEntityDetails();
                     }}
                   >
-                    Show details
+                    <span style={{ textDecoration: "underline" }}>See details</span> →
                   </a>
                 </div>
               }

@@ -1132,6 +1132,7 @@ export default function MarkupStudioModal({
                   className="flex-column gap-2"
                   onClick={() => setDrawShapePopoverOpen(false)}
                 >
+                  <div className="mb-1 font-bold">Draw Shape</div>
                   <Tooltip placement="left" title="Rectangle">
                     <Button
                       icon={<SquareOutlineIcon />}
@@ -1153,9 +1154,7 @@ export default function MarkupStudioModal({
                 </div>
               }
             >
-              <Tooltip placement="left" title="Draw Shape">
-                <Button icon={<DrawingIcon />} type="text" />
-              </Tooltip>
+              <Button icon={<DrawingIcon />} type="text" />
             </Popover>
 
             {(activeObject || canvasMode === CANVAS_MODES.DRAW) && (
@@ -1169,15 +1168,17 @@ export default function MarkupStudioModal({
                 format="hex"
                 value={freeDrawStroke}
                 destroyTooltipOnHide={true}
+                panelRender={(panel) => (
+                  <div className="p-2">
+                    <div className="mb-1 font-bold">Stroke</div>
+                    {panel}
+                  </div>
+                )}
                 onChange={(val) =>
                   handleFreeDrawStrokeChange(val.toHexString())
                 }
                 allowClear={true}
-                children={
-                  <Tooltip placement="left" title="Stroke">
-                    <Button icon={<LeadPencilIcon />} type="text" />
-                  </Tooltip>
-                }
+                children={<Button icon={<LeadPencilIcon />} type="text" />}
               />
             )}
 
@@ -1187,21 +1188,22 @@ export default function MarkupStudioModal({
                 placement="rightTop"
                 trigger="click"
                 content={
-                  <div className="flex items-center w-72">
-                    <Slider
-                      className="col-1 h-1"
-                      min={1}
-                      max={20}
-                      onChange={(val) => handleFreeDrawStrokeWidthChange(val)}
-                      value={freeDrawStrokeWidth}
-                    />
-                    <div className="w-4">{freeDrawStrokeWidth ?? 1}</div>
+                  <div>
+                    <div className="mb-1 font-bold">Stroke Weight</div>
+                    <div className="flex items-center w-72">
+                      <Slider
+                        className="col-1 h-1"
+                        min={1}
+                        max={20}
+                        onChange={(val) => handleFreeDrawStrokeWidthChange(val)}
+                        value={freeDrawStrokeWidth}
+                      />
+                      <div className="w-4">{freeDrawStrokeWidth ?? 1}</div>
+                    </div>
                   </div>
                 }
               >
-                <Tooltip placement="left" title="Stroke Weight">
-                  <Button icon={<FormatLineWeightIcon />} type="text" />
-                </Tooltip>
+                <Button icon={<FormatLineWeightIcon />} type="text" />
               </Popover>
             )}
 
@@ -1213,6 +1215,7 @@ export default function MarkupStudioModal({
                   trigger="click"
                   content={
                     <div className="p-2 w-96">
+                      <div className="mb-2 font-bold">Format Font</div>
                       <div>Alignment:</div>
                       <div className="flex items-center gap-2 mb-3">
                         {textAlignmentOptions.map((opt) => {
@@ -1332,9 +1335,7 @@ export default function MarkupStudioModal({
                     </div>
                   }
                 >
-                  <Tooltip placement="left" title="Format Font">
-                    <Button icon={<FormatFontIcon />} type="text" />
-                  </Tooltip>
+                  <Button icon={<FormatFontIcon />} type="text" />
                 </Popover>
               )}
 
@@ -1345,24 +1346,22 @@ export default function MarkupStudioModal({
                 value={activeObjectAttributes?.fill}
                 destroyTooltipOnHide={true}
                 placement="rightTop"
-                showText={false}
+                panelRender={(panel) => (
+                  <div className="p-2">
+                    <div className="mb-1 font-bold">
+                      {activeObject?.get(CANVAS_TYPE) === CANVAS_TYPES.TEXTBOX
+                        ? "Text Color"
+                        : "Fill"}
+                    </div>
+                    {panel}
+                  </div>
+                )}
                 onChange={(val) =>
                   handlePalettePropertyChange("fill", val.toHexString())
                 }
                 allowClear={true}
                 onClear={() => handlePalettePropertyChange("fill", null)}
-                children={
-                  <Tooltip
-                    placement="left"
-                    title={
-                      activeObject?.get(CANVAS_TYPE) === CANVAS_TYPES.TEXTBOX
-                        ? "Text Color"
-                        : "Fill"
-                    }
-                  >
-                    <Button icon={<PaletteIcon />} type="text" />
-                  </Tooltip>
-                }
+                children={<Button icon={<PaletteIcon />} type="text" />}
               />
             )}
 
@@ -1373,7 +1372,12 @@ export default function MarkupStudioModal({
                 format="hex"
                 value={activeObjectAttributes?.backgroundColor}
                 destroyTooltipOnHide={true}
-                showText={() => "Background"}
+                panelRender={(panel) => (
+                  <div className="p-2">
+                    <div className="mb-1 font-bold">Background</div>
+                    {panel}
+                  </div>
+                )}
                 onChange={(val) =>
                   handlePalettePropertyChange(
                     "backgroundColor",
@@ -1384,11 +1388,7 @@ export default function MarkupStudioModal({
                 onClear={() =>
                   handlePalettePropertyChange("backgroundColor", null)
                 }
-                children={
-                  <Tooltip placement="left" title="Background">
-                    <Button icon={<FormatColorFillIcon />} type="text" />
-                  </Tooltip>
-                }
+                children={<Button icon={<FormatColorFillIcon />} type="text" />}
               />
             )}
 
@@ -1399,17 +1399,18 @@ export default function MarkupStudioModal({
                 format="hex"
                 value={activeObjectAttributes?.stroke}
                 destroyTooltipOnHide={true}
-                showText={() => "Stroke"}
+                panelRender={(panel) => (
+                  <div className="p-2">
+                    <div className="mb-1 font-bold">Stroke</div>
+                    {panel}
+                  </div>
+                )}
                 onChange={(val) =>
                   handlePalettePropertyChange("stroke", val.toHexString())
                 }
                 allowClear={true}
                 onClear={() => handlePalettePropertyChange("stroke", null)}
-                children={
-                  <Tooltip placement="left" title="Stroke">
-                    <Button icon={<LeadPencilIcon />} type="text" />
-                  </Tooltip>
-                }
+                children={<Button icon={<LeadPencilIcon />} type="text" />}
               />
             )}
 
@@ -1420,25 +1421,26 @@ export default function MarkupStudioModal({
                   placement="rightTop"
                   trigger="click"
                   content={
-                    <div className="flex items-center w-72">
-                      <Slider
-                        className="col-1 h-1"
-                        min={1}
-                        max={20}
-                        onChange={(val) =>
-                          handlePalettePropertyChange("strokeWidth", val)
-                        }
-                        value={activeObjectAttributes?.strokeWidth ?? 1}
-                      />
-                      <div className="w-4">
-                        {activeObjectAttributes?.strokeWidth ?? 1}
+                    <div>
+                      <div className="mb-1 font-bold">Stroke Weight</div>
+                      <div className="flex items-center w-72">
+                        <Slider
+                          className="col-1 h-1"
+                          min={1}
+                          max={20}
+                          onChange={(val) =>
+                            handlePalettePropertyChange("strokeWidth", val)
+                          }
+                          value={activeObjectAttributes?.strokeWidth ?? 1}
+                        />
+                        <div className="w-4">
+                          {activeObjectAttributes?.strokeWidth ?? 1}
+                        </div>
                       </div>
                     </div>
                   }
                 >
-                  <Tooltip placement="left" title="Stroke Weight">
-                    <Button icon={<FormatLineWeightIcon />} type="text" />
-                  </Tooltip>
+                  <Button icon={<FormatLineWeightIcon />} type="text" />
                 </Popover>
               )}
 
@@ -1450,6 +1452,7 @@ export default function MarkupStudioModal({
                 trigger="click"
                 content={
                   <div className="flex-column gap-2">
+                    <div className="mb-1 font-bold">Arrange</div>
                     <Tooltip placement="left" title="Bring Forward">
                       <Button
                         icon={<ArrangeBringForwardIcon />}
@@ -1489,9 +1492,7 @@ export default function MarkupStudioModal({
                   </div>
                 }
               >
-                <Tooltip placement="left" title="Arrange">
-                  <Button icon={<LayersIcon />} type="text" />
-                </Tooltip>
+                <Button icon={<LayersIcon />} type="text" />
               </Popover>
             )}
 
