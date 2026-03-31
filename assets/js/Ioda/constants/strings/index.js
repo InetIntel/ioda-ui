@@ -39,24 +39,17 @@ import T from "i18n-react";
 // let language = window.navigator.userLanguage || window.navigator.language;
 
 export const changeLanguage = (language) => {
-  let languageString = "";
-  switch (language) {
-    case "en":
-      languageString = "en";
-      break;
-    case "fa":
-      languageString = "fa";
-      break;
-    default:
-      languageString = "en";
-      break;
-  }
-
-  // ToDo: would like to change json files out for yml files eventually
-  let strings = Object.assign({}, require(`./${languageString}/app.json`));
-
+  let strings;
   let defaultStrings = Object.assign({}, require(`./en/app.json`));
 
+  try {
+    strings = Object.assign({}, require(`./${language}/app.json`));
+  }
+  catch (err) {
+    console.log(err)
+    strings = defaultStrings;
+  }
+  // ToDo: would like to change json files out for yml files eventually
   T.setTexts(strings, {
     notFound: (key) => {
       const defaultStringLocation = key.split(".");
@@ -68,6 +61,6 @@ export const changeLanguage = (language) => {
     },
   });
 };
-changeLanguage(localStorage.getItem("lang") != null ? localStorage.getItem("lang") :"en")
+changeLanguage(localStorage.getItem("lang") != null ? localStorage.getItem("lang") : "en")
 
 export const CUSTOM_FONT_FAMILY = "Inter, sans-serif";
