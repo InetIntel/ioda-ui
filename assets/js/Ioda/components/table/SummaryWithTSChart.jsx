@@ -36,6 +36,12 @@ const SummaryWithTSChart = ({
   }, []);
   const isMobile = winWidth <= MOBILE_BREAKPOINT;
   const isASN = tabType === "asn";
+  const entityLabelByTabType = {
+    asn: "ASN/ISP",
+    region: "REGION",
+    country: "COUNTRY",
+  };
+  const entityHeaderLabel = entityLabelByTabType[tabType] ?? "NAME";
   const FONT_SIZE = isMobile ? 10 : 12;
   const AXIS_FONT_SIZE = isMobile ? 8 : 10;
   const SCORE_FONT_SIZE = isMobile ? 9 : 11;
@@ -763,7 +769,7 @@ const SummaryWithTSChart = ({
                   alignItems: "center",
                 }}
               >
-                <span>NAME</span>
+                <span>{entityHeaderLabel}</span>
                 <button
                   onClick={() =>
                     setSortConfig((prev) => {
