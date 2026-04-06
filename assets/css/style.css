@@ -6368,6 +6368,7 @@ button[class*=searchButton] {
   pointer-events: none;
   transition: opacity 0.45s ease;
   z-index: 3;
+  overflow: hidden;
 }
 .entity__chart-intro--visible {
   opacity: 1;
@@ -6384,20 +6385,60 @@ button[class*=searchButton] {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(calc(-50% - 11rem), -50%);
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  justify-content: center;
+  gap: 1rem;
+  max-width: min(100% - 2rem, 24rem);
+  padding: 0 1rem;
 }
 .entity__chart-intro__icon {
-  font-size: 4.2rem;
+  font-size: 3.6rem;
   flex: 0 0 auto;
   line-height: 1;
 }
-.entity__chart-intro__tooltip-target {
-  display: block;
-  width: 1px;
-  height: 1px;
+.entity__chart-intro__tooltip {
+  position: relative;
+  max-width: 16rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.22);
+}
+.entity__chart-intro__tooltip::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -0.5rem;
+  width: 1rem;
+  height: 1rem;
+  background: rgba(15, 23, 42, 0.92);
+  transform: translateY(-50%) rotate(45deg);
+}
+@media only screen and (max-width: 100em) {
+  .entity__chart-intro__tooltip-anchor {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    justify-content: center;
+    max-width: min(100% - 2rem, 60rem);
+    padding: 0 1rem;
+  }
+  .entity__chart-intro__icon {
+    font-size: 5.6rem;
+  }
+  .entity__chart-intro__tooltip {
+    max-width: min(100%, 60rem);
+    font-size: 1.5rem;
+    padding: 1rem 1rem;
+  }
 }
 
 .entity-related {

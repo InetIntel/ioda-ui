@@ -2173,13 +2173,29 @@ const Entity = (props) => {
   }
 
   useEffect(() => {
-    if (!xyChartOptions || tsDataEntityCode !== entityCodeState) {
+    if (
+      !xyChartOptions ||
+      tsDataEntityCode !== entityCodeState ||
+      !tsDataScreenBelow678
+    ) {
       setShowChartIntroOverlay(false);
       return;
     }
 
     setShowChartIntroOverlay(true);
-  }, [xyChartOptions, tsDataEntityCode, entityCodeState]);
+    const overlayTimeout = window.setTimeout(() => {
+      setShowChartIntroOverlay(false);
+    }, 2000);
+
+    return () => {
+      window.clearTimeout(overlayTimeout);
+    };
+  }, [
+    xyChartOptions,
+    tsDataEntityCode,
+    entityCodeState,
+    tsDataScreenBelow678,
+  ]);
 
   // populate xy chart UI
   function renderXyChart() {
@@ -2208,15 +2224,9 @@ const Entity = (props) => {
             <div className="entity__chart-intro__mask" />
             <div className="entity__chart-intro__tooltip-anchor">
               <HandPointingUpIcon className="entity__chart-intro__icon" />
-              <CustomToolip
-                open={showChartIntroOverlay}
-                trigger="hover"
-                placement="right"
-                overlayStyle={{ maxWidth: "320px" }}
-                text="This graph is interactive, you can explore it."
-              >
-                <span className="entity__chart-intro__tooltip-target" />
-              </CustomToolip>
+              <div className="entity__chart-intro__tooltip" role="note">
+                This graph is interactive, you can explore it.
+              </div>
             </div>
           </div>
         </div>
