@@ -203,6 +203,10 @@ export function convertValuesForSummaryTable(summaryDataRaw) {
             overallScore,
             summary["entity"].type
           )}80`,
+          ...(summary["entity"]["attrs"]?.country_code && {
+            countryCode: summary["entity"]["attrs"].country_code,
+            countryName: summary["entity"]["attrs"].country_name,
+          }),
         });
     summaryData.push(summaryItem);
   });
