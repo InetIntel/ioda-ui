@@ -110,7 +110,7 @@ const Dashboard = (props) => {
   // Determine when data is available for table so multiple calls to populate the table aren't made
   const [genSummaryTableDataProcessed, setGenSummaryTableDataProcessed] =
     useState(false);
-  const [totalOutagesCount, setTotalOutagesCount] = useState(0);
+  const [totalOutagesCount, setTotalOutagesCount] = useState(null);
 
   // Summary Table Pagination
   const [apiPageNumber, setApiPageNumber] = useState(0);
@@ -216,6 +216,7 @@ const Dashboard = (props) => {
     setTabCurrentView("map");
     setEventDataRaw([]);
     setEventDataProcessed([]);
+    setTotalOutagesCount(null);
     setDisplayDashboardTimeRangeError(false);
     // Get topo and outage data to repopulate map and table
     getDataTopo(activeTabType);
@@ -261,6 +262,7 @@ const Dashboard = (props) => {
     setEventDataRaw([]);
     setEventDataProcessed([]);
     setEventEndpointCalled(false);
+    setTotalOutagesCount(null);
 
     if (hasDateRangeInUrl()) {
       navigate(`${url}/?from=${from}&until=${until}`);
