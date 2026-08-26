@@ -20,6 +20,7 @@ import iconBsky from "images/icons/icon-bsky.png";
 import { DownloadOutlined, ShareAltOutlined } from "@ant-design/icons";
 import ShareLinkModal from "../../components/modal/ShareLinkModal";
 import { Button, Popover, Tooltip as ATooltip } from "antd";
+import Loading from "../../components/loading/Loading";
 const DashboardTab = (props) => {
   const {
     eventDataProcessed,
@@ -127,7 +128,11 @@ const DashboardTab = (props) => {
     <div className="w-full dashboard__tab">
       {until - from < dashboardTimeRangeLimit ? (
         <div className="flex items-stretch gap-6 dashboard__tab-layout">
-          {totalOutages === 0 ? (
+          {totalOutages == null ? (
+            <div className="col-1-of-1">
+              <Loading />
+            </div>
+          ) : totalOutages === 0 ? (
             <div className="col-1-of-1 tab__error tab__error--noOutagesFound">
               No {activeTabType} Outages found
             </div>
