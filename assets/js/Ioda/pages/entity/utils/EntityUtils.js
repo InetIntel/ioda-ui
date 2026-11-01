@@ -14,27 +14,11 @@ export function handleCSVDownload(
 
   const csvString = timeSeriesChartRef.current.chart.getCSV();
 
-  // The first column is the timestamp, and each following column is
-  // duplicated because we duplicate each series for the navigator to always
-  // show the normalized data. As such, we need to remove the duplicates.
-  const parsedCSV = csvString
-    .split("\n")
-    .map((line) => {
-      return line.split(",").filter((val, index) => {
-        // Always keep the timestamp column
-        if (index === 0) return true;
-        // Duplicates are located at the even indices
-        if (index % 2 === 1) return true;
-        return false;
-      });
-    })
-    .join("\n");
-
   const fileName =
     getChartExportFileName(from, entityName) +
     (isNormalized ? "-normalized" : "-raw");
 
-  const blob = new Blob([parsedCSV], { type: "text/csv;charset=utf-8," });
+  const blob = new Blob([csvString], { type: "text/csv;charset=utf-8," });
   const objUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.setAttribute("href", objUrl);
