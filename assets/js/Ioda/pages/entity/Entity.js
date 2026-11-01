@@ -2100,6 +2100,8 @@ const Entity = (props) => {
       // series are hidden from the main chart, but are linked to the visibility
       // of the main chart: if a series is hidden in the main chart, its
       // corresponding navigator series will also be hidden because its linked
+      // They are also excluded from the CSV export so only the primary series
+      // are downloaded, regardless of overlay/stacked series ordering
       const navigatorChartSeries = {
         type: "line",
         lineWidth: 0,
@@ -2113,6 +2115,7 @@ const Entity = (props) => {
         data: navigatorData,
         showInLegend: false,
         showInNavigator: true,
+        includeInDataExport: false,
       };
 
       chartSignals.push(primaryChartSeries);
