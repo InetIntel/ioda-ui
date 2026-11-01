@@ -2,63 +2,44 @@
 Web application UI for the IODA project (https://ioda.live)
 
 ## Install
-1. Ensure PHP 7.2 or higher is running on your machine.
-    1. TODO: As of 4/30/2024 php 7.3.33 is the highest known working version
-2. Clone repo locally 
-3. run `brew install composer yarn`
-4. run `curl -sS https://get.symfony.com/cli/installer | bash`
-5. run `composer install`
-6. run `yarn install`
-    1. TODO: As of 4/30/2024 node 16.20.2 is the highest known working version
+1. Ensure Node.js (v16–v18) and Yarn are installed.
+2. Clone repo locally.
+3. Install frontend dependencies:
+   ```bash
+   yarn install
+   ```
 
-## Run 
-The code is two processes:
-- yarn compiles the javascript. The `watch-all` script from `package.json` watches for both sass and js changes.
-    ~~~
-    yarn run watch-all
-    ~~~
-- symfony runs the server, there are two ways
-    - if you have symfony: 
-    ~~~
-    symfony server:start --no-tls
-    ~~~
-    - if you only have php:
-    ~~~
-    php -S 127.0.0.1:8000 -t public
-    ~~~
+## Development & Building
 
-Check localhost:8000 in browser
+### Watch mode (Development)
+The `watch-all` script watches for both SASS and JavaScript changes, compiling assets into `public/build/` and updating `public/index.html`:
+```bash
+yarn run watch-all
+```
 
-## Possible Problems and Error Messages
+### Production Build
+To create an optimized production build:
+```bash
+yarn run build
+yarn run build:css
+```
+This compiles assets with versioned hashes into `public/build/` and generates `public/index.html`.
 
-### Error 1:
+### Serving Locally
+You can serve the static `public/` directory using any static web server (e.g. `npx serve public` or Python):
+```bash
+npx serve -s public -l 8000
+```
+or
+```bash
+python3 -m http.server 8000 --directory public
+```
+Check `http://localhost:8000` in your browser.
 
-~~~
-    [ErrorException]   curl_multi_setopt(): CURLPIPE_HTTP1 is no longer supported
-~~~
+## Troubleshooting
 
-1. Update the global symfony/flex using `composer global require symfony/flex ^1.5` 
-2. Remove the `vendor/symfony/flex` directory in my project.
-3. Run `composer update`.
-
-### Error 2:
-~~~
-    PHP Fatal error:  require(): Failed opening required '/.../ioda-ui/vendor/autoload.php' (include_path='.:/usr/local/Cellar/php@7.2/7.2.25/share/php@7.2/pear') in .../ioda-ui/config/bootstrap.php on line 5
-~~~
-
-1. Run `composer install` in the /ioda-ui/ folder.
-
-
-### Error 3:
-~~~
-// error with "encore dev --watch" which gets run as part of "yarn run watch-all"
-
-Error: digital envelope routines::unsupported
-
-opensslErrorStack: [ 'error:03000086:digital envelope routines::initialization error' ],
-library: 'digital envelope routines',
-reason: 'unsupported',
-code: 'ERR_OSSL_EVP_UNSUPPORTED'
-~~~
-
-1. Run `export NODE_OPTIONS=--openssl-legacy-provider` in the terminal.
+### OpenSSL unsupported error
+If you encounter `ERR_OSSL_EVP_UNSUPPORTED` on newer Node versions:
+```bash
+export NODE_OPTIONS=--openssl-legacy-provider
+```
