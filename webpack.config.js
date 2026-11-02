@@ -93,4 +93,12 @@ webpackConfig.plugins.push(
     })
 );
 
+webpackConfig.plugins.push({
+    apply: (compiler) => {
+        compiler.hooks.afterEmit.tap('GenerateHtmlPlugin', () => {
+            require('./scripts/build-html.js')();
+        });
+    }
+});
+
 module.exports = webpackConfig;

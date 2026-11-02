@@ -37,11 +37,12 @@
     "private": true,
     "scripts": {
         "dev-server": "encore dev-server",
-        "dev": "encore dev",
+        "dev": "encore dev && npm run build:html",
         "watch": "encore dev --watch",
         "watch-all": "npm-run-all --parallel watch watch:sass",
         "prebuild": "npm run sitemap",
-        "build": "encore production",
+        "build:html": "node scripts/build-html.js",
+        "build": "encore production && npm run build:html",
         "watch:sass": "dart-sass assets/css/ioda/sass/main.scss assets/css/style.css --watch",
         "compile:sass": "dart-sass assets/css/ioda/sass/main.scss assets/css/style.comp.css",
         "prefix:sass": "postcss --use autoprefixer -b \"last 10 versions\" assets/css/style.comp.css -o assets/css/style.prefix.css",
@@ -92,8 +93,8 @@
         "uuid": "^9.0.1"
     },
     "engines": {
-        "npm": ">=8.0.0 <9.0.0",
-        "node": ">=16.0.0 <17.0.0"
+        "npm": ">=8.0.0",
+        "node": ">=16.0.0"
     },
     "resolutions": {
         "gonzales-pe-sl": "github:srowhani/gonzales-pe.git"

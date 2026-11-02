@@ -2,11 +2,7 @@
 <html lang="en">
     <head>
         <title>IODA</title>
-{% if app.request.server.get('APP_ENV') == 'dev' %}
-        <meta name="robots" content="noindex">
-{% endif %}
-        <meta charset="UTF-8">
-{#        Favicon #}
+        {{ ROBOTS_META }}<meta charset="UTF-8">
         <link rel="apple-touch-icon" sizes="180x180"
               href="/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32"
@@ -18,11 +14,8 @@
         <meta name="apple-mobile-web-app-title" content="IODA">
         <meta name="application-name" content="IODA">
         <meta name="theme-color" content="#ffffff">
-{#        Viewport #}
         <meta name="viewport" content="width=device-width, initial-scale=1">
-{#        Stylesheet #}
-        <link rel="stylesheet" href="{{ asset('build/ioda.css') }}">
-{#        Open Graph Metadata #}
+        <link rel="stylesheet" href="{{ CSS_PATH }}">
         <meta name="description" content="IODA (Internet Outage Detection and Analysis) monitors Internet infrastructure connectivity to identify outages.">
 
         <!-- Facebook Meta Tags -->
@@ -47,7 +40,7 @@
                 <img width="180" src="/apple-touch-icon.png" alt="IODA logo" />
             </div>
         </div>
-        <script src="{{ asset('build/runtime.js') }}"></script>
+        <script src="{{ RUNTIME_JS_PATH }}"></script>
         <script>
             const div = document.querySelector('.contentLoading');
             /* documentMode is an IE-only property */
@@ -62,6 +55,6 @@
                 div.insertAdjacentHTML('beforeend', html);
             }
         </script>
-        <script src="{{ asset('build/ioda.js') }}"></script>
+        <script src="{{ IODA_JS_PATH }}"></script>
     </body>
 </html>
