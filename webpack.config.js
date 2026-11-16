@@ -2,6 +2,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 const Encore = require('@symfony/webpack-encore');
+const webpack = require('webpack');
 
 Encore
     // directory where compiled assets will be stored
@@ -69,6 +70,11 @@ Encore
 
 let webpackConfig = Encore.getWebpackConfig();
 
+webpackConfig.resolve.fallback = {
+    ...webpackConfig.resolve.fallback,
+    buffer: require.resolve('buffer/'),
+};
+
 webpackConfig.resolve.alias = {
     // convenience for accessing our local static assets
     'css': path.resolve(__dirname, './assets/css/'),
@@ -80,6 +86,12 @@ webpackConfig.resolve.alias = {
     'ioda/css': path.resolve(__dirname, './assets/css/Ioda/'),
     'ioda': path.resolve(__dirname, './assets/js/Ioda/'),
 };
+
+webpackConfig.plugins.push(
+    new webpack.ProvidePlugin({
+	Buffer: ['buffer', 'Buffer'],
+    })
+);
 
 webpackConfig.plugins.push(
     new CopyWebpackPlugin({
